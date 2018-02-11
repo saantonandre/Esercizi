@@ -68,6 +68,13 @@ hr {
 	padding-top:5px;
 	padding-bottom:5px;
 	opacity:0.8;
+    text-align: center;
+}
+#boh1 {
+    margin-top: 50px;
+    font-family: fantasy;
+    font-variant: small-caps;
+    
 }
 #animale {
 	border:10px solid white;
@@ -257,4 +264,50 @@ hr {
         left:600px;
         transform: rotate(-1080deg);
         }
+}
+.arco1 {
+    width:80px;
+    height:50px;
+    border-radius: 50%;
+    background-color:white;
+    opacity:0.5;
+    top:300px;
+    left:300px;
+    position: absolute;
+    animation-name:wow;
+    animation-duration: 3s;
+    animation-iteration-count: infinite;
+    text-align:center;
+    padding: 1px;
+    overflow:hidden
+}
+
+@keyframes wow {
+    20% {    
+        top:250px;
+        left:300px;
+        transform:rotate(-30deg);
+        transform: scale(2);
+        font-size: 0px;
+    }
+    60%{    
+        top:300px;
+        left:300px;
+        transform:rotate(200deg);
+        background-color:darksalmon;
+        font-size: 20px;
+    }
+    80%{    
+        top:250px;
+        left:300px;
+        transform:rotate(-300deg);
+        opacity: 1;
+        font-size: 0px;
+    }
+    100%{    
+        top:300px;
+        left:300px;
+        transform:rotate(0deg);
+        color:darkred;
+    }
 }
