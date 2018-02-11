@@ -278,8 +278,8 @@ hr {
     animation-duration: 3s;
     animation-iteration-count: infinite;
     text-align:center;
-    padding: 1px;
-    overflow:hidden
+    padding: 10px;
+    overflow:hidden;
 }
 
 @keyframes wow {
