@@ -311,3 +311,45 @@ hr {
         color:darkred;
     }
 }
+
+#button1 {
+    height:60px;
+    width:60px;
+    border-radius: 50%;
+    background-color:antiquewhite;
+    top:50%;
+    left:50%;
+    position:absolute;
+}
+#msgdiprova {
+    min-height: 20px;
+    max-width: 170px;
+    background: linear-gradient(to right,lightcoral,red);
+    color: floralwhite;
+    padding:40px;
+    position: absolute;
+    left:50%;
+    margin-left:-105px;
+    
+    border-radius: 40px;
+}
+#button2 {
+    height:200px;
+    top:50%;
+    left:50%;
+    margin-left: -150px;
+    position:absolute;
+    z-index: 20;
+}
+#musmus {
+     min-height: 20px;
+    max-width: 170px;
+    background: purple;
+    color: floralwhite;
+    padding:40px;
+    position: fixed;
+    left:50%;
+    bottom:10%;
+    margin-left:-105px;
+    border-radius: 25px;
+}
