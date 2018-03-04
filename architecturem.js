@@ -22,7 +22,7 @@ var rand7 = Math.floor(Math.random() *3+1);
 var divi = document.createElement("div"); 
 document.getElementById("container").appendChild(divi);
 //divi.innerHTML = rand1+" "+rand2;
-divi.style.top = rand1+10+"vw";
+divi.style.top = rand1+10+"vh";
 divi.style.left = rand2+"vw";
     
 if (z%2 != 1) {
