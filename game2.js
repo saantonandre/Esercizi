@@ -59,7 +59,7 @@ function pls2(){
     setInterval(eneMove2,1000);
 }
 function youLost(){
-    alert("You Lost! \n Thanks for playing, comments are always appreciated :)");
+    alert("**********\nYou Lost!\n**********");
     clearInterval(sett);
     restart();
 }
