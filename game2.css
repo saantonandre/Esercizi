@@ -1,0 +1,10 @@
+body {
+    
+}
+.enemy {
+    position:absolute;
+    height:80px;
+    width:30px;
+    background-color:green;
+    transition-timing-function: linear;
+}
