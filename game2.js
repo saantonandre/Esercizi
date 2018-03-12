@@ -5,10 +5,16 @@ var hpBar = document.getElementById("hp");
 var score = document.getElementById("score");
 var hp = 0;
 var points=0;
+    function preventBehavior(e) {
+    e.preventDefault(); 
+}
+
+document.addEventListener("touchmove", preventBehavior, false);
 function mousePos() {
     var y=window.event.clientY-bg.offsetTop-20;
     player.style.top = y +"px";
 }
+    
 function newEnemy() {
 var g = document.createElement('div');
 bg.appendChild(g);

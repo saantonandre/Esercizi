@@ -1,5 +1,5 @@
 body {
-    
+    overscroll-behavior-y: contain;
 }
 .enemy {
     position:absolute;
