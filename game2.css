@@ -3,8 +3,8 @@ body {
 }
 .enemy {
     position:absolute;
-    height:80px;
+    height:120px;
     width:30px;
-    background-color:green;
+    background-color:#af4d48;
     transition-timing-function: linear;
 }
