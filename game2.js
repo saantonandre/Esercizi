@@ -24,8 +24,12 @@ g.style.transition = "right 1.3s";
 }
 setInterval(scoreF,100);
 function scoreF() {
-    points++
+    var enemy = document.getElementsByClassName("enemy")[0];
+    points++;
     score.innerHTML="SCORE: "+points;
+    if (enemy.style.border == "3px solid yellow")
+        { score.style.fontSize="30px";} else
+        { score.style.fontSize="20px";}
 }
 function collision(){
     var y1 = player.offsetTop;
@@ -45,7 +49,10 @@ function collision(){
                 youLost();
             } else
             hpBar.style.width = hp + "px";
-            }else {points+=10;enemy.style.border="3px solid yellow";}
+            } else {
+                points+=10;
+                enemy.style.border="3px solid yellow";
+                  }
         }
     } 
 }
