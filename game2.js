@@ -99,7 +99,19 @@ function pls2(){
 function youLost(){
     zz++;
     if(zz===1){
-     alert("You Lost!\nYOUR SCORE: "+points+" \n Thanks for playing, comments are always appreciated :)");
+        if (points < 700) {
+        alert("oh..."+points+" points... I guess its \"good\" for your first time (°-°\')");
+        }
+        if (points > 1400 && points < 2100) {
+        alert(points+" points?! NEAT d(°o°)b");
+        }
+        if (points > 2100 && points < 3000) {
+        alert(points+" POINTS?!?! WTFFF (O_O\"\"\")");
+        }
+        if (points > 3000) {
+        alert(points+" POINTS! YOU WON! \\(oUo\\)");
+        }
+        
     hpBar.style.width="300px";
     }
     clearInterval(scrx);
