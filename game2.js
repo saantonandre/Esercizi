@@ -1,4 +1,6 @@
 window.onload = function restart() {
+var wrap = document.getElementById("wrap");
+var lose = document.getElementById("lose");
 var player = document.getElementById("player");
 var bg = document.getElementById("background");
 var hpBar = document.getElementById("hp");
@@ -113,6 +115,8 @@ function youLost(){
         }
         
     hpBar.style.width="300px";
+    wrap.classList.add("wrapper");
+    lose.innerHTML="GAME OVER";
     }
     clearInterval(scrx);
     
