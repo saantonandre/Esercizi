@@ -5,6 +5,7 @@ var hpBar = document.getElementById("hp");
 var score = document.getElementById("score");
 var hp = 0;
 var points=0;
+var zz=0;
     function preventBehavior(e) {
     e.preventDefault(); 
 }
@@ -22,9 +23,12 @@ g.className = "enemy";
 g.style.right= "-30px";
 g.style.transition = "right 1.3s";
 }
-setInterval(scoreF,100);
+var scrx = setInterval(scoreF,100);
 function scoreF() {
     var enemy = document.getElementsByClassName("enemy")[0];
+    if (enemy === undefined){
+        return;
+    } 
     points++;
     score.innerHTML="SCORE: "+points;
     if (enemy.style.border == "3px solid yellow")
@@ -39,6 +43,17 @@ function collision(){
     var ey1 = enemy.offsetTop;
     var ey2 = enemy.offsetTop+80;
     var ex1 = enemy.offsetLeft+30;
+    if (y2 > 335 || y1 < -35)
+    {
+        hp+=2;
+        if (hp>300){
+                youLost();
+            } else {
+        hpBar.style.width = hp + "px";
+            }
+        
+        
+    }
     if(ex1<x1&&ex1>-10){
         if (y2>ey1&&y1<ey2){
         if (enemy.style.backgroundColor != "gold")
@@ -82,9 +97,12 @@ function pls2(){
     setInterval(eneMove2,1000);
 }
 function youLost(){
+    zz++;
+    if(zz===1){
      alert("You Lost!\nYOUR SCORE: "+points+" \n Thanks for playing, comments are always appreciated :)");
-   
-    document.location.reload();
+    hpBar.style.width="300px";
+    }
+    clearInterval(scrx);
     
 }
 function pls3(){
