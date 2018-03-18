@@ -21,7 +21,7 @@ span {
 
 #code {
     position: absolute;
-    font-size: 80px;
+    font-size: 10vh;
     color: white;
     font-family: 'Raleway', sans-serif;
     text-shadow: 0px 0px 10px black;
@@ -31,16 +31,28 @@ span {
     animation-delay: 3s;
     z-index: 3;
 }
+#it {
+    right: -200px;
+    top: 30vh;
+    font-size: 10vh;
+    position: absolute;
+    color: white;
+    font-family: 'Raleway', sans-serif;
+    text-shadow: 0px 0px 10px black;
+    animation: it 0.15s forwards;
+    animation-delay: 3.25s;
+}
+
 
 @keyframes code {
     from {
         left: -200px;
         top: -50px;
-        font-size: 150px;
+        font-size: 20vh;
     }
     to {
         left: 10px;
-        font-size: 60px;
+        font-size: 10vh;
         top: 10vh;
     }
 }
@@ -49,11 +61,11 @@ span {
     from {
         right: -200px;
         top: 30vh;
-        font-size: 150px;
+        font-size: 20vh;
     }
     to {
         right: 10px;
-        font-size: 60px;
+        font-size: 10vh;
         top: 30vh;
     }
 }
@@ -111,18 +123,6 @@ span {
     }
 }
 
-#it {
-    right: -200px;
-    top: 30vh;
-    font-size: 150px;
-    position: absolute;
-    color: white;
-    font-family: 'Raleway', sans-serif;
-    text-shadow: 0px 0px 10px black;
-    animation: it 0.15s forwards;
-    animation-delay: 3.25s;
-}
-
 #wrap {
     position: absolute;
     z-index: 4;
@@ -145,7 +145,7 @@ span {
     height: 100%;
     width: 100%;
 
-    background-image: url(https://uploads.disquscdn.com/images/53404a2165aa9c48595d4eb0f121792e5d9e6e5e3ea475333f84bc1649dfe874.gif);
+    background-image: url(img/loli.gif);
     background-repeat: no-repeat;
     background-position: center;
     background-size: auto 100vh;
