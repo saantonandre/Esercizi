@@ -209,7 +209,7 @@ span {
 }
 
 #cpp {
-    left: 80%;
+    left: 70%;
     top: 50%;
     animation-delay: 6.2s;
 }
@@ -222,14 +222,14 @@ span {
 
 #java {
     left: 45%;
-    top: 50%;
+    top: 60%;
     height: 30vh;
     animation-delay: 6.8s;
 }
 
 #ruby {
-    left: 35%;
-    top: 20%;
+    left: 40%;
+    top: 15%;
     animation-delay: 7.1s;
 }
 
@@ -240,7 +240,7 @@ span {
 }
 
 #sql {
-    left: 10%;
+    left: 15%;
     top: 60%;
     animation-delay: 7.7s;
 }
