@@ -1,0 +1,246 @@
+body {
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+    animation: bg 0.2s forwards;
+    animation-delay: 5.8s;
+}
+
+@keyframes bg {
+    from {}
+    to {
+        background-color: #ffd7cc;
+    }
+}
+
+span {
+    text-align: center;
+}
+
+#code {
+    position: absolute;
+    font-size: 80px;
+    color: white;
+    font-family: 'Raleway', sans-serif;
+    text-shadow: 0px 0px 10px black;
+    animation: code 0.15s forwards;
+    left: -300px;
+    top: 10vh;
+    animation-delay: 3s;
+    z-index: 3;
+}
+
+@keyframes code {
+    from {
+        left: -200px;
+        top: -50px;
+        font-size: 150px;
+    }
+    to {
+        left: 10px;
+        font-size: 60px;
+        top: 10vh;
+    }
+}
+
+@keyframes it {
+    from {
+        right: -200px;
+        top: 30vh;
+        font-size: 150px;
+    }
+    to {
+        right: 10px;
+        font-size: 60px;
+        top: 30vh;
+    }
+}
+
+@keyframes fade {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+        display: none;
+    }
+}
+
+@keyframes fadeout {
+    from {
+        opacity: 1;
+    }
+    to {
+        position: absolute;
+        opacity: 0;
+        transform: scale(3);
+        display: none;
+    }
+}
+
+@keyframes grow {
+    from {
+        visibility: visible;
+        transform: scale(1);
+    }
+    to {
+        visibility: visible;
+        transform: scale(20);
+    }
+}
+
+@keyframes logos {
+    0% {
+        left: 100%;
+        visibility: visible;
+    }
+    20% {
+        left: 50%;
+        visibility: visible;
+    }
+    80% {
+        left: 50%;
+        visibility: visible;
+    }
+    100% {
+        left: -50%;
+        visibility: visible;
+        display: none;
+    }
+}
+
+#it {
+    right: -200px;
+    top: 30vh;
+    font-size: 150px;
+    position: absolute;
+    color: white;
+    font-family: 'Raleway', sans-serif;
+    text-shadow: 0px 0px 10px black;
+    animation: it 0.15s forwards;
+    animation-delay: 3.25s;
+}
+
+#wrap {
+    position: absolute;
+    z-index: 4;
+    height: 100vh;
+    width: 100vw;
+    background-color: black;
+    animation: fade 0.15s forwards;
+    animation-delay: 2.7s;
+}
+
+#wrap2 {
+    opacity: 1;
+    height: 100%;
+    width: 100%;
+    animation: fadeout 0.2s forwards;
+    animation-delay: 3.8s;
+}
+
+#bg {
+    height: 100%;
+    width: 100%;
+
+    background-image: url(https://uploads.disquscdn.com/images/53404a2165aa9c48595d4eb0f121792e5d9e6e5e3ea475333f84bc1649dfe874.gif);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: auto 100vh;
+}
+
+#balls {
+    visibility: hidden;
+    position: absolute;
+    height: 5vh;
+    width: 5vh;
+    border-radius: 50%;
+    background-color: #ffd7cc;
+    top: 50%;
+    left: 50%;
+    margin: -2.5vh 0 0 -2.5vh;
+    animation: grow 0.5s;
+    animation-iteration-count: 4;
+    animation-delay: 4s;
+    animation-timing-function: linear;
+}
+
+#html {
+    animation-delay: 4s;
+}
+
+#css {
+    animation-delay: 4.5s;
+}
+
+#php {
+    animation-delay: 5.0s;
+}
+
+#js {
+    animation-delay: 5.5s;
+}
+
+.web {
+    visibility: hidden;
+    height: 40vh;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -20vh 0 0 -20vh;
+    animation: logos 0.5s;
+}
+
+.others {
+    visibility: hidden;
+    position: absolute;
+    height: 20vh;
+    margin: -10vh 0 0 -10vh;
+    animation: others 0s forwards;
+}
+
+@keyframes others {
+    from {}
+    to {
+        visibility: visible;
+    }
+}
+
+#cpp {
+    left: 80%;
+    top: 50%;
+    animation-delay: 6.2s;
+}
+
+#csh {
+    left: 70%;
+    top: 30%;
+    animation-delay: 6.5s;
+}
+
+#java {
+    left: 45%;
+    top: 50%;
+    height: 30vh;
+    animation-delay: 6.8s;
+}
+
+#ruby {
+    left: 35%;
+    top: 20%;
+    animation-delay: 7.1s;
+}
+
+#py {
+    left: 10%;
+    top: 35%;
+    animation-delay: 7.4s;
+}
+
+#sql {
+    left: 10%;
+    top: 60%;
+    animation-delay: 7.7s;
+}
