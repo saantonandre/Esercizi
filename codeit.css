@@ -52,7 +52,7 @@ span {
     }
     to {
         left: 10px;
-        font-size: 10vh;
+        font-size: 12vh;
         top: 10vh;
     }
 }
@@ -65,7 +65,7 @@ span {
     }
     to {
         right: 10px;
-        font-size: 10vh;
+        font-size: 12vh;
         top: 30vh;
     }
 }
