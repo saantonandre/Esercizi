@@ -29,6 +29,26 @@ window.onload = function () {
     var bulForce = 1.5;
     //https://image.flaticon.com/icons/svg/76/76865.svg
 
+    function absorbEvent_(event) {
+        var e = event || window.event;
+        e.preventDefault && e.preventDefault();
+        e.stopPropagation && e.stopPropagation();
+        e.cancelBubble = true;
+        e.returnValue = false;
+        return false;
+    }
+
+    function preventLongPressMenu(node) {
+        node.ontouchstart = absorbEvent_;
+        node.ontouchmove = absorbEvent_;
+        node.ontouchend = absorbEvent_;
+        node.ontouchcancel = absorbEvent_;
+    }
+
+    function init() {
+        preventLongPressMenu(document.getElementById('leftKey'));
+    }
+
     class player {
         constructor(x, y, gunX) {
             //cap
