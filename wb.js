@@ -207,18 +207,18 @@ window.onload = function () {
 
         for (i = 0; i < cattivi.length; i++) {
             var cattivo = new bad(cattivi[i]);
-        }
-        for (i = 0; i < cattivi.length; i++) {
             if (cattivi[i] > x)
                 cattivi[i] -= 0.3;
             else
                 cattivi[i] += 0.3;
+        }
 
-            for (j = 0; j < bul.length; j++) {
-                var obj = new bullet(bul[j] += direction[j]);
+        for (j = 0; j < bul.length; j++) {
+            var obj = new bullet(bul[j] += direction[j]);
+            for (i = 0; i < cattivi.length; i++) {
                 if (bul[j] > cattivi[i] && bul[j] < cattivi[i] + 40 && direction[j] > 0) {
                     cattivi[i] += bulForce;
-                    if (bul[j] > badx + 20)
+                    if (bul[j] > cattivi[i] + 20)
                         delete bul[j];
                 }
 
@@ -227,10 +227,11 @@ window.onload = function () {
                     if (bul[j] < cattivi[i] + 20)
                         delete bul[j];
                 }
-                if (bul[i] < -10)
-                    delete bul[i];
             }
+            if (bul[j] < -10)
+                delete bul[j];
         }
+
         if (mouseDown) {
             switch (whichOne) {
                 case "L":
