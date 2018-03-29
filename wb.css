@@ -2,7 +2,7 @@ body {
     text-align: center;
     perspective: 500px;
     background-color: black;
-
+    -webkit-user-drag: none;
     -webkit-touch-callout: none;
     /* iOS Safari */
     -webkit-user-select: none;
