@@ -2,6 +2,9 @@ body {
     text-align: center;
     perspective: 500px;
     background-color: black;
+}
+
+* {
     -webkit-user-drag: none;
     -webkit-touch-callout: none;
     /* iOS Safari */
@@ -14,6 +17,10 @@ body {
     -ms-user-select: none;
     /* Internet Explorer/Edge */
     user-select: none;
+    /* prevent callout to copy image, etc when tap to hold */
+    -webkit-text-size-adjust: none;
+    /* prevent webkit from resizing text to fit */
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
 #canvas {
