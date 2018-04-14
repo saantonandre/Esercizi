@@ -90,10 +90,10 @@ header {
 
 @media screen and (max-width: 370px) {
     .icons {
-        height: 30%;
+        height: 40%;
         float: right;
-        margin-top: 18px;
-        margin-right: 7px;
+        margin-top: 15px;
+        margin-right: 10px;
     }
 
     #botbar {
