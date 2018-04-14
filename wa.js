@@ -96,7 +96,7 @@ window.onload = function () {
             online.innerHTML = "typing..."
         }, 15500)
         setTimeout(function () {
-            newRespond("sorry but I have to just ignore you. I'm busy correcting this exact program, if you mind giving a look at my other programs i would really appreaciate that");
+            newRespond("sorry but I have to just ignore you. I'm busy correcting this exact program, if you mind giving a look at my other programs i would really appreaciate that u_u");
             online.innerHTML = "online"
         }, 22000);
         setTimeout(function () {
