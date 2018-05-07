@@ -2,16 +2,32 @@ window.onload = function () {
     var hidden = document.getElementById("hidden");
     var logoAnimation = document.getElementById("logo-animation");
     var start = document.getElementById("start");
-
-
+    var coinSound = new Audio("https://saantonandre.github.io/coinsound.mp3");
+    var coinSound2 = new Audio("https://saantonandre.github.io/coinsound.mp3");
+    var coinSound3 = new Audio("https://saantonandre.github.io/coinsound.mp3");
+    var fuu = new Audio("https://saantonandre.github.io/fuu.mp3");
+    var walkingsound = new Audio("https://saantonandre.github.io/walking.mp3");
+    walkingsound.loop = true;
+    var sillymusic = new Audio("https://saantonandre.github.io/sillymusic.mp3");
+    sillymusic.loop = true;
+    sillymusic.volume = 0.3;
     start.onclick = function () {
-        //var musica=new Audio("https://saantonandre.github.io/shit.mp3")
-        //musica.loop=true;
-        //musica.play();
         hidden.style.visibility = "visible";
         logoAnimation.style.display = "none";
-
-
+        //sillymusic.play();
+        walkingsound.play();
+        walkingsound.pause();
+        fuu.play();
+        fuu.pause();
+        coinSound.volume = 0.35;
+        coinSound.play();
+        coinSound.pause();
+        coinSound2.volume = 0.35;
+        coinSound2.play();
+        coinSound2.pause();
+        coinSound3.volume = 0.35;
+        coinSound3.play();
+        coinSound3.pause();
         var morti = document.getElementById("morti");
         var coinspan = document.getElementById("coinspan");
         var coinsEarned = 0;
@@ -309,9 +325,9 @@ window.onload = function () {
 
         function spawnObstacle() {
             if (difficulty === 3) {
-                new movBox(-100, Math.floor(Math.random() * 500), Math.floor(Math.random() * 5) + 1, Math.floor(Math.random() * 5) + 1, (Math.random() * 5) - 2.5, Math.random() * 5);
+                new movBox(-100, Math.floor(Math.random() * 500), Math.floor(Math.random() * 5) + 1, Math.floor(Math.random() * 5) + 1, (Math.random() * 5) - 2.5, Math.random() * 4);
             } else {
-                new movBox(-100, Math.floor(Math.random() * 500), Math.floor(Math.random() * 100) + 10, Math.floor(Math.random() * 100) + 10, (Math.random() * 5) - 2.5, Math.random() * 5);
+                new movBox(-100, Math.floor(Math.random() * 500), Math.floor(Math.random() * 100) + 10, Math.floor(Math.random() * 100) + 10, (Math.random() * 5) - 2.5, Math.random() * 4);
             }
         }
 
@@ -347,6 +363,24 @@ window.onload = function () {
             new Box(3390, 0, 10, 200)
             new Box(3520, 390, 300, 10)
 
+            new movBox(3840, 340, 30, 10, -4)
+            new Box(3880, 330, 40, 10, true)
+            new movBox(3940, 200, 30, 10, -4)
+            new Box(3990, 280, 40, 10)
+            new movBox(4080, 140, 30, 10, -4)
+            new Box(4160, 250, 40, 10, true)
+            new Box(4200, 250, 40, 40)
+            new Box(4200, 370, 40, 200)
+            new Box(4200, 370, 200, 40)
+            new Box(4200, 250, 200, 40)
+            new Box(4400, 0, 200, 290)
+            new Box(4400, 370, 200, 250)
+            new movBox(4620, 370, 20, 60, 3)
+            new movBox(4620, 370, 20, 60, 5)
+            new movBox(4620, 370, 20, 60, 7)
+            new Box(4660, 0, 200, 290)
+            new Box(4660, 370, 200, 320)
+
             coinsEarned = 0;
             coinspan.innerHTML = "x" + coinsEarned;
             coins = []; //-40
@@ -354,8 +388,6 @@ window.onload = function () {
             new Coin(20, 320)
             new Coin(20, 380)
             new Coin(20, 440)
-            new Coin(20, 260)
-            new Coin(20, 260)
             new Coin(420, 220)
             new Coin(560, 280)
             new Coin(600, 280)
@@ -387,10 +419,24 @@ window.onload = function () {
             new Coin(3420, 250)
             new Coin(3460, 290)
             new Coin(3500, 330)
+
+            new Coin(3890, 290)
+            new Coin(4000, 240)
+            new Coin(4170, 240)
+            new Coin(4210, 330)
+            new Coin(4250, 330)
+            new Coin(4290, 330)
+            new Coin(4330, 330)
+            new Coin(4370, 330)
+            new Coin(4670, 330)
+            new Coin(4710, 330)
+            new Coin(4750, 330)
+            new Coin(4790, 330)
         }
 
         function jump() {
             if (!player.jumping && player.grounded) {
+                fuu.play();
                 player.jumping = true;
                 player.grounded = false;
                 player.yVel = -player.jumpForce;
@@ -500,10 +546,19 @@ window.onload = function () {
                     player.y + player.height > coins[i].y && player.y < coins[i].y + 20) {
                     delete coins[i].x;
                     coinsEarned++;
+                    if (coinSound.paused)
+                        coinSound.play();
+                    else if (coinSound2.paused)
+                        coinSound2.play();
+                    else if (coinSound3.paused)
+                        coinSound3.play();
                     coinspan.innerHTML = "x" + coinsEarned;
                 }
             }
             // MOVBOXES
+            if (Boxes[Boxes.length - 1].x <= player.x) {
+                alert("CONGRATULATIONS!!! \nYOUUUUUUUUU WON! \nthanks for playing, hope you enjoyed \nthe game is still incomplete tho \nd(' ͡° ͜ʖ ͡°)")
+            }
             for (i = 0; i < movBoxes.length; i++) {
                 // render movBoxes
                 movBoxes[i].y -= movBoxes[i].ySpeed;
@@ -581,6 +636,7 @@ window.onload = function () {
                         ii = 0;
                 }
             } else {
+                walkingsound.pause();
                 spriteX = px;
                 spriteY = py;
             }
@@ -602,7 +658,14 @@ window.onload = function () {
                     }
                 }
             }
-
+            if (player.run && player.grounded) {
+                if (walkingsound.paused)
+                    walkingsound.play();
+            } else {
+                if (!walkingsound.paused) {
+                    walkingsound.pause();
+                }
+            }
             //  END SPRITE RENDERING
             player.draw();
             if (alive && diff === difficulty)
