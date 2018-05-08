@@ -1,16 +1,25 @@
+
 <!DOCTYPE html>
 <!-- 
 
+Don't give up! winning is about persistance!
+
+The character sprite illustration is a courtesy from Ives Margarita
+https://ifes.deviantart.com/ 
+
+known bugs:
+-double jump for whatever reasons upon jumping on corners(?)
+-console errors regarding the Audio API(please just ignore them T_T)
+-collision detection doesnt take to account the "idle" sprite, so the guy is actually wider than it looks
+-on lowest resolutions some platform could not be visible
+-since the bees are coded as moving platforms "space bees" mode will paint the moving platform yellow(lol)
 
 
 
 If you could spare some time by commenting this code I will be really thankful, negative (and possibly detailed) feedback is also appreciated!
 
-The character's Sprite illustration is a courtesy from Ives Margarita
-https://ifes.deviantart.com/ 
-
-I made myself all the other graphics
-and coin sprites
+I made myself all the other graphics, sound effects
+and coin sprites (and code!)
 
 A good canvas platformer tutorial 
 http://www.somethinghitme.com/2013/01/09/creating-a-canvas-platformer-tutorial-part-one/
@@ -22,13 +31,14 @@ https://code.sololearn.com/WCJVCVJFFrCo/#html
 
 <head>
     <title>Page Title</title>
-    <link type="text/css" rel="stylesheet" href="cosmicrunner.css">
     <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Do+Hyeon" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="cosmicrunner.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
 <body>
+    <div id="divofdivs">
     <div id="logo-animation">
         <div id="starscont">
             <span id="star1" class="stars">&#9733;</span>
@@ -76,6 +86,8 @@ https://code.sololearn.com/WCJVCVJFFrCo/#html
             <img class="arrows" id="up" src="https://saantonandre.github.io/upArrow.png" alt="arrow" draggable="false" oncontextmenu="return false;">
         </div>
     </div>
+    </div>
+    <div id="results"></div>
     <script src="cosmicrunner.js" type="text/javascript"></script>
 </body>
 <!-- -saantonandre- -2018-04-29-->

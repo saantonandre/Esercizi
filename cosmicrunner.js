@@ -1,4 +1,6 @@
 window.onload = function () {
+    var divofdivs = document.getElementById("divofdivs");
+    var results = document.getElementById("results");
     var hidden = document.getElementById("hidden");
     var logoAnimation = document.getElementById("logo-animation");
     var start = document.getElementById("start");
@@ -10,11 +12,12 @@ window.onload = function () {
     walkingsound.loop = true;
     var sillymusic = new Audio("https://saantonandre.github.io/sillymusic.mp3");
     sillymusic.loop = true;
-    sillymusic.volume = 0.3;
+    sillymusic.volume = 0.8;
     start.onclick = function () {
+        sillymusic.play();
+        setTimeout(sillymusic.pause(), 600);
         hidden.style.visibility = "visible";
         logoAnimation.style.display = "none";
-        //sillymusic.play();
         walkingsound.play();
         walkingsound.pause();
         fuu.play();
@@ -28,6 +31,7 @@ window.onload = function () {
         coinSound3.volume = 0.35;
         coinSound3.play();
         coinSound3.pause();
+        var ONCE = false;
         var morti = document.getElementById("morti");
         var coinspan = document.getElementById("coinspan");
         var coinsEarned = 0;
@@ -85,6 +89,7 @@ window.onload = function () {
         var iterCoin = 0;
         var iterCoin2 = 0;
         var gradient = c.createLinearGradient(0, 0, 600, 0);
+        var jumpCounter = 0;
         gradient.addColorStop(0, '#02111D');
         gradient.addColorStop(0.35, '#037BB5');
         gradient.addColorStop(1, '#02111D');
@@ -377,7 +382,7 @@ window.onload = function () {
             new Box(4400, 370, 200, 250)
             new movBox(4620, 370, 20, 60, 3)
             new movBox(4620, 370, 20, 60, 5)
-            new movBox(4620, 370, 20, 60, 7)
+            new movBox(4620, 370, 20, 60, 4)
             new Box(4660, 0, 200, 290)
             new Box(4660, 370, 200, 320)
 
@@ -413,6 +418,7 @@ window.onload = function () {
             new Coin(2200, 60)
             new Coin(2240, 60)
             new Coin(2280, 60)
+            new Coin(2500, 150)
             new Coin(3300, 330)
             new Coin(3340, 290)
             new Coin(3380, 250)
@@ -440,6 +446,7 @@ window.onload = function () {
                 player.jumping = true;
                 player.grounded = false;
                 player.yVel = -player.jumpForce;
+                jumpCounter++;
             }
         }
 
@@ -556,8 +563,16 @@ window.onload = function () {
                 }
             }
             // MOVBOXES
-            if (Boxes[Boxes.length - 1].x <= player.x) {
-                alert("CONGRATULATIONS!!! \nYOUUUUUUUUU WON! \nthanks for playing, hope you enjoyed \nthe game is still incomplete tho \nd(' ͡° ͜ʖ ͡°)")
+            if (Boxes[Boxes.length - 1].x + 180 <= player.x && !ONCE) {
+                sillymusic.play();
+                divofdivs.style.display = "none";
+                results.innerHTML = "CONGRATULATIONS!!! <br/>You won :)<br/><br/>COINS: " + coinsEarned + "/46 <br/>DEATHS: " + deaths + "<br/>JUMPS: " + jumpCounter + "<br/><br/>thanks for playing, and for your support!";
+                timeRes = 0;
+                setInterval(function () {
+                    results.style.marginTop = timeRes + "px";
+                    timeRes += 0.1;
+                }, 1000 / 30)
+                ONCE = true;
             }
             for (i = 0; i < movBoxes.length; i++) {
                 // render movBoxes
