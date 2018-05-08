@@ -7,9 +7,11 @@ body {
     width: 100%;
     touch-action: none;
 }
-#results{
-    color:white;
+
+#results {
+    color: white;
 }
+
 span {
     color: white;
     text-align: right;
@@ -132,7 +134,8 @@ body {
 }
 
 #me {
-    font-size: 30px;
+    opacity: 1;
+    font-size: 26px;
     font-family: 'Press Start 2P', cursive;
     background: linear-gradient(45deg, magenta 50%, #0ff 50%);
     -webkit-background-clip: text;
@@ -250,7 +253,10 @@ body {
 }
 
 #cont {
-    margin-top: 30%;
+    transform: translate(-50%, -50%);
+    position: absolute;
+    left: 50%;
+    top: 50%;
 }
 
 #start {

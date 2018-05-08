@@ -88,15 +88,7 @@ window.onload = function () {
         var spawning = setInterval(spawnObstacle, difficultyArr[difficulty])
         var iterCoin = 0;
         var iterCoin2 = 0;
-        var gradient = c.createLinearGradient(0, 0, 600, 0);
         var jumpCounter = 0;
-        gradient.addColorStop(0, '#02111D');
-        gradient.addColorStop(0.35, '#037BB5');
-        gradient.addColorStop(1, '#02111D');
-        var gradient2 = c.createLinearGradient(0, 0, 600, 0);
-        gradient2.addColorStop(0, '#02111D');
-        gradient2.addColorStop(0.35, '#A00');
-        gradient2.addColorStop(1, '#02111D');
         // ADJUSTING CANVAS SIZE TO THE SCREEN
         canvas.width = document.body.clientWidth;
         canvas.height = document.body.clientHeight;
@@ -107,6 +99,14 @@ window.onload = function () {
             generateBgBoxes();
         }, 100);
 
+        var gradient = c.createLinearGradient(0, 0, canvas.width, 0);
+        gradient.addColorStop(0, '#02111D');
+        gradient.addColorStop(0.4, '#037BB5');
+        gradient.addColorStop(1, '#02111D');
+        var gradient2 = c.createLinearGradient(0, 0, canvas.width, 0);
+        gradient2.addColorStop(0, '#02111D');
+        gradient2.addColorStop(0.4, '#A00');
+        gradient2.addColorStop(1, '#02111D');
 
         //document.addEventListener("mousemove", trackPos);
         //document.addEventListener("dblclick", jump);
