@@ -1,3 +1,7 @@
+function silentErrorHandler() {
+    return true;
+}
+window.onerror = silentErrorHandler;
 window.onload = function () {
     var divofdivs = document.getElementById("divofdivs");
     var results = document.getElementById("results");
@@ -38,6 +42,7 @@ window.onload = function () {
         var sprite = document.getElementById("sprite");
         var sprite2 = document.getElementById("sprite2");
         var sprite3 = document.getElementById("sprite3");
+        var monsterSprite = document.getElementById("monsterSprite");
         var canvas = document.getElementById("canvas");
         var leftArrow = document.getElementById("left");
         var rightArrow = document.getElementById("right");
@@ -73,6 +78,7 @@ window.onload = function () {
         var pxRun2 = [896, 768, 640, 512, 384, 256, 128, 0];
         var pxRun = [0, 128, 256, 384, 512, 640, 768, 896];
         var pyRun = [0, 0, 0, 0, 0, 0, 0, 0];
+        var monsterSpriteX = [0, 100, 200, 300, 400, 500, 600, 700, 800]
         var walk = 0;
         var run = 0;
         var jump1 = [512, 640];
@@ -294,6 +300,19 @@ window.onload = function () {
                 new bgBox()
             }
         }
+        var monsters = [];
+        class Monster {
+            constructor(xx) {
+                monsters.push({
+                    x: xx,
+                    y: -60,
+                    width: 30,
+                    height: 60,
+                    yVel: 0,
+                    sprite: 0
+                });
+            }
+        }
         class Box {
             constructor(xx, yy, ww, hh, dynamic) {
                 Boxes.push({
@@ -438,6 +457,19 @@ window.onload = function () {
             new Coin(4710, 330)
             new Coin(4750, 330)
             new Coin(4790, 330)
+            monsters = []
+            new Monster(Math.random() * 5000);
+            new Monster(Math.random() * 5000);
+            new Monster(Math.random() * 5000);
+            new Monster(Math.random() * 5000);
+            new Monster(Math.random() * 5000);
+            new Monster(Math.random() * 5000);
+            new Monster(Math.random() * 5000);
+            new Monster(Math.random() * 5000);
+            new Monster(Math.random() * 5000);
+            new Monster(Math.random() * 5000);
+            new Monster(Math.random() * 5000);
+            new Monster(Math.random() * 5000);
         }
 
         function jump() {
@@ -507,7 +539,6 @@ window.onload = function () {
                     player.yVel *= -1;
                 }
             }
-
             for (i = 0; i < bgBoxes.length; i++) {
                 c.fill();
                 c.fillStyle = '#fff';
@@ -522,7 +553,6 @@ window.onload = function () {
                 bgBoxes[i].x += Math.random() / 10;
                 bgBoxes[i].y += Math.random() / 10;
             }
-
             for (i = 0; i < Boxes.length; i++) {
                 // render Boxes
                 collisions(Boxes[i]);
@@ -566,7 +596,7 @@ window.onload = function () {
             if (Boxes[Boxes.length - 1].x + 180 <= player.x && !ONCE) {
                 sillymusic.play();
                 divofdivs.style.display = "none";
-                results.innerHTML = "CONGRATULATIONS!!! <br/>You won :)<br/><br/>COINS: " + coinsEarned + "/46 <br/>DEATHS: " + deaths + "<br/>JUMPS: " + jumpCounter + "<br/><br/>thanks for playing, and for your support!";
+                results.innerHTML = "CONGRATULATIONS!!! <br/>You won :)<br/><br/>COINS: " + coinsEarned + "/46 <br/>DEATHS: " + deaths + "<br/>JUMPS: " + jumpCounter + "<br/><br/>thanks for playing, and for your support!<br/>enjoy my silly xilophone :D";
                 timeRes = 0;
                 setInterval(function () {
                     results.style.marginTop = timeRes + "px";
@@ -574,6 +604,50 @@ window.onload = function () {
                 }, 1000 / 30)
                 ONCE = true;
             }
+            for (i = 0; i < monsters.length; i++) {
+                if (monsters[i].y > window.innerHeight || monsters[i].y < -monsters[i].height) {
+                    delete monsters[i].y
+                }
+                monsters[i].x += increment;
+                distance = player.x - monsters[i].x;
+                if (distance < 0) {
+                    distance = -distance
+                }
+                if (monsters[i].x > player.x + player.width && distance < 200) {
+                    monsters[i].x--;
+                    monsters[i].sprite += 0.2;
+                    if (monsters[i].sprite >= 9) {
+                        monsters[i].sprite = 0;
+                    }
+                } else if (monsters[i].x + monsters[i].width < player.x && distance < 200) {
+                    monsters[i].x++;
+                    monsters[i].sprite += 0.2;
+                    if (monsters[i].sprite >= 9) {
+                        monsters[i].sprite = 0;
+                    }
+                } else {
+                    monsters[i].sprite = 0;
+                }
+
+                for (j = 0; j < Boxes.length; j++) {
+                    //drawImage(sprite,spriteCutX,spriteCutY,spriteCutWidth,spriteCutHeight,x,y,width,height)
+                    //monsters collision
+                    colCheck2(monsters[i], Boxes[j])
+                }
+                for (j = 0; j < movBoxes.length; j++) {
+                    //drawImage(sprite,spriteCutX,spriteCutY,spriteCutWidth,spriteCutHeight,x,y,width,height)
+                    //monsters collision
+                    colCheck2(monsters[i], movBoxes[j])
+                }
+                c.drawImage(monsterSprite, monsterSpriteX[parseInt(monsters[i].sprite)], 0, 100, 160, monsters[i].x, monsters[i].y, 30, 60);
+
+                monsters[i].y += monsters[i].yVel;
+                monsters[i].yVel += gravity;
+            }
+
+
+
+
             for (i = 0; i < movBoxes.length; i++) {
                 // render movBoxes
                 movBoxes[i].y -= movBoxes[i].ySpeed;
@@ -599,6 +673,7 @@ window.onload = function () {
             }
 
 
+
             player.yVel += gravity;
 
 
@@ -616,6 +691,9 @@ window.onload = function () {
             }
             for (i = 0; i < movBoxes.length; i++) {
                 movBoxes[i].x += player.xVel;
+            }
+            for (i = 0; i < monsters.length; i++) {
+                monsters[i].x += player.xVel;
             }
 
             if (leftKey || rightKey) {
@@ -697,9 +775,10 @@ window.onload = function () {
         function colCheck(PLAYER, Box) {
             // get the vectors to check against
             // colDir = collision direction
-            var vectorX = (PLAYER.x + (PLAYER.width / 2)) - (Box.x + (Box.width / 2)),
+            //player width and x pos are modified to match its actual size(x+5,width-50)
+            var vectorX = (PLAYER.x + 5 + (PLAYER.width - 50 / 2)) - (Box.x + (Box.width / 2)),
                 vectorY = (PLAYER.y + (PLAYER.height / 2)) - (Box.y + (Box.height / 2)),
-                hWidths = (PLAYER.width / 2) + (Box.width / 2),
+                hWidths = (PLAYER.width - 50 / 2) + (Box.width / 2),
                 hHeights = (PLAYER.height / 2) + (Box.height / 2),
                 colDir = null;
             if (Math.abs(vectorX) < hWidths && Math.abs(vectorY) < hHeights) {
@@ -740,6 +819,40 @@ window.onload = function () {
             }
             return colDir;
         }
-    };
 
-}
+        function colCheck2(MONSTER, Box) {
+            // get the vectors to check against
+            // colDir = collision direction
+            //MONSTER width and x pos are modified to match its actual size(x+5,width-50)
+            var vectorX = (MONSTER.x + (MONSTER.width / 2)) - (Box.x + (Box.width / 2)),
+                vectorY = (MONSTER.y + (MONSTER.height / 2)) - (Box.y + (Box.height / 2)),
+                hWidths = (MONSTER.width / 2) + (Box.width / 2),
+                hHeights = (MONSTER.height / 2) + (Box.height / 2),
+                colDir = null;
+            if (Math.abs(vectorX) < hWidths && Math.abs(vectorY) < hHeights) {
+                var oX = hWidths - Math.abs(vectorX),
+                    oY = hHeights - Math.abs(vectorY);
+                if (oX >= oY) {
+
+                    if (vectorY > 0) {
+                        colDir = "t";
+                        MONSTER.y += oY;
+                    } else {
+                        colDir = "b";
+                        MONSTER.yVel = 0;
+                        MONSTER.y -= oY;
+                    }
+                } else {
+                    if (vectorX > 0) {
+                        colDir = "l";
+                        MONSTER.x += oX + 2;
+                    } else {
+                        colDir = "r";
+                        MONSTER.x -= oX + 2;
+                    }
+                }
+            }
+            return colDir;
+        }
+    }
+};
