@@ -1,7 +1,7 @@
 function silentErrorHandler() {
     return true;
 }
-window.onerror = silentErrorHandler;
+//window.onerror = silentErrorHandler;
 window.onload = function () {
     var divofdivs = document.getElementById("divofdivs");
     var results = document.getElementById("results");
@@ -309,7 +309,8 @@ window.onload = function () {
                     width: 30,
                     height: 60,
                     yVel: 0,
-                    sprite: 0
+                    sprite: 0,
+                    movement: 0
                 });
             }
         }
@@ -458,6 +459,7 @@ window.onload = function () {
             new Coin(4750, 330)
             new Coin(4790, 330)
             monsters = []
+            new Monster(400);
             new Monster(Math.random() * 5000);
             new Monster(Math.random() * 5000);
             new Monster(Math.random() * 5000);
@@ -487,6 +489,24 @@ window.onload = function () {
             mouseY = e.clientY;
         }
 
+        function setMonstersInterval(howMany) {
+            for (i = 0; i < howMany; i++) {
+                setTimeout(switchMovement(monsters[i]), Math.random() * 3000 + 300)
+            }
+        }
+
+        function switchMovement(monst) {
+            distance = player.x - monst.x;
+            if (distance > 100 || distance < -100) {
+                monst.movement = Math.floor(Math.random() * 4)
+            } else {
+                monst.movement = 0
+            }
+            setTimeout(function () {
+                switchMovement(monst)
+            }, Math.random() * 3000 + 300)
+        }
+
         function reset() {
             if (!alive) {
                 deaths++
@@ -494,6 +514,7 @@ window.onload = function () {
             morti.innerHTML = deaths;
             spawnPlayer();
             initializeMap();
+            setMonstersInterval(monsters.length);
             alive = true;
             clearInterval(spawning);
             spawning = setInterval(spawnObstacle, difficultyArr[difficulty])
@@ -505,6 +526,7 @@ window.onload = function () {
         }
         spawnPlayer();
         initializeMap();
+        setMonstersInterval(monsters.length);
         requestAnimationFrame(loop);
         // MAIN LOOP
         function loop() {
@@ -605,28 +627,49 @@ window.onload = function () {
                 ONCE = true;
             }
             for (i = 0; i < monsters.length; i++) {
+                //monsters death
                 if (monsters[i].y > window.innerHeight || monsters[i].y < -monsters[i].height) {
                     delete monsters[i].y
                 }
+                //adjusting position to the increment value
                 monsters[i].x += increment;
+                //if its close to the player it moves towards him
                 distance = player.x - monsters[i].x;
                 if (distance < 0) {
                     distance = -distance
                 }
-                if (monsters[i].x > player.x + player.width && distance < 200) {
+                if (monsters[i].x > player.x + player.width && distance < 100) {
                     monsters[i].x--;
                     monsters[i].sprite += 0.2;
                     if (monsters[i].sprite >= 9) {
                         monsters[i].sprite = 0;
                     }
-                } else if (monsters[i].x + monsters[i].width < player.x && distance < 200) {
+                } else if (monsters[i].x + monsters[i].width < player.x && distance < 100) {
                     monsters[i].x++;
                     monsters[i].sprite += 0.2;
                     if (monsters[i].sprite >= 9) {
                         monsters[i].sprite = 0;
                     }
                 } else {
-                    monsters[i].sprite = 0;
+                    switch (monsters[i].movement) {
+                        case 0:
+                            monsters[i].sprite = 0;
+                            break;
+                        case 1:
+                            monsters[i].x++;
+                            monsters[i].sprite += 0.2;
+                            if (monsters[i].sprite >= 9) {
+                                monsters[i].sprite = 0;
+                            }
+                            break;
+                        case 2:
+                            monsters[i].x--;
+                            monsters[i].sprite += 0.2;
+                            if (monsters[i].sprite >= 9) {
+                                monsters[i].sprite = 0;
+                            }
+                            break;
+                    }
                 }
 
                 for (j = 0; j < Boxes.length; j++) {
