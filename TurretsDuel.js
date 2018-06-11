@@ -1,13 +1,13 @@
 var clickedOnce = 0;
 var chosenClass = 1;
 var noteText;
-
+/*
 function silentErrorHandler() {
     return true;
 }
 window.onerror = silentErrorHandler;
 console.log = function () {};
-
+*/
 function id(arg) {
     return document.getElementById(arg);
 }
@@ -198,7 +198,7 @@ function playGame() {
         if (levelCounter > 1) {
             pause = true;
             id("game-ui").style.display = "none";
-            id("stats-info").innerHTML = "<div id='pause' style='color:#c94a51'>U DED :(</div>STATS<br/><br/>LEVEL REACHED: " + levelCounter + "<br/>SCORE: " + score + "<br/><br/>BULLETS HIT: " + bulletsHit + " / " + bulletsShot + "<br/>ACCURACY: " + (100 - ((bulletsShot - bulletsHit) / bulletsShot * 100)).toFixed(1) + "%" + "<br/><br/>BULLETS DODGED: " + bulletsDodge + " / "+ bulletsShot2 + "<br/>ELUSION: " + (100 - ((bulletsShot2 - bulletsDodge) / bulletsShot2 * 100)).toFixed(1) + "%" + "<br/><br/><div id='OK'>RESTART<div>";
+            id("stats-info").innerHTML = "<div id='pause' style='color:#c94a51'>U DED :(</div>STATS<br/><br/>LEVEL REACHED: " + levelCounter + "<br/>SCORE: " + score + "<br/><br/>BULLETS HIT: " + bulletsHit + " / " + bulletsShot + "<br/>ACCURACY: " + (100 - ((bulletsShot - bulletsHit) / bulletsShot * 100)).toFixed(1) + "%" + "<br/><br/>BULLETS DODGED: " + bulletsDodge + " / " + bulletsShot2 + "<br/>ELUSION: " + (100 - ((bulletsShot2 - bulletsDodge) / bulletsShot2 * 100)).toFixed(1) + "%" + "<br/><br/><div id='OK'>RESTART<div>";
             id("stats-info").style.display = "block";
             id("OK").addEventListener("click", function () {
                 id("stats-info").style.display = "none";
@@ -255,13 +255,13 @@ function playGame() {
 
             shoot: function (argg) {
                 if (chosenClass === 3 && argg === false) {
-                        player.recharge = true;
+                    player.recharge = true;
                     for (i = 1; i <= player.shots; i++) {
                         setTimeout(function () {
                             player.shoot(true);
-                                setTimeout(function () {
-                                    player.recharge = false;
-                                }, player.bulletCD);
+                            setTimeout(function () {
+                                player.recharge = false;
+                            }, player.bulletCD);
                         }, 50 * i);
 
                     }
@@ -415,11 +415,11 @@ function playGame() {
             clickedOnce = 1;
         }
     }
-    var abilities=["<br/>SP1= <font color='#c94a51'>MINIGUN</font>: you become an automatic minigun but your speed gets significantly reduced (120 shots)<br/>SP2= <font color='#c94a51'>BERSERK</font>: halves your current HPs to gain bullet size, damage and speed (4 seconds)","<br/>SP1= <font color='#c94a51'>SUPERSHOT</font>: you shoot a big bullet... yeah i did ran out of ideas<br/>SP2= <font color='#c94a51'>TIME STOP</font>: this one is my favourite, you stop bullets and enemies, while you can still move and shoot (3.5 seconds)","<br/>SP1= <font color='#c94a51'>MEGABUFF</font>: halves your current HPs to gain 2 more bullets per shot, more damage and move a little slower (4 seconds)<br/>SP2= <font color='#c94a51'>UNDESTRUCTIBLES</font>: your projectile will destroy everything in their way, no matter the size (3 seconds)"];
+    var abilities = ["<br/>SP1= <font color='#c94a51'>MINIGUN</font>: you become an automatic minigun but your speed gets significantly reduced (120 shots)<br/>SP2= <font color='#c94a51'>BERSERK</font>: halves your current HPs to gain bullet size, damage and speed (4 seconds)", "<br/>SP1= <font color='#c94a51'>SUPERSHOT</font>: you shoot a big bullet... yeah i did ran out of ideas<br/>SP2= <font color='#c94a51'>TIME STOP</font>: this one is my favourite, you stop bullets and enemies, while you can still move and shoot (3.5 seconds)", "<br/>SP1= <font color='#c94a51'>MEGABUFF</font>: halves your current HPs to gain 2 more bullets per shot, more damage and move a little slower (4 seconds)<br/>SP2= <font color='#c94a51'>UNDESTRUCTIBLES</font>: your projectile will destroy everything in their way, no matter the size (3 seconds)"];
     levelSpan.onclick = function () {
         pause = true;
         id("game-ui").style.display = "none";
-        id("stats-info").innerHTML = "<div id='pause'>GAME PAUSED</div>ABILITIES:"+abilities[chosenClass-1]+"<br/><br/>HINTS:<br/>-Tap on the up arrow to shoot<br/>-Enemies are randomly generated (except for the first one)<br/>-Bigger bullets deals more damage and destroy smaller ones<br/>-Game over makes you restart from level 1<br/>Every win will restore 20% of your total health <br/><br/><div id='OK'>CONTINUE PLAYING<div>";
+        id("stats-info").innerHTML = "<div id='pause'>GAME PAUSED</div>ABILITIES:" + abilities[chosenClass - 1] + "<br/><br/>HINTS:<br/>-Tap on the up arrow to shoot<br/>-Enemies are randomly generated (except for the first one)<br/>-Bigger bullets deals more damage and destroy smaller ones<br/>-Game over makes you restart from level 1<br/>Every win will restore 20% of your total health <br/><br/><div id='OK'>CONTINUE PLAYING<div>";
         id("stats-info").style.display = "block";
         id("OK").addEventListener("click", function () {
             id("stats-info").style.display = "none";
@@ -442,7 +442,7 @@ function playGame() {
         en.speed = Math.random() * 5 + (levelCounter / 15);
         en.bulletSize = Math.random() * (en.size - 9) + 3;
         en.bulletSpeed = Math.random() * 10 + (levelCounter / 4);
-        en.bulletCD = (Math.random() * (en.bulletSize * 8) * (en.speed * 6) * en.bulletSpeed * 8) / (100 + levelCounter * 2) + en.bulletSize*10;
+        en.bulletCD = (Math.random() * (en.bulletSize * 8) * (en.speed * 6) * en.bulletSpeed * 8) / (100 + levelCounter * 2) + en.bulletSize * 10;
         projectiles = [];
         en.frenzy = Math.random();
         en.normalColor = randomColor();
@@ -551,11 +551,12 @@ function playGame() {
         for (i = 0; i < projectiles.length; i++) {
             if (!timeStop)
                 projectiles[i].y += projectiles[i].speed;
-            if (projectiles[i].y > canvas.height || projectiles[i].y < -projectiles[i].size) {
+            if (projectiles[i].y > canvas.height - projectiles[i].size || projectiles[i].y < -projectiles[i].size) {
                 if (projectiles[i].y > canvas.height) {
                     bulletsDodge++;
                 }
-                delete projectiles[i].x;
+                explosion(projectiles[i]);
+
                 removeList.push(i);
             } else {
                 c.fillStyle = projectiles[i].color;
@@ -568,16 +569,19 @@ function playGame() {
                 if (projectiles[i].color != projectiles[j].color) {
                     if (collided(projectiles[i], projectiles[j])) {
                         if (projectiles[i].und) {
-                            delete projectiles[j].x;
+                            explosion(projectiles[j]);
                             removeList.push(j);
                         } else if (projectiles[j].und) {
-                            delete projectiles[i].x;
+
+                            explosion(projectiles[i]);
                             removeList.push(i);
                         } else if (projectiles[i].size < projectiles[j].size) {
-                            delete projectiles[i].x;
+
+                            explosion(projectiles[i]);
                             removeList.push(i);
                         } else {
-                            delete projectiles[j].x;
+
+                            explosion(projectiles[j]);
                             removeList.push(j);
                         }
                     }
@@ -595,7 +599,8 @@ function playGame() {
                     if (projectiles[i].color == "#4b4b5b" || projectiles[i].color == "#c94a51") {
                         bulletsHit++;
                     }
-                    delete projectiles[i].x;
+
+                    explosion(projectiles[i]);
                     removeList.push(i);
                     enemy.HP -= projectiles[i].damage / (levelCounter / 20 + 1);
                     if (enemy.HP < 0) {
@@ -613,7 +618,8 @@ function playGame() {
                     if (projectiles[i].color == "#4b4b5b" || projectiles[i].color == "#c94a51") {
                         bulletsHit++;
                     }
-                    delete projectiles[i].x;
+
+                    explosion(projectiles[i]);
                     removeList.push(i);
                     enemy2.HP -= projectiles[i].damage / (levelCounter / 10 + 1);
                     if (enemy2.HP < 0) {
@@ -628,7 +634,8 @@ function playGame() {
                     setTimeout(function () {
                         player.PNG = player.normalPNG;
                     }, 100);
-                    delete projectiles[i].x;
+
+                    explosion(projectiles[i]);
                     removeList.push(i);
                     player.HP -= projectiles[i].size;
                     if (clickedOnce) {
@@ -652,6 +659,42 @@ function playGame() {
 
         for (i = 0; i < removeList.length; i++) {
             projectiles.splice(removeList[i], 1);
+        }
+    }
+
+    // PARTICLES RENDERING
+    var particles = [];
+
+    function explosion(bullet) {
+        var color = bullet.color;
+        var x = bullet.x;
+        var y = bullet.y;
+        var speed = -bullet.speed;
+        var randNum = Math.floor(Math.random() * 10) + 1;
+        for (iter = 0; iter < randNum; iter++) {
+            particles.push({
+                xVel: Math.random() * (speed) - speed / 2,
+                yVel: Math.random() * speed / 2,
+                x: x,
+                y: y,
+                size: Math.random() * bullet.size,
+                color: color
+            });
+        }
+    }
+
+    function renderParticles() {
+        for (i = 0; i < particles.length; i++) {
+            c.fillStyle = particles[i].color;
+            c.fillRect(particles[i].x, particles[i].y, particles[i].size, particles[i].size);
+            particles[i].x += particles[i].xVel;
+            particles[i].y += particles[i].yVel;
+            particles[i].xVel /= 1.02;
+            particles[i].yVel /= 1.02;
+            particles[i].size /= 1.05;
+            if (particles[i].size < 0.1) {
+                particles.splice(i, 1);
+            }
         }
     }
     //canvas.onclick=function(){console.log(projectiles.length)};
@@ -704,10 +747,10 @@ function playGame() {
     function drawEnemy(en) {
         if (en.HP > 0) {
             if (!timeStop) {
-                if (player.x+player.size > en.x+en.size+16) {
+                if (player.x + player.size > en.x + en.size + 16) {
                     en.right = true;
                     en.left = false;
-                } else if (player.x < en.x-16) {
+                } else if (player.x < en.x - 16) {
                     en.left = true;
                     en.right = false;
                 } else {
@@ -787,6 +830,7 @@ function playGame() {
         c.fillRect(0, 0, canvas.width, canvas.height);
         drawPlayer();
         drawProjectiles();
+        renderParticles();
         drawEnemy(enemy);
         if (levelCounter % 5 === 0) {
             drawEnemy(enemy2);
@@ -816,7 +860,7 @@ function playGame() {
             player.speed = 2;
             player.bulletSpeed = -20;
             player.bulletSize = 3;
-            player.bulletDamage=4;
+            player.bulletDamage = 4;
             player.shoot(false);
             ammo -= 0.5;
             setTimeout(minigun, 10)
@@ -824,7 +868,7 @@ function playGame() {
             player.speed = 5;
             player.bulletSpeed = -16;
             player.bulletSize = 8;
-            player.bulletDamage=8;
+            player.bulletDamage = 8;
         }
     }
 
@@ -832,7 +876,7 @@ function playGame() {
         if (rage) {
             player.speed = 10 + levelCounter / 2;
             player.bulletSize = 25 + levelCounter / 2;
-            player.bulletDamage=player.bulletSize;
+            player.bulletDamage = player.bulletSize;
             player.color = "#c94a51";
             player.HP /= 2;
             player.normalPNG = playerDMG;
@@ -850,7 +894,7 @@ function playGame() {
             trailing = 1;
             player.speed = 5;
             player.bulletSize = 8;
-            player.bulletDamage=player.bulletSize;
+            player.bulletDamage = player.bulletSize;
             player.color = "#4b4b5b";
             player.normalPNG = playerPNG;
             player.PNG = playerPNG;
@@ -864,10 +908,10 @@ function playGame() {
     function stopTime() {
         if (player.token) {
             timeStop = 1;
-            player.speed=2;
+            player.speed = 2;
             setTimeout(function () {
                 timeStop = 0;
-                player.speed=4;
+                player.speed = 4;
             }, 3500)
             player.token = 0;
         }
@@ -1013,9 +1057,9 @@ function playGame() {
         rightArrow.style.opacity = "1";
     });
     upArrow.addEventListener("touchstart", function () {
-        
-        if (!player.recharge){
-        player.shoot(false);
+
+        if (!player.recharge) {
+            player.shoot(false);
         }
         upArrow.style.transform = "scale(1.5)";
         upArrow.style.opacity = "1";
