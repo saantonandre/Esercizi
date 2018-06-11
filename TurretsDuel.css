@@ -252,6 +252,13 @@ body {
     cursor: pointer;
 }
 
+#change {
+    text-align: center;
+    color: #c94a51;
+    font-size: 30px;
+    cursor: pointer;
+}
+
 #pause {
     text-align: center;
     font-size: 35px;

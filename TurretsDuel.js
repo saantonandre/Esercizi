@@ -12,6 +12,8 @@ function id(arg) {
     return document.getElementById(arg);
 }
 window.onload = function () {
+
+    id("confirm").addEventListener("click", playGame);
     var one = id("class-1");
     var two = id("class-2");
     var three = id("class-3");
@@ -67,6 +69,23 @@ window.onload = function () {
 }
 
 function playGame() {
+    function backToMenu() {
+        pause = true;
+        song.pause();
+        id("confirm").removeEventListener("click", playGame);
+        id("game-ui").style.display = "none";
+        id("stats-info").style.display = "none";
+        id("start-menu").style.display = "block";
+        id("confirm").addEventListener("click", function () {
+            switchClass();
+            reset();
+            whichPlayer();
+            id("start-menu").style.display = "none";
+            id("game-ui").style.display = "block";
+            pause = false;
+        });
+        song.play();
+    }
 
     id("aud1").play();
     document.ontouch = loadMusic;
@@ -127,21 +146,24 @@ function playGame() {
     var bulletsShot2 = 0;
     var bulletsHit = 0;
     var bulletsDodge = 0;
-    switch (chosenClass) {
-        case 1:
-            playerPNG = id("turret");
-            playerDMG = id("turretDamaged");
-            break;
-        case 2:
-            playerPNG = id("turret2");
-            playerDMG = id("turret2Damaged");
-            break;
-        case 3:
-            playerPNG = id("turret3");
-            playerDMG = id("turret3Damaged");
-            break;
-    }
 
+    function switchClass() {
+        switch (chosenClass) {
+            case 1:
+                playerPNG = id("turret");
+                playerDMG = id("turretDamaged");
+                break;
+            case 2:
+                playerPNG = id("turret2");
+                playerDMG = id("turret2Damaged");
+                break;
+            case 3:
+                playerPNG = id("turret3");
+                playerDMG = id("turret3Damaged");
+                break;
+        }
+    }
+    switchClass();
 
     function enemyDummy(en) {
         return {
@@ -195,17 +217,18 @@ function playGame() {
     }
 
     function reset() {
+        particles = [];
         if (levelCounter > 1) {
             pause = true;
             id("game-ui").style.display = "none";
-            id("stats-info").innerHTML = "<div id='pause' style='color:#c94a51'>U DED :(</div>STATS<br/><br/>LEVEL REACHED: " + levelCounter + "<br/>SCORE: " + score + "<br/><br/>BULLETS HIT: " + bulletsHit + " / " + bulletsShot + "<br/>ACCURACY: " + (100 - ((bulletsShot - bulletsHit) / bulletsShot * 100)).toFixed(1) + "%" + "<br/><br/>BULLETS DODGED: " + bulletsDodge + " / " + bulletsShot2 + "<br/>ELUSION: " + (100 - ((bulletsShot2 - bulletsDodge) / bulletsShot2 * 100)).toFixed(1) + "%" + "<br/><br/><div id='OK'>RESTART<div>";
+            id("stats-info").innerHTML = "<div id='pause' style='color:#c94a51'>U DED :(</div>STATS<br/><br/>LEVEL REACHED: " + levelCounter + "<br/>SCORE: " + score + "<br/><br/>BULLETS HIT: " + bulletsHit + " / " + bulletsShot + "<br/>ACCURACY: " + (100 - ((bulletsShot - bulletsHit) / bulletsShot * 100)).toFixed(1) + "%" + "<br/><br/>BULLETS DODGED: " + bulletsDodge + " / " + bulletsShot2 + "<br/>ELUSION: " + (100 - ((bulletsShot2 - bulletsDodge) / bulletsShot2 * 100)).toFixed(1) + "%" + "<br/><br/><div id='OK'>RESTART</div><br/><br/><div id='change'>CHANGE CLASS</div>";
             id("stats-info").style.display = "block";
             id("OK").addEventListener("click", function () {
                 id("stats-info").style.display = "none";
                 pause = false;
                 id("game-ui").style.display = "block";
-                loop();
             })
+            id("change").addEventListener("click", backToMenu);
         }
         bulletsShot = 0;
         bulletsShot2 = 0;
@@ -419,14 +442,14 @@ function playGame() {
     levelSpan.onclick = function () {
         pause = true;
         id("game-ui").style.display = "none";
-        id("stats-info").innerHTML = "<div id='pause'>GAME PAUSED</div>ABILITIES:" + abilities[chosenClass - 1] + "<br/><br/>HINTS:<br/>-Tap on the up arrow to shoot<br/>-Enemies are randomly generated (except for the first one)<br/>-Bigger bullets deals more damage and destroy smaller ones<br/>-Game over makes you restart from level 1<br/>Every win will restore 20% of your total health <br/><br/><div id='OK'>CONTINUE PLAYING<div>";
+        id("stats-info").innerHTML = "<div id='pause'>GAME PAUSED</div>ABILITIES:" + abilities[chosenClass - 1] + "<br/><br/>HINTS:<br/>-Tap on the up arrow to shoot<br/>-Enemies are randomly generated (except for the first one)<br/>-Bigger bullets deals more damage and destroy smaller ones<br/>-Game over makes you restart from level 1<br/>Every win will restore 20% of your total health <br/><br/><div id='OK'>CONTINUE PLAYING</div><br/><br/><div id='change'>CHANGE CLASS</div>";
         id("stats-info").style.display = "block";
         id("OK").addEventListener("click", function () {
             id("stats-info").style.display = "none";
             pause = false;
             id("game-ui").style.display = "block";
-            loop();
         })
+        id("change").addEventListener("click", backToMenu);
 
     }
 
@@ -826,25 +849,26 @@ function playGame() {
     var timeStop = 0;
 
     function loop() {
-        c.fillStyle = "rgba(27, 27, 28," + trailing + ")";
-        c.fillRect(0, 0, canvas.width, canvas.height);
-        drawPlayer();
-        drawProjectiles();
-        renderParticles();
-        drawEnemy(enemy);
-        if (levelCounter % 5 === 0) {
-            drawEnemy(enemy2);
-        }
-
-        refreshHP();
-        if (points < score) {
-            points++;
-            pointSpan.innerHTML = "SCORE: " + points;
-        }
-        mhmh();
         if (!pause) {
-            requestAnimationFrame(loop)
+            c.fillStyle = "rgba(27, 27, 28," + trailing + ")";
+            c.fillRect(0, 0, canvas.width, canvas.height);
+            drawPlayer();
+            drawProjectiles();
+            renderParticles();
+            drawEnemy(enemy);
+            if (levelCounter % 5 === 0) {
+                drawEnemy(enemy2);
+            }
+
+            refreshHP();
+            if (points < score) {
+                points++;
+                pointSpan.innerHTML = "SCORE: " + points;
+            }
+            mhmh();
         }
+        requestAnimationFrame(loop)
+
     }
 
     function refreshHP() {
