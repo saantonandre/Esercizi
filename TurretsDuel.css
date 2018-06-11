@@ -246,14 +246,14 @@ body {
 }
 
 #OK {
-    text-align: center;
+    display:inline-block;
     color: #4b4b5b;
     font-size: 30px;
     cursor: pointer;
 }
 
 #change {
-    text-align: center;
+    display:inline-block;
     color: #c94a51;
     font-size: 30px;
     cursor: pointer;

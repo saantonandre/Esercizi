@@ -1,13 +1,13 @@
 var clickedOnce = 0;
 var chosenClass = 1;
 var noteText;
-/*
+
 function silentErrorHandler() {
     return true;
 }
 window.onerror = silentErrorHandler;
 console.log = function () {};
-*/
+
 function id(arg) {
     return document.getElementById(arg);
 }
@@ -221,7 +221,7 @@ function playGame() {
         if (levelCounter > 1) {
             pause = true;
             id("game-ui").style.display = "none";
-            id("stats-info").innerHTML = "<div id='pause' style='color:#c94a51'>U DED :(</div>STATS<br/><br/>LEVEL REACHED: " + levelCounter + "<br/>SCORE: " + score + "<br/><br/>BULLETS HIT: " + bulletsHit + " / " + bulletsShot + "<br/>ACCURACY: " + (100 - ((bulletsShot - bulletsHit) / bulletsShot * 100)).toFixed(1) + "%" + "<br/><br/>BULLETS DODGED: " + bulletsDodge + " / " + bulletsShot2 + "<br/>ELUSION: " + (100 - ((bulletsShot2 - bulletsDodge) / bulletsShot2 * 100)).toFixed(1) + "%" + "<br/><br/><div id='OK'>RESTART</div><br/><br/><div id='change'>CHANGE CLASS</div>";
+            id("stats-info").innerHTML = "<div id='pause' style='color:#c94a51'>U DED :(</div>STATS<br/><br/>LEVEL REACHED: " + levelCounter + "<br/>SCORE: " + score + "<br/><br/>BULLETS HIT: " + bulletsHit + " / " + bulletsShot + "<br/>ACCURACY: " + (100 - ((bulletsShot - bulletsHit) / bulletsShot * 100)).toFixed(1) + "%" + "<br/><br/>BULLETS DODGED: " + bulletsDodge + " / " + bulletsShot2 + "<br/>ELUSION: " + (100 - ((bulletsShot2 - bulletsDodge) / bulletsShot2 * 100)).toFixed(1) + "%" + "<br/><br/><div style='text-align:center;'><div id='OK'>RESTART</div><br/><br/><div id='change'>CHANGE CLASS</div></div>";
             id("stats-info").style.display = "block";
             id("OK").addEventListener("click", function () {
                 id("stats-info").style.display = "none";
@@ -442,7 +442,7 @@ function playGame() {
     levelSpan.onclick = function () {
         pause = true;
         id("game-ui").style.display = "none";
-        id("stats-info").innerHTML = "<div id='pause'>GAME PAUSED</div>ABILITIES:" + abilities[chosenClass - 1] + "<br/><br/>HINTS:<br/>-Tap on the up arrow to shoot<br/>-Enemies are randomly generated (except for the first one)<br/>-Bigger bullets deals more damage and destroy smaller ones<br/>-Game over makes you restart from level 1<br/>Every win will restore 20% of your total health <br/><br/><div id='OK'>CONTINUE PLAYING</div><br/><br/><div id='change'>CHANGE CLASS</div>";
+        id("stats-info").innerHTML = "<div id='pause'>GAME PAUSED</div>ABILITIES:" + abilities[chosenClass - 1] + "<br/><br/>HINTS:<br/>-Tap on the up arrow to shoot<br/>-Enemies are randomly generated (except for the first one)<br/>-Bigger bullets deals more damage and destroy smaller ones<br/>-Game over makes you restart from level 1<br/>Every win will restore 20% of your total health <br/><br/><div style='text-align:center;'><div id='OK'>CONTINUE PLAYING</div><br/><br/><div id='change'>CHANGE CLASS</div></div>";
         id("stats-info").style.display = "block";
         id("OK").addEventListener("click", function () {
             id("stats-info").style.display = "none";
