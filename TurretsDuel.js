@@ -704,10 +704,10 @@ function playGame() {
     function drawEnemy(en) {
         if (en.HP > 0) {
             if (!timeStop) {
-                if (player.x > en.x+en.size) {
+                if (player.x+player.size > en.x+en.size+16) {
                     en.right = true;
                     en.left = false;
-                } else if (player.x+player.size < en.x) {
+                } else if (player.x < en.x-16) {
                     en.left = true;
                     en.right = false;
                 } else {
