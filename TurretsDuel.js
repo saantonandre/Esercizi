@@ -186,7 +186,7 @@ function playGame() {
             HP: 100,
             frame: 3,
             frameCD: 0,
-            frenzy: 0.5,
+            frenzy: 25,
             shootFx: enemy_shoot2,
             shootFx2: enemy_shoot2a,
             shoot: function () {
@@ -467,7 +467,7 @@ function playGame() {
         en.bulletSpeed = Math.random() * 10 + (levelCounter / 4);
         en.bulletCD = (Math.random() * (en.bulletSize * 8) * (en.speed * 6) * en.bulletSpeed * 8) / (100 + levelCounter * 2) + en.bulletSize * 10;
         projectiles = [];
-        en.frenzy = Math.random();
+        en.frenzy = Math.random() * 100 + 10;
         en.normalColor = randomColor();
         en.color = en.normalColor;
         en.recharge = false;
@@ -575,7 +575,7 @@ function playGame() {
             if (!timeStop)
                 projectiles[i].y += projectiles[i].speed;
             if (projectiles[i].y > canvas.height - projectiles[i].size || projectiles[i].y < -projectiles[i].size) {
-                if (projectiles[i].y > canvas.height) {
+                if (projectiles[i].y > canvas.height - projectiles[i].size) {
                     bulletsDodge++;
                 }
                 explosion(projectiles[i]);
@@ -602,7 +602,7 @@ function playGame() {
 
                             explosion(projectiles[i]);
                             removeList.push(i);
-                        } else {
+                        } else if (projectiles[j].size < projectiles[i].size) {
 
                             explosion(projectiles[j]);
                             removeList.push(j);
@@ -770,16 +770,18 @@ function playGame() {
     function drawEnemy(en) {
         if (en.HP > 0) {
             if (!timeStop) {
-                if (player.x + player.size > en.x + en.size + 16) {
+                if (player.x + (player.size / 2 - player.size / 3) > en.x + (en.size / 2 + en.bulletSize / 2)) {
                     en.right = true;
                     en.left = false;
-                } else if (player.x < en.x - 16) {
+                } else if (player.x + (player.size / 2 + player.size / 3) < en.x + (en.size / 2 - en.bulletSize / 2)) {
                     en.left = true;
                     en.right = false;
                 } else {
+                    en.left = false;
+                    en.right = false;
+                }
+                if (player.x + player.size > en.x + (en.size / 2 - en.bulletSize / 2) && player.x < en.x + (en.size / 2 + en.bulletSize / 2)) {
                     if (!en.recharge) {
-                        en.left = false;
-                        en.right = false;
                         en.shoot();
                         en.recharge = true;
                         setTimeout(function () {
@@ -790,9 +792,9 @@ function playGame() {
                 }
                 /* en's x velocity calculations */
                 if (en.left) {
-                    en.accel = -en.frenzy
+                    en.accel = -en.speed / en.frenzy;
                 } else if (en.right) {
-                    en.accel = en.frenzy
+                    en.accel = en.speed / en.frenzy;
                 } else {
                     en.accel = 0;
                     if (en.xVel !== 0) {
