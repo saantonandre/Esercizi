@@ -1,18 +1,34 @@
+/*HELLO!!! 
+Thanks for actually looking at my code, 
+I hope someone could learn something out of this 
+or teach me about better practices!
+
+I will now proceed to explain my code, mostly because I will probably 
+forget how it works in about 2 weeks after not looking at it 
+I'll try to be as brief and explanatory as possible
+*/
+
+
 var clickedOnce = 0;
 var chosenClass = 1;
 var noteText;
 
+/*silence errors (sounds may randomly cause some, since its sort of hacky to get them playing)*/
 function silentErrorHandler() {
     return true;
 }
 window.onerror = silentErrorHandler;
+
+/*silence console logs (part of the exploit to get the audio playing at program's will)*/
 console.log = function () {};
 
+/*thanks to this, indexing to dom elements can be done with just 'id("element")' */
 function id(arg) {
     return document.getElementById(arg);
 }
-window.onload = function () {
 
+/*all this onload function will give interactivity the class menu*/
+window.onload = function () {
     id("confirm").addEventListener("click", playGame);
     var one = id("class-1");
     var two = id("class-2");
@@ -26,7 +42,7 @@ window.onload = function () {
     three.onclick = function () {
         classChoice(three);
     }
-
+    /*changes the class description*/
     function classChoice(arg) {
         switch (arg) {
             case one:
@@ -68,7 +84,15 @@ window.onload = function () {
     }
 }
 
+/* the actual game program runs after confirming a class*/
 function playGame() {
+    /*
+    now, things will start to get confusing since functions 
+    will get called back and forth in no particular order 
+    across the whole code so you'll need to be patient...
+    */
+    
+    /*gets called whenever you choose the "change class" option*/
     function backToMenu() {
         pause = true;
         song.pause();
@@ -86,15 +110,23 @@ function playGame() {
         });
         song.play();
     }
-
-    id("aud1").play();
+    /*
+    being a single web page, this code switches between 3 main screens
+    
+    -PAUSE/DEATH SCREEN (only the text changes, but the div is the same)
+    -MENU SCREEN
+    -GAME SCREEN
+    
+    they all cover the whole screen, switching will set a display:none to the others
+    
+    */
     document.ontouch = loadMusic;
     document.onclick = loadMusic;
     id("start-menu").style.display = "none";
     id("game-ui").style.display = "block";
-
+    
+    /*loot of variable.. lets skip this pls*/
     var undest = false;
-    /* audio files */
     var song = new Audio("https://saantonandre.github.io/anotherSong.wav");
     song.loop = true;
     song.volume = 0.3;
@@ -145,8 +177,10 @@ function playGame() {
     var bulletsShot = 0;
     var bulletsShot2 = 0;
     var bulletsHit = 0;
+    var bulletsHit2 = 0;
     var bulletsDodge = 0;
 
+    /*changes player's sprite accordingly to the class chosen*/
     function switchClass() {
         switch (chosenClass) {
             case 1:
@@ -164,7 +198,8 @@ function playGame() {
         }
     }
     switchClass();
-
+    /* the 'enemy dummy' is the first enemy, the one which will remain always the same
+    -PLOT TWIST- other enemies, are just random modifications of this one dummy  */
     function enemyDummy(en) {
         return {
             alive: true,
@@ -189,6 +224,7 @@ function playGame() {
             frenzy: 25,
             shootFx: enemy_shoot2,
             shootFx2: enemy_shoot2a,
+            /* spawns projectiles, which with speed and size relative to the previous properties */
             shoot: function () {
                 bulletsShot2++;
                 this.frame = 0;
@@ -215,13 +251,14 @@ function playGame() {
             }
         };
     }
-
+    /*gets called every new game, and on death, basically resets all the changed variables*/
     function reset() {
         particles = [];
         if (levelCounter > 1) {
+            /*the death screen gets displayed*/
             pause = true;
             id("game-ui").style.display = "none";
-            id("stats-info").innerHTML = "<div id='pause' style='color:#c94a51'>U DED :(</div>STATS<br/><br/>LEVEL REACHED: " + levelCounter + "<br/>SCORE: " + score + "<br/><br/>BULLETS HIT: " + bulletsHit + " / " + bulletsShot + "<br/>ACCURACY: " + (100 - ((bulletsShot - bulletsHit) / bulletsShot * 100)).toFixed(1) + "%" + "<br/><br/>BULLETS DODGED: " + bulletsDodge + " / " + bulletsShot2 + "<br/>ELUSION: " + (100 - ((bulletsShot2 - bulletsDodge) / bulletsShot2 * 100)).toFixed(1) + "%" + "<br/><br/><div style='text-align:center;'><div id='OK'>RESTART</div><br/><br/><div id='change'>CHANGE CLASS</div></div>";
+            id("stats-info").innerHTML = "<div id='pause' style='color:#c94a51'>U DED :(</div>STATS<br/><br/>LEVEL REACHED: " + levelCounter + "<br/>SCORE: " + score + "<br/><br/>BULLETS HIT: " + bulletsHit + " / " + bulletsShot + "<br/>ACCURACY: " + (100 - ((bulletsShot - bulletsHit) / bulletsShot * 100)).toFixed(1) + "%" + "<br/><br/>BULLETS DODGED: "+(bulletsShot2-bulletsHit2) + " / " + (bulletsShot2) + "<br/>ELUSION: " + (100 - ((bulletsShot2 - (bulletsShot2-bulletsHit2)) / bulletsShot2 * 100)).toFixed(1) + "%" + "<br/><br/><div style='text-align:center;'><div id='OK'>RESTART</div><br/><br/><div id='change'>CHANGE CLASS</div></div>";
             id("stats-info").style.display = "block";
             id("OK").addEventListener("click", function () {
                 id("stats-info").style.display = "none";
@@ -233,6 +270,7 @@ function playGame() {
         bulletsShot = 0;
         bulletsShot2 = 0;
         bulletsHit = 0;
+        bulletsHit2 = 0;
         bulletsDodge = 0;
         enemy2 = enemyDummy(enemy2);
         enemy2.HP = 0;
@@ -330,7 +368,8 @@ function playGame() {
         enemyHP.style.backgroundColor = enemy.normalColor;
     }
     reset();
-
+    
+    /*changes player properties accordingly to the chosen class*/
     function whichPlayer() {
         player.bulletDamage = player.bulletSize
         switch (chosenClass) {
@@ -351,24 +390,10 @@ function playGame() {
                 break;
         }
     }
-
+    /*tricky solution to get the audio playing on mobile, for further informations just 
+    look at the reply I gave to </JoakimNyland> down in the comments*/
     function loadMusic() {
         if (!clickedOnce) {
-            /*
-            enemy_shoot1.onerror = silentErrorHandler;
-            enemy_shoot2.onerror = silentErrorHandler;
-            enemy_shoot3.onerror = silentErrorHandler;
-            player_shoot.onerror = silentErrorHandler;
-            player_buffed_shoot.onerror = silentErrorHandler;
-            player_damaged.onerror = silentErrorHandler;
-            
-            enemy_shoot1a.onerror = silentErrorHandler;
-            enemy_shoot2a.onerror = silentErrorHandler;
-            enemy_shoot3a.onerror = silentErrorHandler;
-            player_shoota.onerror = silentErrorHandler;
-            player_buffed_shoota.onerror = silentErrorHandler;
-            player_damageda.onerror = silentErrorHandler;
-            */
             song.play().catch(function (e) {
                 console.log("song - " + e)
             });
@@ -438,6 +463,7 @@ function playGame() {
             clickedOnce = 1;
         }
     }
+    /*when the game is paused, these description will appear accordingly to the class you chose*/
     var abilities = ["<br/>SP1= <font color='#c94a51'>MINIGUN</font>: you become an automatic minigun but your speed gets significantly reduced (120 shots)<br/>SP2= <font color='#c94a51'>BERSERK</font>: halves your current HPs to gain bullet size, damage and speed (4 seconds)", "<br/>SP1= <font color='#c94a51'>SUPERSHOT</font>: you shoot a big bullet... yeah i did ran out of ideas<br/>SP2= <font color='#c94a51'>TIME STOP</font>: this one is my favourite, you stop bullets and enemies, while you can still move and shoot (3.5 seconds)", "<br/>SP1= <font color='#c94a51'>MEGABUFF</font>: halves your current HPs to gain 2 more bullets per shot, more damage and move a little slower (4 seconds)<br/>SP2= <font color='#c94a51'>UNDESTRUCTIBLES</font>: your projectile will destroy everything in their way, no matter the size (3 seconds)"];
     levelSpan.onclick = function () {
         pause = true;
@@ -452,12 +478,15 @@ function playGame() {
         id("change").addEventListener("click", backToMenu);
 
     }
-
+    /*calculations for the amount of points you deserve after a kill*/
     function scoreGain(en) {
         var sum = (en.size / 32 * 10) + (en.speed * 3.3) + (1000 / en.bulletCD) + (en.bulletSize * 2.5) + (en.bulletSpeed * 1.25);
         return Math.floor(sum);
     }
-
+    /*as you may already know the enemies are randomly generated -to some extent-
+    minimum and maximum ranges will change relatively to the level you reached
+    this function is the one wich will chose the next enemy you'll have to duel with
+    */
     function newEnemy(en) {
         en.HP = 100;
         en.x = canvas.width / 5 * 4 - 32 - levelCounter;
@@ -500,7 +529,7 @@ function playGame() {
         };
 
     }
-
+    /*does many stuff to clean up the battle scene, HP's and stuffs*/
     function nextLevel() {
         score += scoreGain(enemy);
         if (levelCounter % 5 === 0) {
@@ -538,7 +567,7 @@ function playGame() {
         enemyHP.style.backgroundColor = enemy.normalColor;
 
     }
-
+    /* mhmhmh...*/
     function mhmh() {
         if (levelCounter > 300) levelSpan.innerHTML = "ok, ok, you won";
         if (levelCounter > 400) levelSpan.innerHTML = "flashing colors may cause<br/>epileptic attacks-->";
@@ -548,7 +577,7 @@ function playGame() {
             pointSpan.innerHTML = "ABOUT 5 MINUTES AGO (btw level " + levelCounter + ")"
         }
     }
-
+    /*barely noticeable, but enemy audios differs relatively to their size*/
     function whichShootFx(sz) {
         if (sz < 30) {
             return enemy_shoot1
@@ -558,7 +587,8 @@ function playGame() {
             return enemy_shoot3
         }
     }
-
+    /*duplicate of the above, since many enemies shoots really fast
+    and if audio can't be played because already playing, here's the solution*/
     function whichShootFx2(sz) {
         if (sz < 30) {
             return enemy_shoot1a
@@ -568,7 +598,8 @@ function playGame() {
             return enemy_shoot3a
         }
     }
-
+    
+    /*one of the core functions, calculates what every projectile should do for every frame*/
     function drawProjectiles() {
         var removeList = [];
         for (i = 0; i < projectiles.length; i++) {
@@ -657,7 +688,7 @@ function playGame() {
                     setTimeout(function () {
                         player.PNG = player.normalPNG;
                     }, 100);
-
+                    bulletsHit2++;
                     explosion(projectiles[i]);
                     removeList.push(i);
                     player.HP -= projectiles[i].size;
@@ -685,7 +716,8 @@ function playGame() {
         }
     }
 
-    // PARTICLES RENDERING
+    /*the particles rendering, the code could work without this, 
+    but there are very few "eye candies" so I can afford this one */
     var particles = [];
 
     function explosion(bullet) {
@@ -705,7 +737,6 @@ function playGame() {
             });
         }
     }
-
     function renderParticles() {
         for (i = 0; i < particles.length; i++) {
             c.fillStyle = particles[i].color;
@@ -720,7 +751,8 @@ function playGame() {
             }
         }
     }
-    //canvas.onclick=function(){console.log(projectiles.length)};
+    
+    /*renders the player sprite and calculates its movements*/
     function drawPlayer() {
         /* player's x velocity calculations */
         if (player.left) {
@@ -766,7 +798,7 @@ function playGame() {
         c.drawImage(player.PNG, 0, 32 * player.frame, 32, 32, player.x, player.y, player.size, player.size);
         //c.fillRect(player.x, player.y, player.size, player.size);
     }
-
+    /*same as the above but different, since its the computer which gives it control inputs*/
     function drawEnemy(en) {
         if (en.HP > 0) {
             if (!timeStop) {
@@ -847,9 +879,11 @@ function playGame() {
 
     }
 
-    requestAnimationFrame(loop);
     var timeStop = 0;
-
+    
+    /*the actual game loop! this is what glues all the functions togethe
+    and will call them all every frame */
+    requestAnimationFrame(loop);
     function loop() {
         if (!pause) {
             c.fillStyle = "rgba(27, 27, 28," + trailing + ")";
@@ -872,15 +906,15 @@ function playGame() {
         requestAnimationFrame(loop)
 
     }
-
+    /* changes HP bars' length accordingly to... yeah the hp*/
     function refreshHP() {
         playerHP.style.width = player.HP + "%";
         enemyHP.style.width = enemy.HP + "%";
         if (levelCounter % 5 === 0)
             enemy2HP.style.width = enemy2.HP + "%";
     }
-    /* ABILITIES */
-
+    
+    /* The following are the classes abilities */
     function minigun() {
         if (ammo > 0) {
             player.speed = 2;
@@ -1005,7 +1039,7 @@ function playGame() {
         }
     }
 
-    /* PC CONTROLS */
+    /* PC controls */
     window.addEventListener("keydown", function (event) {
         var key = event.keyCode;
         switch (key) {
@@ -1070,7 +1104,7 @@ function playGame() {
 
 
 
-    /* MOBILE CONTROLS */
+    /* MOBILE controls */
 
     leftArrow.addEventListener("touchstart", function () {
         player.left = true
@@ -1137,7 +1171,8 @@ function playGame() {
         }
         sp2.style.opacity = "0.5";
     });
-
+    
+    /*the collision detector*/
     function collided(square1, square2) {
         if (square1.x < square2.x + square2.size) {
             if (square1.x + square1.size > square2.x) {
@@ -1150,7 +1185,7 @@ function playGame() {
         }
         return false;
     }
-
+    /*gives random colors to enemies (and so their projectiles)*/
     function randomColor() {
         var color = "#";
         var one;
@@ -1182,4 +1217,4 @@ function playGame() {
         }
         return color;
     }
-}; // END
+}; // END (special thanks to you, if you managed to get here) -saantonandre
