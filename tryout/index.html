@@ -10,6 +10,14 @@
 </head>
 
 <body>
+    <!-- Displays current song -->
+    <div id="musicPlayer" style="display:none;">
+        <span id="musicSpan"></span><br/>
+        <div id="prev">previous</div>
+        <div id="stop">stop</div>
+        <div id="next">next</div>
+    </div>
+
     <div id="door">
         <div>
             <span>---------------------<br/>*door*<br/>-------------------------------------------------</span>
@@ -22,7 +30,20 @@
     </div>
 
     <!-- User options -->
-
+    <div id="options">
+        <div id="op1" class="option">
+            <div>THAT stuff...</div>
+        </div>
+        <div id="op2" class="option">
+            <div>idk, look around</div>
+        </div>
+        <div id="op3" class="option">
+            <div>I like CATS</div>
+        </div>
+        <div id="op4" class="option">
+            <div>music pls</div>
+        </div>
+    </div>
     <!-- Audio Resources -->
     <div style="display:none;">
         <audio id="t1" src="sfx/talk1.wav"></audio>
@@ -31,4 +52,5 @@
     </div>
 </body>
 <script src="script.js"></script>
+
 </html>
