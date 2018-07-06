@@ -75,6 +75,7 @@ window.onload = function () {
 
     id("op1").onclick = function () {
         letters(getout, text1);
+        id("iframe").src = "../" + games[Math.floor(Math.random() * games.length)];
     }
     id("op2").onclick = function () {
         letters(guessfine, text1);
@@ -88,7 +89,6 @@ window.onload = function () {
 
     // Music Player START
     var songs = ['anotherSong.wav', 'creep.wav', 'creep2.wav', 'creep3.wav', 'doggo_theme.wav', 'sillymusic.mp3', 'something.wav'];
-
     var songCount = Math.floor(Math.random() * songs.length);
     var song = false;
     setInterval(function () {
@@ -97,36 +97,41 @@ window.onload = function () {
     }, 1000);
 
     function playMusic() {
+        if (songCount >= songs.length) {
+            songCount = 0;
+        } else if (songCount < 0) {
+            songCount = songs.length - 1;
+        }
         if (song) {
             song.pause();
         }
         song = new Audio('music/' + songs[songCount]);
         song.loop = false;
-        song.onended = playMusic;
+        song.onended = function () {
+            songCount++;
+            playMusic();
+        }
         song.play();
         id("stop").onclick = function () {
             song.pause();
             id("musicPlayer").style.display = "none";
         }
         id("prev").onclick = function () {
-            if (songCount - 2 < 0) {
-                songCount = songs.length - 1 - songCount - 2;
-            } else {
-                songCount -= 2;
-            }
+            songCount--;
             playMusic();
         }
         id("next").onclick = function () {
+            songCount++;
             playMusic();
-        }
-        songCount++;
-        if (songCount > songs.length - 1) {
-            songCount = 0;
         }
 
     }
     //Music Player END
 
+    //IFRAME CONSOLE START
+
+    var games = ['AV.htm', 'cosmicrunner.htm', 'ShooterGuy.htm', 'TurretsDuel.html', 'gold.htm'];
+    var programs = ['catgame.htm', 'codeit.htm', 'loading.htm', 'SpeedRepresentation.htm', 'wa.htm'];
 
 
 }
