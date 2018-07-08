@@ -2,6 +2,7 @@ window.onload = function () {
     function id(arg) {
         return document.getElementById(arg);
     }
+    var moneys = 1000;
     var text1 = id('text1');
     //var hello = "Hello! How can I help you?";
     var hello = "Hello! What are you here for?";
@@ -60,6 +61,8 @@ window.onload = function () {
                 } else if (string == letssee) {
                     id("musicPlayer").style.display = "block";
                     playMusic();
+                } else if (string == shop) {
+                    openShop();
                 }
             }
 
@@ -68,14 +71,16 @@ window.onload = function () {
 
     // Options listeners
 
-    var getout = "What are you even talking about? get outta here",
+    var shop = "Ok then, this is all I can give you.",
         guessfine = "K guess its fine... have fun",
         metoo = "me too! :3",
-        letssee = "Lets see what I've got";
+        letssee = "Lets see what I've got",
+        thanks = "thanks for checking out my stuff!";
+
+    /*id("iframe").src = "../" + games[Math.floor(Math.random() * games.length)];*/
 
     id("op1").onclick = function () {
-        letters(getout, text1);
-        id("iframe").src = "../" + games[Math.floor(Math.random() * games.length)];
+        letters(shop, text1);
     }
     id("op2").onclick = function () {
         letters(guessfine, text1);
@@ -127,11 +132,46 @@ window.onload = function () {
 
     }
     //Music Player END
+    //Games Shop
+    var moneys = 1000;
+    var coinsound = new Audio("sfx/coinsound.mp3");
+    var Items = document.getElementsByClassName("items");
 
+    window.buyStuff = function (elem) {
+        coinsound.play();
+        moneys -= 100;
+        id("moneys").innerHTML = "moneys: " + moneys + " G";
+        elem.parentNode.removeChild(elem);
+        Items = document.getElementsByClassName("items");
+        switch (Items.length) {
+            case 3:
+                letters("Nice buy, 10/10", text1);
+                break;
+            case 2:
+                letters("Thats a nice one", text1);
+                break;
+            case 1:
+                letters("I liked that too", text1);
+                break;
+            case 0:
+                letters("How did you get so much money?!", text1);
+                break;
+        }
+    }
+
+    function openShop() {
+        id("options").style.display = "none";
+        id("shopCont").style.display = "block";
+
+    }
+    id("exitShop").onclick = function () {
+        id("options").style.display = "block";
+        id("shopCont").style.display = "none";
+        letters(thanks, text1);
+    }
     //IFRAME CONSOLE START
 
     var games = ['AV.htm', 'cosmicrunner.htm', 'ShooterGuy.htm', 'TurretsDuel.html', 'gold.htm'];
     var programs = ['catgame.htm', 'codeit.htm', 'loading.htm', 'SpeedRepresentation.htm', 'wa.htm'];
-
 
 }

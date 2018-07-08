@@ -15,7 +15,6 @@ body {
 #welcome {
     display: block;
     position: relative;
-    bottom: 10%;
     width: 300px;
     text-align: center;
     background-color: white;
@@ -23,11 +22,13 @@ body {
     height: 80px;
     margin-left: -150px;
     padding: 5px;
+    bottom: 5px;
 }
 
 #welcome div,
 #door div,
-.option div {
+.option div,
+#shop div {
     display: inline-block;
     border: 1px dashed black;
     font-family: 'lcd';
@@ -39,6 +40,55 @@ body {
     text-align: center;
 }
 
+/* SHOP START */
+
+#back {
+    display: inline-block;
+    width: 300px;
+    position: relative;
+    bottom: 5px;
+    color: white;
+    cursor: pointer;
+}
+
+#shopCont {
+    display: none;
+}
+
+#shop {
+    display: block;
+    position: relative;
+    width: 300px;
+    background-color: white;
+    left: 50%;
+    margin-left: -150px;
+    padding: 5px;
+    bottom: 5px;
+    line-height: 30px;
+}
+
+.items:hover {
+    background-color: black;
+    color: white;
+}
+
+#shop div {
+    padding: 25px;
+}
+
+.items {
+    text-align: left;
+    float: left;
+    cursor: pointer;
+    width: 100%;
+}
+
+.prices {
+    float: right;
+}
+
+/* SHOP END */
+
 @keyframes options {
     from {
         bottom: 10%;
@@ -49,7 +99,7 @@ body {
 }
 
 #frame {
-    display: inline-block;
+    display: none;
     background-color: white;
     padding: 5px;
     width: 400px;
