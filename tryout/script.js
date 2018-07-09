@@ -145,16 +145,16 @@ window.onload = function () {
         Items = document.getElementsByClassName("items");
         switch (Items.length) {
             case 3:
-                letters("Nice buy, 10/10", text1);
+                letters("best buy, 10/10", text1);
                 break;
             case 2:
-                letters("Thats a nice one", text1);
+                letters("thats a nice one", text1);
                 break;
             case 1:
                 letters("I liked that too", text1);
                 break;
             case 0:
-                letters("How did you get so much money?!", text1);
+                letters("how did you get so much money?!", text1);
                 break;
         }
     }
