@@ -9,7 +9,7 @@ body {
 }
 
 #cont {
-    position: absolute;
+    position: fixed;
     z-index: 100;
     left: 0;
     top: 0;
@@ -17,4 +17,8 @@ body {
     font-size: 20px;
     border: 2px solid black;
     padding: 3px;
+}
+
+#mapSize {
+    max-width: 50px;
 }

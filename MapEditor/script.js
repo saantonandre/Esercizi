@@ -4,11 +4,17 @@ window.onload = function () {
     }
     var canvas = id("canvas");
     var c = canvas.getContext("2d");
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
     var map = [];
-    var hitBoxToggle = false;
     var hitBoxes = [];
+    var cellQuantity = 150;
+    var cellSize = 15;
+    canvas.width = cellQuantity * cellSize;
+    canvas.height = cellQuantity * cellSize;
+    id("mapSizeBtn").onclick = function () {
+        cellQuantity = id("mapSize").value;
+        changeMapSize();
+    }
+    var hitBoxToggle = false;
     id("toggle").onclick = function () {
         if (hitBoxToggle) {
             hitBoxToggle = false;
@@ -24,12 +30,12 @@ window.onload = function () {
         w: 0, // width of the actual square
         h: 0 // height of the actual square
     };
-
+    var mapSize = id("mapsize");
+    mapSize
     requestAnimationFrame(loop);
-
-
     // MAIN LOOP
     function loop() {
+
         c.clearRect(0, 0, canvas.width, canvas.height);
         renderGrid();
         renderMap();
@@ -48,8 +54,48 @@ window.onload = function () {
         c.closePath();
         c.stroke();
     }
+    var camera = {
+        L: false,
+        R: false,
+        T: false,
+        B: false,
+        speed: 4
+    }
+    var sX = 0;
+    var sY = 0;
+
+    function cameraMove() {
+        if (camera.L) {
+            sX -= camera.speed;
+        }
+        if (camera.R) {
+            sX += camera.speed;
+        }
+        if (camera.T) {
+            sY -= camera.speed;
+        }
+        if (camera.B) {
+            sY += camera.speed;
+        }
+        if (sX < 0) {
+            sX = 0;
+        }
+        if (sX > canvas.width - window.innerWidth) {
+            sX = canvas.width - window.innerWidth;
+        }
+        if (sY < 0) {
+            sY = 0;
+        }
+        if (sY > canvas.height - window.innerHeight) {
+            sY = canvas.height - window.innerHeight;
+        }
+        scroll(sX, sY);
+    }
 
     function renderMap() {
+        if (camera.L || camera.R || camera.T || camera.B) {
+            cameraMove();
+        }
         for (var i = 0; i < map.length; i++) {
             c.fillStyle = "#000000";
             c.beginPath()
@@ -69,7 +115,6 @@ window.onload = function () {
         }
         c.globalAlpha = 1;
     }
-    var cellSize = 15;
 
     function renderGrid() {
         c.strokeStyle = "#888888";
@@ -91,9 +136,11 @@ window.onload = function () {
     // the square you're making on click (hold)
     var mouseDown = false;
     canvas.addEventListener("mousedown", function (event) {
+        var xx = window.pageXOffset;
+        var yy = window.pageYOffset;
         if (!mouseDown) {
-            square.x = round(event.clientX) * cellSize;
-            square.y = round(event.clientY) * cellSize;
+            square.x = round(event.clientX + xx) * cellSize;
+            square.y = round(event.clientY + yy) * cellSize;
             square.w = 0;
             square.h = 0;
             mouseDown = true;
@@ -168,7 +215,13 @@ window.onload = function () {
     }
     id("zoomer").addEventListener("change", function () {
         cellSize = parseInt(zoomer.value);
+        changeMapSize();
     })
+
+    function changeMapSize() {
+        canvas.width = cellQuantity * cellSize;
+        canvas.height = cellQuantity * cellSize;
+    }
 
     function roundSquare() {
 
@@ -178,9 +231,12 @@ window.onload = function () {
         square.h = round(square.h);
     }
     document.addEventListener("contextmenu", function (event) {
+
+        var xx = window.pageXOffset;
+        var yy = window.pageYOffset;
         event.preventDefault();
-        var x = event.clientX;
-        var y = event.clientY;
+        var x = event.clientX + xx;
+        var y = event.clientY + yy;
         removeElements(map, x, y);
         removeElements(hitBoxes, x, y);
     });
@@ -203,10 +259,47 @@ window.onload = function () {
     }
 
     canvas.addEventListener("mousemove", function (event) {
+        var xx = window.pageXOffset;
+        var yy = window.pageYOffset;
         if (mouseDown) {
-            square.w = round(event.clientX - square.x) * cellSize;
-            square.h = round(event.clientY - square.y) * cellSize;
+            square.w = round(event.clientX + xx - square.x) * cellSize;
+            square.h = round(event.clientY + yy - square.y) * cellSize;
         }
     });
 
+
+    window.addEventListener("keydown", function (event) {
+        var key = event.keyCode;
+        switch (key) {
+            case 65: //left key down
+                camera.L = true;
+                break;
+            case 68: //right key down
+                camera.R = true;
+                break;
+            case 87: //top key down
+                camera.T = true;
+                break;
+            case 83: //bot key down
+                camera.B = true;
+                break;
+        }
+    });
+    window.addEventListener("keyup", function (event) {
+        var key = event.keyCode;
+        switch (key) {
+            case 65: //left key up
+                camera.L = false;
+                break;
+            case 68: //right key up
+                camera.R = false;
+                break;
+            case 87: //top key up
+                camera.T = false;
+                break;
+            case 83: //bot key up
+                camera.B = false;
+                break;
+        }
+    });
 };
