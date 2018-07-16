@@ -39,7 +39,9 @@ window.onload = function () {
         c.clearRect(0, 0, canvas.width, canvas.height);
         renderGrid();
         renderMap();
-        renderSquare();
+        if (mouseDown) {
+            renderSquare();
+        }
         requestAnimationFrame(loop);
     }
 
