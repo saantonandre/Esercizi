@@ -6,7 +6,8 @@ body {
 
 #zoomer {
     height: 20px;
-    display: none
+    width: 50px;
+    display: none;
 }
 
 #cont {

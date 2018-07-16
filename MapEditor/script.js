@@ -16,6 +16,10 @@ window.onload = function () {
     }
     var hitBoxToggle = false;
     id("toggle").onclick = function () {
+        toggleBoxes();
+    }
+
+    function toggleBoxes() {
         if (hitBoxToggle) {
             hitBoxToggle = false;
             id("toggle").innerHTML = "toggle: hitboxes";
@@ -79,7 +83,6 @@ window.onload = function () {
 
         function dragMouseDown(event) {
             event = event || window.event;
-            event.preventDefault();
             // get the mouse cursor position at startup:
             pos3 = event.clientX;
             pos4 = event.clientY;
@@ -364,6 +367,9 @@ window.onload = function () {
                 break;
             case 81: //bot key up
                 camera.zoomOut = false;
+                break;
+            case 82:
+                toggleBoxes();
                 break;
         }
     });
