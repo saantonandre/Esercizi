@@ -1,0 +1,19 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+#zoomer {
+    height: 20px;
+}
+
+#cont {
+    position: absolute;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    background-color: white;
+    font-size: 20px;
+    border: 2px solid black;
+    padding: 3px;
+}

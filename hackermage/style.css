@@ -3,10 +3,12 @@ body {
     user-select: none;
     margin: 0;
 }
-#cont{
-    
+
+#cont {
+
     text-align: center;
 }
+
 #canvas {
     display: inline-block;
 }
