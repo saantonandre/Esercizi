@@ -177,7 +177,31 @@ window.onload = function () {
         square.w = round(square.w);
         square.h = round(square.h);
     }
-    canvas.addEventListener("click", function (event) {});
+    document.addEventListener("contextmenu", function (event) {
+        event.preventDefault();
+        var x = event.clientX;
+        var y = event.clientY;
+        removeElements(map, x, y);
+        removeElements(hitBoxes, x, y);
+    });
+
+    function removeElements(arg, x, y) {
+        var removeList = [];
+        for (i = 0; i < arg.length; i++) {
+            if (x > arg[i].x * cellSize && x < arg[i].x * cellSize + arg[i].w * cellSize) {
+                if (y > arg[i].y * cellSize && y < arg[i].y * cellSize + arg[i].h * cellSize) {
+                    removeList.push(i);
+                }
+            }
+        }
+        removeList.sort(function (a, b) {
+            return b - a;
+        });
+        for (i = 0; i < removeList.length; i++) {
+            arg.splice(removeList[i], 1);
+        }
+    }
+
     canvas.addEventListener("mousemove", function (event) {
         if (mouseDown) {
             square.w = round(event.clientX - square.x) * cellSize;
