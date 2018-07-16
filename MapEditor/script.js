@@ -18,6 +18,9 @@ window.onload = function () {
     id("toggle").onclick = function () {
         toggleBoxes();
     }
+    id("test").onclick = function () {
+        window.open("maptester/index.html");
+    }
 
     function toggleBoxes() {
         if (hitBoxToggle) {
@@ -248,7 +251,7 @@ window.onload = function () {
             mapCode += "h : " + hitBoxes[i].h + "},";
         }
         mapCode += "]";
-        prompt("Coy this text", mapCode);
+        prompt("Copy this text", mapCode);
     };
 
     id("import").onclick = function () {
