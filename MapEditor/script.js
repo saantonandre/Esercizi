@@ -6,7 +6,7 @@ window.onload = function () {
     var c = canvas.getContext("2d");
     var map = [];
     var hitBoxes = [];
-    var cellQuantity = 150;
+    var cellQuantity = id("mapSize").value;
     var cellSize = 15;
     canvas.width = cellQuantity * cellSize;
     canvas.height = cellQuantity * cellSize;
@@ -59,10 +59,52 @@ window.onload = function () {
         R: false,
         T: false,
         B: false,
+        zoomIn: false,
+        zoomOut: false,
         speed: 4
     }
     var sX = 0;
     var sY = 0;
+    //Make the DIV element draggagle:
+    dragElement(id("cont"));
+
+    function dragElement(elmnt) {
+        var pos1 = 0,
+            pos2 = 0,
+            pos3 = 0,
+            pos4 = 0;
+        elmnt.onmousedown = dragMouseDown;
+
+        function dragMouseDown(event) {
+            event = event || window.event;
+            event.preventDefault();
+            // get the mouse cursor position at startup:
+            pos3 = event.clientX;
+            pos4 = event.clientY;
+            document.onmouseup = closeDragElement;
+            // call a function whenever the cursor moves:
+            document.onmousemove = elementDrag;
+        }
+
+        function elementDrag(event) {
+            event = event || window.event;
+            event.preventDefault();
+            // calculate the new cursor position:
+            pos1 = pos3 - event.clientX;
+            pos2 = pos4 - event.clientY;
+            pos3 = event.clientX;
+            pos4 = event.clientY;
+            // set the element's new position:
+            elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+            elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+        }
+
+        function closeDragElement() {
+            /* stop moving when mouse button is released:*/
+            document.onmouseup = null;
+            document.onmousemove = null;
+        }
+    }
 
     function cameraMove() {
         if (camera.L) {
@@ -89,11 +131,18 @@ window.onload = function () {
         if (sY > canvas.height - window.innerHeight) {
             sY = canvas.height - window.innerHeight;
         }
+        if (camera.zoomOut) {
+            id("zoomer").value--;
+            zoomChange();
+        } else if (camera.zoomIn) {
+            id("zoomer").value++;
+            zoomChange();
+        }
         scroll(sX, sY);
     }
 
     function renderMap() {
-        if (camera.L || camera.R || camera.T || camera.B) {
+        if (camera.L || camera.R || camera.T || camera.B || camera.zoomIn || camera.zoomOut) {
             cameraMove();
         }
         for (var i = 0; i < map.length; i++) {
@@ -213,10 +262,12 @@ window.onload = function () {
         }
         return rounded / cellSize;
     }
-    id("zoomer").addEventListener("change", function () {
-        cellSize = parseInt(zoomer.value);
+    id("zoomer").addEventListener("change", zoomChange);
+
+    function zoomChange() {
+        cellSize = parseInt(id("zoomer").value);
         changeMapSize();
-    })
+    }
 
     function changeMapSize() {
         canvas.width = cellQuantity * cellSize;
@@ -283,6 +334,12 @@ window.onload = function () {
             case 83: //bot key down
                 camera.B = true;
                 break;
+            case 69: //bot key up
+                camera.zoomIn = true;
+                break;
+            case 81: //bot key up
+                camera.zoomOut = true;
+                break;
         }
     });
     window.addEventListener("keyup", function (event) {
@@ -299,6 +356,12 @@ window.onload = function () {
                 break;
             case 83: //bot key up
                 camera.B = false;
+                break;
+            case 69: //bot key up
+                camera.zoomIn = false;
+                break;
+            case 81: //bot key up
+                camera.zoomOut = false;
                 break;
         }
     });
