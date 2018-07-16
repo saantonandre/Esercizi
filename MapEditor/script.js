@@ -21,7 +21,7 @@ window.onload = function () {
     id("test").onclick = function () {
         window.open("maptester/index.html");
     }
-
+    //wtf??
     function toggleBoxes() {
         if (hitBoxToggle) {
             hitBoxToggle = false;
