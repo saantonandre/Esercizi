@@ -22,10 +22,10 @@ window.onload = function () {
     function toggleBoxes() {
         if (hitBoxToggle) {
             hitBoxToggle = false;
-            id("toggle").innerHTML = "toggle: hitboxes";
+            id("toggle").innerHTML = "drawing: hitboxes";
         } else {
             hitBoxToggle = true;
-            id("toggle").innerHTML = "toggle: displayed";
+            id("toggle").innerHTML = "drawing: displayed";
         }
     }
     var square = {
