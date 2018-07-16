@@ -232,7 +232,7 @@ window.onload = function () {
 
     id("exportMap").onclick = function () {
         var mapCode = "";
-        mapCode += "map = [";
+        mapCode += "hitBoxes = [";
         for (i = 0; i < map.length; i++) {
             mapCode += "{x : " + map[i].x + ",";
             mapCode += "y : " + map[i].y + ",";
@@ -240,7 +240,7 @@ window.onload = function () {
             mapCode += "h : " + map[i].h + "},";
         }
         mapCode += "]; ";
-        mapCode += "hitBoxes = [";
+        mapCode += "map = [";
         for (i = 0; i < hitBoxes.length; i++) {
             mapCode += "{x : " + hitBoxes[i].x + ",";
             mapCode += "y : " + hitBoxes[i].y + ",";
