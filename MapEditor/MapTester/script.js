@@ -10,38 +10,6 @@ window.onload = function () {
     var cellSize = 30;
     var map = [];
     var hitboxes = [];
-    hitBoxes = [{
-        x: 26,
-        y: 19,
-        w: 11,
-        h: 6
-    }, {
-        x: 41,
-        y: 19,
-        w: 11,
-        h: 1
-    }, {
-        x: 42,
-        y: 14,
-        w: 2,
-        h: 2
-    }, ];
-    map = [{
-        x: 26,
-        y: 18,
-        w: 11,
-        h: 7
-    }, {
-        x: 41,
-        y: 18,
-        w: 11,
-        h: 2
-    }, {
-        x: 42,
-        y: 12,
-        w: 2,
-        h: 4
-    }, ]
 
     var player = {
         x: canvas.width / cellSize / 2,
@@ -65,8 +33,8 @@ window.onload = function () {
         w: player.w,
         h: player.h - 1
     }
-    //var maps = prompt("Insert map code here", "");
-    //eval(maps);
+    var maps = prompt("Insert map code here", "");
+    eval(maps);
 
     requestAnimationFrame(loop);
 
@@ -157,7 +125,6 @@ window.onload = function () {
         isGrounded(playerHitbox);
         mapX -= player.xVel;
         mapY -= player.yVel;
-        /* + player.xVel + "<br/>" + player.yVel;*/
     }
 
 
