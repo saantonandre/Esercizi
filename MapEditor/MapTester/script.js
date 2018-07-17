@@ -102,14 +102,15 @@ window.onload = function () {
             player.h * cellSize
         );
         c.stroke();
-
-        c.fillStyle = "#ff0000";
-        c.fillRect(
+        c.beginPath();
+        c.strokeStyle = "#ff0000";
+        c.rect(
             player.x * cellSize,
             player.y * cellSize + cellSize,
             player.w * cellSize,
             player.h * cellSize - cellSize
         );
+        c.closePath();
         c.stroke();
     }
 
