@@ -8,9 +8,6 @@ window.onload = function () {
     canvas.height = window.innerHeight;
     var c = canvas.getContext("2d");
     var cellSize = 30;
-    var map = [];
-    var hitboxes = [];
-
     var player = {
         x: canvas.width / cellSize / 2,
         y: canvas.height / cellSize / 2,
@@ -27,14 +24,26 @@ window.onload = function () {
         accel: 0.25
     };
 
+    var map = [];
+    var hitboxes = [];
+    var spawnPoint = {
+        x: 0,
+        y: 0
+    }
+
+    var maps = prompt("Insert map code here", "");
+    eval(maps);
+
+    var mapX = (player.x - spawnPoint.x) * cellSize;
+    /*    +1 for hitbox    */
+    var mapY = (player.y - spawnPoint.y + 1) * cellSize;
+
     var playerHitbox = {
         x: player.x,
         y: player.y + 1,
         w: player.w,
         h: player.h - 1
     }
-    var maps = prompt("Insert map code here", "");
-    eval(maps);
 
     requestAnimationFrame(loop);
 
@@ -45,8 +54,6 @@ window.onload = function () {
         calculatePlayer();
         requestAnimationFrame(loop);
     }
-    var mapX = 0;
-    var mapY = 0;
 
     //if collide solo verde con i blu disegna sopra
     //if collide rosso disegna sotto

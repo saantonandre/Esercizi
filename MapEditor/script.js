@@ -25,10 +25,10 @@ window.onload = function () {
     function toggleBoxes() {
         if (hitBoxToggle) {
             hitBoxToggle = false;
-            id("toggle").innerHTML = "drawing: hitboxes";
+            id("toggle").innerHTML = "drawing: displayed";
         } else {
             hitBoxToggle = true;
-            id("toggle").innerHTML = "drawing: displayed";
+            id("toggle").innerHTML = "drawing: hitboxes";
         }
     }
     var square = {
@@ -114,10 +114,13 @@ window.onload = function () {
             document.onmousemove = null;
         }
     }
-
+    var spawnPoint = {
+        x: 0,
+        y: 0
+    };
     id("exportMap").onclick = function () {
         var mapCode = "";
-        mapCode += "hitBoxes = [";
+        mapCode += "map = [";
         for (i = 0; i < map.length; i++) {
             mapCode += "{x : " + map[i].x + ",";
             mapCode += "y : " + map[i].y + ",";
@@ -125,14 +128,15 @@ window.onload = function () {
             mapCode += "h : " + map[i].h + "},";
         }
         mapCode += "]; ";
-        mapCode += "map = [";
+        mapCode += "hitBoxes = [";
         for (i = 0; i < hitBoxes.length; i++) {
             mapCode += "{x : " + hitBoxes[i].x + ",";
             mapCode += "y : " + hitBoxes[i].y + ",";
             mapCode += "w : " + hitBoxes[i].w + ",";
             mapCode += "h : " + hitBoxes[i].h + "},";
         }
-        mapCode += "]";
+        mapCode += "]; ";
+        mapCode += "spawnPoint = {x : " + spawnPoint.x + ",y : " + spawnPoint.y + "};";
         prompt("Copy this text", mapCode);
     };
 
@@ -181,24 +185,31 @@ window.onload = function () {
         if (camera.L || camera.R || camera.T || camera.B || camera.zoomIn || camera.zoomOut) {
             cameraMove();
         }
+        c.globalAlpha = 0.6;
         for (var i = 0; i < map.length; i++) {
-            c.fillStyle = "#000000";
+            c.fillStyle = "#00ff00";
             c.beginPath()
             c.fillRect(map[i].x * cellSize, map[i].y * cellSize, map[i].w * cellSize, map[i].h * cellSize);
             c.closePath();
             c.stroke();
         }
+        c.globalAlpha = 1;
         // these will get shown above visual boxes
 
-        c.globalAlpha = 0.6;
         for (var i = 0; i < hitBoxes.length; i++) {
-            c.fillStyle = "#00ff00";
+            c.fillStyle = "#000000";
             c.beginPath()
             c.fillRect(hitBoxes[i].x * cellSize, hitBoxes[i].y * cellSize, hitBoxes[i].w * cellSize, hitBoxes[i].h * cellSize);
             c.closePath();
             c.stroke();
         }
-        c.globalAlpha = 1;
+
+        //draws spawnpoint
+        c.fillStyle = "#0000cc";
+        c.beginPath()
+        c.fillRect(spawnPoint.x * cellSize, spawnPoint.y * cellSize, 1 * cellSize, 1 * cellSize);
+        c.closePath();
+        c.stroke();
     }
 
     function renderGrid() {
@@ -221,8 +232,31 @@ window.onload = function () {
 
 
 
+    id("spawn").onclick = function () {
+        id("spawn").style.color = "#0000cc";
+        id("canvas").style.cursor = "pointer";
+        canvas.onclick = function hey() {
+            spawnPoint.x = square.x;
+            spawnPoint.y = square.y;
+            id("spawn").style.color = "#000000";
+            id("canvas").style.cursor = "crosshair";
+            canvas.onclick = null;
+        }
+    }
+
+
+
+
     function infoText() {
-        id("info").innerHTML = "x: " + square.x / cellSize + ", y: " + square.y / cellSize + "<br> w: " + square.w / cellSize + ", h: " + square.h / cellSize + "";
+        var sqx = square.x / cellSize;
+        var sqy = square.y / cellSize;
+        if (sqx > -1 && sqx < 1) {
+            sqx = 0;
+        }
+        if (sqy > -1 && sqy < 1) {
+            sqy = 0;
+        }
+        id("info").innerHTML = "x: " + sqx + ", y: " + sqy + "<br> w: " + square.w / cellSize + ", h: " + square.h / cellSize;
     }
 
 
