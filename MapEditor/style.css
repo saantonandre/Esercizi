@@ -21,6 +21,27 @@ body {
     padding: 3px;
 }
 
+#cont button {
+    cursor: pointer;
+}
+
+#canvas {
+    cursor: crosshair;
+}
+
 #mapSize {
     max-width: 50px;
+}
+
+#info {
+    pointer-events: none;
+    display: block;
+    height: 22px;
+    width: 50px;
+    position: fixed;
+    z-index: 100;
+    background-color: white;
+    border: 2px solid black;
+    opacity: 0.8;
+    font-size: 10px;
 }

@@ -38,6 +38,7 @@ window.onload = function () {
         h: 0 // height of the actual square
     };
     var mapSize = id("mapsize");
+    var infoDisp = false;
     mapSize
     requestAnimationFrame(loop);
     // MAIN LOOP
@@ -113,6 +114,33 @@ window.onload = function () {
             document.onmousemove = null;
         }
     }
+
+    id("exportMap").onclick = function () {
+        var mapCode = "";
+        mapCode += "hitBoxes = [";
+        for (i = 0; i < map.length; i++) {
+            mapCode += "{x : " + map[i].x + ",";
+            mapCode += "y : " + map[i].y + ",";
+            mapCode += "w : " + map[i].w + ",";
+            mapCode += "h : " + map[i].h + "},";
+        }
+        mapCode += "]; ";
+        mapCode += "map = [";
+        for (i = 0; i < hitBoxes.length; i++) {
+            mapCode += "{x : " + hitBoxes[i].x + ",";
+            mapCode += "y : " + hitBoxes[i].y + ",";
+            mapCode += "w : " + hitBoxes[i].w + ",";
+            mapCode += "h : " + hitBoxes[i].h + "},";
+        }
+        mapCode += "]";
+        prompt("Copy this text", mapCode);
+    };
+
+    id("import").onclick = function () {
+        var x = prompt("Insert map code here", "");
+        eval(x);
+    }
+
 
     function cameraMove() {
         if (camera.L) {
@@ -190,11 +218,26 @@ window.onload = function () {
             c.stroke();
         }
     }
+
+
+
+    function infoText() {
+        id("info").innerHTML = "x: " + square.x / cellSize + ", y: " + square.y / cellSize + "<br> w: " + square.w / cellSize + ", h: " + square.h / cellSize + "";
+    }
+
+
     // the square you're making on click (hold)
     var mouseDown = false;
     canvas.addEventListener("mousedown", function (event) {
         var xx = window.pageXOffset;
         var yy = window.pageYOffset;
+
+        // info div
+        id("info").style.display = "block";
+        id("info").style.left = event.clientX + 30 + "px";
+        id("info").style.top = event.clientY - 30 + "px";
+        infoText();
+
         if (!mouseDown) {
             square.x = round(event.clientX + xx) * cellSize;
             square.y = round(event.clientY + yy) * cellSize;
@@ -203,7 +246,27 @@ window.onload = function () {
             mouseDown = true;
         }
     })
+
+    canvas.addEventListener("mousemove", function (event) {
+        var xx = window.pageXOffset;
+        var yy = window.pageYOffset;
+        if (mouseDown) {
+            id("info").style.display = "block";
+            id("info").style.left = event.clientX + 30 + "px";
+            id("info").style.top = event.clientY - 30 + "px";
+            infoText();
+        }
+
+        if (mouseDown) {
+            square.w = round(event.clientX + xx - square.x) * cellSize;
+            square.h = round(event.clientY + yy - square.y) * cellSize;
+        }
+    });
+
+
     canvas.addEventListener("mouseup", function () {
+
+        id("info").style.display = "none";
         mouseDown = false;
         roundSquare();
         if (square.w && square.h) {
@@ -233,43 +296,6 @@ window.onload = function () {
         }
     })
 
-    id("exportMap").onclick = function () {
-        var mapCode = "";
-        mapCode += "hitBoxes = [";
-        for (i = 0; i < map.length; i++) {
-            mapCode += "{x : " + map[i].x + ",";
-            mapCode += "y : " + map[i].y + ",";
-            mapCode += "w : " + map[i].w + ",";
-            mapCode += "h : " + map[i].h + "},";
-        }
-        mapCode += "]; ";
-        mapCode += "map = [";
-        for (i = 0; i < hitBoxes.length; i++) {
-            mapCode += "{x : " + hitBoxes[i].x + ",";
-            mapCode += "y : " + hitBoxes[i].y + ",";
-            mapCode += "w : " + hitBoxes[i].w + ",";
-            mapCode += "h : " + hitBoxes[i].h + "},";
-        }
-        mapCode += "]";
-        prompt("Copy this text", mapCode);
-    };
-
-    id("import").onclick = function () {
-        var x = prompt("Insert map code here", "");
-        eval(x);
-    }
-
-    function round(arg) {
-        var rounded = parseInt(arg);
-        var remainder = rounded % cellSize;
-        if (remainder !== 0) {
-            if (remainder > cellSize / 2)
-                rounded = rounded - remainder + cellSize;
-            else
-                rounded = rounded - remainder;
-        }
-        return rounded / cellSize;
-    }
     id("zoomer").addEventListener("change", zoomChange);
 
     function zoomChange() {
@@ -289,6 +315,23 @@ window.onload = function () {
         square.w = round(square.w);
         square.h = round(square.h);
     }
+
+    function round(arg) {
+        var rounded = parseInt(arg);
+        var remainder = rounded % cellSize;
+        if (remainder !== 0) {
+            if (remainder > cellSize / 2)
+                rounded = rounded - remainder + cellSize;
+            else
+                rounded = rounded - remainder;
+        }
+        if (rounded / cellSize > 0 && rounded / cellSize < 1) {
+            return 0;
+        } else {
+            return rounded / cellSize;
+        }
+    }
+
     document.addEventListener("contextmenu", function (event) {
 
         var xx = window.pageXOffset;
@@ -317,14 +360,7 @@ window.onload = function () {
         }
     }
 
-    canvas.addEventListener("mousemove", function (event) {
-        var xx = window.pageXOffset;
-        var yy = window.pageYOffset;
-        if (mouseDown) {
-            square.w = round(event.clientX + xx - square.x) * cellSize;
-            square.h = round(event.clientY + yy - square.y) * cellSize;
-        }
-    });
+
 
 
     window.addEventListener("keydown", function (event) {
