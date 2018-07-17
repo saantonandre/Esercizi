@@ -193,7 +193,6 @@ window.onload = function () {
             c.closePath();
             c.stroke();
         }
-        c.globalAlpha = 1;
         // these will get shown above visual boxes
 
         for (var i = 0; i < hitBoxes.length; i++) {
@@ -204,6 +203,7 @@ window.onload = function () {
             c.stroke();
         }
 
+        c.globalAlpha = 1;
         //draws spawnpoint
         c.fillStyle = "#0000cc";
         c.beginPath()
