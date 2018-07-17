@@ -3,350 +3,251 @@ window.onload = function () {
         return document.getElementById(arg);
     }
     var canvas = id("canvas");
-    var c = canvas.getContext("2d");
-    var map = [];
-    var hitBoxes = [];
-    var cellQuantity = id("mapSize").value;
-    var cellSize = 15;
-    canvas.width = cellQuantity * cellSize;
-    canvas.height = cellQuantity * cellSize;
-    id("mapSizeBtn").onclick = function () {
-        cellQuantity = id("mapSize").value;
-        changeMapSize();
-    }
-    var hitBoxToggle = false;
-    id("toggle").onclick = function () {
-        toggleBoxes();
-    }
-    id("test").onclick = function () {
-        window.open("MapTester/index.html");
-    }
-    //wtf??
-    function toggleBoxes() {
-        if (hitBoxToggle) {
-            hitBoxToggle = false;
-            id("toggle").innerHTML = "drawing: hitboxes";
-        } else {
-            hitBoxToggle = true;
-            id("toggle").innerHTML = "drawing: displayed";
-        }
-    }
-    var square = {
-        x: 0, // xPos of the actual square
-        y: 0, // yPos of the actual square
-        w: 0, // width of the actual square
-        h: 0 // height of the actual square
-    };
-    var mapSize = id("mapsize");
-    mapSize
-    requestAnimationFrame(loop);
-    // MAIN LOOP
-    function loop() {
 
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    var c = canvas.getContext("2d");
+    var cellSize = 30;
+    var map = [];
+    var hitboxes = [];
+
+    var player = {
+        x: canvas.width / cellSize / 2,
+        y: canvas.height / cellSize / 2,
+        h: 2,
+        w: 1,
+        //movement
+        L: 0,
+        R: 0,
+        T: 0,
+        B: 0,
+        xVel: 0,
+        yVel: 0,
+        speed: 3,
+        accel: 0.25
+    };
+
+    var playerHitbox = {
+        x: player.x,
+        y: player.y + 1,
+        w: player.w,
+        h: player.h - 1
+    }
+    var maps = prompt("Insert map code here", "");
+    eval(maps);
+
+    requestAnimationFrame(loop);
+
+    function loop() {
         c.clearRect(0, 0, canvas.width, canvas.height);
-        renderGrid();
-        renderMap();
-        if (mouseDown) {
-            renderSquare();
-        }
+        drawPlayer();
+        drawMap();
+        calculatePlayer();
         requestAnimationFrame(loop);
     }
+    var mapX = 0;
+    var mapY = 0;
 
-    function renderSquare() {
-        if (hitBoxToggle)
-            c.strokeStyle = "#ff0000";
-        else {
-            c.strokeStyle = "#000000";
-        }
-        c.beginPath()
-        c.rect(square.x, square.y, square.w, square.h);
-        c.closePath();
-        c.stroke();
-    }
-    var camera = {
-        L: false,
-        R: false,
-        T: false,
-        B: false,
-        zoomIn: false,
-        zoomOut: false,
-        speed: 4
-    }
-    var sX = 0;
-    var sY = 0;
-    //Make the DIV element draggagle:
-    dragElement(id("cont"));
+    //if collide solo verde con i blu disegna sopra
+    //if collide rosso disegna sotto
 
-    function dragElement(elmnt) {
-        var pos1 = 0,
-            pos2 = 0,
-            pos3 = 0,
-            pos4 = 0;
-        elmnt.onmousedown = dragMouseDown;
-
-        function dragMouseDown(event) {
-            event = event || window.event;
-            // get the mouse cursor position at startup:
-            pos3 = event.clientX;
-            pos4 = event.clientY;
-            document.onmouseup = closeDragElement;
-            // call a function whenever the cursor moves:
-            document.onmousemove = elementDrag;
-        }
-
-        function elementDrag(event) {
-            event = event || window.event;
-            event.preventDefault();
-            // calculate the new cursor position:
-            pos1 = pos3 - event.clientX;
-            pos2 = pos4 - event.clientY;
-            pos3 = event.clientX;
-            pos4 = event.clientY;
-            // set the element's new position:
-            elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-            elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-        }
-
-        function closeDragElement() {
-            /* stop moving when mouse button is released:*/
-            document.onmouseup = null;
-            document.onmousemove = null;
-        }
-    }
-
-    function cameraMove() {
-        if (camera.L) {
-            sX -= camera.speed;
-        }
-        if (camera.R) {
-            sX += camera.speed;
-        }
-        if (camera.T) {
-            sY -= camera.speed;
-        }
-        if (camera.B) {
-            sY += camera.speed;
-        }
-        if (sX < 0) {
-            sX = 0;
-        }
-        if (sX > canvas.width - window.innerWidth) {
-            sX = canvas.width - window.innerWidth;
-        }
-        if (sY < 0) {
-            sY = 0;
-        }
-        if (sY > canvas.height - window.innerHeight) {
-            sY = canvas.height - window.innerHeight;
-        }
-        if (camera.zoomOut) {
-            id("zoomer").value--;
-            zoomChange();
-        } else if (camera.zoomIn) {
-            id("zoomer").value++;
-            zoomChange();
-        }
-        scroll(sX, sY);
-    }
-
-    function renderMap() {
-        if (camera.L || camera.R || camera.T || camera.B || camera.zoomIn || camera.zoomOut) {
-            cameraMove();
-        }
-        for (var i = 0; i < map.length; i++) {
-            c.fillStyle = "#000000";
-            c.beginPath()
-            c.fillRect(map[i].x * cellSize, map[i].y * cellSize, map[i].w * cellSize, map[i].h * cellSize);
-            c.closePath();
-            c.stroke();
-        }
-        // these will get shown above visual boxes
-
-        c.globalAlpha = 0.6;
-        for (var i = 0; i < hitBoxes.length; i++) {
-            c.fillStyle = "#00ff00";
-            c.beginPath()
-            c.fillRect(hitBoxes[i].x * cellSize, hitBoxes[i].y * cellSize, hitBoxes[i].w * cellSize, hitBoxes[i].h * cellSize);
-            c.closePath();
-            c.stroke();
-        }
-        c.globalAlpha = 1;
-    }
-
-    function renderGrid() {
-        c.strokeStyle = "#888888";
-        for (var i = 0; i < canvas.width; i += cellSize) {
-            c.beginPath()
-            c.moveTo(i, 0);
-            c.lineTo(i, canvas.height);
-            c.closePath();
-            c.stroke();
-        }
-        for (var i = 0; i < canvas.height; i += cellSize) {
-            c.beginPath()
-            c.moveTo(0, i);
-            c.lineTo(canvas.width, i);
-            c.closePath();
-            c.stroke();
-        }
-    }
-    // the square you're making on click (hold)
-    var mouseDown = false;
-    canvas.addEventListener("mousedown", function (event) {
-        var xx = window.pageXOffset;
-        var yy = window.pageYOffset;
-        if (!mouseDown) {
-            square.x = round(event.clientX + xx) * cellSize;
-            square.y = round(event.clientY + yy) * cellSize;
-            square.w = 0;
-            square.h = 0;
-            mouseDown = true;
-        }
-    })
-    canvas.addEventListener("mouseup", function () {
-        mouseDown = false;
-        roundSquare();
-        if (square.w && square.h) {
-            if (square.w < 0) {
-                square.w *= -1;
-                square.x -= square.w;
-            }
-            if (square.h < 0) {
-                square.h *= -1;
-                square.y -= square.h;
-            }
-            if (hitBoxToggle) {
-                hitBoxes.push({
-                    x: square.x,
-                    y: square.y,
-                    w: square.w,
-                    h: square.h
-                });
-            } else {
-                map.push({
-                    x: square.x,
-                    y: square.y,
-                    w: square.w,
-                    h: square.h
-                });
-            }
-        }
-    })
-
-    id("exportMap").onclick = function () {
-        var mapCode = "";
-        mapCode += "hitBoxes = [";
+    function drawMap() {
+        var ok1 = false;
+        var ok2 = false;
         for (i = 0; i < map.length; i++) {
-            mapCode += "{x : " + map[i].x + ",";
-            mapCode += "y : " + map[i].y + ",";
-            mapCode += "w : " + map[i].w + ",";
-            mapCode += "h : " + map[i].h + "},";
+            c.fillStyle = "#0000ff";
+            c.beginPath()
+            c.fillRect(map[i].x * cellSize + mapX, map[i].y * cellSize + mapY, map[i].w * cellSize, map[i].h * cellSize);
+            c.closePath();
+            c.stroke();
+            if (col2(player, map[i])) {
+                ok1 = true;
+            }
+            if (col2(playerHitbox, map[i])) {
+                ok2 = true;
+            }
+
         }
-        mapCode += "]; ";
-        mapCode += "map = [";
         for (i = 0; i < hitBoxes.length; i++) {
-            mapCode += "{x : " + hitBoxes[i].x + ",";
-            mapCode += "y : " + hitBoxes[i].y + ",";
-            mapCode += "w : " + hitBoxes[i].w + ",";
-            mapCode += "h : " + hitBoxes[i].h + "},";
+            c.strokeStyle = "#ff0000";
+            c.beginPath()
+            c.rect(hitBoxes[i].x * cellSize + mapX, hitBoxes[i].y * cellSize + mapY, hitBoxes[i].w * cellSize, hitBoxes[i].h * cellSize);
+            c.closePath();
+            c.stroke();
         }
-        mapCode += "]";
-        prompt("Copy this text", mapCode);
-    };
-
-    id("import").onclick = function () {
-        var x = prompt("Insert map code here", "");
-        eval(x);
-    }
-
-    function round(arg) {
-        var rounded = parseInt(arg);
-        var remainder = rounded % cellSize;
-        if (remainder !== 0) {
-            if (remainder > cellSize / 2)
-                rounded = rounded - remainder + cellSize;
-            else
-                rounded = rounded - remainder;
+        if (!(ok1 && ok2)) {
+            drawPlayer();
         }
-        return rounded / cellSize;
-    }
-    id("zoomer").addEventListener("change", zoomChange);
-
-    function zoomChange() {
-        cellSize = parseInt(id("zoomer").value);
-        changeMapSize();
     }
 
-    function changeMapSize() {
-        canvas.width = cellQuantity * cellSize;
-        canvas.height = cellQuantity * cellSize;
-    }
-
-    function roundSquare() {
-
-        square.x = round(square.x);
-        square.y = round(square.y);
-        square.w = round(square.w);
-        square.h = round(square.h);
-    }
-    document.addEventListener("contextmenu", function (event) {
-
-        var xx = window.pageXOffset;
-        var yy = window.pageYOffset;
-        event.preventDefault();
-        var x = event.clientX + xx;
-        var y = event.clientY + yy;
-        removeElements(map, x, y);
-        removeElements(hitBoxes, x, y);
-    });
-
-    function removeElements(arg, x, y) {
-        var removeList = [];
-        for (i = 0; i < arg.length; i++) {
-            if (x > arg[i].x * cellSize && x < arg[i].x * cellSize + arg[i].w * cellSize) {
-                if (y > arg[i].y * cellSize && y < arg[i].y * cellSize + arg[i].h * cellSize) {
-                    removeList.push(i);
+    function col2(player, box) {
+        if (player.x + player.w > box.x + mapX / cellSize) {
+            if (player.x < box.x + mapX / cellSize + box.w) {
+                if (player.y + player.h > box.y + mapY / cellSize) {
+                    if (player.y < box.y + mapY / cellSize + box.h) {
+                        return true;
+                    }
                 }
             }
         }
-        removeList.sort(function (a, b) {
-            return b - a;
-        });
-        for (i = 0; i < removeList.length; i++) {
-            arg.splice(removeList[i], 1);
+        return false;
+    }
+
+    function drawPlayer() {
+        c.fillStyle = "#00ff00";
+        c.fillRect(
+            player.x * cellSize,
+            player.y * cellSize,
+            player.w * cellSize,
+            player.h * cellSize
+        );
+        c.stroke();
+
+        c.fillStyle = "#ff0000";
+        c.fillRect(
+            player.x * cellSize,
+            player.y * cellSize + cellSize,
+            player.w * cellSize,
+            player.h * cellSize - cellSize
+        );
+        c.stroke();
+    }
+
+    function calculatePlayer() {
+        playerHitbox = {
+            x: player.x,
+            y: player.y + 1,
+            w: player.w,
+            h: player.h - 1
+        }
+        directionCheck();
+
+        isGrounded(playerHitbox);
+        mapX -= player.xVel;
+        mapY -= player.yVel;
+        /* + player.xVel + "<br/>" + player.yVel;*/
+    }
+
+
+    function directionCheck() {
+        if (player.L || player.R) {
+            if (player.R && player.xVel < player.speed) {
+                player.xVel += player.accel;
+            }
+            if (player.L && player.xVel > -player.speed) {
+                player.xVel -= player.accel;
+            }
+        } else {
+            if (player.xVel !== 0) {
+                (player.xVel > 0) ? player.xVel -= player.accel / 4: player.xVel += player.accel / 4;
+            }
+        }
+        if (player.B || player.T) {
+            if (player.B && player.yVel < player.speed) {
+                player.yVel += player.accel;
+            }
+            if (player.T && player.yVel > -player.speed) {
+                player.yVel -= player.accel;
+            }
+        } else {
+            if (player.yVel !== 0) {
+                (player.yVel > 0) ? player.yVel -= player.accel / 4: player.yVel += player.accel / 4;
+            }
         }
     }
 
-    canvas.addEventListener("mousemove", function (event) {
-        var xx = window.pageXOffset;
-        var yy = window.pageYOffset;
-        if (mouseDown) {
-            square.w = round(event.clientX + xx - square.x) * cellSize;
-            square.h = round(event.clientY + yy - square.y) * cellSize;
+
+
+
+
+    function isGrounded(entity) {
+        id("stat").innerHTML = "";
+        for (i = 0; i < hitBoxes.length; i++) {
+            var col = collision(entity, hitBoxes[i]);
+            if (col.l) {
+                id("stat").innerHTML += "L ";
+                player.xVel -= player.xVel * 2;
+            }
+            if (col.r) {
+                id("stat").innerHTML += "R ";
+                player.xVel -= player.xVel * 2;
+
+            }
+            if (col.t) {
+                id("stat").innerHTML += "T ";
+                player.yVel -= player.yVel * 2;
+            }
+            if (col.b) {
+                id("stat").innerHTML += "B ";
+                player.yVel -= player.yVel * 2;
+            }
         }
-    });
+
+    }
+
+
+
+
+
+
+
+
+
+    //COLLISION DETECTOR
+    function collision(Box1, Box2) {
+        var vectorX = (Box1.x + (Box1.w / 2)) - (Box2.x + mapX / cellSize + (Box2.w / 2)),
+            vectorY = (Box1.y + (Box1.h / 2)) - (Box2.y + mapY / cellSize + (Box2.h / 2)),
+            hWidths = (Box1.w / 2) + (Box2.w / 2),
+            hHeights = (Box1.h / 2) + (Box2.h / 2),
+            colDir = {
+                t: 0,
+                b: 0,
+                l: 0,
+                r: 0
+            };
+        if (Math.abs(vectorX) < hWidths && Math.abs(vectorY) < hHeights) {
+            var oX = hWidths - Math.abs(vectorX),
+                oY = hHeights - Math.abs(vectorY);
+            if (oX >= oY) {
+
+                if (vectorY >= 0) {
+                    colDir.t = 1;
+                } else {
+                    colDir.b = 1;
+                }
+            } else {
+                if (vectorX >= 0) {
+                    colDir.l = 1;
+                } else {
+                    colDir.r = 1;
+                }
+            }
+        }
+        return colDir;
+    }
+
+
+
+
+
+
+
 
 
     window.addEventListener("keydown", function (event) {
         var key = event.keyCode;
         switch (key) {
             case 65: //left key down
-                camera.L = true;
+                player.L = true;
                 break;
             case 68: //right key down
-                camera.R = true;
+                player.R = true;
                 break;
             case 87: //top key down
-                camera.T = true;
+                player.T = true;
                 break;
             case 83: //bot key down
-                camera.B = true;
-                break;
-            case 69: //bot key up
-                camera.zoomIn = true;
-                break;
-            case 81: //bot key up
-                camera.zoomOut = true;
+                player.B = true;
                 break;
         }
     });
@@ -354,25 +255,16 @@ window.onload = function () {
         var key = event.keyCode;
         switch (key) {
             case 65: //left key up
-                camera.L = false;
+                player.L = false;
                 break;
             case 68: //right key up
-                camera.R = false;
+                player.R = false;
                 break;
             case 87: //top key up
-                camera.T = false;
+                player.T = false;
                 break;
             case 83: //bot key up
-                camera.B = false;
-                break;
-            case 69: //bot key up
-                camera.zoomIn = false;
-                break;
-            case 81: //bot key up
-                camera.zoomOut = false;
-                break;
-            case 82:
-                toggleBoxes();
+                player.B = false;
                 break;
         }
     });
