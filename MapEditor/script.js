@@ -19,7 +19,7 @@ window.onload = function () {
         toggleBoxes();
     }
     id("test").onclick = function () {
-        window.open("maptester/index.html");
+        window.open("MapTester/index.html");
     }
 
     function toggleBoxes() {
