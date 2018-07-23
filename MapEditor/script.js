@@ -8,21 +8,34 @@ window.onload = function () {
     var hitBoxes = [];
     var cellQuantity = id("mapSize").value;
     var cellSize = 15;
+    var interactiveTile = 0;
     canvas.width = cellQuantity * cellSize;
     canvas.height = cellQuantity * cellSize;
     id("mapSizeBtn").onclick = function () {
         cellQuantity = id("mapSize").value;
         changeMapSize();
     }
-    var hitBoxToggle = false;
-    id("toggle").onclick = function () {
-        toggleBoxes();
-    }
+
+
+    //LAUNCH TESTMODE
     id("test").onclick = function () {
         window.open("MapTester/index.html");
     }
-
-    function toggleBoxes() {
+    //TOGGLES INTERACTIVE BLOCKS
+    id("interactive").onclick = function () {
+        if (interactiveTile) {
+            interactiveTile = 0;
+            id("interactive").style.backgroundColor = "white";
+            id("interactive").style.color = "black";
+        } else {
+            interactiveTile = 1;
+            id("interactive").style.backgroundColor = "black";
+            id("interactive").style.color = "white";
+        }
+    }
+    //SWITCH BETWEEN HITBOXES AND DISPLAYED
+    var hitBoxToggle = false;
+    id("toggle").onclick = function () {
         if (hitBoxToggle) {
             hitBoxToggle = false;
             id("toggle").innerHTML = "drawing: displayed";
@@ -31,19 +44,20 @@ window.onload = function () {
             id("toggle").innerHTML = "drawing: hitboxes";
         }
     }
+
+    // 'square' is the square that appears whenever the mouse is dragged and moved
     var square = {
         x: 0, // xPos of the actual square
         y: 0, // yPos of the actual square
         w: 0, // width of the actual square
         h: 0 // height of the actual square
     };
-    var mapSize = id("mapsize");
     var infoDisp = false;
-    mapSize
-    requestAnimationFrame(loop);
-    // MAIN LOOP
-    function loop() {
 
+    // MAIN LOOP
+    requestAnimationFrame(loop);
+
+    function loop() {
         c.clearRect(0, 0, canvas.width, canvas.height);
         renderGrid();
         renderMap();
@@ -75,7 +89,9 @@ window.onload = function () {
     }
     var sX = 0;
     var sY = 0;
-    //Make the DIV element draggagle:
+
+
+    // MAKES THE MENU DRAGGABLE
     dragElement(id("cont"));
 
     function dragElement(elmnt) {
@@ -114,10 +130,14 @@ window.onload = function () {
             document.onmousemove = null;
         }
     }
+
+    // PLACEHOLDER SPAWNPOINT
     var spawnPoint = {
         x: 0,
         y: 0
     };
+
+    //GENERATES THE EXPORT CODE
     id("exportMap").onclick = function () {
         var mapCode = "";
         mapCode += "map = [";
@@ -125,7 +145,11 @@ window.onload = function () {
             mapCode += "{x : " + map[i].x + ",";
             mapCode += "y : " + map[i].y + ",";
             mapCode += "w : " + map[i].w + ",";
-            mapCode += "h : " + map[i].h + "},";
+            mapCode += "h : " + map[i].h;
+            if (map[i].text !== undefined) {
+                mapCode += ",text : \'" + map[i].text + "\'";
+            }
+            mapCode += "},";
         }
         mapCode += "]; ";
         mapCode += "hitBoxes = [";
@@ -133,19 +157,24 @@ window.onload = function () {
             mapCode += "{x : " + hitBoxes[i].x + ",";
             mapCode += "y : " + hitBoxes[i].y + ",";
             mapCode += "w : " + hitBoxes[i].w + ",";
-            mapCode += "h : " + hitBoxes[i].h + "},";
+            mapCode += "h : " + hitBoxes[i].h + "";
+            if (hitBoxes[i].text !== undefined) {
+                mapCode += ",text : \'" + hitBoxes[i].text + "\'";
+            }
+            mapCode += "},";
         }
         mapCode += "]; ";
         mapCode += "spawnPoint = {x : " + spawnPoint.x + ",y : " + spawnPoint.y + "};";
         prompt("Copy this text", mapCode);
     };
 
+    // LOADS AND READS THE IMPORTED CODE
     id("import").onclick = function () {
         var x = prompt("Insert map code here", "");
         eval(x);
     }
 
-
+    // ALLOWS TO MOVE THE CAMERA IN THE EDITOR
     function cameraMove() {
         if (camera.L) {
             sX -= camera.speed;
@@ -231,7 +260,7 @@ window.onload = function () {
     }
 
 
-
+    //SETS THE PLAYER'S SPAWNPOINT
     id("spawn").onclick = function () {
         id("spawn").style.color = "#0000cc";
         id("canvas").style.cursor = "pointer";
@@ -246,7 +275,7 @@ window.onload = function () {
 
 
 
-
+    //SHOWS THE LITTLE WINDOW OF THE SQUARES PROPERTIES
     function infoText() {
         var sqx = square.x / cellSize;
         var sqy = square.y / cellSize;
@@ -319,6 +348,11 @@ window.onload = function () {
                     w: square.w,
                     h: square.h
                 });
+                if (interactiveTile) {
+                    //Inserted text
+                    var text = prompt("Insert the text for this interactive tile", "");
+                    hitBoxes[hitBoxes.length - 1].text = text;
+                }
             } else {
                 map.push({
                     x: square.x,
@@ -326,6 +360,11 @@ window.onload = function () {
                     w: square.w,
                     h: square.h
                 });
+                if (interactiveTile) {
+                    //Inserted text
+                    var text = prompt("Insert the text for this interactive tile", "");
+                    map[map.length - 1].text = text;
+                }
             }
         }
     })

@@ -45,13 +45,13 @@ window.onload = function () {
     };
 
     var map = [];
-    var hitboxes = [];
+    var hitBoxes = [];
     var spawnPoint = {
         x: 0,
         y: 0
     }
 
-    var maps = prompt("Insert map code here", "");
+    var maps = prompt("Insert map code here\n(w-a-s-d to walk, spacebar to interact)", "");
     eval(maps);
 
     var mapX = (player.x - spawnPoint.x) * cellSize;
@@ -138,6 +138,8 @@ window.onload = function () {
         /* going down through the sprite frame */
 
         frameCounter++;
+        player.centerX = player.x + (player.w / 2) - mapX / cellSize;
+        player.centerY = player.y + 1 + ((player.h - 1) / 2) - mapY / cellSize;
 
         /* if the next frame does not exist return to 0 */
         if (player.currentFrame + 1 > player.sprites[player.currentSprite][0].height / player.sprites[player.currentSprite][0].width / 2) {
@@ -285,12 +287,56 @@ window.onload = function () {
         return colDir;
     }
 
+    //the interaction point relative to player
+    var inter = {
+        //left respective to the player
+        l: 0,
+        //top respective to the player
+        t: 0
+    }
+
+    function interact() {
+        switch (lastPressed) {
+            case "l":
+                inter.l = -1;
+                inter.t = 0;
+                break;
+            case "r":
+                inter.l = 1;
+                inter.t = 0;
+                break;
+            case "t":
+                inter.l = 0;
+                inter.t = -1;
+                break;
+            case "b":
+                inter.l = 0;
+                inter.t = 1;
+                break;
+        }
+        for (i = 0; i < hitBoxes.length; i++) {
+            if (hitBoxes[i].text !== undefined) {
+                console.log(player.centerX + " " + player.centerY + "\n" + hitBoxes[i].x + " " + hitBoxes[i].y)
+                if (player.centerX + inter.l > hitBoxes[i].x && player.centerX + inter.l < hitBoxes[i].x + hitBoxes[i].w) {
+                    if (player.centerY + inter.t > hitBoxes[i].y && player.centerY + inter.t < hitBoxes[i].y + hitBoxes[i].h) {
+                        alert(hitBoxes[i].text);
+                    }
+                }
+            }
+        }
+
+    }
 
 
-
-
-
-
+    window.addEventListener("keypress", function (event) {
+        var key = event.keyCode;
+        switch (key) {
+            case 32: //spacebar
+                interact();
+                break;
+        }
+    });
+    var lastPressed;
 
     window.addEventListener("keydown", function (event) {
         var key = event.keyCode;
@@ -298,18 +344,22 @@ window.onload = function () {
             case 65: //left key down
                 player.L = true;
                 player.currentSprite = 1;
+                lastPressed = "l";
                 break;
             case 68: //right key down
                 player.R = true;
                 player.currentSprite = 2;
+                lastPressed = "r";
                 break;
             case 87: //top key down
                 player.T = true;
                 player.currentSprite = 3;
+                lastPressed = "t";
                 break;
             case 83: //bot key down
                 player.B = true;
                 player.currentSprite = 4;
+                lastPressed = "b";
                 break;
         }
     });
