@@ -324,6 +324,16 @@ window.onload = function () {
                 }
             }
         }
+        for (i = 0; i < map.length; i++) {
+            if (map[i].text !== undefined) {
+                console.log(player.centerX + " " + player.centerY + "\n" + map[i].x + " " + map[i].y)
+                if (player.centerX + inter.l > map[i].x && player.centerX + inter.l < map[i].x + map[i].w) {
+                    if (player.centerY + inter.t > map[i].y && player.centerY + inter.t < map[i].y + map[i].h) {
+                        alert(map[i].text);
+                    }
+                }
+            }
+        }
 
     }
 
@@ -332,6 +342,7 @@ window.onload = function () {
         var key = event.keyCode;
         switch (key) {
             case 32: //spacebar
+                event.preventDefault();
                 interact();
                 break;
         }
