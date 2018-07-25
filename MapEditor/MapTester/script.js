@@ -26,7 +26,7 @@ window.onload = function () {
         xVel: 0,
         yVel: 0,
         speed: 3,
-        accel: 0.25,
+        accel: 0.5,
         /* sprites have an address and a delay */
         sprites: [
             /* IDLE: */
@@ -80,49 +80,6 @@ window.onload = function () {
     //if collide solo verde con i blu disegna sopra
     //if collide rosso disegna sotto
 
-    function drawMap() {
-        var ok1 = false;
-        var ok2 = false;
-        for (i = 0; i < map.length; i++) {
-            c.fillStyle = "#0000ff";
-            c.beginPath()
-            c.fillRect(map[i].x * cellSize + mapX, map[i].y * cellSize + mapY, map[i].w * cellSize, map[i].h * cellSize);
-            c.closePath();
-            c.stroke();
-            if (col2(player, map[i])) {
-                ok1 = true;
-            }
-            if (col2(playerHitbox, map[i])) {
-                ok2 = true;
-            }
-
-        }
-        for (i = 0; i < hitBoxes.length; i++) {
-            c.strokeStyle = "#ff0000";
-            c.beginPath()
-            c.rect(hitBoxes[i].x * cellSize + mapX, hitBoxes[i].y * cellSize + mapY, hitBoxes[i].w * cellSize, hitBoxes[i].h * cellSize);
-            c.closePath();
-            c.stroke();
-        }
-        if (!(ok1 && ok2)) {
-            drawPlayer();
-        }
-    }
-
-    function col2(player, box) {
-        if (player.x + player.w > box.x + mapX / cellSize) {
-            if (player.x < box.x + mapX / cellSize + box.w) {
-                if (player.y + player.h > box.y + mapY / cellSize) {
-                    if (player.y < box.y + mapY / cellSize + box.h) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-    var frameCounter = 0;
-
     function drawPlayer() {
         c.fillStyle = "#00ff00";
 
@@ -133,9 +90,7 @@ window.onload = function () {
             !player.T &&
             !player.B) {
             player.currentSprite = 0;
-        }
-
-        /* going down through the sprite frame */
+        } /* going down through the sprite frame */
 
         frameCounter++;
         player.centerX = player.x + (player.w / 2) - mapX / cellSize;
@@ -175,6 +130,35 @@ window.onload = function () {
         c.closePath();
         c.stroke();
     }
+
+    function drawMap() {
+        var ok1 = false;
+        var ok2 = false;
+        for (i = 0; i < map.length; i++) {
+            c.fillStyle = "#0000ff";
+            c.beginPath()
+            c.fillRect(map[i].x * cellSize + mapX, map[i].y * cellSize + mapY, map[i].w * cellSize, map[i].h * cellSize);
+            c.closePath();
+            c.stroke();
+            if (col2(player, map[i])) {
+                ok1 = true;
+            }
+            if (col2(playerHitbox, map[i])) {
+                ok2 = true;
+            }
+
+        }
+        for (i = 0; i < hitBoxes.length; i++) {
+            c.strokeStyle = "#ff0000";
+            c.beginPath()
+            c.rect(hitBoxes[i].x * cellSize + mapX, hitBoxes[i].y * cellSize + mapY, hitBoxes[i].w * cellSize, hitBoxes[i].h * cellSize);
+            c.closePath();
+            c.stroke();
+        }
+        if (!(ok1 && ok2)) {
+            drawPlayer();
+        }
+    }
     /* SPRITE RENDERING */
 
     function calculatePlayer() {
@@ -185,74 +169,111 @@ window.onload = function () {
             h: player.h - 1
         }
 
+        isGrounded(playerHitbox);
         directionCheck();
 
-        isGrounded(playerHitbox);
 
-        mapX -= player.xVel;
-        mapY -= player.yVel;
     }
 
+    var colSide;
+
+    function isGrounded(entity) {
+        id("stat").innerHTML = "";
+        colSide = {
+            t: 0,
+            b: 0,
+            l: 0,
+            r: 0
+        };
+        for (i = 0; i < hitBoxes.length; i++) {
+
+            var col = collision(entity, hitBoxes[i]);
+
+            if (col.l) {
+                if (player.xVel < 0)
+                    mapX += player.xVel;
+                colSide.l = 1;
+            }
+            if (col.r) {
+                if (player.xVel > 0)
+                    mapX += player.xVel;
+                colSide.r = 1;
+
+            }
+            if (col.t) {
+                if (player.yVel < 0)
+                    mapY += player.yVel;
+                colSide.t = 1;
+            }
+            if (col.b) {
+                if (player.yVel > 0)
+                    mapY += player.yVel;
+                colSide.b = 1;
+            }
+
+
+        }
+        id("stat").innerHTML += "L: " + colSide.l + " R: " + colSide.r + " T: " + colSide.t + " B: " + colSide.b;
+
+    }
 
     function directionCheck() {
 
         if (player.L || player.R) {
-            if (player.R && player.xVel < player.speed) {
+            if (player.R && player.xVel < player.speed && !(colSide.r)) {
                 player.xVel += player.accel;
             }
-            if (player.L && player.xVel > -player.speed) {
+            if (player.L && player.xVel > -player.speed && !(colSide.l)) {
                 player.xVel -= player.accel;
             }
         } else {
             if (player.xVel !== 0) {
-                (player.xVel > 0) ? player.xVel -= player.accel / 4: player.xVel += player.accel / 4;
+                if (colSide.r || colSide.l) {
+                    player.xVel = 0;
+                } else
+                    (player.xVel > 0) ? player.xVel -= player.accel / 4 : player.xVel += player.accel / 4;
             }
         }
         if (player.B || player.T) {
-            if (player.B && player.yVel < player.speed) {
+            if (player.B && player.yVel < player.speed && !(colSide.b)) {
                 player.yVel += player.accel;
             }
-            if (player.T && player.yVel > -player.speed) {
+            if (player.T && player.yVel > -player.speed && !(colSide.t)) {
                 player.yVel -= player.accel;
             }
         } else {
             if (player.yVel !== 0) {
-                (player.yVel > 0) ? player.yVel -= player.accel / 4: player.yVel += player.accel / 4;
+                if (colSide.t || colSide.b) {
+                    player.yVel = 0;
+                } else
+                    (player.yVel > 0) ? player.yVel -= player.accel / 4 : player.yVel += player.accel / 4;
             }
         }
+        mapX -= player.xVel;
+        mapY -= player.yVel;
     }
 
-
-
-
-
-    function isGrounded(entity) {
-        id("stat").innerHTML = "";
-
-        for (i = 0; i < hitBoxes.length; i++) {
-
-            var col = collision(entity, hitBoxes[i]);
-            if (col.l) {
-                id("stat").innerHTML += "L ";
-                player.xVel -= player.xVel * 2;
-            }
-            if (col.r) {
-                id("stat").innerHTML += "R ";
-                player.xVel -= player.xVel * 2;
-
-            }
-            if (col.t) {
-                id("stat").innerHTML += "T ";
-                player.yVel -= player.yVel * 2;
-            }
-            if (col.b) {
-                id("stat").innerHTML += "B ";
-                player.yVel -= player.yVel * 2;
+    function col2(player, box) {
+        if (player.x + player.w > box.x + mapX / cellSize) {
+            if (player.x < box.x + mapX / cellSize + box.w) {
+                if (player.y + player.h > box.y + mapY / cellSize) {
+                    if (player.y < box.y + mapY / cellSize + box.h) {
+                        return true;
+                    }
+                }
             }
         }
-
-
+        return false;
     }
+    var frameCounter = 0;
+
+
+
+
+
+
+
+
 
     //COLLISION DETECTOR
     function collision(Box1, Box2) {
