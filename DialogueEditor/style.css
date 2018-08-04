@@ -1,0 +1,135 @@
+body {
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    font-size: 15px;
+    background-color: #EF6F6C;
+    color: #261C15;
+}
+
+h1 {
+    color: #E1C35B;
+    background-color: #261C15;
+}
+
+textarea {
+    background-color: #EFF1ED;
+    border: none;
+}
+
+#cont {
+    font-family: 'Varela Round', sans-serif;
+    display: inline-block;
+    width: 80vw;
+    border-radius: 30px;
+    background-color: #DDAE7E;
+    box-shadow: 3px 3px 3px;
+    padding: 5px;
+}
+
+#text2 {
+    width: 80%;
+}
+
+#text3 {
+    width: 80%;
+}
+
+button {
+    font-family: 'Varela Round', sans-serif;
+    font-weight: 600;
+    margin-right: 5px;
+    cursor: pointer:
+}
+
+.text {
+    text-align: center;
+    border-radius: 5px;
+    max-width: 90%;
+}
+
+#test {
+    background-color: #EFF1ED;
+    border-radius: 5px;
+    padding: 3px;
+    transition: all 1s;
+    font-size: 15px;
+    color: #261C15;
+}
+
+#export {
+    background-color: #261C15;
+    color: #E1C35B;
+    cursor: pointer;
+}
+
+#import {
+    color: #261C15;
+    background-color: #E1C35B;
+    cursor: pointer;
+}
+
+#test:hover {
+    border: 3px solid #261C15;
+}
+
+.page {
+    color: #E1C35B;
+    background-color: #EF6F6C;
+    box-sizing: border-box;
+    border: none;
+    cursor: pointer;
+    transition: all 0.5s;
+}
+
+.page:hover {
+    box-shadow: inset 0px 0px 0px 2px #E1C35B;
+}
+
+.selected {
+    background-color: #E1C35B;
+    color: #EF6F6C;
+}
+
+#new-page {
+    background-color: #EF6F6C;
+    color: #E1C35B;
+    border: none;
+    font-weight: 900;
+    cursor: cell;
+    border:
+}
+
+/*
+    TOOLTIP TEXTS
+*/
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+    user-select: none;
+    cursor: help;
+    color: #EFF1ED;
+    font-size: 20px;
+}
+
+.tooltip .tooltiptext {
+    font-size: 14px;
+    visibility: hidden;
+    width: 200px;
+    background-color: #261C15;
+    color: #EFF1ED;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+    top: -5px;
+    left: 105%;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}
