@@ -135,6 +135,7 @@ function restock() {
 // DIALOGUE TESTING
 var optionList = [];
 id("testStart").onclick = function () {
+    save();
     istanceVariables();
     validateOptions();
     generateOptions();
@@ -157,12 +158,12 @@ function generateOptions() {
     id("options").innerHTML = "";
     for (var i = 0; i < optionList.length; i++) {
         var newNode = document.createElement("BUTTON");
-        var textNode = document.createTextNode(dialogue[optionList[i]].option);
+        newNode.number = optionList[i];
+        var textNode = document.createTextNode(dialogue[newNode.number].option);
 
         newNode.appendChild(textNode);
         newNode.className = "option";
         newNode.id = "option-" + i;
-        newNode.number = optionList[i];
         id("options").appendChild(newNode);
         newNode.addEventListener("click", function () {
             id("output").innerHTML = dialogue[this.number].text;
