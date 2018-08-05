@@ -1,7 +1,6 @@
 function id(arg) {
     return document.getElementById(arg);
 }
-
 var currentPage = 0;
 var pages = 0;
 var dialogue = [{
@@ -66,7 +65,7 @@ function switchPage(pageId) {
     id("text2").value = dialogue[pageId].option;
     id("text3").value = dialogue[pageId].text;
     id("text4").value = dialogue[pageId].trigger;
-    currentPage = pageId;
+    currentPage = parseInt(pageId);
 }
 
 function save() {
@@ -94,6 +93,9 @@ id("import").onclick = function () {
     eval(prompt("Insert the dialogue code here", ""));
     restock();
 }
+window.ondblclick = function () {
+    alert(dialogue.length)
+}
 
 function restock() {
     pages = 0;
@@ -115,10 +117,10 @@ function restock() {
     }
 
     currentPage = 0;
-    id("text1").value = dialogue[0].condition;
-    id("text2").value = dialogue[0].option;
-    id("text3").value = dialogue[0].text;
-    id("text4").value = dialogue[0].trigger;
+    id("text1").innerHTML = dialogue[currentPage].condition;
+    id("text2").innerHTML = dialogue[currentPage].option;
+    id("text3").innerHTML = dialogue[currentPage].text;
+    id("text4").innerHTML = dialogue[currentPage].trigger;
 
     id("0").classList.remove("selected");
     id("0").classList += " selected";
@@ -138,7 +140,6 @@ id("testStart").onclick = function () {
     save();
     istanceVariables();
     validateOptions();
-    generateOptions();
 };
 
 function istanceVariables() {
@@ -147,11 +148,16 @@ function istanceVariables() {
 
 function validateOptions() {
     optionList = [];
+    //guarda tra i dialoghi quale soddisfa le condizioni
+    //gli indici li pusha nell'option list
+
     for (var i = 0; i < dialogue.length; i++) {
-        if (eval(dialogue[i].condition) || eval(dialogue[i].condition.length == 0)) {
+        if (eval(dialogue[i].condition) || dialogue[i].condition.length == 0) {
             optionList.push(i);
         }
     }
+    //chiama la funzione che si occuperà di mostrare le opzioni disponibili
+    generateOptions();
 }
 
 function generateOptions() {
@@ -165,12 +171,11 @@ function generateOptions() {
         newNode.className = "option";
         newNode.id = "option-" + i;
         id("options").appendChild(newNode);
-        newNode.addEventListener("click", function () {
+        newNode.onclick = function () {
             id("output").innerHTML = dialogue[this.number].text;
             eval(dialogue[this.number].trigger);
             validateOptions();
-            generateOptions();
-        });
+        };
     }
 
 }

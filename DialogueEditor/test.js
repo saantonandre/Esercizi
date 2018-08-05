@@ -8,22 +8,22 @@ dialogue = [{
         }, {
     condition: "progresso==1",
     option: "(scazzato) Cosa puoi fare? ",
-    text: "Praticamente.. tutto! Il limite è la tua fantasia e la tua logica.",
+    text: "Praticamente.. tutto! Il limite Ã¨ la tua fantasia e la tua logica.",
     trigger: "alert('posso fare questo...'); window.open('https://en.wiktionary.org/wiki/questo');tester. innerHTML='o anche questo >:3<br>si, ti tocca refreshare...';"
         }, {
     condition: "progresso==1",
     option: "(gentile) Cosa puoi fare?",
-    text: "Il trigger, come puoi notare, può anche lanciare eventi di qualsiasi tipo, come ad esempio riprodurre una canzone, o farti hackerare l'editor dai gattini!",
+    text: "Il trigger, come puoi notare, puÃ² anche lanciare eventi di qualsiasi tipo, come ad esempio riprodurre una canzone, o farti hackerare l'editor dai gattini!",
     trigger: "dropit= new Audio('https://saantonandre.github.io/dropit.mp3'); dropit.play(); musica=1; id('tester').style.backgroundImage= 'url(\"https://i2.wp.com/www.wehuntedthemammoth.com/wp-content/uploads/2017/04/kitten.png\")';progresso=3;"
         }, {
     condition: "progresso==3&&!q[0]",
     option: "Ho trovato un bug, lo togli?",
-    text: "è una feature non ti preoccupare",
+    text: "Ã¨ una feature non ti preoccupare",
     trigger: "q[0]=1;"
         }, {
     condition: "progresso==3&&!q[1]",
     option: "quando provo a importare non succede nulla",
-    text: "Vuol dire che c'è stato un errore di lettura, o di impostazione delle condizioni/trigger, premi ctrl-maiusc-i e vai sulla console per rendermi conto dei dettagli degli errori",
+    text: "Vuol dire che c'Ã¨ stato un errore di lettura, o di impostazione delle condizioni/trigger, premi ctrl-maiusc-i e vai sulla console per rendermi conto dei dettagli degli errori",
     trigger: "q[1]=1;"
         }, {
     condition: "progresso==3&&!q[2]",
