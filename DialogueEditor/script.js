@@ -93,9 +93,6 @@ id("import").onclick = function () {
     eval(prompt("Insert the dialogue code here", ""));
     restock();
 }
-window.ondblclick = function () {
-    alert(dialogue.length)
-}
 
 function restock() {
     pages = 0;
