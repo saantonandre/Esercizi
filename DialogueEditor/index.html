@@ -12,22 +12,41 @@
 </head>
 
 <body>
-    <h1 style="font-family: 'Rajdhani', sans-serif;
-">Dialogue editor (v.3)</h1>
-    <div id="cont">
-        Condition <span class="tooltip">&#9432;<div class="tooltiptext">The condition has to be verified to display the option text. Empty condition means the dialogue has no specific requirements.</div></span><br>
-        <textarea id="text1" class="text"></textarea>
-        <br>Option text (short) <span class="tooltip">&#9432;<div class="tooltiptext">The option which will get displayed to the player if the condition is verified, all the verified options will be displayed</div></span><br>
-        <textarea id="text2" class="text"></textarea>
-        <br>Dialogue text <span class="tooltip">&#9432;<div class="tooltiptext">The text which will be outputted as the player chooses this exact option</div></span><br>
-        <textarea id="text3" class="text"></textarea>
-        <br>Trigger <span class="tooltip">&#9432;<div class="tooltiptext">What happens after this dialogue route gets chosen</div></span><br>
-        <textarea id="text4" class="text"></textarea>
-        <br><br> Page:
-        <button id="0" class="page selected">0</button><button id="new-page">+</button>
-        <br><br>
-        <button id="export">Export</button><button id="import">Import</button><br><br>
-        <!--<button id="test">TEST</button>-->
+    <div id="editor">
+        <h1 style="font-family: 'Rajdhani', sans-serif;
+">Dialogue editor (0.4)</h1>
+        <div class="cont">
+            Condition <span class="tooltip">&#9432;<div class="tooltiptext">The condition has to be verified to display the option text. Empty condition means the dialogue has no specific requirements.</div></span><br>
+            <textarea id="text1" class="text"></textarea>
+            <br>Option text (short) <span class="tooltip">&#9432;<div class="tooltiptext">The option which will get displayed to the player if the condition is verified, all the verified options will be displayed</div></span><br>
+            <textarea id="text2" class="text"></textarea>
+            <br>Dialogue text <span class="tooltip">&#9432;<div class="tooltiptext">The text which will be outputted as the player chooses this exact option</div></span><br>
+            <textarea id="text3" class="text"></textarea>
+            <br>Trigger <span class="tooltip">&#9432;<div class="tooltiptext">What happens after this dialogue route gets chosen</div></span><br>
+            <textarea id="text4" class="text"></textarea>
+            <br><br> Page:
+            <button id="0" class="page selected">0</button><button id="new-page">+</button>
+            <br><br>
+            <button id="export">Export</button><button id="import">Import</button><br><br><button id="test">Test</button><br>
+            <!--<button id="test">TEST</button>-->
+        </div>
+    </div>
+    <div id="tester" style="display: none;">
+        <h1 style="font-family: 'Rajdhani', sans-serif;
+">Dialogue tester (0.2)</h1>
+        <div class="cont">
+            Variables <span class="tooltip">&#9432;<div class="tooltiptext">Insert the variables istances (relative to the dialogue)</div></span><br>
+            <textarea id="istances" class="text"></textarea><br>
+            <button id="testStart">Test</button><br><br> Options <span class="tooltip">&#9432;<div class="tooltiptext">There will be displayed ALL the options which met the requirements (choose one of them by click) </div></span><br>
+            <div id="options"><br>
+            </div><br><br> Output <span class="tooltip">&#9432;<div class="tooltiptext">The interlocutor's response to the chosen option</div></span><br>
+            <div id="output"></div><br><br>
+
+
+
+
+            <br><button id="edit">Editor</button>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>

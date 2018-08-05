@@ -1,0 +1,3 @@
+dialogue=[{condition: "(player.cibo)", option: "vuoi del cibo?", text: "il cibo è buono", trigger: ""},{condition: "(player.cibo)", option: "io ho del cibo e tu no hehe", text: "ma vaffa brutto stronzo di merda io ti sgozzo", trigger: ""},{condition: "(!player.cibo)", option: "ho fame", text: "tieni, prendi un po' di cibo", trigger: "player.cibo=true;"}]
+
+player={cibo:false}

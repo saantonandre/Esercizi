@@ -5,6 +5,7 @@ body {
     font-size: 15px;
     background-color: #EF6F6C;
     color: #261C15;
+    overflow-x: hidden;
 }
 
 h1 {
@@ -17,7 +18,7 @@ textarea {
     border: none;
 }
 
-#cont {
+.cont {
     font-family: 'Varela Round', sans-serif;
     display: inline-block;
     width: 80vw;
@@ -48,30 +49,38 @@ button {
     max-width: 90%;
 }
 
-#test {
+#test,
+#edit {
     background-color: #EFF1ED;
     border-radius: 5px;
     padding: 3px;
-    transition: all 1s;
+    transition: all 0.4s;
     font-size: 15px;
     color: #261C15;
+}
+
+#test:hover,
+#edit:hover {
+    border: 3px solid #261C15;
 }
 
 #export {
     background-color: #261C15;
     color: #E1C35B;
     cursor: pointer;
+    border: none;
+    box-shadow: 2px 2px 2px black;
 }
 
-#import {
+#import,
+#testStart {
     color: #261C15;
     background-color: #E1C35B;
     cursor: pointer;
+    border: none;
+    box-shadow: 2px 2px 2px black;
 }
 
-#test:hover {
-    border: 3px solid #261C15;
-}
 
 .page {
     color: #E1C35B;
@@ -132,4 +141,19 @@ button {
 
 .tooltip:hover .tooltiptext {
     visibility: visible;
+}
+
+#output {
+    display: inline-block;
+    background-color: #EFF1ED;
+    border: none;
+    width: 80%;
+}
+
+.option {
+    display: inline-block;
+    background-color: #EFF1ED;
+    border: none;
+    border-radius: 5px;
+    padding: 3px;
 }
