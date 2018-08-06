@@ -70,7 +70,9 @@ document.addEventListener("dblclick", function () {
 
 function deletePage(pageId) {
     if (pages > 0) {
+        save();
         console.log("deleting page " + pageId);
+        //console.log(dialogue);
         dialogue.splice(pageId, 1);
         pageBtns[pages].parentNode.removeChild(pageBtns[pages]);
         pages--;
@@ -86,6 +88,7 @@ function deletePage(pageId) {
 function refresh() {
 
     console.log("now showing dialogue[" + currentPage + "]");
+    //console.log(dialogue);
     id("text1").value = dialogue[currentPage].condition;
     id("text2").value = dialogue[currentPage].option;
     id("text3").value = dialogue[currentPage].text;
