@@ -48,6 +48,7 @@ button {
     font-family: 'Varela Round', sans-serif;
     font-weight: 600;
     margin-right: 5px;
+    margin-top: 5px;
     cursor: pointer:
 }
 
@@ -117,6 +118,21 @@ button {
     border:
 }
 
+#output {
+    display: inline-block;
+    background-color: #EFF1ED;
+    border: none;
+    width: 80%;
+}
+
+.option {
+    display: inline-block;
+    background-color: #EFF1ED;
+    border: none;
+    border-radius: 5px;
+    padding: 3px;
+}
+
 /*
     TOOLTIP TEXTS
 */
@@ -131,9 +147,9 @@ button {
 }
 
 .tooltip .tooltiptext {
-    font-size: 14px;
+    font-size: 11px;
     visibility: hidden;
-    width: 200px;
+    width: 100px;
     background-color: #261C15;
     color: #EFF1ED;
     text-align: center;
@@ -143,25 +159,24 @@ button {
     /* Position the tooltip */
     position: absolute;
     z-index: 1;
-    top: -5px;
-    left: 105%;
+    width: 120px;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -60px;
 }
 
 .tooltip:hover .tooltiptext {
     visibility: visible;
 }
 
-#output {
-    display: inline-block;
-    background-color: #EFF1ED;
-    border: none;
-    width: 80%;
-}
-
-.option {
-    display: inline-block;
-    background-color: #EFF1ED;
-    border: none;
-    border-radius: 5px;
-    padding: 3px;
+.tooltip .tooltiptext::after {
+    content: " ";
+    position: absolute;
+    top: 100%;
+    /* At the bottom of the tooltip */
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: black transparent transparent transparent;
 }
