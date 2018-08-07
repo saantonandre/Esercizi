@@ -43,17 +43,14 @@ window.onload = function () {
         currentSprite: 0,
         currentFrame: 0
     };
-
     var map = [];
     var hitBoxes = [];
     var spawnPoint = {
         x: 0,
         y: 0
     }
-
     var maps = prompt("Insert map code here\n(w-a-s-d to walk, spacebar to interact)", "");
     eval(maps);
-
     var mapX = (player.x - spawnPoint.x) * cellSize;
     /*    +1 for hitbox    */
     var mapY = (player.y - spawnPoint.y + 1) * cellSize;
@@ -73,7 +70,6 @@ window.onload = function () {
         drawPlayer();
         drawMap();
         calculatePlayer();
-
         requestAnimationFrame(loop);
     }
 
@@ -81,29 +77,37 @@ window.onload = function () {
     //if collide rosso disegna sotto
 
     function drawPlayer() {
-        c.fillStyle = "#00ff00";
 
         /* if the player is not moving he is idling */
 
         if (!player.L &&
             !player.R &&
             !player.T &&
-            !player.B) {
+            !player.B && player.currentSprite !== 0) {
             player.currentSprite = 0;
         } /* going down through the sprite frame */
 
-        frameCounter++;
+        // frame counter counts how many frames are passing, each sprite has its speed based on this
         player.centerX = player.x + (player.w / 2) - mapX / cellSize;
         player.centerY = player.y + 1 + ((player.h - 1) / 2) - mapY / cellSize;
 
         /* if the next frame does not exist return to 0 */
-        if (player.currentFrame + 1 > player.sprites[player.currentSprite][0].height / player.sprites[player.currentSprite][0].width / 2) {
+        if (player.currentFrame + 2 > player.sprites[player.currentSprite][0].height / player.sprites[player.currentSprite][0].width / 2) {
             frameCounter = 0;
         }
         /* currentFrame è l'indice dell'altezza della sprite */
-        player.currentFrame = parseInt(frameCounter / player.sprites[player.currentSprite][1]);
-        //console.log(frameCounter)
+        player.currentFrame = Math.floor(frameCounter / player.sprites[player.currentSprite][1]);
 
+
+        //console.log(frameCounter)
+        printPlayer();
+
+        frameCounter++;
+    }
+    // Only draws the player without calculations
+    function printPlayer() {
+
+        c.fillStyle = "#00ff00";
         c.drawImage(
             player.sprites[player.currentSprite][0],
             0,
@@ -156,7 +160,7 @@ window.onload = function () {
             c.stroke();
         }
         if (!(ok1 && ok2)) {
-            drawPlayer();
+            printPlayer();
         }
     }
     /* SPRITE RENDERING */
