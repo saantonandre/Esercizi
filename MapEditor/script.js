@@ -166,6 +166,7 @@ window.onload = function () {
         mapCode += "]; ";
         mapCode += "spawnPoint = {x : " + spawnPoint.x + ",y : " + spawnPoint.y + "};";
         prompt("Copy this text", mapCode);
+        console.log(mapCode);
     };
 
     // LOADS AND READS THE IMPORTED CODE
