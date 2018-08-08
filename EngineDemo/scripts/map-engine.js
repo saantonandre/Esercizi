@@ -366,15 +366,6 @@ function interact() {
 }
 
 
-window.addEventListener("keypress", function (event) {
-    var key = event.keyCode;
-    switch (key) {
-        case 32: //spacebar
-            event.preventDefault();
-            interact();
-            break;
-    }
-});
 var lastPressed;
 
 window.addEventListener("keydown", function (event) {
@@ -399,6 +390,9 @@ window.addEventListener("keydown", function (event) {
             player.B = true;
             player.currentSprite = 4;
             lastPressed = "b";
+            break;
+        case 32: // E
+            interact();
             break;
     }
 });
