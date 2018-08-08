@@ -13,6 +13,7 @@ id("start").onclick = function () {
 }
 id("closeDialogue").onclick = function () {
     id("dialogue-ui").style.display = "none";
+    id("output").innerHTML = "";
     dialogueMode = false;
     requestAnimationFrame(loop);
 }

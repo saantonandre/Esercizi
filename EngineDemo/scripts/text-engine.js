@@ -10,19 +10,26 @@ var t1 = new Audio("resources/sfx/talk1.wav"),
 var talk = [t3, t2, t3];
 
 function letters(string, div, audio) {
-    clearTimeout(oneSentence);
     div.innerHTML = "";
+    id("options").innerHTML = "";
+    id("options").style.display = "none";
+    var length = 0;
     endTrigger = false;
     var i = 0,
         j = 0,
-        pause = 40;
+        pause = 60;
     next();
 
 
     function next() {
-        if (pause >= 40) {
+
+        length++;
+        if (length == string.length) {
+            id("options").style.display = "block";
+        }
+        if (pause >= 60) {
             if (audio) {
-                var rand = Math.floor(Math.random() * 2);
+                var rand = Math.floor(Math.random() * 3);
                 talk[rand].play();
             }
         }
@@ -30,18 +37,21 @@ function letters(string, div, audio) {
         div.innerHTML += string[i];
         i++;
         if (i < string.length) {
-            pause = 40;
+            pause = 60;
             //checks for longer pauses
             for (j = 0; j < specials.length; j++) {
                 if (string[i - 1] === specials[j]) {
-                    pause = 125;
+                    pause = 200;
                     break;
                 }
             }
             if (string[i - 1] === " ") {
-                pause = 20;
+                pause = 30;
             }
-            oneSentence = setTimeout(next, pause);
+            if (dialogueMode)
+                oneSentence = setTimeout(next, pause);
+            else
+                clearTimeout(next, pause);
         }
 
     }

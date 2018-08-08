@@ -96,6 +96,7 @@ body {
 
 #dialogue-ui {
     position: absolute;
+    text-align: center;
     width: 100%;
     bottom: 0;
 }
@@ -106,10 +107,9 @@ body {
     padding: 3px;
     border: 2px solid beige;
     border-radius: 50%;
-    top: 0;
+    top: -50px;
     margin-right: 5px;
     padding: 1px 5px;
-    float: right;
     color: beige;
     background-color: darkred;
     font-family: 'Modern Antiqua', cursive;
@@ -129,8 +129,6 @@ body {
     font-size: 20px;
     bottom: 50px;
     width: 90%;
-    left: 50%;
-    transform: translateX(-50%);
 
 }
 
@@ -148,17 +146,18 @@ body {
 }
 
 #output {
+    display: inline-block;
+    max-width: 400px;
     line-height: 80%;
     font-family: 'Eczar', serif;
     position: relative;
     bottom: 50px;
     width: 90%;
     background-color: beige;
-    left: 50%;
-    transform: translateX(-50%);
     border: 3px solid brown;
     color: black;
     border-radius: 20px;
     padding: 20px;
     font-size: 20px;
+    transition: 1s;
 }

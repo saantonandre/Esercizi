@@ -4,6 +4,7 @@ var optionList = [];
 function validateOptions(charDialogue) {
     dialogueMode = 1;
 
+    id("options").innerHTML = "";
     id("dialogue-ui").style.display = "block";
     optionList = [];
     //guarda tra i dialoghi quale soddisfa le condizioni
@@ -19,7 +20,6 @@ function validateOptions(charDialogue) {
 }
 
 function generateOptions(charDialogue) {
-    id("options").innerHTML = "";
     for (var i = 0; i < optionList.length; i++) {
         var newNode = document.createElement("BUTTON");
         newNode.number = optionList[i];
