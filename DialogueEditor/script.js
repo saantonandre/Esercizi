@@ -265,11 +265,12 @@ function validateOptions() {
     //chiama la funzione che si occuperà di mostrare le opzioni disponibili
     generateOptions();
 }
-
 /*
 
-
+ sdlnds lfsdf dsfk;sjfsd;fdsp kfdp sdlnds lfsdf dsfk sjfsd fdsp;kfdp
 */
+var dialogueProgress = 0;
+
 function generateOptions() {
     id("options").innerHTML = "";
     for (var i = 0; i < optionList.length; i++) {
@@ -282,7 +283,28 @@ function generateOptions() {
         newNode.id = "option-" + i;
         id("options").appendChild(newNode);
         newNode.onclick = function () {
-            id("output").innerHTML = dialogue[this.number].text;
+            //the Next trigger
+            var dividedDialogue = dialogue[this.number].text.split(";");
+
+            if (Array.isArray(dividedDialogue)) {
+                id("options").style.display = "none";
+                id("next").style.display = "inline-block";
+                id("output").innerHTML = dividedDialogue[dialogueProgress];
+
+                id("next").onclick = function () {
+                    dialogueProgress++;
+                    if (dialogueProgress < dividedDialogue.length - 1) {
+                        id("output").innerHTML = dividedDialogue[dialogueProgress];
+                    } else {
+                        id("output").innerHTML = dividedDialogue[dialogueProgress];
+                        id("options").style.display = "inline-block";
+                        id("next").style.display = "none";
+                        dialogueProgress = 0;
+                    }
+                }
+            } else { //what happens if the dialogue is not divided
+                id("output").innerHTML = dialogue[this.number].text;
+            }
 
             eval(dialogue[this.number].trigger);
 

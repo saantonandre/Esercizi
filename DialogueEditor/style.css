@@ -127,7 +127,7 @@ button {
     width: 80%;
 }
 
-.option {
+.option, #next {
     display: inline-block;
     background-color: #EFF1ED;
     border: none;
