@@ -137,7 +137,7 @@ id("new-page").onclick = function () {
 
 
 // Saves the current page and outputs the dialogue
-id("export").onclick = function () {
+function exporting() {
     save();
     var output = "dialogue=[";
     for (var i = 0; i < dialogue.length; i++) {
@@ -149,11 +149,17 @@ id("export").onclick = function () {
     prompt("Copy this dialogue code and save it wherever possible", output);
 }
 
-id("import").onclick = function () {
+function importing() {
     // Reads and executes the imported dialogue object, overwriting the previous one
     eval(prompt("Insert the dialogue code here", ""));
     restock();
 }
+
+
+id("export").onclick = exporting;
+id("export-2").onclick = exporting;
+id("import").onclick = importing;
+id("import-2").onclick = importing;
 
 function restock() {
     // Rearranges the pages once imported
@@ -213,9 +219,37 @@ id("testStart").onclick = function () {
     istanceVariables();
     validateOptions();
 };
+var newVariables;
+var arr;
 
 function istanceVariables() {
     eval(id("istances").value);
+    arr = id("istances").value;
+    arr = arr.trim();
+    arr.replace(" ", "");
+    arr = arr.split(";");
+    for (var i = arr.length - 1; i >= 0; i--) {
+        arr[i] = arr[i].split("=");
+    }
+
+    for (var i = arr.length - 1; i >= 0; i--) {
+        if (arr[i] == 0) {
+            arr.splice(i, 1);
+        }
+    }
+    for (var i = 0; i < arr.length; i++) {
+        arr[i][0] = arr[i][0].trim();
+        arr[i][1] = arr[i][1].trim();
+        arr[i][1] = arr[i][1].split(",");;
+    }
+    id("istances").value = "";
+    for (var i = 0; i < arr.length; i++) {
+        if (Array.isArray(eval(arr[i][0]))) {
+            id("istances").value += arr[i][0] + "=[" + eval(arr[i][0]) + "];\n";
+        } else {
+            id("istances").value += arr[i][0] + "=" + eval(arr[i][0]) + ";\n";
+        }
+    }
 }
 
 function validateOptions() {
@@ -232,6 +266,10 @@ function validateOptions() {
     generateOptions();
 }
 
+/*
+
+
+*/
 function generateOptions() {
     id("options").innerHTML = "";
     for (var i = 0; i < optionList.length; i++) {
@@ -245,7 +283,17 @@ function generateOptions() {
         id("options").appendChild(newNode);
         newNode.onclick = function () {
             id("output").innerHTML = dialogue[this.number].text;
+
             eval(dialogue[this.number].trigger);
+
+            id("istances").value = "";
+            for (var i = 0; i < arr.length; i++) {
+                if (Array.isArray(eval(arr[i][0]))) {
+                    id("istances").value += arr[i][0] + "=[" + eval(arr[i][0]) + "];\n";
+                } else {
+                    id("istances").value += arr[i][0] + "=" + eval(arr[i][0]) + ";\n";
+                }
+            }
             validateOptions();
         };
     }

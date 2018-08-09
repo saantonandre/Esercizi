@@ -73,7 +73,8 @@ button {
     border: 3px solid #261C15;
 }
 
-#export {
+#export,
+#export-2 {
     background-color: #261C15;
     color: #E1C35B;
     cursor: pointer;
@@ -82,6 +83,7 @@ button {
 }
 
 #import,
+#import-2,
 #testStart {
     color: #261C15;
     background-color: #E1C35B;
@@ -179,4 +181,9 @@ button {
     border-width: 5px;
     border-style: solid;
     border-color: black transparent transparent transparent;
+}
+
+#istances {
+    min-height: 100px;
+    min-width: 200px;
 }
