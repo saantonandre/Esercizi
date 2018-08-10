@@ -134,18 +134,34 @@ function drawMap() {
     var ok1 = false;
     var ok2 = false;
     for (i = 0; i < map.length; i++) {
-        c.fillStyle = "#0000ff";
-        c.beginPath()
-        c.fillRect(map[i].x * cellSize + mapX, map[i].y * cellSize + mapY, map[i].w * cellSize, map[i].h * cellSize);
-        c.closePath();
-        c.stroke();
+
+        // fragmenting the map into tiles
+        if (map[i].tile) {
+            for (var j = 0; j < map[i].h; j++) {
+                for (var k = 0; k < map[i].w; k++) {
+                    c.drawImage(
+                        id(map[i].tile), /*image*/
+                        (k + map[i].x) * cellSize + mapX, /*x*/
+                        (j + map[i].y) * cellSize + mapY, /*x*/
+                        cellSize,
+                        cellSize
+                    );
+                }
+            }
+
+        } else {
+            c.fillStyle = "#0000ff";
+            c.beginPath()
+            c.fillRect(map[i].x * cellSize + mapX, map[i].y * cellSize + mapY, map[i].w * cellSize, map[i].h * cellSize);
+            c.closePath();
+            c.stroke();
+        }
         if (col2(player, map[i])) {
             ok1 = true;
         }
         if (col2(playerHitbox, map[i])) {
             ok2 = true;
         }
-
     }
     for (i = 0; i < hitBoxes.length; i++) {
         c.strokeStyle = "#ff0000";

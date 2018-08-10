@@ -3,7 +3,7 @@ font-family: 'Eczar', serif;
 font-family: 'Modern Antiqua', cursive;
 */
 
-body {
+body,html {
     margin: 0;
     padding: 0;
     user-select: none;
@@ -99,6 +99,7 @@ body {
     text-align: center;
     width: 100%;
     bottom: 0;
+    transition: all 0.3s;
 }
 
 #closeDialogue {
@@ -144,6 +145,8 @@ body {
     border-radius: 50px;
     padding: 5px;
     font-size: 15px;
+    box-sizing:border-box;
+    z-index:50;
 }
 
 #output {
@@ -161,13 +164,14 @@ body {
     padding: 20px;
     font-size: 20px;
     transition: 1s;
+    box-sizing:border-box;
 }
 /* mobile controls */
 
 #arrowCont {
     position: absolute;
     width: 100%;
-    height: 12vh;
+    height: 10vh;
     bottom: 10vh;
 }
 

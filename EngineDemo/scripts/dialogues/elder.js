@@ -9,7 +9,7 @@ var elder = {
     }, {
         condition: "elder.prog == 0;",
         option: "I'm good, but... where am I?",
-        text: "You're in my house, kiddo. I've found you last night outside the village, during the storm... Oh, I forgot to introduce myself. I'm the Elder of this village. And you are...?",
+        text: "You're in my house, kiddo.;I've found you last night outside the village, during the storm...;Oh, I forgot to introduce myself. I'm the Elder of this village. And you are...?",
         trigger: "elder.prog = 1;"
     }, {
         condition: "elder.prog == 1;",
@@ -19,7 +19,7 @@ var elder = {
     }, {
         condition: "elder.prog == 2;",
         option: "It's -pgname-.",
-        text: "Nice to meet you, -pgname-. I have an important matter to discuss with you... Have you seen someone coming here? A young man more or less of your age.",
+        text: "Nice to meet you, -pgname-. I have an important matter to discuss with you... Have you seen someone coming here?;A young man more or less of your age.",
         trigger: "elder.prog = 3;"
     }, {
         condition: "elder.prog == 2;",

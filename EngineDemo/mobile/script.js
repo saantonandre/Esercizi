@@ -1,3 +1,4 @@
+//remove logs when not testing
 console.log = function () {};
 window.onload = function () {
     //guy.js
@@ -856,21 +857,25 @@ window.onload = function () {
         var key = event.keyCode;
         switch (key) {
             case 65: //left key down
+                player.R = false;
                 player.L = true;
                 player.currentSprite = 1;
                 lastPressed = "l";
                 break;
             case 68: //right key down
                 player.R = true;
+                player.L = false;
                 player.currentSprite = 2;
                 lastPressed = "r";
                 break;
             case 87: //top key down
+                player.B = false;
                 player.T = true;
                 player.currentSprite = 3;
                 lastPressed = "t";
                 break;
             case 83: //bot key down
+                player.T = false;
                 player.B = true;
                 player.currentSprite = 4;
                 lastPressed = "b";
@@ -1049,6 +1054,7 @@ window.onload = function () {
             newNode.id = "option-" + i;
             id("options").appendChild(newNode);
             newNode.onclick = function () {
+                console.log("fuck");
                 letters(charDialogue[this.number].text, id("output"), true)
                 id("output")
                 eval(charDialogue[this.number].trigger);

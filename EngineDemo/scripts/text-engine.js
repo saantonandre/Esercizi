@@ -11,8 +11,8 @@ var talk = [t3, t2, t3];
 
 function letters(string, div, audio) {
     div.innerHTML = "";
-    id("options").innerHTML = "";
     id("options").style.display = "none";
+    id("next").style.display = "none";
     var length = 0;
     endTrigger = false;
     var i = 0,
@@ -25,7 +25,13 @@ function letters(string, div, audio) {
 
         length++;
         if (length == string.length) {
-            id("options").style.display = "block";
+            if (multipleDialogue) {
+                id("options").style.display = "none";
+                id("next").style.display = "inline-block";
+            } else {
+                id("options").style.display = "inline-block";
+                id("next").style.display = "none";
+            }
         }
         if (pause >= 60) {
             if (audio) {
