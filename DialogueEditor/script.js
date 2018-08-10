@@ -285,8 +285,13 @@ function generateOptions() {
         newNode.onclick = function () {
             //the Next trigger
             var dividedDialogue = dialogue[this.number].text.split(";");
+            if (dividedDialogue.length == 1) {
+                dividedDialogue = dividedDialogue[0];
+            }
 
             if (Array.isArray(dividedDialogue)) {
+                console.log("è un array");
+                console.log(dividedDialogue);
                 id("options").style.display = "none";
                 id("next").style.display = "inline-block";
                 id("output").innerHTML = dividedDialogue[dialogueProgress];
@@ -303,6 +308,7 @@ function generateOptions() {
                     }
                 }
             } else { //what happens if the dialogue is not divided
+                console.log("non è un array");
                 id("output").innerHTML = dialogue[this.number].text;
             }
 
