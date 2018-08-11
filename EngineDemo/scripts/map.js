@@ -3,30 +3,31 @@ map = [{
     y: 7,
     w: 11,
     h: 3,
-    tile: "stone"
+    tile: "purple"
 }, {
     x: 16,
     y: 10,
     w: 2,
     h: 8,
-    tile: "stone"
+    tile: "purple"
 }, {
     x: 21,
     y: 11,
     w: 1,
     h: 7,
-    tile: "stone"
+    tile: "purple"
 }, {
     x: 22,
     y: 13,
     w: 3,
     h: 3,
-    tile: "stone"
+    tile: "purple"
 }, {
     x: 25,
     y: 11,
     w: 1,
-    h: 7
+    h: 7,
+    tile: "pink"
 }, {
     x: 28,
     y: 11,
@@ -44,25 +45,25 @@ map = [{
     y: 13,
     w: 1,
     h: 3,
-    tile: "purple"
+    tile: "pink"
 }, {
     x: 32,
     y: 14,
     w: 3,
     h: 2,
-    tile: "purple"
+    tile: "pink"
 }, {
     x: 31,
     y: 16,
     w: 4,
     h: 2,
-    tile: "purple"
+    tile: "pink"
 }, {
     x: 41,
     y: 11,
     w: 1,
     h: 2,
-    tile: "red"
+    tile: "pink"
 }, {
     x: 41,
     y: 13,
@@ -72,54 +73,55 @@ map = [{
     x: 44,
     y: 11,
     w: 4,
-    h: 2,
-    tile: "red"
+    h: 2
 }, {
     x: 44,
     y: 13,
     w: 1,
     h: 3,
-    tile: "red"
+    tile: "stone"
 }, {
     x: 45,
     y: 15,
     w: 3,
-    h: 1
+    h: 1,
+    tile: "stone"
 }, {
     x: 45,
     y: 14,
     w: 3,
     h: 1,
-    tile: "red"
+    tile: "stone"
 }, {
     x: 44,
     y: 16,
     w: 4,
     h: 2,
-    tile: "red"
+    tile: "stone"
 }, {
     x: 15,
     y: 23,
     w: 4,
-    h: 2
+    h: 2,
+    tile: "stone"
 }, {
     x: 15,
     y: 25,
     w: 4,
     h: 2,
-    tile: "red"
+    tile: "stone"
 }, {
     x: 15,
     y: 27,
     w: 1,
     h: 2,
-    tile: "purple"
+    tile: "stone"
 }, {
     x: 18,
     y: 27,
     w: 1,
     h: 2,
-    tile: "purple"
+    tile: "stone"
 }, {
     x: 20,
     y: 20,
@@ -130,7 +132,8 @@ map = [{
     x: 24,
     y: 22,
     w: 2,
-    h: 7
+    h: 7,
+    tile: "stone"
 }, {
     x: 29,
     y: 22,
@@ -142,23 +145,25 @@ map = [{
     y: 24,
     w: 1,
     h: 5,
-    tile: "purple"
+    tile: "stone"
 }, {
     x: 30,
     y: 25,
     w: 2,
-    h: 2
+    h: 2,
+    tile: "stone"
 }, {
     x: 30,
     y: 27,
     w: 4,
-    h: 2
+    h: 2,
+    tile: "stone"
 }, {
     x: 36,
     y: 22,
     w: 4,
     h: 2,
-    tile: "purple"
+    tile: "red"
 }, {
     x: 36,
     y: 24,
@@ -170,37 +175,44 @@ map = [{
     y: 25,
     w: 3,
     h: 2,
-    tile: "purple"
+    tile: "red"
 }, {
     x: 36,
     y: 27,
     w: 4,
-    h: 2
+    h: 2,
+    tile: "red"
 }, {
     x: 41,
     y: 20,
     w: 9,
-    h: 2,
-    tile: "stone"
-}, {
-    x: 15,
-    y: 22,
-    w: 2,
-    h: 7,
-    tile: "stone"
+    h: 2
 }, {
     x: 8,
     y: 18,
     w: 1,
     h: 2,
     text: 'guy',
-    tile: "red"
+    tile: "stone"
 }, {
     x: 12,
     y: 18,
     w: 1,
     h: 2,
     text: 'elder',
+    tile: "purple"
+}, {
+    x: 45,
+    y: 22,
+    w: 2,
+    h: 7,
+    tile: "red"
+}, {
+    x: 10,
+    y: 20,
+    w: 1,
+    h: 2,
+    text: 'linda',
     tile: "pink"
 }, ];
 hitBoxes = [{
@@ -383,6 +395,21 @@ hitBoxes = [{
     y: 12,
     w: 1,
     h: 6
+}, {
+    x: 8,
+    y: 19,
+    w: 1,
+    h: 1
+}, {
+    x: 12,
+    y: 19,
+    w: 1,
+    h: 1
+}, {
+    x: 10,
+    y: 21,
+    w: 1,
+    h: 1
 }, ];
 spawnPoint = {
     x: 16,

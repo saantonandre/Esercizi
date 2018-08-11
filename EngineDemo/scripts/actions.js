@@ -1,7 +1,7 @@
 function id(arg) {
     return document.getElementById(arg);
 }
-var characters = ["guy"];
+var characters = ["guy", "elder", "linda"];
 var dialogues = [
     function () {
         letters("Obsessed with your sins, you travel looking for a distant friend, Sophie, who promised to save you.", id("storytext"), false)
