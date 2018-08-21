@@ -11,7 +11,8 @@ var CHARA_WALK_R = id("CHARA_WALK_R");
 var CHARA_WALK_T = id("CHARA_WALK_T");
 var CHARA_WALK_B = id("CHARA_WALK_B");
 var c = canvas.getContext("2d");
-var cellSize = 30;
+var cellSize = 32;
+var visibility = 20;
 var player = {
     x: canvas.width / cellSize / 2,
     y: canvas.height / cellSize / 2,
@@ -24,16 +25,16 @@ var player = {
     B: 0,
     xVel: 0,
     yVel: 0,
-    speed: 3,
+    speed: 2,
     accel: 0.5,
     /* sprites have an address and a delay */
     sprites: [
             /* IDLE: */
             [CHARA_IDLE, 10],
             /* L: */
-            [CHARA_WALK_L, 4],
+            [CHARA_WALK_L, 8],
             /* R: */
-            [CHARA_WALK_R, 4],
+            [CHARA_WALK_R, 8],
             /* T: */
             [CHARA_WALK_T, 7],
             /* B: */
@@ -59,7 +60,7 @@ requestAnimationFrame(loop);
 
 function loop() {
     c.clearRect(0, 0, canvas.width, canvas.height);
-
+    drawGround();
     drawPlayer();
     drawMap();
     calculatePlayer();
@@ -130,15 +131,19 @@ function printPlayer() {
     c.stroke();
 }
 
-function drawMap() {
-    var ok1 = false;
-    var ok2 = false;
+function drawGround() {
     for (i = 0; i < map.length; i++) {
-
+        if (typeof map[i].ground === "undefined") {
+            continue;
+        }
         // fragmenting the map into tiles
         if (map[i].tile) {
             for (var j = 0; j < map[i].h; j++) {
                 for (var k = 0; k < map[i].w; k++) {
+                    if (((k + map[i].x) * cellSize + mapX > (player.x + visibility) * cellSize || (k + map[i].x) * cellSize + mapX < (player.x - visibility) * cellSize) ||
+                        ((j + map[i].y) * cellSize + mapY > (player.y + visibility) * cellSize || (j + map[i].y) * cellSize + mapY < (player.y - visibility) * cellSize)) {
+                        continue;
+                    }
                     c.drawImage(
                         id(map[i].tile), /*image*/
                         (k + map[i].x) * cellSize + mapX, /*x*/
@@ -149,6 +154,57 @@ function drawMap() {
                 }
             }
 
+        } else if (map[i].png) {
+            c.drawImage(
+                id(map[i].png), /*image*/
+                (map[i].x) * cellSize + mapX, /*x*/
+                (map[i].y) * cellSize + mapY, /*x*/
+                map[i].w * cellSize,
+                map[i].h * cellSize
+            );
+        } else {
+            c.fillStyle = "#0000ff";
+            c.beginPath()
+            c.fillRect(map[i].x * cellSize + mapX, map[i].y * cellSize + mapY, map[i].w * cellSize, map[i].h * cellSize);
+            c.closePath();
+            c.stroke();
+        }
+    }
+}
+
+function drawMap() {
+    var ok1 = false;
+    var ok2 = false;
+    for (i = 0; i < map.length; i++) {
+        if (typeof map[i].ground !== "undefined") {
+            continue;
+        }
+        // fragmenting the map into tiles
+        if (map[i].tile) {
+            for (var j = 0; j < map[i].h; j++) {
+                for (var k = 0; k < map[i].w; k++) {
+                    if (((k + map[i].x) * cellSize + mapX > (player.x + visibility) * cellSize || (k + map[i].x) * cellSize + mapX < (player.x - visibility) * cellSize) ||
+                        ((j + map[i].y) * cellSize + mapY > (player.y + visibility) * cellSize || (j + map[i].y) * cellSize + mapY < (player.y - visibility) * cellSize)) {
+                        continue;
+                    }
+                    c.drawImage(
+                        id(map[i].tile), /*image*/
+                        (k + map[i].x) * cellSize + mapX, /*x*/
+                        (j + map[i].y) * cellSize + mapY, /*x*/
+                        cellSize,
+                        cellSize
+                    );
+                }
+            }
+
+        } else if (map[i].png) {
+            c.drawImage(
+                id(map[i].png), /*image*/
+                (map[i].x) * cellSize + mapX, /*x*/
+                (map[i].y) * cellSize + mapY, /*x*/
+                map[i].w * cellSize,
+                map[i].h * cellSize
+            );
         } else {
             c.fillStyle = "#0000ff";
             c.beginPath()
@@ -206,23 +262,23 @@ function isGrounded(entity) {
 
         if (col.l) {
             if (player.xVel < 0)
-                mapX += player.xVel;
+                mapX += player.xVel - 1;
             colSide.l = 1;
         }
         if (col.r) {
             if (player.xVel > 0)
-                mapX += player.xVel;
+                mapX += player.xVel + 1;
             colSide.r = 1;
 
         }
         if (col.t) {
             if (player.yVel < 0)
-                mapY += player.yVel;
+                mapY += player.yVel - 1;
             colSide.t = 1;
         }
         if (col.b) {
             if (player.yVel > 0)
-                mapY += player.yVel;
+                mapY += player.yVel + 1;
             colSide.b = 1;
         }
 
@@ -374,6 +430,7 @@ function interact() {
             if (player.centerX + inter.l > map[i].x && player.centerX + inter.l < map[i].x + map[i].w) {
                 if (player.centerY + inter.t > map[i].y && player.centerY + inter.t < map[i].y + map[i].h) {
                     validateOptions(eval(map[i].text).dialogue)
+                    id("options").style.display = "inline-block";
                 }
             }
         }

@@ -75,11 +75,65 @@ map = [{
     w: 4,
     h: 2
 }, {
+    x: 35,
+    y: 3,
+    w: 40,
+    h: 20,
+    tile: "dry-grass",
+    ground: 1
+}, {
+    x: 48,
+    y: 13,
+    w: 30,
+    h: 1,
+    tile: "low-wall"
+}, {
+    x: 50,
+    y: 12,
+    w: 6,
+    h: 6,
+    png: "house1"
+}, {
     x: 44,
     y: 13,
     w: 1,
     h: 3,
     tile: "stone"
+}, {
+    x: 10,
+    y: 3,
+    w: 21,
+    h: 2,
+    tile: "stone",
+    ground: 1
+}, {
+    x: 23,
+    y: 4,
+    w: 8,
+    h: 2,
+    tile: "stone",
+    ground: 1
+}, {
+    x: 10,
+    y: 0,
+    w: 21,
+    h: 3,
+    tile: "dry-grass",
+    ground: 1
+}, {
+    x: 20,
+    y: 3,
+    w: 4,
+    h: 4,
+    png: "stairs",
+    ground: 1
+}, {
+    x: 24,
+    y: 3,
+    w: 7,
+    h: 1,
+    tile: "dry-grass",
+    ground: 1
 }, {
     x: 45,
     y: 15,
@@ -214,8 +268,42 @@ map = [{
     h: 2,
     text: 'linda',
     tile: "pink"
+}, {
+    x: 35,
+    y: 19,
+    w: 40,
+    h: 1,
+    tile: "walk-grass",
+    ground: 1
+}, {
+    x: 35,
+    y: 20,
+    w: 40,
+    h: 1,
+    tile: "walk-grass",
+    ground: 1
 }, ];
 hitBoxes = [{
+    x: 48,
+    y: 13.5,
+    w: 30,
+    h: 0.5
+}, {
+    x: 50,
+    y: 14,
+    w: 6,
+    h: 4
+}, {
+    x: 10,
+    y: 3,
+    w: 21,
+    h: 2
+}, {
+    x: 23,
+    y: 4,
+    w: 8,
+    h: 2
+}, {
     x: 31,
     y: 17,
     w: 4,
