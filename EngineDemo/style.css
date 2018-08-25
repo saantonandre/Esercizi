@@ -13,6 +13,7 @@ html {
 
 #canvas {
     position: absolute;
+    image-rendering: pixelated;
 }
 
 #main-menu {

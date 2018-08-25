@@ -53,7 +53,7 @@ var playerHitbox = {
     w: player.w,
     h: player.h - 1
 }
-
+var hotMode = 0;
 var dialogueMode = 0;
 requestAnimationFrame(loop);
 
@@ -64,7 +64,9 @@ function loop() {
     drawMap();
     calculatePlayer();
     // TEST
-    //hotStuff();
+    if (hotMode) {
+        hotStuff();
+    }
     if (!dialogueMode) {
         requestAnimationFrame(loop);
     }
@@ -570,6 +572,13 @@ window.addEventListener("keydown", function (event) {
             if (!keydowns.int) {
                 interact();
                 keydowns.int = 1;
+            }
+            break;
+        case 80: // P
+            hotMode = true;
+            player.speed = 14;
+            for (var i = 0; i < player.sprites.length; i++) {
+                player.sprites[i][1] = 3;
             }
             break;
     }
