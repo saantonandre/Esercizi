@@ -25,25 +25,24 @@ var player = {
     B: 0,
     xVel: 0,
     yVel: 0,
-    speed: 2,
+    speed: 3,
     accel: 0.5,
     /* sprites have an address and a delay */
     sprites: [
             /* IDLE: */
-            [CHARA_IDLE, 10],
+            [CHARA_IDLE, 8],
             /* L: */
             [CHARA_WALK_L, 8],
             /* R: */
             [CHARA_WALK_R, 8],
             /* T: */
-            [CHARA_WALK_T, 7],
+            [CHARA_WALK_T, 8],
             /* B: */
-            [CHARA_WALK_B, 7]
+            [CHARA_WALK_B, 8]
         ],
     currentSprite: 0,
     currentFrame: 0
 };
-
 var mapX = (player.x - spawnPoint.x) * cellSize;
 /*    +1 for hitbox    */
 var mapY = (player.y - spawnPoint.y + 1) * cellSize;
@@ -64,6 +63,8 @@ function loop() {
     drawPlayer();
     drawMap();
     calculatePlayer();
+    // TEST
+    //hotStuff();
     if (!dialogueMode) {
         requestAnimationFrame(loop);
     }
@@ -144,13 +145,32 @@ function drawGround() {
                         ((j + map[i].y) * cellSize + mapY > (player.y + visibility) * cellSize || (j + map[i].y) * cellSize + mapY < (player.y - visibility) * cellSize)) {
                         continue;
                     }
-                    c.drawImage(
-                        id(map[i].tile), /*image*/
-                        (k + map[i].x) * cellSize + mapX, /*x*/
-                        (j + map[i].y) * cellSize + mapY, /*x*/
-                        cellSize,
-                        cellSize
-                    );
+                    if (typeof map[i].gif !== "undefined") {
+                        map[i].gif++;
+                        if (map[i].gif / TGS >= id(map[i].tile).height / 32) {
+                            map[i].gif = 0;
+                        }
+                        c.drawImage(
+                            id(map[i].tile),
+                            0,
+                            32 * Math.floor(map[i].gif / TGS),
+                            32,
+                            32,
+                            (k + map[i].x) * cellSize + mapX,
+                            (j + map[i].y) * cellSize + mapY,
+                            cellSize,
+                            cellSize
+                        );
+                    } else {
+                        c.drawImage(
+                            id(map[i].tile), /*image*/
+                            (k + map[i].x) * cellSize + mapX, /*x*/
+                            (j + map[i].y) * cellSize + mapY, /*x*/
+                            cellSize,
+                            cellSize
+                        );
+                    }
+
                 }
             }
 
@@ -171,6 +191,8 @@ function drawGround() {
         }
     }
 }
+// Tile Gif Speed
+var TGS = 8;
 
 function drawMap() {
     var ok1 = false;
@@ -183,17 +205,37 @@ function drawMap() {
         if (map[i].tile) {
             for (var j = 0; j < map[i].h; j++) {
                 for (var k = 0; k < map[i].w; k++) {
+                    //renders only the closest tiles
                     if (((k + map[i].x) * cellSize + mapX > (player.x + visibility) * cellSize || (k + map[i].x) * cellSize + mapX < (player.x - visibility) * cellSize) ||
                         ((j + map[i].y) * cellSize + mapY > (player.y + visibility) * cellSize || (j + map[i].y) * cellSize + mapY < (player.y - visibility) * cellSize)) {
                         continue;
                     }
-                    c.drawImage(
-                        id(map[i].tile), /*image*/
-                        (k + map[i].x) * cellSize + mapX, /*x*/
-                        (j + map[i].y) * cellSize + mapY, /*x*/
-                        cellSize,
-                        cellSize
-                    );
+                    //renders spritesheets
+                    if (typeof map[i].gif !== "undefined") {
+                        map[i].gif++;
+                        if (map[i].gif / TGS >= id(map[i].tile).height / 32) {
+                            map[i].gif = 0;
+                        }
+                        c.drawImage(
+                            id(map[i].tile),
+                            0,
+                            32 * Math.floor(map[i].gif / TGS),
+                            32,
+                            32,
+                            (k + map[i].x) * cellSize + mapX,
+                            (j + map[i].y) * cellSize + mapY,
+                            cellSize,
+                            cellSize
+                        );
+                    } else {
+                        c.drawImage(
+                            id(map[i].tile), /*image*/
+                            (k + map[i].x) * cellSize + mapX, /*x*/
+                            (j + map[i].y) * cellSize + mapY, /*x*/
+                            cellSize,
+                            cellSize
+                        );
+                    }
                 }
             }
 
@@ -246,6 +288,32 @@ function calculatePlayer() {
 
 }
 
+function hotStuff() {
+    var fireIt = false;
+    var x = Math.floor(player.x + 0.5 - mapX / cellSize);
+    var y = Math.floor(player.y + 1.5 - mapY / cellSize);
+    for (var i = 0; i < map.length; i++) {
+        if (map[i].x == x && map[i].y == y) {
+            if (map[i].tile == "fire") {
+                break;
+            }
+        }
+        if (i == map.length - 1) {
+            fireIt = true;
+        }
+    }
+    if (fireIt) {
+        map.push({
+            x: x,
+            y: y,
+            w: 1,
+            h: 1,
+            tile: "fire",
+            gif: 0,
+            ground: 1
+        })
+    }
+}
 var colSide;
 
 function isGrounded(entity) {
@@ -264,22 +332,26 @@ function isGrounded(entity) {
             if (player.xVel < 0)
                 mapX += player.xVel - 1;
             colSide.l = 1;
+            player.L = false;
         }
         if (col.r) {
             if (player.xVel > 0)
                 mapX += player.xVel + 1;
             colSide.r = 1;
+            player.R = false;
 
         }
         if (col.t) {
             if (player.yVel < 0)
                 mapY += player.yVel - 1;
             colSide.t = 1;
+            player.T = false;
         }
         if (col.b) {
             if (player.yVel > 0)
                 mapY += player.yVel + 1;
             colSide.b = 1;
+            player.B = false;
         }
 
 
@@ -440,32 +512,65 @@ function interact() {
 
 
 var lastPressed;
-
+var keydowns = {
+    l: 0,
+    r: 0,
+    t: 0,
+    b: 0,
+    int: 0
+}
 window.addEventListener("keydown", function (event) {
     var key = event.keyCode;
     switch (key) {
         case 65: //left key down
-            player.L = true;
-            player.currentSprite = 1;
-            lastPressed = "l";
+            if (!keydowns.l) {
+                player.L = true;
+                player.R = false;
+                player.T = false;
+                player.B = false;
+                player.currentSprite = 1;
+                lastPressed = "l";
+                keydowns.l = 1;
+            }
             break;
         case 68: //right key down
-            player.R = true;
-            player.currentSprite = 2;
-            lastPressed = "r";
+            if (!keydowns.r) {
+                player.R = true;
+                player.L = false;
+                player.T = false;
+                player.B = false;
+                player.currentSprite = 2;
+                lastPressed = "r";
+                keydowns.r = 1;
+            }
             break;
         case 87: //top key down
-            player.T = true;
-            player.currentSprite = 3;
-            lastPressed = "t";
+            if (!keydowns.t) {
+                player.T = true;
+                player.R = false;
+                player.L = false;
+                player.B = false;
+                player.currentSprite = 3;
+                lastPressed = "t";
+                keydowns.t = 1;
+            }
             break;
         case 83: //bot key down
-            player.B = true;
-            player.currentSprite = 4;
-            lastPressed = "b";
+            if (!keydowns.b) {
+                player.B = true;
+                player.R = false;
+                player.T = false;
+                player.L = false;
+                player.currentSprite = 4;
+                lastPressed = "b";
+                keydowns.b = 1;
+            }
             break;
         case 32: // E
-            interact();
+            if (!keydowns.int) {
+                interact();
+                keydowns.int = 1;
+            }
             break;
     }
 });
@@ -474,15 +579,22 @@ window.addEventListener("keyup", function (event) {
     switch (key) {
         case 65: //left key up
             player.L = false;
+            keydowns.l = 0;
             break;
         case 68: //right key up
             player.R = false;
+            keydowns.r = 0;
             break;
         case 87: //top key up
             player.T = false;
+            keydowns.t = 0;
             break;
         case 83: //bot key up
             player.B = false;
+            keydowns.b = 0;
+            break;
+        case 32: // E
+            keydowns.int = 0;
             break;
     }
 });
