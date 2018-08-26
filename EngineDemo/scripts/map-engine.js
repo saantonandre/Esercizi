@@ -612,6 +612,22 @@ window.addEventListener("keydown", function (event) {
         case 79: // O
             tremble();
             break;
+        case 73: // I
+            switch (cellSize) {
+                case 16:
+                    cellSize = 32;
+                    break;
+                case 32:
+                    cellSize = 64;
+                    break;
+                case 64:
+                    cellSize = 128;
+                    break;
+                case 128:
+                    cellSize = 16;
+                    break;
+            }
+            break;
     }
 });
 window.addEventListener("keyup", function (event) {
