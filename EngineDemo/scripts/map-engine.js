@@ -53,6 +53,7 @@ var playerHitbox = {
     w: player.w,
     h: player.h - 1
 }
+
 var hotMode = 0;
 var dialogueMode = 0;
 requestAnimationFrame(loop);
@@ -65,7 +66,7 @@ function loop() {
     calculatePlayer();
     // TEST
     if (hotMode) {
-        hotStuff();
+        hotStuff()
     }
     if (!dialogueMode) {
         requestAnimationFrame(loop);
@@ -74,7 +75,6 @@ function loop() {
 
 //if collide solo verde con i blu disegna sopra
 //if collide rosso disegna sotto
-
 function drawPlayer() {
 
     /* if the player is not moving he is idling */
@@ -134,67 +134,23 @@ function printPlayer() {
     c.stroke();
 }
 
+
+
+
 function drawGround() {
     for (i = 0; i < map.length; i++) {
         if (typeof map[i].ground === "undefined") {
             continue;
         }
-        // fragmenting the map into tiles
-        if (map[i].tile) {
-            for (var j = 0; j < map[i].h; j++) {
-                for (var k = 0; k < map[i].w; k++) {
-                    if (((k + map[i].x) * cellSize + mapX > (player.x + visibility) * cellSize || (k + map[i].x) * cellSize + mapX < (player.x - visibility) * cellSize) ||
-                        ((j + map[i].y) * cellSize + mapY > (player.y + visibility) * cellSize || (j + map[i].y) * cellSize + mapY < (player.y - visibility) * cellSize)) {
-                        continue;
-                    }
-                    if (typeof map[i].gif !== "undefined") {
-                        map[i].gif++;
-                        if (map[i].gif / TGS >= id(map[i].tile).height / 32) {
-                            map[i].gif = 0;
-                        }
-                        c.drawImage(
-                            id(map[i].tile),
-                            0,
-                            32 * Math.floor(map[i].gif / TGS),
-                            32,
-                            32,
-                            (k + map[i].x) * cellSize + mapX,
-                            (j + map[i].y) * cellSize + mapY,
-                            cellSize,
-                            cellSize
-                        );
-                    } else {
-                        c.drawImage(
-                            id(map[i].tile), /*image*/
-                            (k + map[i].x) * cellSize + mapX, /*x*/
-                            (j + map[i].y) * cellSize + mapY, /*x*/
-                            cellSize,
-                            cellSize
-                        );
-                    }
-
-                }
-            }
-
-        } else if (map[i].png) {
-            c.drawImage(
-                id(map[i].png), /*image*/
-                (map[i].x) * cellSize + mapX, /*x*/
-                (map[i].y) * cellSize + mapY, /*x*/
-                map[i].w * cellSize,
-                map[i].h * cellSize
-            );
-        } else {
-            c.fillStyle = "#0000ff";
-            c.beginPath()
-            c.fillRect(map[i].x * cellSize + mapX, map[i].y * cellSize + mapY, map[i].w * cellSize, map[i].h * cellSize);
-            c.closePath();
-            c.stroke();
-        }
+        drawCycle(i);
     }
 }
 // Tile Gif Speed
 var TGS = 8;
+
+
+
+
 
 function drawMap() {
     var ok1 = false;
@@ -203,59 +159,8 @@ function drawMap() {
         if (typeof map[i].ground !== "undefined") {
             continue;
         }
-        // fragmenting the map into tiles
-        if (map[i].tile) {
-            for (var j = 0; j < map[i].h; j++) {
-                for (var k = 0; k < map[i].w; k++) {
-                    //renders only the closest tiles
-                    if (((k + map[i].x) * cellSize + mapX > (player.x + visibility) * cellSize || (k + map[i].x) * cellSize + mapX < (player.x - visibility) * cellSize) ||
-                        ((j + map[i].y) * cellSize + mapY > (player.y + visibility) * cellSize || (j + map[i].y) * cellSize + mapY < (player.y - visibility) * cellSize)) {
-                        continue;
-                    }
-                    //renders spritesheets
-                    if (typeof map[i].gif !== "undefined") {
-                        map[i].gif++;
-                        if (map[i].gif / TGS >= id(map[i].tile).height / 32) {
-                            map[i].gif = 0;
-                        }
-                        c.drawImage(
-                            id(map[i].tile),
-                            0,
-                            32 * Math.floor(map[i].gif / TGS),
-                            32,
-                            32,
-                            (k + map[i].x) * cellSize + mapX,
-                            (j + map[i].y) * cellSize + mapY,
-                            cellSize,
-                            cellSize
-                        );
-                    } else {
-                        c.drawImage(
-                            id(map[i].tile), /*image*/
-                            (k + map[i].x) * cellSize + mapX, /*x*/
-                            (j + map[i].y) * cellSize + mapY, /*x*/
-                            cellSize,
-                            cellSize
-                        );
-                    }
-                }
-            }
+        drawCycle(i);
 
-        } else if (map[i].png) {
-            c.drawImage(
-                id(map[i].png), /*image*/
-                (map[i].x) * cellSize + mapX, /*x*/
-                (map[i].y) * cellSize + mapY, /*x*/
-                map[i].w * cellSize,
-                map[i].h * cellSize
-            );
-        } else {
-            c.fillStyle = "#0000ff";
-            c.beginPath()
-            c.fillRect(map[i].x * cellSize + mapX, map[i].y * cellSize + mapY, map[i].w * cellSize, map[i].h * cellSize);
-            c.closePath();
-            c.stroke();
-        }
         if (col2(player, map[i])) {
             ok1 = true;
         }
@@ -276,6 +181,97 @@ function drawMap() {
 }
 /* SPRITE RENDERING */
 
+function drawCycle(i) {
+
+    // fragmenting the map into tiles
+    if (map[i].tile) {
+        for (var j = 0; j < map[i].h; j++) {
+            for (var k = 0; k < map[i].w; k++) {
+                if (((k + map[i].x) * cellSize + mapX > (player.x + visibility) * cellSize || (k + map[i].x) * cellSize + mapX < (player.x - visibility) * cellSize) ||
+                    ((j + map[i].y) * cellSize + mapY > (player.y + visibility) * cellSize || (j + map[i].y) * cellSize + mapY < (player.y - visibility) * cellSize)) {
+                    continue;
+                }
+                if (typeof map[i].gif !== "undefined") {
+                    map[i].gif++;
+                    if (map[i].gif / TGS >= id(map[i].tile).height / 32) {
+                        map[i].gif = 0;
+                    }
+                    c.drawImage(
+                        id(map[i].tile),
+                        0,
+                        32 * Math.floor(map[i].gif / TGS),
+                        32,
+                        32,
+                        (k + map[i].x) * cellSize + mapX,
+                        (j + map[i].y) * cellSize + mapY,
+                        cellSize,
+                        cellSize
+                    );
+                } else {
+                    c.drawImage(
+                        id(map[i].tile), /*image*/
+                        (k + map[i].x) * cellSize + mapX, /*x*/
+                        (j + map[i].y) * cellSize + mapY, /*x*/
+                        cellSize,
+                        cellSize
+                    );
+                }
+
+            }
+        }
+
+    } else if (map[i].png) {
+        c.drawImage(
+            id(map[i].png), /*image*/
+            (map[i].x) * cellSize + mapX, /*x*/
+            (map[i].y) * cellSize + mapY, /*x*/
+            map[i].w * cellSize,
+            map[i].h * cellSize
+        );
+    } else if (typeof map[i].pnGif !== "undefined") {
+        // pnGif is a special map tile(mainly for characters)
+        /*
+        {
+            x: 24,
+            y: 3,
+            w: 7,
+            h: 1,
+            pnGif : {
+                img : "elder",
+                currentFrame : 0,
+                frameSpeed : 5,
+                w : 32,
+                h : 64
+            }
+        }
+        */
+        map[i].pnGif.currentFrame++;
+        if (map[i].pnGif.currentFrame / map[i].pnGif.frameSpeed >= id(map[i].pnGif.img).height / map[i].pnGif.h) {
+            map[i].pnGif.currentFrame = 0;
+        }
+        c.drawImage(
+            id(map[i].pnGif.img),
+            0,
+            map[i].pnGif.h * Math.floor(map[i].pnGif.currentFrame / map[i].pnGif.frameSpeed),
+            map[i].pnGif.w,
+            map[i].pnGif.h,
+            (map[i].x) * cellSize + mapX,
+            (map[i].y) * cellSize + mapY,
+            map[i].w * cellSize,
+            map[i].h * cellSize
+        );
+
+    } else {
+        c.fillStyle = "#0000ff";
+        c.beginPath()
+        c.fillRect(map[i].x * cellSize + mapX, map[i].y * cellSize + mapY, map[i].w * cellSize, map[i].h * cellSize);
+        c.closePath();
+        c.stroke();
+    }
+}
+
+
+
 function calculatePlayer() {
     playerHitbox = {
         x: player.x,
@@ -290,6 +286,8 @@ function calculatePlayer() {
 
 }
 
+
+// MODS
 function hotStuff() {
     var fireIt = false;
     var x = Math.floor(player.x + 0.5 - mapX / cellSize);
@@ -316,6 +314,36 @@ function hotStuff() {
         })
     }
 }
+
+
+
+
+function tremble() {
+    var tiles = ["low-wall", "red", "purple", "pink", "dry-grass", "walk-grass"];
+    var mapl = map.length;
+    for (var i = 0; i < mapl; i++) {
+        /*
+        map[i].tile = tiles[Math.floor(Math.random() * tiles.length)];
+        map.push({
+            x: Math.floor(Math.random() * 50 + 1),
+            y: Math.floor(Math.random() * 50 + 1),
+            w: Math.floor(Math.random() * 8 + 1),
+            h: Math.floor(Math.random() * 8 + 1),
+            tile: tiles[Math.floor(Math.random() * tiles.length)],
+            ground: Math.floor(Math.random() * 2)
+        })
+        */
+        if (typeof map[i].tile !== "undefined") {
+            map[i].tile = tiles[Math.floor(Math.random() * tiles.length)]
+        }
+    }
+}
+
+
+
+// MODS END
+
+
 var colSide;
 
 function isGrounded(entity) {
@@ -580,6 +608,9 @@ window.addEventListener("keydown", function (event) {
             for (var i = 0; i < player.sprites.length; i++) {
                 player.sprites[i][1] = 3;
             }
+            break;
+        case 79: // O
+            tremble();
             break;
     }
 });

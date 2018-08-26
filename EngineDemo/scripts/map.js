@@ -94,11 +94,41 @@ map = [{
     h: 6,
     png: "house1"
 }, {
-    x: 44,
-    y: 13,
-    w: 1,
-    h: 3,
-    tile: "stone"
+    x: 55,
+    y: 5,
+    w: 6,
+    h: 6,
+    png: "tree1"
+}, {
+    x: 60,
+    y: 4,
+    w: 6,
+    h: 6,
+    png: "tree1"
+}, {
+    x: 55,
+    y: 6,
+    w: 6,
+    h: 6,
+    png: "tree1"
+}, {
+    x: 58,
+    y: 5.5,
+    w: 6,
+    h: 6,
+    png: "tree1"
+}, {
+    x: 62,
+    y: 5,
+    w: 6,
+    h: 6,
+    png: "tree1"
+}, {
+    x: 63,
+    y: 7,
+    w: 6,
+    h: 6,
+    png: "tree1"
 }, {
     x: 10,
     y: 3,
@@ -242,32 +272,38 @@ map = [{
     w: 9,
     h: 2
 }, {
-    x: 8,
+    x: 60,
     y: 18,
     w: 1,
     h: 2,
     text: 'guy',
     tile: "stone"
 }, {
-    x: 12,
-    y: 18,
+    x: 54,
+    y: 17,
     w: 1,
     h: 2,
-    text: 'elder',
-    tile: "purple"
+    pnGif: {
+        img: "elder",
+        currentFrame: 0,
+        frameSpeed: 12,
+        w: 32,
+        h: 64
+    },
+    text: 'elder'
+}, {
+    x: 64,
+    y: 20,
+    w: 1,
+    h: 2,
+    text: 'linda',
+    tile: "pink"
 }, {
     x: 45,
     y: 22,
     w: 2,
     h: 7,
     tile: "red"
-}, {
-    x: 10,
-    y: 20,
-    w: 1,
-    h: 2,
-    text: 'linda',
-    tile: "pink"
 }, {
     x: 35,
     y: 19,
@@ -284,6 +320,11 @@ map = [{
     ground: 1
 }, ];
 hitBoxes = [{
+    x: 54,
+    y: 18,
+    w: 1,
+    h: 1
+}, {
     x: 48,
     y: 13.5,
     w: 30,
@@ -500,6 +541,6 @@ hitBoxes = [{
     h: 1
 }, ];
 spawnPoint = {
-    x: 16,
+    x: 55,
     y: 20
 };
