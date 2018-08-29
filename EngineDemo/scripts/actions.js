@@ -7,8 +7,20 @@ var dialogues = [
         letters("Obsessed with your sins, you travel looking for a distant friend, Sophie, who promised to save you.", id("storytext"), false)
             }
             ]
+var fullScreen = true;
+id("FS-check").onclick = function () {
+    if (fullScreen) {
+        fullScreen = false;
+        console.log(fullScreen)
+    } else {
+        fullScreen = true;
+        console.log(fullScreen)
+    }
+}
 id("start").onclick = function () {
-    openFullscreen();
+    if (fullScreen) {
+        openFullscreen();
+    }
     id("main-menu").style.display = "none";
     id("game-screen").style.display = "block";
 }

@@ -56,6 +56,7 @@ var playerHitbox = {
 
 var hotMode = 0;
 var dialogueMode = 0;
+var night = 0;
 requestAnimationFrame(loop);
 
 function loop() {
@@ -339,6 +340,18 @@ function tremble() {
     }
 }
 
+function nightMode() {
+    if (!night) {
+        id("canvas-overlay").style.visibility = "visible";
+        id("elder").src = "resources/sprites/elder2.png";
+        night = true;
+    } else {
+        id("canvas-overlay").style.visibility = "hidden";
+        id("elder").src = "resources/sprites/elder1.png";
+        night = false;
+    }
+}
+
 
 
 // MODS END
@@ -611,6 +624,9 @@ window.addEventListener("keydown", function (event) {
             break;
         case 79: // O
             tremble();
+            break;
+        case 76: // L
+            nightMode();
             break;
         case 73: // I
             switch (cellSize) {
