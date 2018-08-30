@@ -14,8 +14,8 @@ var c = canvas.getContext("2d");
 var cellSize = 32;
 var visibility = 20;
 var player = {
-    x: canvas.width / cellSize / 2,
-    y: canvas.height / cellSize / 2,
+    x: canvas.width / cellSize / 2 - 0.5, //centering
+    y: canvas.height / cellSize / 2 - 1,
     h: 2,
     w: 1,
     //movement
