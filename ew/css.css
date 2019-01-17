@@ -1,0 +1,63 @@
+body {
+    position: fixed;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    -webkit-user-select: none;
+    /* Chrome all / Safari all */
+    -moz-user-select: none;
+    /* Firefox all */
+    -ms-user-select: none;
+    /* IE 10+ */
+    user-select: none;
+    /* Likely future */
+
+}
+
+.noselect {
+    -webkit-user-select: none;
+    /* Chrome all / Safari all */
+    -moz-user-select: none;
+    /* Firefox all */
+    -ms-user-select: none;
+    /* IE 10+ */
+    user-select: none;
+}
+
+#start {
+    width: 100%;
+    height: 100%;
+    background-color: aqua;
+    padding: 5px;
+    text-align: center;
+    position: absolute;
+
+}
+
+#title {
+    width: 100%;
+    margin-top: 5%;
+    position: absolute;
+    color: white;
+    text-align: center;
+    font-size: 26px;
+    animation: skew 2s infinite forwards;
+}
+
+@keyframes skew {
+    0% {
+        transform: skewX(15deg);
+        color: red;
+    }
+
+    50% {
+        transform: skewX(-15deg);
+        color: pink;
+    }
+
+    100% {
+        transform: skewX(15deg);
+        color: red;
+    }
+}
