@@ -10,277 +10,31 @@ window.onload = function initialize() {
     var pixelRatio = canvas.width / (16 * tilesWidth);
     var tileSize = 16;
     var ratio = tileSize * pixelRatio;
-    var textSize = Math.round(0.2 * ratio);
+    var textSize = Math.round(0.3 * ratio);
     var fontSize = textSize + "px";
     var paused = 1;
     var fps = false;
 
     const gForce = 0.016 * ratio;
     var mapX = 0;
-
+    var mapY = 0;
 
 
     var tiles = [
-        [0, 64], [16, 64], [32, 64], //grass
-        [48, 64], [64, 64], [80, 64], //rock
-        [96, 64], [112, 64], [128, 64], //grass2
-        [144, 48], //barrel
-        [160, 48], //stairs
-        [176, 48], [176, 64], //chest
-    ]
+        [4, 4], [5, 4], [6, 4], //grass top
+        [4, 5], [5, 5], [6, 5], //grass middle
+        [4, 6], [5, 6], [6, 6], //grass bottom
+        [7, 4], [8, 4], [9, 4], //rock top
+        [7, 5], [8, 5], //rock to grass
+        [7, 6], [8, 6], [9, 6], //grass short
+    ];
     setInterval(function () {
         id("FPS").innerHTML = fps + " FPS";
         fps = 0;
     }, 1000);
 
     //environment
-    var tile = [{
-        x: 0,
-        y: 8,
-        w: 1,
-        h: 1,
-        type: 0
-    }, {
-        x: 1,
-        y: 8,
-        w: 2,
-        h: 1,
-        type: 1
-    }, {
-        x: 3,
-        y: 8,
-        w: 1,
-        h: 1,
-        type: 3
-    }, {
-        x: 4,
-        y: 8,
-        w: 4,
-        h: 1,
-        type: 4
-    }, {
-        x: 8,
-        y: 8,
-        w: 1,
-        h: 1,
-        type: 5
-    }, {
-        x: 5,
-        y: 7,
-        w: 1,
-        h: 1,
-        type: 9
-    }, {
-        x: 7,
-        y: 7,
-        w: 1,
-        h: 1,
-        type: 9
-    }, {
-        x: 6,
-        y: 7,
-        w: 1,
-        h: 1,
-        type: 11
-    }, {
-        x: 9,
-        y: 8,
-        w: 1,
-        h: 1,
-        type: 2
-    }, {
-        x: 9,
-        y: 6,
-        w: 1,
-        h: 1,
-        type: 6
-    }, {
-        x: 10,
-        y: 6,
-        w: 3,
-        h: 1,
-        type: 7
-    }, {
-        x: 13,
-        y: 6,
-        w: 1,
-        h: 1,
-        type: 8
-    }, {
-        x: 7,
-        y: 2,
-        w: 1,
-        h: 1,
-        type: 6
-    }, {
-        x: 8,
-        y: 2,
-        w: 3,
-        h: 1,
-        type: 7
-    }, {
-        x: 11,
-        y: 2,
-        w: 1,
-        h: 1,
-        type: 8
-    }, {
-        x: 12,
-        y: 3,
-        w: 1,
-        h: 1,
-        type: 8
-    }, {
-        x: 11,
-        y: 3,
-        w: 1,
-        h: 1,
-        type: 6
-    }, {
-        x: 16,
-        y: 5,
-        w: 1,
-        h: 1,
-        type: 0
-    }, {
-        x: 17,
-        y: 5,
-        w: 4,
-        h: 1,
-        type: 1
-    }, {
-        x: 9,
-        y: 1,
-        w: 2,
-        h: 1,
-        type: 9
-    }, {
-        x: 21,
-        y: 5,
-        w: 1,
-        h: 1,
-        type: 3
-    }, {
-        x: 22,
-        y: 5,
-        w: 1,
-        h: 1,
-        type: 4
-    }, {
-        x: 23,
-        y: 5,
-        w: 1,
-        h: 1,
-        type: 5
-    }, {
-        x: 24,
-        y: 5,
-        w: 1,
-        h: 1,
-        type: 3
-    }, {
-        x: 25,
-        y: 5,
-        w: 1,
-        h: 1,
-        type: 5
-    }, {
-        x: 26,
-        y: 5,
-        w: 1,
-        h: 1,
-        type: 3
-    }, {
-        x: 27,
-        y: 5,
-        w: 1,
-        h: 1,
-        type: 5
-    }, {
-        x: 28,
-        y: 5,
-        w: 1,
-        h: 1,
-        type: 1
-    }, {
-        x: 29,
-        y: 5,
-        w: 1,
-        h: 1,
-        type: 2
-    }, {
-        x: 28,
-        y: 3,
-        w: 1,
-        h: 1,
-        type: 8
-    }, {
-        x: 27,
-        y: 3,
-        w: 1,
-        h: 1,
-        type: 6
-    }, {
-        x: 31,
-        y: 3,
-        w: 1,
-        h: 1,
-        type: 6
-    }, {
-        x: 32,
-        y: 3,
-        w: 3,
-        h: 1,
-        type: 7
-    }, {
-        x: 35,
-        y: 3,
-        w: 1,
-        h: 1,
-        type: 8
-    }, {
-        x: 25,
-        y: 4,
-        w: 2,
-        h: 1,
-        type: 12
-    }, {
-        x: 29,
-        y: 3,
-        w: 1,
-        h: 2,
-        type: 10
-    }, {
-        x: 33,
-        y: 2,
-        w: 1,
-        h: 1,
-        type: 9
-    }, {
-        x: 18,
-        y: 4,
-        w: 2,
-        h: 1,
-        type: 9
-    }, {
-        x: 13,
-        y: 5,
-        w: 1,
-        h: 1,
-        type: 6
-    }, {
-        x: 14,
-        y: 5,
-        w: 1,
-        h: 1,
-        type: 8
-    }, {
-        x: 14,
-        y: 4,
-        w: 1,
-        h: 1,
-        type: 9
-    }, ];
+    var tile = [{x : 1,y : 3,w : 1,h : 1,type : 0},{x : 2,y : 3,w : 1,h : 1,type : 1},{x : 3,y : 3,w : 1,h : 1,type : 2},{x : 3,y : 4,w : 1,h : 3,type : 5},{x : 2,y : 4,w : 1,h : 3,type : 4},{x : 3,y : 7,w : 1,h : 1,type : 4},{x : 2,y : 7,w : 1,h : 2,type : 4},{x : 3,y : 8,w : 6,h : 1,type : 4},{x : 5,y : 7,w : 1,h : 1,type : 13},{x : 2,y : 9,w : 6,h : 1,type : 7},{x : 1,y : 9,w : 1,h : 1,type : 6},{x : 1,y : 4,w : 1,h : 5,type : 3},{x : 10,y : 8,w : 1,h : 1,type : 8},{x : 9,y : 9,w : 1,h : 1,type : 8},{x : 9,y : 8,w : 1,h : 1,type : 4},{x : 8,y : 9,w : 1,h : 1,type : 7},{x : 4,y : 7,w : 1,h : 1,type : 12},{x : 6,y : 7,w : 1,h : 1,type : 12},{x : 7,y : 5,w : 1,h : 1,type : 14},{x : 7,y : 7,w : 2,h : 1,type : 1},{x : 9,y : 7,w : 1,h : 1,type : 13},{x : 10,y : 5,w : 1,h : 1,type : 4},{x : 10,y : 7,w : 1,h : 1,type : 4},{x : 10,y : 6,w : 1,h : 1,type : 3},{x : 9,y : 5,w : 1,h : 1,type : 13},{x : 8,y : 5,w : 1,h : 1,type : 1},{x : 10,y : 4,w : 1,h : 1,type : 9},{x : 11,y : 4,w : 1,h : 1,type : 10},{x : 12,y : 3,w : 1,h : 1,type : 9},{x : 13,y : 3,w : 1,h : 1,type : 11},{x : 11,y : 7,w : 1,h : 1,type : 8},{x : 13,y : 4,w : 1,h : 1,type : 8},{x : 12,y : 4,w : 1,h : 1,type : 4},{x : 11,y : 5,w : 1,h : 2,type : 4},{x : 12,y : 6,w : 1,h : 1,type : 8},{x : 12,y : 5,w : 1,h : 1,type : 5},{x : 7,y : 2,w : 1,h : 1,type : 15},{x : 8,y : 2,w : 1,h : 1,type : 16},{x : 6,y : 2,w : 1,h : 1,type : 14},{x : 16,y : 3,w : 1,h : 1,type : 3},{x : 17,y : 3,w : 1,h : 1,type : 5},{x : 16,y : 4,w : 1,h : 3,type : 3},{x : 17,y : 4,w : 1,h : 3,type : 5},{x : 17,y : 7,w : 1,h : 1,type : 8},{x : 16,y : 7,w : 1,h : 1,type : 6},{x : 16,y : 2,w : 1,h : 1,type : 0},{x : 17,y : 2,w : 1,h : 1,type : 2},{x : 22,y : 3,w : 1,h : 1,type : 14},{x : 23,y : 3,w : 3,h : 1,type : 15},{x : 26,y : 3,w : 1,h : 1,type : 13},{x : 27,y : 4,w : 1,h : 2,type : 5},{x : 27,y : 3,w : 1,h : 1,type : 11},{x : 26,y : 6,w : 1,h : 1,type : 6},{x : 26,y : 4,w : 1,h : 2,type : 3},{x : 27,y : 6,w : 1,h : 1,type : 7},{x : 28,y : 6,w : 1,h : 1,type : 12},{x : 29,y : 6,w : 1,h : 1,type : 13},{x : 30,y : 6,w : 1,h : 1,type : 12},{x : 31,y : 6,w : 1,h : 1,type : 13},{x : 32,y : 6,w : 1,h : 1,type : 11},{x : 29,y : 7,w : 3,h : 1,type : 7},{x : 28,y : 7,w : 1,h : 1,type : 6},{x : 32,y : 7,w : 1,h : 1,type : 8},{x : 34,y : 4,w : 2,h : 1,type : 10},{x : 33,y : 4,w : 1,h : 1,type : 9},{x : 36,y : 4,w : 1,h : 1,type : 11},{x : 34,y : 5,w : 2,h : 1,type : 7},{x : 33,y : 5,w : 1,h : 1,type : 6},{x : 36,y : 5,w : 1,h : 1,type : 8},{x : 42,y : 4,w : 1,h : 1,type : 14},{x : 43,y : 4,w : 3,h : 1,type : 15},{x : 46,y : 4,w : 1,h : 1,type : 16},];
 
     var player = {
         x: 3 * ratio,
@@ -310,7 +64,9 @@ window.onload = function initialize() {
         },
         col: {
             L: 0,
-            R: 0
+            R: 0,
+            T: 0,
+            B: 0
         },
         left: false,
         sprite: {
@@ -323,44 +79,57 @@ window.onload = function initialize() {
         actionY: [[0], [0], [0, 16, 32, 48], [0, 16, 32, 48], [16], [48], [0, 16, 32, 48], [0, 16, 32, 48]],
         action: 0,
         attack: 0,
+        dash: false,
+        dashIn: 0,
+        dashCd: 0,
         attackDMG: 7,
         jump: function () {
             if (player.grounded) {
                 player.grounded = false;
-                player.yVel = -0.25 * ratio;
+                player.yVel = -0.27 * ratio;
+            }
+        },
+        attacking: function (hitbox) {
+            for (i = 0; i < monsters.length; i++) {
+                if (collided(hitbox, monsters[i].hitbox) && monsters[i].hp > 0) {
+                    var DMG = Math.round(Math.random() * (player.attackDMG / 2) + player.attackDMG / 2);
+                    var missChance = Math.round(Math.random() * (player.precision));
+                    if (missChance === 1) {
+                        DMG = "miss";
+                    } else {
+                        if (!parseInt(Math.random() * 3)) {
+                            visualFxs.push(new DmgFx(monsters[i], 0));
+                        }
+                        var randomFx = parseInt(Math.random() * 2 + 1);
+                        visualFxs.push(new DmgFx(monsters[i], randomFx));
+                        monsters[i].action = 4;
+                        monsters[i].hit = true;
+                        monsters[i].hp -= DMG;
+                        monsters[i].grounded = false;
+                        if (monsters[i].type != "Dummy") {
+                            monsters[i].yVel = -0.05 * ratio;
+                        }
+                        if (monsters[i].hp <= 0) {
+                            monsters[i].yVel = -0.15 * ratio;
+                            monsters[i].frameCounter = 0;
+                            monsters[i].frame = 0;
+                        }
+                    }
+                    dmgTexts.push(new DmgText(monsters[i], DMG));
+                }
             }
         },
         attackEvent: function () {
             if (player.grounded && !player.attack) {
                 player.attack = true;
                 frame = 0;
-                for (i = 0; i < monsters.length; i++) {
-                    if (collided(player.atkHitbox, monsters[i].hitbox) && monsters[i].hp > 0) {
-                        var DMG = Math.round(Math.random() * (player.attackDMG / 2) + player.attackDMG / 2);
-                        var missChance = Math.round(Math.random() * (player.precision));
-                        if (missChance === 1) {
-                            DMG = "miss";
-                        } else {
-                            if (!parseInt(Math.random() * 3)) {
-                                visualFxs.push(new DmgFx(monsters[i], 0));
-                            }
-                            var randomFx = parseInt(Math.random() * 2 + 1);
-                            visualFxs.push(new DmgFx(monsters[i], randomFx));
-                            monsters[i].action = 4;
-                            monsters[i].hit = true;
-                            monsters[i].hp -= DMG;
-                            monsters[i].grounded = false;
-                            monsters[i].yVel = -0.05 * ratio;
-                            if (monsters[i].hp <= 0) {
-                                monsters[i].yVel = -0.15 * ratio;
-                                monsters[i].frameCounter = 0;
-                                monsters[i].frame = 0;
-                            }
-                        }
-                        dmgTexts.push(new DmgText(monsters[i], DMG));
-                    }
-                }
+                player.attacking(player.atkHitbox);
+            } else if (!player.attack && !player.dashCd) {
+                player.dashCd = true;
+                player.dash = true;
+                player.dashIn = mapX / ratio;
             }
+
         }
     };
     var monsters = [];
@@ -391,7 +160,9 @@ window.onload = function initialize() {
             };
             this.col = {
                 L: 0,
-                R: 0
+                R: 0,
+                T: 0,
+                B: 0
             };
             this.left = false;
             this.sprite = {
@@ -413,8 +184,8 @@ window.onload = function initialize() {
     }
     //shows the number of monsters
     setInterval(function () {
-        id("monsternumber").innerHTML = monsters.length
-    }, 500)
+        id("monsternumber").innerHTML = monsters.length;
+    }, 500);
 
     function randomMovement(serial) {
         //console.log(monsters[i].serial+" "+ serial);
@@ -453,7 +224,7 @@ window.onload = function initialize() {
             super(x, y);
             this.speed = 0.01 * ratio;
             this.hp = 16;
-            this.type = "slime";
+            this.type = "Slime";
             this.actionX = [[192], [208], [192, 192, 192], [208, 208, 208], [224, 224, 224], [224, 224, 224, 224, 224]];
             this.actionY = [[0], [0], [0, 16, 32], [0, 16, 32], [0, 0, 0], [0, 16, 32, 48, 64]];
         }
@@ -467,6 +238,17 @@ window.onload = function initialize() {
             this.actionX = [[240], [256], [240, 240, 240], [256, 256, 256], [272, 272, 272], [272, 272, 272, 272, 272]];
             this.actionY = [[0], [0], [0, 16, 32, 48], [0, 16, 32, 48], [0, 0, 0], [0, 16, 32, 48, 64]];
         }
+    }
+    class Dummy extends Monster {
+        constructor(x, y) {
+            super(x, y);
+            this.speed = 0;
+            this.hp = 1200;
+            this.type = "Dummy";
+            this.actionX = [[192], [192], [192], [192], [192, 192, 192], [192]];
+            this.actionY = [[48], [48], [48], [48], [64, 64, 64], [48]];
+        }
+        move() {}
     }
     class Zombie extends Monster {
         constructor(x, y) {
@@ -488,7 +270,9 @@ window.onload = function initialize() {
         }
     }
     create("Slime", 5, 0);
-    create("Slime", 5, 0);
+    create("Dummy", 8, 4);
+    create("Dummy", 7, 1);
+    create("Dummy", 8, 1);
 
     function create(type, x, y) {
         switch (type) {
@@ -506,6 +290,9 @@ window.onload = function initialize() {
                 monsters.push(new Zombie(x, y));
                 //console.log("creating a Zombie");
                 monsters[monsters.length - 1].move();
+                break;
+            case "Dummy":
+                monsters.push(new Dummy(x, y));
                 break;
             case "Superzombie":
                 monsters.push(new Superzombie(x, y));
@@ -526,9 +313,10 @@ window.onload = function initialize() {
     var dmgTexts = [];
     class DmgText {
         constructor(m, text) {
-            this.x = m.x + m.w / 2;
-            this.y = m.y - 5;
+            this.x = m.x + m.w / 2 + Math.floor(Math.random() * 16 - 8);
+            this.y = m.y - 5 + Math.floor(Math.random() * 16 - 8);
             this.text = text;
+            this.size = Math.round(0.4 * ratio);
             this.color = "#ac3232";
             this.span = 40;
         }
@@ -558,11 +346,30 @@ window.onload = function initialize() {
             this.type = "dmg";
         }
     }
+    class Grass {
+        constructor(x, y) {
+            this.x = x * ratio;
+            this.y = (y + 0.02) * ratio;
+            this.sprite = 0;
+            this.rotation = false;
+            this.sheet = id("sheet");
+            this.repeat = true;
+            this.frameCounter = 0;
+            this.frame = 0;
+            this.type = "grass";
+        }
+    }
     var cloudSprites = {
         x: [[112], [112], [112], [112]],
         y: [[0], [16], [32], [48]],
         w: [16, 16, 16, 16],
         h: [16, 16, 16, 16],
+    };
+    var grassSprite = {
+        x: [[160, 160, 160, 160]],
+        y: [[64, 80, 96, 112]],
+        w: [[16]],
+        h: [[16]],
     };
     class Cloud {
         constructor(x, y, s) {
@@ -582,6 +389,12 @@ window.onload = function initialize() {
         visualFxs.push(new Cloud(ran1, ran2, ran3));
     }
 
+    visualFxs.push(new Grass(3, 2));
+    visualFxs.push(new Grass(7, 1));
+    visualFxs.push(new Grass(2, 2));
+    visualFxs.push(new Grass(5, 6));
+    visualFxs.push(new Grass(8, 4));
+
     function drawFxs(fx) {
         //animation computing
         if (fx.type == "cloud") {
@@ -593,15 +406,20 @@ window.onload = function initialize() {
         if (fx.type == "dmg") {
             var spritePos = dmgSprites;
         }
+        if (fx.type == "grass") {
+            var spritePos = grassSprite;
+        }
         if (fx.frameCounter !== undefined) {
             fx.frameCounter++;
-            if (fx.frameCounter > 5) {
+            var slowness = 5;
+            fx.type == "grass" ? slowness = 10 : 0;
+            if (fx.frameCounter > slowness) {
                 fx.frame++;
                 fx.frameCounter = 0;
             }
             if (fx.frame > spritePos.x[fx.sprite].length - 1) {
                 if (fx.repeat) {
-                    m.frame = 0;
+                    fx.frame = 0;
                 } else {
                     visualFxs.splice(i, 1);
                 }
@@ -655,8 +473,10 @@ window.onload = function initialize() {
         c.textAlign = "center";
         c.font = fontSize + " 'Press Start 2P'";
         for (i = 0; i < dmgTexts.length; i++) {
+            c.font = Math.round(dmgTexts[i].size) + "px" + " 'Press Start 2P'";
+            dmgTexts[i].size /= 1.01;
             c.fillStyle = "black";
-            c.fillText(dmgTexts[i].text, dmgTexts[i].x + mapX + Math.round(textSize / 10), dmgTexts[i].y + 10 + Math.round(textSize / 10));
+            c.fillText(dmgTexts[i].text, dmgTexts[i].x + mapX + Math.round(textSize / 10), dmgTexts[i].y + 10 + Math.round(dmgTexts[i].size / 10));
             c.fillStyle = dmgTexts[i].color;
             c.fillText(dmgTexts[i].text, dmgTexts[i].x + mapX, dmgTexts[i].y + 10);
             dmgTexts[i].y -= 0.3;
@@ -706,9 +526,6 @@ window.onload = function initialize() {
     ///////////////////////////////////////////////////////////////////////////////
     function loop() {
         frameCounter++;
-        for (i = 0; i < monsters.length; i++) {
-            monsters[i].frameCounter++;
-        }
         fps++;
         paused = 0;
         c.clearRect(0, 0, canvas.width, canvas.height);
@@ -716,51 +533,103 @@ window.onload = function initialize() {
         c.fillRect(0, 0, canvas.width, canvas.height);
         //calculate character
         //draw environment
+        checkCollisions();
+        calculateCharacter(player);
         for (i = 0; i < monsters.length; i++) {
+            monsters[i].frameCounter++;
             calculateMonsters(monsters[i]);
         }
-        calculateCharacter(player);
         drawEnvironment();
         //draw character
-        for (i = 0; i < monsters.length; i++) {
+        for (i = monsters.length - 1; i >= 0; i--) {
             drawMonsters(monsters[i]);
         }
         drawCharacter(player);
         for (i = visualFxs.length - 1; i >= 0; i--) {
             drawFxs(visualFxs[i]);
         }
-        c2.clearRect(0, 0, canvas2.width, canvas2.height)
-        drawController();
         renderTexts();
+        controller()
+        requestAnimationFrame(loop)
     }
     ///////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////// MAIN LOOP //////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////
 
-
+    function checkCollisions() {
+        player.grounded = false;
+        player.col.L = false;
+        player.col.R = false;
+        player.col.T = false;
+        player.col.B = false;
+        for (i = 0; i < monsters.length; i++) {
+            monsters[i].grounded = false;
+            monsters[i].col.L = false;
+            monsters[i].col.R = false;
+            monsters[i].col.T = false;
+            monsters[i].col.B = false;
+        }
+        for (i = 0; i < tile.length; i++) {
+            colCheck(player, tile[i]);
+            for (m = 0; m < monsters.length; m++) {
+                colCheck(monsters[m], tile[i]);
+            }
+        }
+    }
 
 
     //TODO DRAW MONSTERS - MAKE THEM WORK LIKE player - GIVE THEM AI
 
     function calculateCharacter(p) {
         //controls calculation
-        if (p.L && !p.col.L && !p.R) {
-            p.xVel = -p.speed;
-            p.left = true;
-        } else if (p.R && !p.col.R && !p.L) {
-            p.xVel = p.speed;
-            p.left = false;
-        } else {
-            p.xVel = 0;
-        }
-        id("stat").innerHTML = "player.grounded= " + p.grounded;
-        id("left").innerHTML = "player.left= " + p.left;
-        if (!p.grounded) {
-            p.yVel += gForce;
-        } else if (p.yVel > 0) {
+        if (p.dash) {
+            p.left ? p.xVel = -p.speed * 8 : p.xVel = p.speed * 8;
             p.yVel = 0;
+            player.attacking(p.hitbox);
+            if (Math.abs(p.dashIn - mapX / ratio) > 4) {
+                p.dash = false;
+            }
         }
-        p.y += p.yVel;
+        if (p.col.L) {
+            mapX -= p.col.L * ratio;
+            p.dash = false;
+
+        }
+        if (p.col.R) {
+            mapX += p.col.R * ratio // - (0.02 * tileSize);
+            p.dash = false;
+
+        }
+        if (p.col.T) {
+            p.y += p.col.T * ratio // + (0.02 * tileSize);
+            p.yVel = 0;
+            p.dash = false;
+
+        }
+        if (p.col.B) {
+            p.y -= p.col.B * ratio - 1;
+            p.grounded = true;
+            player.dashCd = false;
+            p.dash = false;
+        }
+        if (!p.dash) {
+            if (p.L && !p.col.L && !p.R) {
+                p.xVel = -p.speed;
+                p.left = true;
+            } else if (p.R && !p.col.R && !p.L) {
+                p.xVel = p.speed;
+                p.left = false;
+            } else if ((!p.L && !p.R || p.L && p.R) && !p.dash) {
+                p.xVel = 0;
+            }
+            id("left").innerHTML = "player.left= " + p.left;
+            if (!p.grounded) {
+                p.yVel += gForce;
+            } else if (p.yVel > 0) {
+                p.yVel = 0;
+            }
+        }
+        player.y += player.yVel;
         mapX -= p.xVel;
         //physics calculations
         p.hitbox.x = (p.x + p.w / 5) / ratio;
@@ -777,6 +646,26 @@ window.onload = function initialize() {
     }
 
     function calculateMonsters(m) {
+        if (m.col.L) {
+            m.x += m.col.L * ratio;
+            m.L = false;
+
+        }
+        if (m.col.R) {
+            m.x -= m.col.R * ratio;
+            m.R = false;
+
+        }
+        if (m.col.T) {
+            m.y += m.col.T * ratio;
+            m.yVel = 0;
+
+        }
+        if (m.col.B) {
+            m.y -= m.col.B * ratio - 1;
+            m.grounded = true;
+
+        }
         //controls calculation
         if (m.L && !m.col.L && !m.R && !m.hit) {
             m.xVel = -m.speed * ratio / 20;
@@ -784,7 +673,7 @@ window.onload = function initialize() {
         } else if (m.R && !m.col.R && !m.L && !m.hit) {
             m.xVel = m.speed * ratio / 20;
             m.left = false;
-        } else {
+        } else if (!m.L && !m.R || m.L && m.R) {
             m.xVel = 0;
         }
         if (!m.grounded) {
@@ -794,26 +683,18 @@ window.onload = function initialize() {
         }
         m.y += m.yVel;
         m.x += m.xVel;
-        m.hitbox.x = m.x / ratio;
+        m.hitbox.x = (m.x + m.w / 10) / ratio;
         m.hitbox.y = m.y / ratio;
-        m.hitbox.w = m.w / ratio;
+        m.hitbox.w = (m.w - m.w / 5) / ratio;
         m.hitbox.h = m.h / ratio;
     }
     var bg_1 = id("bg1");
     var bg_2 = id("bg2");
 
     function drawEnvironment() {
-        player.grounded = false;
-        player.col.L = false;
-        player.col.R = false;
         for (i = 0; i < 5; i++) {
-            c.drawImage(bg_2, -10 * ratio + (bg_2.width / tileSize * ratio * i) + mapX / 20, -1 * ratio, bg_2.width / tileSize * ratio, bg_2.height / tileSize * ratio);
-            c.drawImage(bg_1, -10 * ratio + (bg_1.width / tileSize * ratio * i) + mapX / 10, -1 * ratio, bg_1.width / tileSize * ratio, bg_1.height / tileSize * ratio);
-        }
-        for (i = 0; i < monsters.length; i++) {
-            monsters[i].grounded = false;
-            monsters[i].col.L = false;
-            monsters[i].col.R = false;
+            c.drawImage(bg_2, -10 * ratio + (bg_2.width / tileSize * ratio * i) + mapX / 16, -1 * ratio, bg_2.width / tileSize * ratio, bg_2.height / tileSize * ratio);
+            c.drawImage(bg_1, -10 * ratio + (bg_1.width / tileSize * ratio * i) + mapX / 8, -1 * ratio, bg_1.width / tileSize * ratio, bg_1.height / tileSize * ratio);
         }
         for (i = 0; i < tile.length; i++) {
             for (j = 0; j < tile[i].h; j++) {
@@ -824,11 +705,7 @@ window.onload = function initialize() {
                         continue;
                     }
                     //c.fillRect((tile[i].x + k) * (ratio)+mapX, (tile[i].y + j) * (ratio), ratio, ratio);
-                    c.drawImage(player.sheet, tiles[tile[i].type][0], tiles[tile[i].type][1], 16, 16, (tile[i].x + k) * ratio + mapX, (tile[i].y + j) * ratio, ratio, ratio);
-                    colCheck(player, tile[i]);
-                    for (m = 0; m < monsters.length; m++) {
-                        colCheck(monsters[m], tile[i]);
-                    }
+                    c.drawImage(player.sheet, tiles[tile[i].type][0] * 16, tiles[tile[i].type][1] * 16, 16, 16, (tile[i].x + k) * ratio + mapX, (tile[i].y + j) * ratio, ratio, ratio);
                 }
             }
         }
@@ -836,7 +713,7 @@ window.onload = function initialize() {
 
     function drawCharacter(p) {
         //animation computing
-        if (p.attack) {
+        if (p.attack || p.dash) {
             if (!p.left) {
                 p.action = 6; //atk right
             } else {
@@ -875,7 +752,18 @@ window.onload = function initialize() {
             }
         }
         //draw on canvas
-        c.drawImage(p.sheet, p.actionX[p.action][frame], p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x, p.y, p.w, p.h);
+        if (p.dash) {
+            c.globalCompositeOperation = "difference";
+            c.globalAlpha = 0.4;
+            c.drawImage(p.sheet, p.actionX[p.action][frame], p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x - p.xVel, p.y, p.w, p.h);
+            c.globalAlpha = 0.6;
+            c.drawImage(p.sheet, p.actionX[p.action][frame], p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x - p.xVel / 1.5, p.y, p.w, p.h);
+            c.globalAlpha = 0.8;
+            c.drawImage(p.sheet, p.actionX[p.action][frame], p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x, p.y, p.w, p.h);
+            c.globalAlpha = 1;
+            c.globalCompositeOperation = "source-over";
+        } else
+            c.drawImage(p.sheet, p.actionX[p.action][frame], p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x, p.y, p.w, p.h);
         //the attack animation takes up 2 tiles in width, so I decided to print the other tile separately
         if (p.attack) {
             if (p.action == 6) {
@@ -944,7 +832,6 @@ window.onload = function initialize() {
 
 
 
-    var looping = setInterval(loop, 1000 / 60);
     // Keyboard controls
     window.addEventListener("keydown", function (event) {
         var key = event.keyCode;
@@ -960,18 +847,6 @@ window.onload = function initialize() {
                 break;
             case 87: //jump key down
                 player.jump();
-                break;
-            case 32: //spacebar down
-                if (paused) {
-                    looping = setInterval(loop, 1000 / 60);
-                    console.log("resuming");
-                    event.preventDefault();
-                } else {
-                    clearInterval(looping);
-                    paused = 1;
-                    console.log("pause");
-                    event.preventDefault();
-                }
                 break;
             case 49: // 1
                 create("Slime", 5, 0);
@@ -1024,43 +899,26 @@ window.onload = function initialize() {
             if (oX >= oY) {
                 if (vY > 0) {
                     colDir = "t";
-                    shapeA.y += oY;
-                    shapeA.yVel = 0;
+                    if (shapeA.col.T < oY && oY > 1 / ratio) {
+                        shapeA.col.T = oY;
+                    }
                 } else {
                     colDir = "b";
-                    shapeA.y -= oY * tileSize - gForce;
                     shapeA.grounded = true;
+                    if (shapeA.col.B < oY && oY > 1 / ratio) {
+                        shapeA.col.B = oY;
+                    }
                 }
             } else {
                 if (vX > 0) {
-                    if (shapeA == player) {
-                        colDir = "l";
-                        mapX -= oX;
-                        if (oX > 0.1) {
-                            shapeA.col.L = true;
-                            shapeA.xVel = 0;
-                        }
-                    } else {
-                        colDir = "l";
-                        shapeA.x += oX;
-                        if (oX > 0.1) {
-                            shapeA.col.L = true;
-                            shapeA.xVel = 0;
-                        }
+                    colDir = "l";
+                    if (shapeA.col.L < oX && oX > 1 / ratio) {
+                        shapeA.col.L = oX;
                     }
                 } else {
-                    if (shapeA == player) {
-                        colDir = "r";
-                        mapX += oX;
-                        if (oX > 0.1) {
-                            shapeA.col.R = true;
-                            shapeA.xVel = 0;
-                        }
-                    } else {
-                        colDir = "r";
-                        shapeA.x -= oX;
-                        shapeA.col.R = true;
-                        shapeA.xVel = 0;
+                    colDir = "r";
+                    if (shapeA.col.R < oX && oX > 1 / ratio) {
+                        shapeA.col.R = oX;
                     }
                 }
             }
@@ -1070,166 +928,14 @@ window.onload = function initialize() {
 
     }
     // TOUCH CONTROLS START
-    var canvas2 = id("canvas2");
-    var c2 = canvas2.getContext("2d");
-    canvas2.width = (window.innerHeight < window.innerWidth) ? window.innerHeight / 1.1 : window.innerWidth / 1.1;
-    canvas2.height = canvas2.width / 3;
-    c2.imageSmoothingEnabled = false;
-    var attackBtn = {
-        x: canvas2.height * 1.5,
-        y: 0,
-        w: canvas2.height,
-        h: canvas2.height,
+    var controls = {
+        dir: 0, //-2 +2
+        direction: "none",
+        fPos: [0, 0],
+        lPos: [0, 0],
+        mousedown: false,
+        mouseup: false,
     };
-    var slider = {
-        x: canvas2.height,
-        y: 0,
-        w: canvas2.height * 2,
-        h: canvas2.height,
-    }
-    var jumpBtn = {
-        x: 0,
-        y: 0,
-        w: canvas2.height,
-        h: canvas2.height,
-    };
-    var mousedown = false;
-    window.addEventListener("mouseup", function () {
-        mousedown = false;
-        attackBtn.x = canvas2.height * 1.5;
-        player.R = false;
-        player.L = false;
-    });
-    window.addEventListener("mousedown", function (evt) {
-        if (evt.clientX - getOffset(canvas2).left > attackBtn.x &&
-            evt.clientX - getOffset(canvas2).left < attackBtn.x + attackBtn.w &&
-            evt.clientY - getOffset(canvas2).top > attackBtn.y &&
-            evt.clientY - getOffset(canvas2).top < attackBtn.y + attackBtn.h
-        ) {
-            mousedown = true;
-        } else {
-            mousedown = false;
-            attackBtn.x = canvas2.height * 1.5;
-        }
-    });
-    window.addEventListener("click", function (evt) {
-        if (evt.clientX - getOffset(canvas2).left > jumpBtn.x &&
-            evt.clientX - getOffset(canvas2).left < jumpBtn.x + jumpBtn.w &&
-            evt.clientY - getOffset(canvas2).top > jumpBtn.y &&
-            evt.clientY - getOffset(canvas2).top < jumpBtn.y + jumpBtn.h
-        ) {
-            player.jump();
-        }
-        if (evt.clientX - getOffset(canvas2).left > attackBtn.x &&
-            evt.clientX - getOffset(canvas2).left < attackBtn.x + attackBtn.w &&
-            evt.clientY - getOffset(canvas2).top > attackBtn.y &&
-            evt.clientY - getOffset(canvas2).top < attackBtn.y + attackBtn.h
-        ) {
-            player.attackEvent();
-        }
-    });
-    window.addEventListener("mousemove", function (evt) {
-        // id("drag").style.display="none";
-        if (mousedown) {
-            attackBtn.x = evt.clientX - getOffset(canvas2).left - attackBtn.w / 2;
-            if (attackBtn.x + attackBtn.w > slider.x + slider.w) {
-                attackBtn.x = slider.x + slider.w - attackBtn.w;
-            }
-            if (attackBtn.x < slider.x) {
-                attackBtn.x = slider.x;
-            }
-            if (attackBtn.x < slider.x + attackBtn.w / 2) {
-                player.L = true;
-            } else {
-
-                player.L = false;
-            }
-            if (attackBtn.x + attackBtn.w > slider.x + slider.w - attackBtn.w / 2) {
-                player.R = true;
-            } else {
-                player.R = false;
-            }
-        }
-    });
-
-    // touch controls
-    window.addEventListener("touchstart", function (evt) {
-        //id("drag").style.display="none";
-        var touches = evt.touches[0];
-        if (touches.clientX - getOffset(canvas2).left > attackBtn.x &&
-            touches.clientX - getOffset(canvas2).left < attackBtn.x + attackBtn.w &&
-            touches.clientY - getOffset(canvas2).top > attackBtn.y &&
-            touches.clientY - getOffset(canvas2).top < attackBtn.y + attackBtn.h
-        ) {
-            mousedown = true;
-        } else {
-            mousedown = false;
-            attackBtn.x = canvas2.height * 1.5;
-        }
-    });
-
-    window.addEventListener("touchmove", function (evt) {
-        var touches = evt.touches[0];
-        if (mousedown) {
-            attackBtn.x = touches.clientX - getOffset(canvas2).left - attackBtn.w / 2;
-            if (attackBtn.x + attackBtn.w > slider.x + slider.w) {
-                attackBtn.x = slider.x + slider.w - attackBtn.w;
-            }
-            if (attackBtn.x < slider.x) {
-                attackBtn.x = slider.x;
-            }
-            if (attackBtn.x < slider.x + attackBtn.w / 2) {
-                player.L = true;
-            } else {
-
-                player.L = false;
-            }
-            if (attackBtn.x + attackBtn.w > slider.x + slider.w - attackBtn.w / 2) {
-                player.R = true;
-            } else {
-                player.R = false;
-            }
-        }
-    });
-
-    window.addEventListener("touchend", function () {
-        mousedown = false;
-        attackBtn.x = canvas2.height * 1.5;
-        player.R = false;
-        player.L = false;
-    });
-
-    function drawController() {
-        c2.drawImage(id("ctrl"),
-            192,
-            0,
-            64,
-            64,
-            jumpBtn.x,
-            0,
-            jumpBtn.w,
-            jumpBtn.h);
-        c2.drawImage(id("ctrl"),
-            0,
-            0,
-            128,
-            64,
-            slider.x,
-            0,
-            slider.w,
-            slider.h);
-        c2.drawImage(id("ctrl"),
-            128,
-            0,
-            64,
-            64,
-            attackBtn.x,
-            0,
-            attackBtn.w,
-            attackBtn.h);
-    }
-
-
 
     function getOffset(el) {
         const rect = el.getBoundingClientRect();
@@ -1238,103 +944,85 @@ window.onload = function initialize() {
             top: rect.top + window.scrollY
         };
     }
-    /*
-            var controls = {
-                dir: 0, //-2 +2
-                direction: "none",
-                fPos: [0, 0],
-                lPos: [0, 0],
-                mousedown: false,
-                mouseup: false,
-            };
-    
-    
-            function getOffset(el) {
-                const rect = el.getBoundingClientRect();
-                return {
-                    left: rect.left + window.scrollX,
-                    top: rect.top + window.scrollY
-                };
+
+    function controller() {
+        if (controls.mousedown) {
+            controls.direction = "none";
+            c.globalAlpha = 0.7;
+            c.drawImage(id("ctrl"), 0, 0, 32, 32, controls.fPos[0] - 32, controls.fPos[1] - 32, 64, 64);
+            c.beginPath();
+            c.moveTo(controls.fPos[0], controls.fPos[1]);
+            c.lineTo(controls.lPos[0], controls.lPos[1]);
+            c.stroke();
+            c.closePath();
+            c.drawImage(id("ctrl"), 32, 0, 32, 32, controls.lPos[0] - 32, controls.lPos[1] - 32, 64, 64);
+            c.globalAlpha = 1;
+            controls.dir = 0;
+            if (controls.fPos[0] > controls.lPos[0]) {
+                controls.direction = "L";
+                player.L = true;
+                player.R = false;
+            } else if (controls.lPos[0] > controls.fPos[0]) {
+                controls.direction = "R";
+                controls.dir = 1;
+                player.R = true;
+                player.L = false;
             }
-    
-            function controller() {
-                if (controls.mousedown) {
-                    controls.direction = "none";
-                    c.globalAlpha = 0.7;
-                    c.drawImage(id("ctrl"), 0, 0, 32, 32, controls.fPos[0] - 32, controls.fPos[1] - 32, 64, 64);
-                    c.beginPath();
-                    c.moveTo(controls.fPos[0], controls.fPos[1]);
-                    c.lineTo(controls.lPos[0], controls.lPos[1]);
-                    c.stroke();
-                    c.closePath();
-                    c.drawImage(id("ctrl"), 32, 0, 32, 32, controls.lPos[0] - 32, controls.lPos[1] - 32, 64, 64);
-                    c.globalAlpha = 1;
-                    controls.dir = 0;
-                    if (controls.fPos[0] > controls.lPos[0]) {
-                        controls.direction = "L";
-                        player.L = true;
-                        player.R = false;
-                    } else if (controls.lPos[0] > controls.fPos[0]) {
-                        controls.direction = "R";
-                        controls.dir = 1;
-                        player.R = true;
-                        player.L = false;
-                    }
-                    if (controls.lPos[1] < controls.fPos[1] - 120) {
-                        player.jump();
-                    }
-                } else if (controls.dir !== 0) {
-                    controls.dir = 0;
-                }
+            if (controls.lPos[1] < controls.fPos[1] - 60) {
+                player.jump();
             }
-            window.addEventListener("mousedown", function (evt) {
-                // id("drag").style.display="none";
-                controls.mousedown = true;
-                controls.fPos = [evt.clientX-getOffset(canvas).left, evt.clientY-getOffset(canvas).top];
-                controls.lPos = [evt.clientX-getOffset(canvas).left, evt.clientY-getOffset(canvas).top];
-            });
+        } else if (controls.dir !== 0) {
+            controls.dir = 0;
+        }
+    }
+    window.addEventListener("mousedown", function (evt) {
+        // id("drag").style.display="none";
+        controls.mousedown = true;
+        controls.fPos = [evt.clientX - getOffset(canvas).left, evt.clientY - getOffset(canvas).top];
+        controls.lPos = [evt.clientX - getOffset(canvas).left, evt.clientY - getOffset(canvas).top];
+    });
 
-            window.addEventListener("mousemove", function (evt) {
-                controls.lPos = [evt.clientX-getOffset(canvas).left, evt.clientY-getOffset(canvas).top];
-            });
+    window.addEventListener("mousemove", function (evt) {
+        controls.lPos = [evt.clientX - getOffset(canvas).left, evt.clientY - getOffset(canvas).top];
+    });
 
-            window.addEventListener("mouseup", function () {
-                        player.R = false;
-                        player.L = false;
-                    if(controls.fPos[0] == controls.lPos[0]){
-                        player.attackEvent();
-                    }
-                controls.mousedown = false;
-                controls.direction = "none";
-                //id("dir").innerHTML = controls.direction;
-            });
+    window.addEventListener("mouseup", function () {
+        player.R = false;
+        player.L = false;
+        if (controls.fPos[0] == controls.lPos[0]) {
+            player.attackEvent();
+        }
+        controls.mousedown = false;
+        controls.direction = "none";
+        //id("dir").innerHTML = controls.direction;
+    });
 
-            // touch controls
-            window.addEventListener("touchstart", function (evt) {
-                //id("drag").style.display="none";
-                var touches = evt.touches[0];
-                controls.mousedown = true;
-                controls.fPos = [touches.clientX-getOffset(canvas).left, touches.clientY-getOffset(canvas).top];
-                controls.lPos = [touches.clientX-getOffset(canvas).left, touches.clientY-getOffset(canvas).top];
-            });
+    // touch controls
+    window.addEventListener("touchstart", function (evt) {
+        //id("drag").style.display="none";
+        var touches = evt.touches[0];
+        controls.mousedown = true;
+        controls.fPos = [touches.clientX - getOffset(canvas).left, touches.clientY - getOffset(canvas).top];
+        controls.lPos = [touches.clientX - getOffset(canvas).left, touches.clientY - getOffset(canvas).top];
+    });
 
-            window.addEventListener("touchmove", function (evt) {
-                var touches = evt.touches[0];
-                controls.lPos = [touches.clientX-getOffset(canvas).left, touches.clientY-getOffset(canvas).top];
-            });
+    window.addEventListener("touchmove", function (evt) {
+        var touches = evt.touches[0];
+        controls.lPos = [touches.clientX - getOffset(canvas).left, touches.clientY - getOffset(canvas).top];
+    });
 
-            window.addEventListener("touchend", function () {
-                controls.mousedown = false;
-                controls.direction = "none";
-                        player.R = false;
-                        player.L = false;
-                    if(controls.fPos[0] == controls.lPos[0]){
-                        player.attackEvent();
-                    }
-                //id("dir").innerHTML = controls.direction;
-            });
-            // TOUCH CONTROLS END
-            */
+    window.addEventListener("touchend", function () {
+        controls.mousedown = false;
+        controls.direction = "none";
+        player.R = false;
+        player.L = false;
+        if (controls.fPos[0] == controls.lPos[0]) {
+            player.attackEvent();
+        }
+        //id("dir").innerHTML = controls.direction;
+    });
+    // TOUCH CONTROLS END
+    requestAnimationFrame(loop)
 }
 // simplify the document.getElementById() to just id()
 function id(arg) {
