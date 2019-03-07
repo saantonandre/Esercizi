@@ -34,7 +34,439 @@ window.onload = function initialize() {
     }, 1000);
 
     //environment
-    var tile = [{x : 1,y : 3,w : 1,h : 1,type : 0},{x : 2,y : 3,w : 1,h : 1,type : 1},{x : 3,y : 3,w : 1,h : 1,type : 2},{x : 3,y : 4,w : 1,h : 3,type : 5},{x : 2,y : 4,w : 1,h : 3,type : 4},{x : 3,y : 7,w : 1,h : 1,type : 4},{x : 2,y : 7,w : 1,h : 2,type : 4},{x : 3,y : 8,w : 6,h : 1,type : 4},{x : 5,y : 7,w : 1,h : 1,type : 13},{x : 2,y : 9,w : 6,h : 1,type : 7},{x : 1,y : 9,w : 1,h : 1,type : 6},{x : 1,y : 4,w : 1,h : 5,type : 3},{x : 10,y : 8,w : 1,h : 1,type : 8},{x : 9,y : 9,w : 1,h : 1,type : 8},{x : 9,y : 8,w : 1,h : 1,type : 4},{x : 8,y : 9,w : 1,h : 1,type : 7},{x : 4,y : 7,w : 1,h : 1,type : 12},{x : 6,y : 7,w : 1,h : 1,type : 12},{x : 7,y : 5,w : 1,h : 1,type : 14},{x : 7,y : 7,w : 2,h : 1,type : 1},{x : 9,y : 7,w : 1,h : 1,type : 13},{x : 10,y : 5,w : 1,h : 1,type : 4},{x : 10,y : 7,w : 1,h : 1,type : 4},{x : 10,y : 6,w : 1,h : 1,type : 3},{x : 9,y : 5,w : 1,h : 1,type : 13},{x : 8,y : 5,w : 1,h : 1,type : 1},{x : 10,y : 4,w : 1,h : 1,type : 9},{x : 11,y : 4,w : 1,h : 1,type : 10},{x : 12,y : 3,w : 1,h : 1,type : 9},{x : 13,y : 3,w : 1,h : 1,type : 11},{x : 11,y : 7,w : 1,h : 1,type : 8},{x : 13,y : 4,w : 1,h : 1,type : 8},{x : 12,y : 4,w : 1,h : 1,type : 4},{x : 11,y : 5,w : 1,h : 2,type : 4},{x : 12,y : 6,w : 1,h : 1,type : 8},{x : 12,y : 5,w : 1,h : 1,type : 5},{x : 7,y : 2,w : 1,h : 1,type : 15},{x : 8,y : 2,w : 1,h : 1,type : 16},{x : 6,y : 2,w : 1,h : 1,type : 14},{x : 16,y : 3,w : 1,h : 1,type : 3},{x : 17,y : 3,w : 1,h : 1,type : 5},{x : 16,y : 4,w : 1,h : 3,type : 3},{x : 17,y : 4,w : 1,h : 3,type : 5},{x : 17,y : 7,w : 1,h : 1,type : 8},{x : 16,y : 7,w : 1,h : 1,type : 6},{x : 16,y : 2,w : 1,h : 1,type : 0},{x : 17,y : 2,w : 1,h : 1,type : 2},{x : 22,y : 3,w : 1,h : 1,type : 14},{x : 23,y : 3,w : 3,h : 1,type : 15},{x : 26,y : 3,w : 1,h : 1,type : 13},{x : 27,y : 4,w : 1,h : 2,type : 5},{x : 27,y : 3,w : 1,h : 1,type : 11},{x : 26,y : 6,w : 1,h : 1,type : 6},{x : 26,y : 4,w : 1,h : 2,type : 3},{x : 27,y : 6,w : 1,h : 1,type : 7},{x : 28,y : 6,w : 1,h : 1,type : 12},{x : 29,y : 6,w : 1,h : 1,type : 13},{x : 30,y : 6,w : 1,h : 1,type : 12},{x : 31,y : 6,w : 1,h : 1,type : 13},{x : 32,y : 6,w : 1,h : 1,type : 11},{x : 29,y : 7,w : 3,h : 1,type : 7},{x : 28,y : 7,w : 1,h : 1,type : 6},{x : 32,y : 7,w : 1,h : 1,type : 8},{x : 34,y : 4,w : 2,h : 1,type : 10},{x : 33,y : 4,w : 1,h : 1,type : 9},{x : 36,y : 4,w : 1,h : 1,type : 11},{x : 34,y : 5,w : 2,h : 1,type : 7},{x : 33,y : 5,w : 1,h : 1,type : 6},{x : 36,y : 5,w : 1,h : 1,type : 8},{x : 42,y : 4,w : 1,h : 1,type : 14},{x : 43,y : 4,w : 3,h : 1,type : 15},{x : 46,y : 4,w : 1,h : 1,type : 16},];
+    var tile = [{
+        x: 1,
+        y: 3,
+        w: 1,
+        h: 1,
+        type: 0
+    }, {
+        x: 2,
+        y: 3,
+        w: 1,
+        h: 1,
+        type: 1
+    }, {
+        x: 3,
+        y: 3,
+        w: 1,
+        h: 1,
+        type: 2
+    }, {
+        x: 3,
+        y: 4,
+        w: 1,
+        h: 3,
+        type: 5
+    }, {
+        x: 2,
+        y: 4,
+        w: 1,
+        h: 3,
+        type: 4
+    }, {
+        x: 3,
+        y: 7,
+        w: 1,
+        h: 1,
+        type: 4
+    }, {
+        x: 2,
+        y: 7,
+        w: 1,
+        h: 2,
+        type: 4
+    }, {
+        x: 3,
+        y: 8,
+        w: 6,
+        h: 1,
+        type: 4
+    }, {
+        x: 5,
+        y: 7,
+        w: 1,
+        h: 1,
+        type: 13
+    }, {
+        x: 2,
+        y: 9,
+        w: 6,
+        h: 1,
+        type: 7
+    }, {
+        x: 1,
+        y: 9,
+        w: 1,
+        h: 1,
+        type: 6
+    }, {
+        x: 1,
+        y: 4,
+        w: 1,
+        h: 5,
+        type: 3
+    }, {
+        x: 10,
+        y: 8,
+        w: 1,
+        h: 1,
+        type: 8
+    }, {
+        x: 9,
+        y: 9,
+        w: 1,
+        h: 1,
+        type: 8
+    }, {
+        x: 9,
+        y: 8,
+        w: 1,
+        h: 1,
+        type: 4
+    }, {
+        x: 8,
+        y: 9,
+        w: 1,
+        h: 1,
+        type: 7
+    }, {
+        x: 4,
+        y: 7,
+        w: 1,
+        h: 1,
+        type: 12
+    }, {
+        x: 6,
+        y: 7,
+        w: 1,
+        h: 1,
+        type: 12
+    }, {
+        x: 7,
+        y: 5,
+        w: 1,
+        h: 1,
+        type: 14
+    }, {
+        x: 7,
+        y: 7,
+        w: 2,
+        h: 1,
+        type: 1
+    }, {
+        x: 9,
+        y: 7,
+        w: 1,
+        h: 1,
+        type: 13
+    }, {
+        x: 10,
+        y: 5,
+        w: 1,
+        h: 1,
+        type: 4
+    }, {
+        x: 10,
+        y: 7,
+        w: 1,
+        h: 1,
+        type: 4
+    }, {
+        x: 10,
+        y: 6,
+        w: 1,
+        h: 1,
+        type: 3
+    }, {
+        x: 9,
+        y: 5,
+        w: 1,
+        h: 1,
+        type: 13
+    }, {
+        x: 8,
+        y: 5,
+        w: 1,
+        h: 1,
+        type: 1
+    }, {
+        x: 10,
+        y: 4,
+        w: 1,
+        h: 1,
+        type: 9
+    }, {
+        x: 11,
+        y: 4,
+        w: 1,
+        h: 1,
+        type: 10
+    }, {
+        x: 12,
+        y: 3,
+        w: 1,
+        h: 1,
+        type: 9
+    }, {
+        x: 13,
+        y: 3,
+        w: 1,
+        h: 1,
+        type: 11
+    }, {
+        x: 11,
+        y: 7,
+        w: 1,
+        h: 1,
+        type: 8
+    }, {
+        x: 13,
+        y: 4,
+        w: 1,
+        h: 1,
+        type: 8
+    }, {
+        x: 12,
+        y: 4,
+        w: 1,
+        h: 1,
+        type: 4
+    }, {
+        x: 11,
+        y: 5,
+        w: 1,
+        h: 2,
+        type: 4
+    }, {
+        x: 12,
+        y: 6,
+        w: 1,
+        h: 1,
+        type: 8
+    }, {
+        x: 12,
+        y: 5,
+        w: 1,
+        h: 1,
+        type: 5
+    }, {
+        x: 7,
+        y: 2,
+        w: 1,
+        h: 1,
+        type: 15
+    }, {
+        x: 8,
+        y: 2,
+        w: 1,
+        h: 1,
+        type: 16
+    }, {
+        x: 6,
+        y: 2,
+        w: 1,
+        h: 1,
+        type: 14
+    }, {
+        x: 16,
+        y: 3,
+        w: 1,
+        h: 1,
+        type: 3
+    }, {
+        x: 17,
+        y: 3,
+        w: 1,
+        h: 1,
+        type: 5
+    }, {
+        x: 16,
+        y: 4,
+        w: 1,
+        h: 3,
+        type: 3
+    }, {
+        x: 17,
+        y: 4,
+        w: 1,
+        h: 3,
+        type: 5
+    }, {
+        x: 17,
+        y: 7,
+        w: 1,
+        h: 1,
+        type: 8
+    }, {
+        x: 16,
+        y: 7,
+        w: 1,
+        h: 1,
+        type: 6
+    }, {
+        x: 16,
+        y: 2,
+        w: 1,
+        h: 1,
+        type: 0
+    }, {
+        x: 17,
+        y: 2,
+        w: 1,
+        h: 1,
+        type: 2
+    }, {
+        x: 22,
+        y: 3,
+        w: 1,
+        h: 1,
+        type: 14
+    }, {
+        x: 23,
+        y: 3,
+        w: 3,
+        h: 1,
+        type: 15
+    }, {
+        x: 26,
+        y: 3,
+        w: 1,
+        h: 1,
+        type: 13
+    }, {
+        x: 27,
+        y: 4,
+        w: 1,
+        h: 2,
+        type: 5
+    }, {
+        x: 27,
+        y: 3,
+        w: 1,
+        h: 1,
+        type: 11
+    }, {
+        x: 26,
+        y: 6,
+        w: 1,
+        h: 1,
+        type: 6
+    }, {
+        x: 26,
+        y: 4,
+        w: 1,
+        h: 2,
+        type: 3
+    }, {
+        x: 27,
+        y: 6,
+        w: 1,
+        h: 1,
+        type: 7
+    }, {
+        x: 28,
+        y: 6,
+        w: 1,
+        h: 1,
+        type: 12
+    }, {
+        x: 29,
+        y: 6,
+        w: 1,
+        h: 1,
+        type: 13
+    }, {
+        x: 30,
+        y: 6,
+        w: 1,
+        h: 1,
+        type: 12
+    }, {
+        x: 31,
+        y: 6,
+        w: 1,
+        h: 1,
+        type: 13
+    }, {
+        x: 32,
+        y: 6,
+        w: 1,
+        h: 1,
+        type: 11
+    }, {
+        x: 29,
+        y: 7,
+        w: 3,
+        h: 1,
+        type: 7
+    }, {
+        x: 28,
+        y: 7,
+        w: 1,
+        h: 1,
+        type: 6
+    }, {
+        x: 32,
+        y: 7,
+        w: 1,
+        h: 1,
+        type: 8
+    }, {
+        x: 34,
+        y: 4,
+        w: 2,
+        h: 1,
+        type: 10
+    }, {
+        x: 33,
+        y: 4,
+        w: 1,
+        h: 1,
+        type: 9
+    }, {
+        x: 36,
+        y: 4,
+        w: 1,
+        h: 1,
+        type: 11
+    }, {
+        x: 34,
+        y: 5,
+        w: 2,
+        h: 1,
+        type: 7
+    }, {
+        x: 33,
+        y: 5,
+        w: 1,
+        h: 1,
+        type: 6
+    }, {
+        x: 36,
+        y: 5,
+        w: 1,
+        h: 1,
+        type: 8
+    }, {
+        x: 42,
+        y: 4,
+        w: 1,
+        h: 1,
+        type: 14
+    }, {
+        x: 43,
+        y: 4,
+        w: 3,
+        h: 1,
+        type: 15
+    }, {
+        x: 46,
+        y: 4,
+        w: 1,
+        h: 1,
+        type: 16
+    }, ];
 
     var player = {
         x: 3 * ratio,
@@ -47,7 +479,9 @@ window.onload = function initialize() {
         sheet: id("sheet"),
         L: 0,
         R: 0,
+        hp: 100,
         grounded: false,
+        stun: false,
         speed: 0.06 * ratio,
         precision: 10,
         hitbox: {
@@ -152,7 +586,14 @@ window.onload = function initialize() {
             this.hit = false;
             this.hp = 3;
             this.type = null;
+            this.attack = false;
             this.hitbox = {
+                x: 0,
+                y: 0,
+                w: 0,
+                h: 0
+            };
+            this.atkHitbox = {
                 x: 0,
                 y: 0,
                 w: 0,
@@ -200,12 +641,16 @@ window.onload = function initialize() {
             var random2 = parseInt(Math.random() * 3);
             switch (random2) {
                 case 0:
-                    monsters[targetMonster].L = true;
-                    monsters[targetMonster].R = false;
+                    if (!monsters[targetMonster].col.L) {
+                        monsters[targetMonster].L = true;
+                        monsters[targetMonster].R = false;
+                    }
                     break;
                 case 1:
-                    monsters[targetMonster].L = false;
-                    monsters[targetMonster].R = true;
+                    if (!monsters[targetMonster].col.R) {
+                        monsters[targetMonster].L = false;
+                        monsters[targetMonster].R = true;
+                    }
                     break;
                 case 2:
                     monsters[targetMonster].L = false;
@@ -239,6 +684,61 @@ window.onload = function initialize() {
             this.actionY = [[0], [0], [0, 16, 32, 48], [0, 16, 32, 48], [0, 0, 0], [0, 16, 32, 48, 64]];
         }
     }
+    class Bear extends Monster {
+        constructor(x, y) {
+            super(x, y);
+            this.speed = 0.02 * ratio;
+            this.hp = 30;
+            this.type = "Bear";
+            this.actionX = [[0], [32], [0, 0, 0], [32, 32, 32], [160, 160, 160], [160, 160, 160, 160, 160, 160], [64, 64, 64, 64, 64, 64], [128, 128, 128, 128, 128, 128]];
+            this.actionY = [[0], [0], [0, 32, 64], [0, 32, 64], [0, 32, 64], [0, 32, 64, 96, 128, 160], [0, 32, 64, 96, 128, 160], [0, 32, 64, 96, 128, 160]];
+            this.sprite.w = 32;
+            this.sprite.h = 32;
+            this.sheet = id("bearsheet");
+            this.w = 2 * ratio;
+            this.h = 2 * ratio;
+            this.canAttack = true;
+            this.attackDMG = 20;
+            this.precision = 5;
+        }
+        attackEvent(bear) {
+            if (collided(player.hitbox, bear.atkHitbox)) {
+                player.y-=0.05 * ratio;
+                player.yVel= -0.05 * ratio;
+                player.dashCd= true;
+                var playerHB=player.hitbox;
+                playerHB.x*=ratio;
+                playerHB.w*=ratio;
+                playerHB.h*=ratio;
+                playerHB.y*=ratio;
+                playerHB.x-=mapX;
+                    var DMG = Math.round(Math.random() * (bear.attackDMG / 2) + bear.attackDMG / 2);
+                    var missChance = Math.round(Math.random() * (bear.precision));
+                    if (missChance === 1) {
+                        DMG = "miss";
+                    } else {
+                        if (!parseInt(Math.random() * 3)) {
+                            visualFxs.push(new DmgFx(playerHB, 0));
+                        }
+                        var randomFx = parseInt(Math.random() * 2 + 1);
+                        visualFxs.push(new DmgFx(playerHB, randomFx));
+            }
+                    dmgTexts.push(new DmgText(playerHB, DMG));
+            }
+        }
+        searchPlayer(bear) {
+            if (collided(player.hitbox, bear.atkHitbox)) {
+                bear.attack = true;
+            }
+        }
+        attackSprite(m) {
+            if (m.action == 6) {
+                c.drawImage(m.sheet, m.actionX[m.action][m.frame] + 32, m.actionY[m.action][m.frame], m.sprite.w/2, m.sprite.h, m.x + m.w+ mapX, m.y, m.w/2, m.h);
+            } else if (m.action == 7) {
+                c.drawImage(m.sheet, m.actionX[m.action][m.frame]-16, m.actionY[m.action][m.frame], m.sprite.w/2, m.sprite.h, m.x  - m.w/2 + mapX, m.y, m.w/2, m.h);
+            }
+        }
+    }
     class Dummy extends Monster {
         constructor(x, y) {
             super(x, y);
@@ -269,6 +769,7 @@ window.onload = function initialize() {
             this.h = 2 * ratio;
         }
     }
+    create("Bear", 8, 1);
     create("Slime", 5, 0);
     create("Dummy", 8, 4);
     create("Dummy", 7, 1);
@@ -296,6 +797,11 @@ window.onload = function initialize() {
                 break;
             case "Superzombie":
                 monsters.push(new Superzombie(x, y));
+                //console.log("creating a Superzombie");
+                monsters[monsters.length - 1].move();
+                break;
+            case "Bear":
+                monsters.push(new Bear(x, y));
                 //console.log("creating a Superzombie");
                 monsters[monsters.length - 1].move();
                 break;
@@ -578,7 +1084,7 @@ window.onload = function initialize() {
     }
 
 
-    //TODO DRAW MONSTERS - MAKE THEM WORK LIKE player - GIVE THEM AI
+    //TODO: DRAW MONSTERS - MAKE THEM WORK LIKE player - GIVE THEM AI
 
     function calculateCharacter(p) {
         //controls calculation
@@ -631,6 +1137,9 @@ window.onload = function initialize() {
         }
         player.y += player.yVel;
         mapX -= p.xVel;
+        if (player.y > canvas.height) {
+            location.reload();
+        }
         //physics calculations
         p.hitbox.x = (p.x + p.w / 5) / ratio;
         p.hitbox.y = p.y / ratio;
@@ -646,6 +1155,10 @@ window.onload = function initialize() {
     }
 
     function calculateMonsters(m) {
+        if(m.attack){
+            m.L=false;
+            m.R=false;
+        }
         if (m.col.L) {
             m.x += m.col.L * ratio;
             m.L = false;
@@ -687,6 +1200,15 @@ window.onload = function initialize() {
         m.hitbox.y = m.y / ratio;
         m.hitbox.w = (m.w - m.w / 5) / ratio;
         m.hitbox.h = m.h / ratio;
+        if (m.canAttack) {
+            var dir = (m.left) ? -1 : 1;
+            m.atkHitbox.x = m.hitbox.x + dir;
+            m.atkHitbox.y = m.hitbox.y;
+            m.atkHitbox.w = m.hitbox.w;
+            m.atkHitbox.h = m.hitbox.h;
+            m.searchPlayer(m);
+            //console.log("attacking");
+        }
     }
     var bg_1 = id("bg1");
     var bg_2 = id("bg2");
@@ -812,12 +1334,19 @@ window.onload = function initialize() {
                 m.action = 5;
             }
         }
+        if (m.attack && m.hp > 0) {
+            !m.left ? m.action = 6 : m.action = 7;
+        }
         if (m.frameCounter > 10) {
             m.frame++;
             m.frameCounter = 0;
         }
         if (m.frame > m.actionX[m.action].length - 1) {
             m.frame = 0;
+            if (m.attack && m.hp>0) {
+                m.attackEvent(m);
+                m.attack = false;
+            }
             if (m.action == 4) {
                 m.hit = false;
             }
@@ -828,6 +1357,9 @@ window.onload = function initialize() {
         }
         //draw on canvas
         c.drawImage(m.sheet, m.actionX[m.action][m.frame], m.actionY[m.action][m.frame], m.sprite.w, m.sprite.h, m.x + mapX, m.y, m.w, m.h);
+        if (m.attack) {
+            m.attackSprite(m);
+        }
     }
 
 
@@ -845,6 +1377,12 @@ window.onload = function initialize() {
             case 70: //attack key down
                 player.attackEvent();
                 break;
+            case 71: //g key down
+                console.log(player);
+                break;
+            case 72: //h key down
+                console.log(monsters[0].atkHitbox, player.hitbox);
+                break;
             case 87: //jump key down
                 player.jump();
                 break;
@@ -859,6 +1397,9 @@ window.onload = function initialize() {
                 break;
             case 52: // 1
                 create("Superzombie", 5, 0);
+                break;
+            case 53: // 1
+                create("Bear", 5, 0);
                 break;
         }
     });
