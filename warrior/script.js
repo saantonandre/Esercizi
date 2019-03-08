@@ -557,13 +557,19 @@ window.onload = function initialize() {
             if (player.grounded && !player.attack) {
                 player.attack = true;
                 frame = 0;
-                player.attacking(player.atkHitbox);
             } else if (!player.attack && !player.dashCd) {
                 player.dashCd = true;
                 player.dash = true;
                 player.dashIn = mapX / ratio;
             }
 
+        },
+        respawnEvent: function () {
+            this.y = 1 * ratio;
+            this.yVel = 0;
+            this.xVel = 0;
+            this.left = false;
+            mapX = 0;
         }
     };
     var monsters = [];
@@ -688,7 +694,7 @@ window.onload = function initialize() {
         constructor(x, y) {
             super(x, y);
             this.speed = 0.02 * ratio;
-            this.hp = 30;
+            this.hp = 60;
             this.type = "Bear";
             this.actionX = [[0], [32], [0, 0, 0], [32, 32, 32], [160, 160, 160], [160, 160, 160, 160, 160, 160], [64, 64, 64, 64, 64, 64], [128, 128, 128, 128, 128, 128]];
             this.actionY = [[0], [0], [0, 32, 64], [0, 32, 64], [0, 32, 64], [0, 32, 64, 96, 128, 160], [0, 32, 64, 96, 128, 160], [0, 32, 64, 96, 128, 160]];
@@ -703,27 +709,27 @@ window.onload = function initialize() {
         }
         attackEvent(bear) {
             if (collided(player.hitbox, bear.atkHitbox)) {
-                player.y-=0.05 * ratio;
-                player.yVel= -0.05 * ratio;
-                player.dashCd= true;
-                var playerHB=player.hitbox;
-                playerHB.x*=ratio;
-                playerHB.w*=ratio;
-                playerHB.h*=ratio;
-                playerHB.y*=ratio;
-                playerHB.x-=mapX;
-                    var DMG = Math.round(Math.random() * (bear.attackDMG / 2) + bear.attackDMG / 2);
-                    var missChance = Math.round(Math.random() * (bear.precision));
-                    if (missChance === 1) {
-                        DMG = "miss";
-                    } else {
-                        if (!parseInt(Math.random() * 3)) {
-                            visualFxs.push(new DmgFx(playerHB, 0));
-                        }
-                        var randomFx = parseInt(Math.random() * 2 + 1);
-                        visualFxs.push(new DmgFx(playerHB, randomFx));
-            }
-                    dmgTexts.push(new DmgText(playerHB, DMG));
+                player.y -= 0.05 * ratio;
+                player.yVel = -0.05 * ratio;
+                player.dashCd = true;
+                var playerHB = player.hitbox;
+                playerHB.x *= ratio;
+                playerHB.w *= ratio;
+                playerHB.h *= ratio;
+                playerHB.y *= ratio;
+                playerHB.x -= mapX;
+                var DMG = Math.round(Math.random() * (bear.attackDMG / 2) + bear.attackDMG / 2);
+                var missChance = Math.round(Math.random() * (bear.precision));
+                if (missChance === 1) {
+                    DMG = "miss";
+                } else {
+                    if (!parseInt(Math.random() * 3)) {
+                        visualFxs.push(new DmgFx(playerHB, 0));
+                    }
+                    var randomFx = parseInt(Math.random() * 2 + 1);
+                    visualFxs.push(new DmgFx(playerHB, randomFx));
+                }
+                dmgTexts.push(new DmgText(playerHB, DMG));
             }
         }
         searchPlayer(bear) {
@@ -733,9 +739,9 @@ window.onload = function initialize() {
         }
         attackSprite(m) {
             if (m.action == 6) {
-                c.drawImage(m.sheet, m.actionX[m.action][m.frame] + 32, m.actionY[m.action][m.frame], m.sprite.w/2, m.sprite.h, m.x + m.w+ mapX, m.y, m.w/2, m.h);
+                c.drawImage(m.sheet, m.actionX[m.action][m.frame] + 32, m.actionY[m.action][m.frame], m.sprite.w / 2, m.sprite.h, m.x + m.w + mapX, m.y, m.w / 2, m.h);
             } else if (m.action == 7) {
-                c.drawImage(m.sheet, m.actionX[m.action][m.frame]-16, m.actionY[m.action][m.frame], m.sprite.w/2, m.sprite.h, m.x  - m.w/2 + mapX, m.y, m.w/2, m.h);
+                c.drawImage(m.sheet, m.actionX[m.action][m.frame] - 16, m.actionY[m.action][m.frame], m.sprite.w / 2, m.sprite.h, m.x - m.w / 2 + mapX, m.y, m.w / 2, m.h);
             }
         }
     }
@@ -769,7 +775,7 @@ window.onload = function initialize() {
             this.h = 2 * ratio;
         }
     }
-    create("Bear", 8, 1);
+    create("Bear", 4, 1);
     create("Slime", 5, 0);
     create("Dummy", 8, 4);
     create("Dummy", 7, 1);
@@ -1138,7 +1144,7 @@ window.onload = function initialize() {
         player.y += player.yVel;
         mapX -= p.xVel;
         if (player.y > canvas.height) {
-            location.reload();
+            player.respawnEvent();
         }
         //physics calculations
         p.hitbox.x = (p.x + p.w / 5) / ratio;
@@ -1155,9 +1161,9 @@ window.onload = function initialize() {
     }
 
     function calculateMonsters(m) {
-        if(m.attack){
-            m.L=false;
-            m.R=false;
+        if (m.attack) {
+            m.L = false;
+            m.R = false;
         }
         if (m.col.L) {
             m.x += m.col.L * ratio;
@@ -1235,7 +1241,9 @@ window.onload = function initialize() {
 
     function drawCharacter(p) {
         //animation computing
+        var slowness = 6;
         if (p.attack || p.dash) {
+            slowness = 4;
             if (!p.left) {
                 p.action = 6; //atk right
             } else {
@@ -1263,9 +1271,13 @@ window.onload = function initialize() {
             }
         }
 
-        if (frameCounter > 6) {
+        if (frameCounter > slowness) {
             frame++;
             frameCounter = 0;
+        }
+        //
+        if (p.attack && frame == 3 && frameCounter == 0) {
+            player.attacking(player.atkHitbox);
         }
         if (frame > p.actionX[p.action].length - 1) {
             frame = 0;
@@ -1343,7 +1355,7 @@ window.onload = function initialize() {
         }
         if (m.frame > m.actionX[m.action].length - 1) {
             m.frame = 0;
-            if (m.attack && m.hp>0) {
+            if (m.attack && m.hp > 0) {
                 m.attackEvent(m);
                 m.attack = false;
             }
