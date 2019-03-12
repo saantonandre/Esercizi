@@ -3,13 +3,13 @@ window.onload = function initialize() {
     var canvas = id("canvas");
     var c = canvas.getContext("2d");
     canvas.width = (window.innerHeight < window.innerWidth) ? window.innerHeight / 1.1 : window.innerWidth / 1.1;
+    canvas.width -= canvas.width % 16;
     canvas.height = canvas.width;
     c.imageSmoothingEnabled = false;
+    var tileSize = 16;
     var tilesWidth = 9;
     var tilesHeight = 9;
-    var pixelRatio = canvas.width / (16 * tilesWidth);
-    var tileSize = 16;
-    var ratio = tileSize * pixelRatio;
+    var ratio = canvas.width / (tilesWidth);
     var textSize = Math.round(0.3 * ratio);
     var fontSize = textSize + "px";
     var paused = 1;
@@ -474,6 +474,7 @@ window.onload = function initialize() {
         atk: 1,
         xVel: 0,
         yVel: 0,
+        maxVelocity: 0.3 * ratio,
         w: 1 * ratio,
         h: 1 * ratio,
         sheet: id("sheet"),
@@ -520,6 +521,7 @@ window.onload = function initialize() {
         jump: function () {
             if (player.grounded) {
                 player.grounded = false;
+                player.dashCd = false;
                 player.yVel = -0.27 * ratio;
             }
         },
@@ -531,6 +533,7 @@ window.onload = function initialize() {
                     if (missChance === 1) {
                         DMG = "miss";
                     } else {
+                        shake = 4;
                         if (!parseInt(Math.random() * 3)) {
                             visualFxs.push(new DmgFx(monsters[i], 0));
                         }
@@ -570,8 +573,12 @@ window.onload = function initialize() {
             this.xVel = 0;
             this.left = false;
             mapX = 0;
+            mapY = 0;
         }
     };
+    var shake = 0;
+    var shakeArr = [-2, +5, -5, +2];
+
     var monsters = [];
     var random2 = Math.random() * 800 + 100;
     var series = 0; //a unique identificative number for each monster
@@ -739,9 +746,9 @@ window.onload = function initialize() {
         }
         attackSprite(m) {
             if (m.action == 6) {
-                c.drawImage(m.sheet, m.actionX[m.action][m.frame] + 32, m.actionY[m.action][m.frame], m.sprite.w / 2, m.sprite.h, m.x + m.w + mapX, m.y, m.w / 2, m.h);
+                c.drawImage(m.sheet, m.actionX[m.action][m.frame] + 32, m.actionY[m.action][m.frame], m.sprite.w / 2, m.sprite.h, m.x + m.w + mapX, m.y + mapY, m.w / 2, m.h);
             } else if (m.action == 7) {
-                c.drawImage(m.sheet, m.actionX[m.action][m.frame] - 16, m.actionY[m.action][m.frame], m.sprite.w / 2, m.sprite.h, m.x - m.w / 2 + mapX, m.y, m.w / 2, m.h);
+                c.drawImage(m.sheet, m.actionX[m.action][m.frame] - 16, m.actionY[m.action][m.frame], m.sprite.w / 2, m.sprite.h, m.x - m.w / 2 + mapX, m.y + mapY, m.w / 2, m.h);
             }
         }
     }
@@ -945,7 +952,7 @@ window.onload = function initialize() {
         var fxW = spritePos.w[fx.sprite] / tileSize * ratio;
         var fxH = spritePos.h[fx.sprite] / tileSize * ratio;
         var fxX = fx.x + mapX;
-        var fxY = fx.y + fxH / 2;
+        var fxY = fx.y + fxH / 2 + mapY;
 
         //c.translate(fxX+fxW/2, fxY+fxH/2);
         if (fx.rotation != undefined) {
@@ -988,9 +995,9 @@ window.onload = function initialize() {
             c.font = Math.round(dmgTexts[i].size) + "px" + " 'Press Start 2P'";
             dmgTexts[i].size /= 1.01;
             c.fillStyle = "black";
-            c.fillText(dmgTexts[i].text, dmgTexts[i].x + mapX + Math.round(textSize / 10), dmgTexts[i].y + 10 + Math.round(dmgTexts[i].size / 10));
+            c.fillText(dmgTexts[i].text, dmgTexts[i].x + mapX + Math.round(textSize / 10), dmgTexts[i].y + 10 + Math.round(dmgTexts[i].size / 10) + mapY);
             c.fillStyle = dmgTexts[i].color;
-            c.fillText(dmgTexts[i].text, dmgTexts[i].x + mapX, dmgTexts[i].y + 10);
+            c.fillText(dmgTexts[i].text, dmgTexts[i].x + mapX, dmgTexts[i].y + 10 + mapY);
             dmgTexts[i].y -= 0.3;
             dmgTexts[i].span--;
             if (dmgTexts[i].span <= 0) {
@@ -1039,6 +1046,10 @@ window.onload = function initialize() {
     function loop() {
         frameCounter++;
         fps++;
+        if (shake) {
+            shake--;
+            mapY += shakeArr[shake];
+        }
         paused = 0;
         c.clearRect(0, 0, canvas.width, canvas.height);
         c.fillStyle = "#0099dd";
@@ -1061,7 +1072,6 @@ window.onload = function initialize() {
             drawFxs(visualFxs[i]);
         }
         renderTexts();
-        controller()
         requestAnimationFrame(loop)
     }
     ///////////////////////////////////////////////////////////////////////////////
@@ -1097,7 +1107,7 @@ window.onload = function initialize() {
         if (p.dash) {
             p.left ? p.xVel = -p.speed * 8 : p.xVel = p.speed * 8;
             p.yVel = 0;
-            player.attacking(p.hitbox);
+            p.attacking(p.hitbox);
             if (Math.abs(p.dashIn - mapX / ratio) > 4) {
                 p.dash = false;
             }
@@ -1121,7 +1131,7 @@ window.onload = function initialize() {
         if (p.col.B) {
             p.y -= p.col.B * ratio - 1;
             p.grounded = true;
-            player.dashCd = false;
+            p.dashCd = false;
             p.dash = false;
         }
         if (!p.dash) {
@@ -1131,20 +1141,22 @@ window.onload = function initialize() {
             } else if (p.R && !p.col.R && !p.L) {
                 p.xVel = p.speed;
                 p.left = false;
-            } else if ((!p.L && !p.R || p.L && p.R) && !p.dash) {
+            } else if ((!p.L && !p.R || p.L && p.R)) {
                 p.xVel = 0;
             }
-            id("left").innerHTML = "player.left= " + p.left;
             if (!p.grounded) {
                 p.yVel += gForce;
+                if (p.yVel > p.maxVelocity) {
+                    p.yVel = p.maxVelocity;
+                }
             } else if (p.yVel > 0) {
                 p.yVel = 0;
             }
         }
-        player.y += player.yVel;
+        p.y += p.yVel;
         mapX -= p.xVel;
-        if (player.y > canvas.height) {
-            player.respawnEvent();
+        if (p.y > canvas.height) {
+            p.respawnEvent();
         }
         //physics calculations
         p.hitbox.x = (p.x + p.w / 5) / ratio;
@@ -1187,10 +1199,10 @@ window.onload = function initialize() {
         }
         //controls calculation
         if (m.L && !m.col.L && !m.R && !m.hit) {
-            m.xVel = -m.speed * ratio / 20;
+            m.xVel = -m.speed;
             m.left = true;
         } else if (m.R && !m.col.R && !m.L && !m.hit) {
-            m.xVel = m.speed * ratio / 20;
+            m.xVel = m.speed;
             m.left = false;
         } else if (!m.L && !m.R || m.L && m.R) {
             m.xVel = 0;
@@ -1221,8 +1233,8 @@ window.onload = function initialize() {
 
     function drawEnvironment() {
         for (i = 0; i < 5; i++) {
-            c.drawImage(bg_2, -10 * ratio + (bg_2.width / tileSize * ratio * i) + mapX / 16, -1 * ratio, bg_2.width / tileSize * ratio, bg_2.height / tileSize * ratio);
-            c.drawImage(bg_1, -10 * ratio + (bg_1.width / tileSize * ratio * i) + mapX / 8, -1 * ratio, bg_1.width / tileSize * ratio, bg_1.height / tileSize * ratio);
+            c.drawImage(bg_2, -10 * ratio + (bg_2.width / tileSize * ratio * i) + mapX / 16, -1 * ratio, bg_2.width / tileSize * ratio, bg_2.height / tileSize * ratio + mapY / 8);
+            c.drawImage(bg_1, -10 * ratio + (bg_1.width / tileSize * ratio * i) + mapX / 8, -1 * ratio, bg_1.width / tileSize * ratio, bg_1.height / tileSize * ratio + mapY / 4);
         }
         for (i = 0; i < tile.length; i++) {
             for (j = 0; j < tile[i].h; j++) {
@@ -1233,7 +1245,7 @@ window.onload = function initialize() {
                         continue;
                     }
                     //c.fillRect((tile[i].x + k) * (ratio)+mapX, (tile[i].y + j) * (ratio), ratio, ratio);
-                    c.drawImage(player.sheet, tiles[tile[i].type][0] * 16, tiles[tile[i].type][1] * 16, 16, 16, (tile[i].x + k) * ratio + mapX, (tile[i].y + j) * ratio, ratio, ratio);
+                    c.drawImage(player.sheet, tiles[tile[i].type][0] * 16, tiles[tile[i].type][1] * 16, 16, 16, (tile[i].x + k) * ratio + mapX, (tile[i].y + j) * ratio + mapY, ratio, ratio);
                 }
             }
         }
@@ -1282,28 +1294,28 @@ window.onload = function initialize() {
         if (frame > p.actionX[p.action].length - 1) {
             frame = 0;
             if (p.attack) {
-                p.attack = 0
+                p.attack = false
             }
         }
         //draw on canvas
         if (p.dash) {
             c.globalCompositeOperation = "difference";
             c.globalAlpha = 0.4;
-            c.drawImage(p.sheet, p.actionX[p.action][frame], p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x - p.xVel, p.y, p.w, p.h);
+            c.drawImage(p.sheet, p.actionX[p.action][frame], p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x - p.xVel, p.y + mapY, p.w, p.h);
             c.globalAlpha = 0.6;
-            c.drawImage(p.sheet, p.actionX[p.action][frame], p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x - p.xVel / 1.5, p.y, p.w, p.h);
+            c.drawImage(p.sheet, p.actionX[p.action][frame], p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x - p.xVel / 1.5, p.y + mapY, p.w, p.h);
             c.globalAlpha = 0.8;
-            c.drawImage(p.sheet, p.actionX[p.action][frame], p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x, p.y, p.w, p.h);
+            c.drawImage(p.sheet, p.actionX[p.action][frame], p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x, p.y + mapY, p.w, p.h);
             c.globalAlpha = 1;
             c.globalCompositeOperation = "source-over";
         } else
-            c.drawImage(p.sheet, p.actionX[p.action][frame], p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x, p.y, p.w, p.h);
+            c.drawImage(p.sheet, p.actionX[p.action][frame], p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x, p.y + mapY, p.w, p.h);
         //the attack animation takes up 2 tiles in width, so I decided to print the other tile separately
         if (p.attack) {
             if (p.action == 6) {
-                c.drawImage(p.sheet, p.actionX[p.action][frame] + 16, p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x + p.w, p.y, p.w, p.h);
+                c.drawImage(p.sheet, p.actionX[p.action][frame] + 16, p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x + p.w, p.y + mapY, p.w, p.h);
             } else if (p.action == 7) {
-                c.drawImage(p.sheet, p.actionX[p.action][frame] - 16, p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x - p.w, p.y, p.w, p.h);
+                c.drawImage(p.sheet, p.actionX[p.action][frame] - 16, p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x - p.w, p.y + mapY, p.w, p.h);
             }
         }
     }
@@ -1368,7 +1380,7 @@ window.onload = function initialize() {
             }
         }
         //draw on canvas
-        c.drawImage(m.sheet, m.actionX[m.action][m.frame], m.actionY[m.action][m.frame], m.sprite.w, m.sprite.h, m.x + mapX, m.y, m.w, m.h);
+        c.drawImage(m.sheet, m.actionX[m.action][m.frame], m.actionY[m.action][m.frame], m.sprite.w, m.sprite.h, m.x + mapX, m.y + mapY, m.w, m.h);
         if (m.attack) {
             m.attackSprite(m);
         }
@@ -1390,10 +1402,12 @@ window.onload = function initialize() {
                 player.attackEvent();
                 break;
             case 71: //g key down
-                console.log(player);
+                //console.log(player);
+                mapY++;
                 break;
             case 72: //h key down
-                console.log(monsters[0].atkHitbox, player.hitbox);
+                //console.log(monsters[0].atkHitbox, player.hitbox);
+                mapY--;
                 break;
             case 87: //jump key down
                 player.jump();
@@ -1480,99 +1494,48 @@ window.onload = function initialize() {
         return colDir;
 
     }
+
     // TOUCH CONTROLS START
-    var controls = {
-        dir: 0, //-2 +2
-        direction: "none",
-        fPos: [0, 0],
-        lPos: [0, 0],
-        mousedown: false,
-        mouseup: false,
-    };
 
-    function getOffset(el) {
-        const rect = el.getBoundingClientRect();
-        return {
-            left: rect.left + window.scrollX,
-            top: rect.top + window.scrollY
-        };
-    }
-
-    function controller() {
-        if (controls.mousedown) {
-            controls.direction = "none";
-            c.globalAlpha = 0.7;
-            c.drawImage(id("ctrl"), 0, 0, 32, 32, controls.fPos[0] - 32, controls.fPos[1] - 32, 64, 64);
-            c.beginPath();
-            c.moveTo(controls.fPos[0], controls.fPos[1]);
-            c.lineTo(controls.lPos[0], controls.lPos[1]);
-            c.stroke();
-            c.closePath();
-            c.drawImage(id("ctrl"), 32, 0, 32, 32, controls.lPos[0] - 32, controls.lPos[1] - 32, 64, 64);
-            c.globalAlpha = 1;
-            controls.dir = 0;
-            if (controls.fPos[0] > controls.lPos[0]) {
-                controls.direction = "L";
-                player.L = true;
-                player.R = false;
-            } else if (controls.lPos[0] > controls.fPos[0]) {
-                controls.direction = "R";
-                controls.dir = 1;
-                player.R = true;
-                player.L = false;
-            }
-            if (controls.lPos[1] < controls.fPos[1] - 60) {
-                player.jump();
-            }
-        } else if (controls.dir !== 0) {
-            controls.dir = 0;
-        }
-    }
-    window.addEventListener("mousedown", function (evt) {
-        // id("drag").style.display="none";
-        controls.mousedown = true;
-        controls.fPos = [evt.clientX - getOffset(canvas).left, evt.clientY - getOffset(canvas).top];
-        controls.lPos = [evt.clientX - getOffset(canvas).left, evt.clientY - getOffset(canvas).top];
+    id("left").addEventListener("touchstart", function () {
+        player.L = true;
+        id("left").style.transform = "scale(1.5)";
+        id("left").style.opacity = "1";
     });
 
-    window.addEventListener("mousemove", function (evt) {
-        controls.lPos = [evt.clientX - getOffset(canvas).left, evt.clientY - getOffset(canvas).top];
+    id("right").addEventListener("touchstart", function () {
+        player.R = true;
+        id("right").style.transform = "scale(1.5)";
+        id("right").style.opacity = "1";
     });
-
-    window.addEventListener("mouseup", function () {
-        player.R = false;
+    id("left").addEventListener("touchend", function () {
         player.L = false;
-        if (controls.fPos[0] == controls.lPos[0]) {
-            player.attackEvent();
-        }
-        controls.mousedown = false;
-        controls.direction = "none";
-        //id("dir").innerHTML = controls.direction;
+        id("left").style.transform = "";
+        id("left").style.opacity = "0.5";
     });
-
-    // touch controls
-    window.addEventListener("touchstart", function (evt) {
-        //id("drag").style.display="none";
-        var touches = evt.touches[0];
-        controls.mousedown = true;
-        controls.fPos = [touches.clientX - getOffset(canvas).left, touches.clientY - getOffset(canvas).top];
-        controls.lPos = [touches.clientX - getOffset(canvas).left, touches.clientY - getOffset(canvas).top];
-    });
-
-    window.addEventListener("touchmove", function (evt) {
-        var touches = evt.touches[0];
-        controls.lPos = [touches.clientX - getOffset(canvas).left, touches.clientY - getOffset(canvas).top];
-    });
-
-    window.addEventListener("touchend", function () {
-        controls.mousedown = false;
-        controls.direction = "none";
+    id("right").addEventListener("touchend", function () {
         player.R = false;
-        player.L = false;
-        if (controls.fPos[0] == controls.lPos[0]) {
-            player.attackEvent();
-        }
-        //id("dir").innerHTML = controls.direction;
+        id("right").style.transform = "";
+        id("right").style.opacity = "0.5";
+    });
+
+    id("up").addEventListener("touchstart", function () {
+        player.jump();
+        id("up").style.transform = "scale(1.5)";
+        id("up").style.opacity = "1";
+    });
+    id("down").addEventListener("touchstart", function () {
+        player.attackEvent();
+        id("down").style.transform = "scale(1.5)";
+        id("down").style.opacity = "1";
+    });
+    id("up").addEventListener("touchend", function () {
+        id("up").style.transform = "";
+        id("up").style.opacity = "0.5";
+    });
+    id("down").addEventListener("touchend", function () {
+        id("down").style.transform = "";
+        id("down").style.opacity = "0.5";
     });
     // TOUCH CONTROLS END
     requestAnimationFrame(loop)
