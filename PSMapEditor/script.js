@@ -69,7 +69,7 @@ window.onload = function () {
 
     //LAUNCH TESTMODE
     id("test").onclick = function () {
-        let mapTester = window.open("MapTester/index.html");
+        let mapTester = window.open("mapTester/index.html");
         mapTester.tile = map;
         mapTester.spawnPoint = spawnPoint;
     }
