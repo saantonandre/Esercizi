@@ -410,7 +410,6 @@ class Bear extends Monster {
             playerHB.w *= ratio;
             playerHB.h *= ratio;
             playerHB.y *= ratio;
-            playerHB.x -= mapX;
             var DMG = Math.round(Math.random() * (bear.attackDMG / 2) + bear.attackDMG / 2);
             var missChance = Math.round(Math.random() * (bear.precision));
             if (missChance === 1) {
