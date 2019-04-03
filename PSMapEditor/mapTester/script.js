@@ -2,7 +2,7 @@
 function id(arg) {
     return document.getElementById(arg);
 }
-var tile = [{
+var map = [{
     x: 4,
     y: 4,
     w: 1,
@@ -92,1114 +92,11 @@ var tile = [{
     w: 1,
     h: 1,
     type: 5
-}, {
-    x: 13,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 14
-}, {
-    x: 14,
-    y: 7,
-    w: 5,
-    h: 1,
-    type: 15
-}, {
-    x: 19,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 16
-}, {
-    x: 17,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 7
-}, {
-    x: 20,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 16
-}, {
-    x: 22,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 14
-}, {
-    x: 23,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 16
-}, {
-    x: 26,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 16
-}, {
-    x: 25,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 14
-}, {
-    x: 31,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 14
-}, {
-    x: 32,
-    y: 4,
-    w: 1,
-    h: 1,
-    type: 14
-}, {
-    x: 33,
-    y: 3,
-    w: 1,
-    h: 1,
-    type: 14
-}, {
-    x: 34,
-    y: 2,
-    w: 1,
-    h: 1,
-    type: 14
-}, {
-    x: 35,
-    y: 2,
-    w: 4,
-    h: 1,
-    type: 1
-}, {
-    x: 34,
-    y: 3,
-    w: 1,
-    h: 1,
-    type: 13
-}, {
-    x: 33,
-    y: 4,
-    w: 1,
-    h: 1,
-    type: 13
-}, {
-    x: 32,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 13
-}, {
-    x: 35,
-    y: 3,
-    w: 4,
-    h: 3,
-    type: 4
-}, {
-    x: 34,
-    y: 4,
-    w: 1,
-    h: 2,
-    type: 4
-}, {
-    x: 33,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 4
-}, {
-    x: 32,
-    y: 6,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 33,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 34,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 7
-}, {
-    x: 36,
-    y: 6,
-    w: 1,
-    h: 1,
-    type: 7
-}, {
-    x: 35,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 33,
-    y: 6,
-    w: 3,
-    h: 1,
-    type: 4
-}, {
-    x: 39,
-    y: 6,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 37,
-    y: 6,
-    w: 2,
-    h: 1,
-    type: 7
-}, {
-    x: 39,
-    y: 3,
-    w: 1,
-    h: 3,
-    type: 5
-}, {
-    x: 39,
-    y: 2,
-    w: 1,
-    h: 1,
-    type: 2
-}, {
-    x: 48,
-    y: 2,
-    w: 1,
-    h: 1,
-    type: 14
-}, {
-    x: 49,
-    y: 2,
-    w: 1,
-    h: 1,
-    type: 16
-}, {
-    x: 50,
-    y: 4,
-    w: 1,
-    h: 1,
-    type: 3
-}, {
-    x: 52,
-    y: 4,
-    w: 1,
-    h: 1,
-    type: 16
-}, {
-    x: 53,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 16
-}, {
-    x: 52,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 12
-}, {
-    x: 52,
-    y: 6,
-    w: 1,
-    h: 1,
-    type: 5
-}, {
-    x: 50,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 51,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 51,
-    y: 6,
-    w: 1,
-    h: 1,
-    type: 3
-}, {
-    x: 51,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 4
-}, {
-    x: 52,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 54,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 0
-}, {
-    x: 55,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 13
-}, {
-    x: 56,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 10
-}, {
-    x: 57,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 10
-}, {
-    x: 59,
-    y: 6,
-    w: 1,
-    h: 3,
-    type: 5
-}, {
-    x: 58,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 3
-}, {
-    x: 57,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 54,
-    y: 6,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 55,
-    y: 6,
-    w: 2,
-    h: 1,
-    type: 7
-}, {
-    x: 57,
-    y: 6,
-    w: 2,
-    h: 1,
-    type: 4
-}, {
-    x: 58,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 4
-}, {
-    x: 51,
-    y: 3,
-    w: 1,
-    h: 1,
-    type: 2
-}, {
-    x: 51,
-    y: 4,
-    w: 1,
-    h: 1,
-    type: 4
-}, {
-    x: 50,
-    y: 3,
-    w: 1,
-    h: 1,
-    type: 0
-}, {
-    x: 47,
-    y: 4,
-    w: 1,
-    h: 1,
-    type: 0
-}, {
-    x: 48,
-    y: 4,
-    w: 1,
-    h: 1,
-    type: 2
-}, {
-    x: 47,
-    y: 5,
-    w: 1,
-    h: 4,
-    type: 3
-}, {
-    x: 48,
-    y: 5,
-    w: 1,
-    h: 4,
-    type: 5
-}, {
-    x: 42,
-    y: 4,
-    w: 1,
-    h: 1,
-    type: 9
-}, {
-    x: 43,
-    y: 4,
-    w: 1,
-    h: 1,
-    type: 11
-}, {
-    x: 43,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 42,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 8,
-    y: 4,
-    w: 1,
-    h: 1,
-    type: 9
-}, {
-    x: 9,
-    y: 3,
-    w: 1,
-    h: 1,
-    type: 3
-}, {
-    x: 9,
-    y: 4,
-    w: 1,
-    h: 1,
-    type: 4
-}, {
-    x: 8,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 9,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 4
-}, {
-    x: 9,
-    y: 6,
-    w: 1,
-    h: 3,
-    type: 3
-}, {
-    x: 1,
-    y: 1,
-    w: 1,
-    h: 8,
-    type: 5
-}, {
-    x: 58,
-    y: 3,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 59,
-    y: 3,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 58,
-    y: 1,
-    w: 1,
-    h: 2,
-    type: 3
-}, {
-    x: 58,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 12
-}, {
-    x: 59,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 2
-}, {
-    x: 9,
-    y: 9,
-    w: 1,
-    h: 1,
-    type: 3
-}, {
-    x: 3,
-    y: 9,
-    w: 1,
-    h: 1,
-    type: 3
-}, {
-    x: 10,
-    y: 9,
-    w: 1,
-    h: 1,
-    type: 5
-}, {
-    x: 1,
-    y: 9,
-    w: 1,
-    h: 1,
-    type: 5
-}, {
-    x: 5,
-    y: 9,
-    w: 1,
-    h: 1,
-    type: 5
-}, {
-    x: 4,
-    y: 9,
-    w: 1,
-    h: 1,
-    type: 4
-}, {
-    x: 18,
-    y: 5,
-    w: 2,
-    h: 1,
-    type: 15
-}, {
-    x: 2,
-    y: 4,
-    w: 1,
-    h: 1,
-    type: 14
-}, {
-    x: 3,
-    y: 4,
-    w: 1,
-    h: 1,
-    type: 1
-}, {
-    x: 61,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 0
-}, {
-    x: 62,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 2
-}, {
-    x: 61,
-    y: 6,
-    w: 1,
-    h: 4,
-    type: 3
-}, {
-    x: 62,
-    y: 6,
-    w: 1,
-    h: 4,
-    type: 5
-}, {
-    x: 48,
-    y: 9,
-    w: 1,
-    h: 1,
-    type: 5
-}, {
-    x: 47,
-    y: 9,
-    w: 1,
-    h: 1,
-    type: 3
-}, {
-    x: 64,
-    y: 3,
-    w: 1,
-    h: 1,
-    type: 0
-}, {
-    x: 65,
-    y: 3,
-    w: 1,
-    h: 1,
-    type: 2
-}, {
-    x: 64,
-    y: 4,
-    w: 1,
-    h: 6,
-    type: 3
-}, {
-    x: 65,
-    y: 4,
-    w: 1,
-    h: 6,
-    type: 5
-}, {
-    x: 68,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 0
-}, {
-    x: 69,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 2
-}, {
-    x: 68,
-    y: 9,
-    w: 1,
-    h: 1,
-    type: 3
-}, {
-    x: 69,
-    y: 9,
-    w: 1,
-    h: 1,
-    type: 5
-}, {
-    x: 71,
-    y: 6,
-    w: 1,
-    h: 1,
-    type: 14
-}, {
-    x: 72,
-    y: 6,
-    w: 2,
-    h: 1,
-    type: 15
-}, {
-    x: 74,
-    y: 6,
-    w: 1,
-    h: 1,
-    type: 16
-}, {
-    x: 75,
-    y: 4,
-    w: 1,
-    h: 1,
-    type: 14
-}, {
-    x: 76,
-    y: 4,
-    w: 1,
-    h: 1,
-    type: 16
-}, {
-    x: 68,
-    y: 1,
-    w: 1,
-    h: 1,
-    type: 14
-}, {
-    x: 69,
-    y: 1,
-    w: 2,
-    h: 1,
-    type: 15
-}, {
-    x: 71,
-    y: 1,
-    w: 2,
-    h: 1,
-    type: 1
-}, {
-    x: 73,
-    y: 1,
-    w: 1,
-    h: 1,
-    type: 2
-}, {
-    x: 71,
-    y: 2,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 72,
-    y: 3,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 72,
-    y: 2,
-    w: 2,
-    h: 1,
-    type: 4
-}, {
-    x: 74,
-    y: 2,
-    w: 1,
-    h: 1,
-    type: 16
-}, {
-    x: 73,
-    y: 3,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 78,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 0
-}, {
-    x: 79,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 2
-}, {
-    x: 79,
-    y: 6,
-    w: 1,
-    h: 2,
-    type: 5
-}, {
-    x: 80,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 12
-}, {
-    x: 81,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 13
-}, {
-    x: 82,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 12
-}, {
-    x: 83,
-    y: 8,
-    w: 2,
-    h: 1,
-    type: 1
-}, {
-    x: 85,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 13
-}, {
-    x: 86,
-    y: 8,
-    w: 4,
-    h: 1,
-    type: 10
-}, {
-    x: 90,
-    y: 8,
-    w: 7,
-    h: 1,
-    type: 10
-}, {
-    x: 97,
-    y: 8,
-    w: 4,
-    h: 1,
-    type: 10
-}, {
-    x: 102,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 1
-}, {
-    x: 101,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 0
-}, {
-    x: 106,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 2
-}, {
-    x: 103,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 13
-}, {
-    x: 105,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 12
-}, {
-    x: 104,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 10
-}, {
-    x: 101,
-    y: 6,
-    w: 1,
-    h: 2,
-    type: 3
-}, {
-    x: 102,
-    y: 6,
-    w: 4,
-    h: 3,
-    type: 4
-}, {
-    x: 101,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 4
-}, {
-    x: 82,
-    y: 1,
-    w: 1,
-    h: 5,
-    type: 4
-}, {
-    x: 83,
-    y: 2,
-    w: 1,
-    h: 1,
-    type: 4
-}, {
-    x: 84,
-    y: 3,
-    w: 1,
-    h: 1,
-    type: 4
-}, {
-    x: 85,
-    y: 4,
-    w: 1,
-    h: 1,
-    type: 4
-}, {
-    x: 86,
-    y: 1,
-    w: 1,
-    h: 5,
-    type: 4
-}, {
-    x: 88,
-    y: 3,
-    w: 1,
-    h: 3,
-    type: 4
-}, {
-    x: 88,
-    y: 1,
-    w: 1,
-    h: 1,
-    type: 4
-}, {
-    x: 90,
-    y: 2,
-    w: 1,
-    h: 4,
-    type: 4
-}, {
-    x: 91,
-    y: 2,
-    w: 2,
-    h: 1,
-    type: 4
-}, {
-    x: 91,
-    y: 5,
-    w: 2,
-    h: 1,
-    type: 4
-}, {
-    x: 94,
-    y: 1,
-    w: 1,
-    h: 5,
-    type: 4
-}, {
-    x: 95,
-    y: 5,
-    w: 2,
-    h: 1,
-    type: 4
-}, {
-    x: 95,
-    y: 3,
-    w: 2,
-    h: 1,
-    type: 4
-}, {
-    x: 97,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 4
-}, {
-    x: 95,
-    y: 1,
-    w: 1,
-    h: 1,
-    type: 4
-}, {
-    x: 99,
-    y: 6,
-    w: 1,
-    h: 1,
-    type: 4
-}, {
-    x: 99,
-    y: 1,
-    w: 1,
-    h: 4,
-    type: 4
-}, {
-    x: 59,
-    y: 1,
-    w: 1,
-    h: 2,
-    type: 5
-}, {
-    x: 58,
-    y: 0,
-    w: 1,
-    h: 1,
-    type: 9
-}, {
-    x: 59,
-    y: 0,
-    w: 1,
-    h: 1,
-    type: 11
-}, {
-    x: 2,
-    y: 0,
-    w: 2,
-    h: 1,
-    type: 15
-}, {
-    x: 4,
-    y: 0,
-    w: 1,
-    h: 1,
-    type: 16
-}, {
-    x: 1,
-    y: 0,
-    w: 1,
-    h: 1,
-    type: 12
-}, {
-    x: 0,
-    y: 0,
-    w: 1,
-    h: 1,
-    type: 9
-}, {
-    x: 0,
-    y: 1,
-    w: 1,
-    h: 8,
-    type: 3
-}, {
-    x: 0,
-    y: 10,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 3,
-    y: 10,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 9,
-    y: 10,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 47,
-    y: 10,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 58,
-    y: 9,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 61,
-    y: 10,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 64,
-    y: 10,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 68,
-    y: 10,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 0,
-    y: 9,
-    w: 1,
-    h: 1,
-    type: 3
-}, {
-    x: 1,
-    y: 10,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 5,
-    y: 10,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 10,
-    y: 10,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 48,
-    y: 10,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 59,
-    y: 9,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 62,
-    y: 10,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 65,
-    y: 10,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 69,
-    y: 10,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 106,
-    y: 9,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 106,
-    y: 6,
-    w: 1,
-    h: 3,
-    type: 5
-}, {
-    x: 80,
-    y: 9,
-    w: 26,
-    h: 1,
-    type: 7
-}, {
-    x: 78,
-    y: 6,
-    w: 1,
-    h: 3,
-    type: 3
-}, {
-    x: 79,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 4
-}, {
-    x: 78,
-    y: 9,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 79,
-    y: 9,
-    w: 1,
-    h: 1,
-    type: 7
-}, {
-    x: 4,
-    y: 10,
-    w: 1,
-    h: 1,
-    type: 7
 }, ];
 spawnPoint = {
     x: 3,
     y: 2
 };
-if (window.opener) {
-    if (typeof window.opener.map !== "undefined") {
-        tile = window.opener.map;
-    }
-}
 //canvas-related variables
 var canvas = id("canvas");
 var c = canvas.getContext("2d");
@@ -1215,7 +112,7 @@ var textSize = Math.round(0.3 * ratio);
 var fontSize = textSize + "px";
 var paused = 1;
 var fps = false;
-const gForce = 0.016 * ratio;
+var gForce = 0.016 * ratio;
 var mapX = 0;
 var mapY = 0;
 var tiles = [
@@ -1225,21 +122,23 @@ var tiles = [
         [7, 4], [8, 4], [9, 4], //rock top
         [7, 5], [8, 5], //rock to grass
         [7, 6], [8, 6], [9, 6], //grass short
+        [11, 4] //bouncy
     ];
+
 setInterval(function () {
     id("FPS").innerHTML = fps + " FPS";
     fps = 0;
 }, 1000);
 
 //environment
-
-
 var player = {
     x: 2 * ratio,
     y: 2 * ratio,
     atk: 1,
     xVel: 0,
     yVel: 0,
+    xVelExt: 0, // external velocity
+    yVelExt: 0, // external velocity
     maxVelocity: 0.3 * ratio,
     w: 1 * ratio,
     h: 1 * ratio,
@@ -1337,6 +236,8 @@ var player = {
         this.y = 1 * ratio;
         this.yVel = 0;
         this.xVel = 0;
+        this.yVelExt = 0;
+        this.xVelExt = 0;
         this.left = false;
 
         if (typeof spawnPoint !== "undefined") {
@@ -1711,8 +612,8 @@ function drawFxs(fx) {
     //animation computing
     if (fx.type == "cloud") {
         var spritePos = cloudSprites;
-        if (fx.x < -5 * ratio) {
-            fx.x = (100 + (mapX / ratio)) * ratio
+        if (fx.x < mapX - 30 * ratio) {
+            fx.x = mapX + 30 * ratio;
         }
     }
     if (fx.type == "dmg") {
@@ -1778,6 +679,96 @@ function drawFxs(fx) {
     //c.translate(-(fxX+fxW/2), -(fxY+fxH/2));
 }
 
+var specialTiles = [];
+class Bouncy {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.w = 1;
+        this.h = 1;
+        this.sheet = id("sheet");
+        this.sprite = [[11, 4], [11, 5], [11, 6], [11, 7]];
+        this.repeat = false;
+        this.running = false;
+        this.frameCounter = 0;
+        this.frame = 0;
+        this.type = "bouncy";
+    }
+}
+
+function renderSpecialTiles() {
+    for (i = 0; i < specialTiles.length; i++) {
+        if (specialTiles[i].running) {
+            specialTiles[i].frameCounter++;
+            if (specialTiles[i].frameCounter > 3) {
+                specialTiles[i].frame++;
+                specialTiles[i].frameCounter = 0;
+            }
+            if (specialTiles[i].frame > specialTiles[i].sprite.length - 1) {
+                specialTiles[i].frame = 0;
+                if (!specialTiles[i].repeat) {
+                    specialTiles[i].running = false;
+                }
+            }
+        }
+        let collision = colCheck(player, specialTiles[i]);
+        if (collision !== null) {
+            specialTiles[i].running = true;
+            player.xVel=0;
+            player.yVel=0;
+            let bouncynessX=0;
+            let bouncynessY=0.3;
+            switch (collision) {
+                    
+                case "b":
+                    if (specialTiles[i].type === "bouncy") {
+                        player.grounded = false;
+                        let dir = player.left ? -1 : 1;
+                        player.xVelExt = player.xVel * ratio;
+                        player.yVel = -bouncynessY * ratio;
+                        player.dash = false;
+                        player.dashCd = false
+                    }
+                    break;
+                case "l":
+                    if (specialTiles[i].type === "bouncy") {
+                        player.grounded = false;
+                        let dir = 1;
+                        player.xVelExt = player.xVel * ratio;
+                        player.yVel = -bouncynessY * ratio;
+                        player.dash = false;
+                        player.dashCd = false
+                    }
+                    break;
+                case "r":
+                    if (specialTiles[i].type === "bouncy") {
+                        player.grounded = false;
+                        let dir = -1;
+                        player.xVelExt = player.xVel * ratio;
+                        player.yVel = -bouncynessY * ratio;
+                        player.dash = false;
+                        player.dashCd = false
+                    }
+                    break;
+                case "t":
+                    if (specialTiles[i].type === "bouncy") {
+                        player.yVel = 0;
+                    }
+                    break;
+            }
+        }
+        c.drawImage(
+            specialTiles[i].sheet,
+            specialTiles[i].sprite[specialTiles[i].frame][0] * 16,
+            specialTiles[i].sprite[specialTiles[i].frame][1] * 16,
+            16,
+            16,
+            specialTiles[i].x * ratio + mapX,
+            specialTiles[i].y * ratio + mapY,
+            specialTiles[i].w * ratio,
+            specialTiles[i].h * ratio);
+    }
+}
 
 function renderHpBars() {
     for (i = 0; i < monsters.length; i++) {
@@ -1882,6 +873,7 @@ function loop() {
     }
     moveCamera();
     drawEnvironment();
+    renderSpecialTiles();
     //draw character
     for (i = monsters.length - 1; i >= 0; i--) {
         drawMonsters(monsters[i]);
@@ -1903,20 +895,20 @@ function moveCamera() {
     mapX=-player.x+2*ratio;
     mapY=-player.y+3*ratio;
     */
-    let cameraDir=player.left?6:2;
+    let cameraDir = player.left ? 6 : 2;
     if (mapX < -player.x + cameraDir * ratio) {
-        //-- means camera moves forward
-        mapX += (-player.x + cameraDir * ratio - mapX) / 15;
+        // means camera moves forward
+        mapX += (-player.x + cameraDir * ratio - mapX) / 6;
     } else if (mapX > -player.x + cameraDir * ratio) {
-        //++ means camera moves backward
-        mapX += (-player.x + cameraDir * ratio - mapX) / 15;
+        // means camera moves backward
+        mapX += (-player.x + cameraDir * ratio - mapX) / 6;
     }
     if (mapY < -player.y + 2 * ratio) {
         // means camera moves downward
-        mapY += (-player.y + 2 * ratio - mapY) / 15;
+        mapY += (-player.y + 2 * ratio - mapY) / 6;
     } else if (mapY > -player.y + 4 * ratio) {
         // means camera moves upward
-        mapY += (-player.y + 4 * ratio - mapY) / 15;
+        mapY += (-player.y + 4 * ratio - mapY) / 6;
     }
 
 }
@@ -1934,22 +926,24 @@ function checkCollisions() {
         monsters[i].col.T = false;
         monsters[i].col.B = false;
     }
-    for (i = 0; i < tile.length; i++) {
-        colCheck(player, tile[i]);
+    for (i = 0; i < map.length; i++) {
+        colCheck(player, map[i]);
         for (m = 0; m < monsters.length; m++) {
-            colCheck(monsters[m], tile[i]);
+            colCheck(monsters[m], map[i]);
         }
     }
 }
 
 
-//TODO: DRAW MONSTERS - MAKE THEM WORK LIKE player - GIVE THEM AI
 
 function calculateCharacter(p) {
     //controls calculation
     if (p.dash) {
         p.left ? p.xVel = -p.speed * 8 : p.xVel = p.speed * 8;
         p.yVel = 0;
+        p.yVelExt = 0;
+        p.xVelExt = 0;
+
         p.attacking(p.hitbox);
         if (Math.abs(p.dashIn - p.x / ratio) > 4) {
             p.dash = false;
@@ -1958,11 +952,17 @@ function calculateCharacter(p) {
     if (p.col.L) {
         p.x += p.col.L * ratio;
         p.dash = false;
+        if (p.xVelExt < 0) {
+            p.xVelExt = 0;
+        }
 
     }
     if (p.col.R) {
         p.x -= p.col.R * ratio // - (0.02 * tileSize);
         p.dash = false;
+        if (p.xVelExt > 0) {
+            p.xVelExt = 0;
+        }
 
     }
     if (p.col.T) {
@@ -1994,11 +994,29 @@ function calculateCharacter(p) {
             }
         } else if (p.yVel > 0) {
             p.yVel = 0;
+            p.yVelExt = 0;
         }
     }
-    p.y += p.yVel;
     p.x += p.xVel;
-    if (p.y > canvas.height) {
+    p.y += p.yVel;
+
+    // external velocity calculations
+    p.x += p.xVelExt;
+    p.y += p.yVelExt;
+    if (p.xVelExt !== 0 && p.grounded) {
+        p.xVelExt *= 0.5;
+    } else if (p.xVelExt !== 0) {
+        p.xVelExt *= 0.98;
+    }
+    if (p.xVelExt < 0.001 * ratio && p.xVelExt > -0.001 * ratio) {
+        p.xVelExt = 0;
+    }
+    p.yVelExt *= 0.9;
+    if (p.yVelExt < 0.001 * ratio && p.yVelExt > -0.001 * ratio) {
+        p.yVelExt = 0;
+    }
+
+    if (p.y > (mapHeight + 2) * ratio) {
         p.respawnEvent();
     }
     //physics calculations
@@ -2076,19 +1094,31 @@ var bg_2 = id("bg2");
 
 function drawEnvironment() {
     for (i = 0; i < 5; i++) {
-        c.drawImage(bg_2, -10 * ratio + (bg_2.width / tileSize * ratio * i) + mapX / 16, -1 * ratio, bg_2.width / tileSize * ratio, bg_2.height / tileSize * ratio + mapY / 8);
-        c.drawImage(bg_1, -10 * ratio + (bg_1.width / tileSize * ratio * i) + mapX / 8, -1 * ratio, bg_1.width / tileSize * ratio, bg_1.height / tileSize * ratio + mapY / 4);
+        c.drawImage(
+            bg_2,
+            -10 * ratio + (bg_2.width / tileSize * ratio * i) + mapX / 16,
+            -1 * ratio + mapY / 16,
+            bg_2.width / tileSize * ratio,
+            bg_2.height / tileSize * ratio
+        );
+        c.drawImage(
+            bg_1,
+            -10 * ratio + (bg_1.width / tileSize * ratio * i) + mapX / 8,
+            -1 * ratio + mapY / 8,
+            bg_1.width / tileSize * ratio,
+            bg_1.height / tileSize * ratio
+        );
     }
-    for (i = 0; i < tile.length; i++) {
-        for (j = 0; j < tile[i].h; j++) {
-            for (k = 0; k < tile[i].w; k++) {
+    for (i = 0; i < map.length; i++) {
+        for (j = 0; j < map[i].h; j++) {
+            for (k = 0; k < map[i].w; k++) {
                 //skips out of bounds tiles
-                if (tile[i].x + k > 9 - mapX / ratio ||
-                    tile[i].x + k < -1 - mapX / ratio) {
+                if (map[i].x + k > 9 - mapX / ratio ||
+                    map[i].x + k < -1 - mapX / ratio) {
                     continue;
                 }
-                //c.fillRect((tile[i].x + k) * (ratio)+mapX, (tile[i].y + j) * (ratio), ratio, ratio);
-                c.drawImage(player.sheet, tiles[tile[i].type][0] * 16, tiles[tile[i].type][1] * 16, 16, 16, (tile[i].x + k) * ratio + mapX, (tile[i].y + j) * ratio + mapY, ratio, ratio);
+                //c.fillRect((map[i].x + k) * (ratio)+mapX, (map[i].y + j) * (ratio), ratio, ratio);
+                c.drawImage(player.sheet, tiles[map[i].type][0] * 16, tiles[map[i].type][1] * 16, 16, 16, (map[i].x + k) * ratio + mapX, (map[i].y + j) * ratio + mapY, ratio, ratio);
             }
         }
     }
@@ -2153,7 +1183,7 @@ function drawCharacter(p) {
         c.globalCompositeOperation = "source-over";
     } else
         c.drawImage(p.sheet, p.actionX[p.action][frame], p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x + mapX, p.y + mapY, p.w, p.h);
-    //the attack animation takes up 2 tiles in width, so I decided to print the other tile separately
+    //the attack animation takes up 2 tiles in width, so I decided to print the other map separately
     if (p.attack) {
         if (p.action == 6) {
             c.drawImage(p.sheet, p.actionX[p.action][frame] + 16, p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x + mapX + p.w, p.y + mapY, p.w, p.h);
@@ -2314,7 +1344,6 @@ function colCheck(shapeA, shapeB) {
                 shapeA.grounded = true;
                 if (shapeA.col.B < oY && oY > 1 / ratio) {
                     shapeA.col.B = oY;
-                    if (shapeB.type === 2) {}
                 }
             }
         } else {
@@ -2379,6 +1408,17 @@ id("down").addEventListener("touchend", function () {
     id("down").style.opacity = "0.5";
 });
 // TOUCH CONTROLS END
+
+if (window.opener) {
+    console.log(window.opener.mapCode);
+    eval(window.opener.mapCode);
+}
+var mapHeight = 0;
+for (i = map.length - 1; i >= 0; i--) {
+    if (map[i].y + map[i].h > mapHeight) {
+        mapHeight = map[i].y + map[i].h;
+    }
+}
 requestAnimationFrame(loop)
 
 //starts the program

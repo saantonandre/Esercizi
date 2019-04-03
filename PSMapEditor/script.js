@@ -30,6 +30,8 @@ var tiles = [
         [7, 4], [8, 4], [9, 4], //rock top
         [7, 5], [8, 5], //rock to grass
         [7, 6], [8, 6], [9, 6], //grass short
+        [11, 4], //bouncy ball
+        [10, 4], //animated grass
     ]
 var spawnPoint = {
     x: 3,
@@ -69,7 +71,7 @@ for (i = 0; i < tiles.length; i++) {
 
 //LAUNCH TESTMODE
 id("test").onclick = function () {
-    console.log(map);
+    mapExport(false);
     var mapTester = window.open("mapTester/index.html");
     //mapTester.tile=map;
 }
@@ -185,10 +187,22 @@ function dragElement(elmnt) {
 }
 
 //GENERATES THE EXPORT CODE
+var mapCode = "";
 id("exportMap").onclick = function () {
-    var mapCode = "";
+    mapExport(true);
+}
+
+function mapExport(downloadTxt) {
+    mapCode = "";
+    var specialTiles = [];
     mapCode += 'map = [';
     for (i = 0; i < map.length; i++) {
+        if (map[i].type === 17 ||
+            map[i].type === 18) {
+            specialTiles.push(i);
+            continue;
+        }
+
         mapCode += '{x : ' + map[i].x + ',';
         mapCode += 'y : ' + map[i].y + ',';
         mapCode += 'w : ' + map[i].w + ',';
@@ -201,8 +215,20 @@ id("exportMap").onclick = function () {
     }
     mapCode += ']; ';
     mapCode += "spawnPoint = {x : " + spawnPoint.x + ",y : " + spawnPoint.y + "};";
+    for (i = 0; i < specialTiles.length; i++) {
+        switch (map[specialTiles[i]].type) {
+            case 17:
+                mapCode += "specialTiles.push(new Bouncy(" + map[specialTiles[i]].x + ", " + map[specialTiles[i]].y + "));";
+                break;
+            case 18:
+                mapCode += "visualFxs.push(new Grass(" + map[specialTiles[i]].x + ", " + map[specialTiles[i]].y + "));";
+                break;
+        }
+    }
     console.log(mapCode);
-    download('mapCode.txt', mapCode);
+    if (downloadTxt) {
+        download('mapCode.txt', mapCode);
+    }
 };
 // LOADS AND READS THE IMPORTED CODE
 id("file").onchange = function () {
