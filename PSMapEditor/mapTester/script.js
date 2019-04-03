@@ -714,12 +714,12 @@ function renderSpecialTiles() {
         let collision = colCheck(player, specialTiles[i]);
         if (collision !== null) {
             specialTiles[i].running = true;
-            player.xVel=0;
-            player.yVel=0;
-            let bouncynessX=0;
-            let bouncynessY=0.3;
+            player.xVel = 0;
+            player.yVel = 0;
+            let bouncynessX = 0;
+            let bouncynessY = 0.3;
             switch (collision) {
-                    
+
                 case "b":
                     if (specialTiles[i].type === "bouncy") {
                         player.grounded = false;
@@ -1412,6 +1412,25 @@ id("down").addEventListener("touchend", function () {
 if (window.opener) {
     console.log(window.opener.mapCode);
     eval(window.opener.mapCode);
+    var spTiles = [];
+    for (i = map.length - 1; i >= 0; i--) {
+        if (map[i].type === 17 ||
+            map[i].type === 18) {
+            spTiles.push(i);
+        }
+    }
+    for (i = 0; i < spTiles.length; i++) {
+        console.log(spTiles[i]);
+        switch (map[spTiles[i]].type) {
+            case 17:
+                specialTiles.push(new Bouncy(map[spTiles[i]].x, map[spTiles[i]].y));
+                break;
+            case 18:
+                visualFxs.push(new Grass(map[spTiles[i]].x, map[spTiles[i]].y));
+                break;
+        }
+        map.splice(spTiles[i], 1);
+    }
 }
 var mapHeight = 0;
 for (i = map.length - 1; i >= 0; i--) {

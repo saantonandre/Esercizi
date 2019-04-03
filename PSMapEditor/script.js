@@ -194,15 +194,8 @@ id("exportMap").onclick = function () {
 
 function mapExport(downloadTxt) {
     mapCode = "";
-    var specialTiles = [];
     mapCode += 'map = [';
     for (i = 0; i < map.length; i++) {
-        if (map[i].type === 17 ||
-            map[i].type === 18) {
-            specialTiles.push(i);
-            continue;
-        }
-
         mapCode += '{x : ' + map[i].x + ',';
         mapCode += 'y : ' + map[i].y + ',';
         mapCode += 'w : ' + map[i].w + ',';
@@ -215,16 +208,6 @@ function mapExport(downloadTxt) {
     }
     mapCode += ']; ';
     mapCode += "spawnPoint = {x : " + spawnPoint.x + ",y : " + spawnPoint.y + "};";
-    for (i = 0; i < specialTiles.length; i++) {
-        switch (map[specialTiles[i]].type) {
-            case 17:
-                mapCode += "specialTiles.push(new Bouncy(" + map[specialTiles[i]].x + ", " + map[specialTiles[i]].y + "));";
-                break;
-            case 18:
-                mapCode += "visualFxs.push(new Grass(" + map[specialTiles[i]].x + ", " + map[specialTiles[i]].y + "));";
-                break;
-        }
-    }
     console.log(mapCode);
     if (downloadTxt) {
         download('mapCode.txt', mapCode);
@@ -237,10 +220,31 @@ id("file").onchange = function () {
     reader.onload = function (e) {
         let text = reader.result
         eval(text);
+        resizeMap()
+
     }
     reader.readAsText(data);
 }
 
+function resizeMap() {
+    let xMax = 0;
+    let yMax = 0;
+    for (i = 0; i < map.length; i++) {
+        if (map[i].x + map[i].w > xMax) {
+            xMax = map[i].x + map[i].w;
+        }
+        if (map[i].y + map[i].h > yMax) {
+            yMax = map[i].y + map[i].h;
+        }
+    }
+    console.log(xMax+"  "+yMax)
+    cellQuantityW = xMax;
+    id("mapSizeW").value = xMax;
+    cellQuantityH = yMax;
+    id("mapSizeH").value = yMax;
+    changeMapSize();
+
+}
 // ALLOWS TO MOVE THE CAMERA IN THE EDITOR
 function cameraMove() {
     if (camera.L) {
