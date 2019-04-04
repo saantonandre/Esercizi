@@ -1379,9 +1379,6 @@ window.addEventListener("touchstart", function () {
     showControls()
 })
 
-function showcontrols() {
-    id("arrowCont").style.display = "block";
-}
 id("left").addEventListener("touchstart", function () {
     player.L = true;
     id("left").style.transform = "scale(1.5)";
