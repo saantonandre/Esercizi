@@ -105,8 +105,8 @@ canvas.width -= canvas.width % 16;
 canvas.height = canvas.width;
 c.imageSmoothingEnabled = false;
 var tileSize = 16;
-var tilesWidth = 9;
-var tilesHeight = 9;
+var tilesWidth = 12;
+var tilesHeight = 12;
 var ratio = canvas.width / (tilesWidth);
 var textSize = Math.round(0.3 * ratio);
 var fontSize = textSize + "px";
@@ -715,38 +715,37 @@ function renderSpecialTiles() {
             specialTiles[i].running = true;
             player.xVel = 0;
             player.yVel = 0;
-            let bouncynessX = 0;
+            let dir = player.left ? 1 : -1;
+            let bouncynessX = 0.3;
             let bouncynessY = 0.3;
+            let bounceOrNot = player.dash ? bouncynessX * ratio * dir : 0;
             switch (collision) {
 
                 case "b":
                     if (specialTiles[i].type === "bouncy") {
                         player.grounded = false;
-                        let dir = player.left ? -1 : 1;
                         player.xVelExt = player.xVel * ratio;
                         player.yVel = -bouncynessY * ratio;
                         player.dash = false;
-                        player.dashCd = false
+                        player.dashCd = false;
                     }
                     break;
                 case "l":
                     if (specialTiles[i].type === "bouncy") {
                         player.grounded = false;
-                        let dir = 1;
-                        player.xVelExt = player.xVel * ratio;
-                        player.yVel = -bouncynessY * ratio;
                         player.dash = false;
-                        player.dashCd = false
+                        player.dashCd = false;
+                        player.xVelExt = bounceOrNot;
+                        player.yVel = -bouncynessY * ratio;
                     }
                     break;
                 case "r":
                     if (specialTiles[i].type === "bouncy") {
                         player.grounded = false;
-                        let dir = -1;
-                        player.xVelExt = player.xVel * ratio;
-                        player.yVel = -bouncynessY * ratio;
                         player.dash = false;
-                        player.dashCd = false
+                        player.dashCd = false;
+                        player.xVelExt = bounceOrNot;
+                        player.yVel = -bouncynessY * ratio;
                     }
                     break;
                 case "t":
@@ -755,6 +754,7 @@ function renderSpecialTiles() {
                     }
                     break;
             }
+            adjustCollided(player);
         }
         c.drawImage(
             specialTiles[i].sheet,
@@ -933,21 +933,7 @@ function checkCollisions() {
     }
 }
 
-
-
-function calculateCharacter(p) {
-    //controls calculation
-    if (p.dash) {
-        p.left ? p.xVel = -p.speed * 8 : p.xVel = p.speed * 8;
-        p.yVel = 0;
-        p.yVelExt = 0;
-        p.xVelExt = 0;
-
-        p.attacking(p.hitbox);
-        if (Math.abs(p.dashIn - p.x / ratio) > 4) {
-            p.dash = false;
-        }
-    }
+function adjustCollided(p) {
     if (p.col.L) {
         p.x += p.col.L * ratio;
         p.dash = false;
@@ -976,6 +962,22 @@ function calculateCharacter(p) {
         p.dashCd = false;
         p.dash = false;
     }
+}
+
+function calculateCharacter(p) {
+    //controls calculation
+    if (p.dash) {
+        p.left ? p.xVel = -p.speed * 8 : p.xVel = p.speed * 8;
+        p.yVel = 0;
+        p.yVelExt = 0;
+        p.xVelExt = 0;
+
+        p.attacking(p.hitbox);
+        if (Math.abs(p.dashIn - p.x / ratio) > 4) {
+            p.dash = false;
+        }
+    }
+    adjustCollided(p);
     if (!p.dash) {
         if (p.L && !p.col.L && !p.R) {
             p.xVel = -p.speed;
@@ -1095,15 +1097,15 @@ function drawEnvironment() {
     for (i = 0; i < 5; i++) {
         c.drawImage(
             bg_2,
-            -10 * ratio + (bg_2.width / tileSize * ratio * i) + mapX / 16,
-            -1 * ratio + mapY / 16,
+            -tilesWidth * ratio + (bg_2.width / tileSize * ratio * i) + mapX / 16,
+            tilesHeight / 2 * ratio + mapY / 16,
             bg_2.width / tileSize * ratio,
             bg_2.height / tileSize * ratio
         );
         c.drawImage(
             bg_1,
-            -10 * ratio + (bg_1.width / tileSize * ratio * i) + mapX / 8,
-            -1 * ratio + mapY / 8,
+            -tilesWidth * ratio + (bg_1.width / tileSize * ratio * i) + mapX / 8,
+            tilesHeight / 2 * ratio + mapY / 8,
             bg_1.width / tileSize * ratio,
             bg_1.height / tileSize * ratio
         );
@@ -1112,8 +1114,12 @@ function drawEnvironment() {
         for (j = 0; j < map[i].h; j++) {
             for (k = 0; k < map[i].w; k++) {
                 //skips out of bounds tiles
-                if (map[i].x + k > 9 - mapX / ratio ||
-                    map[i].x + k < -1 - mapX / ratio) {
+                if (map[i].x + k > tilesWidth - mapX / ratio ||
+                    map[i].x + k < -tilesWidth - mapX / ratio) {
+                    continue;
+                }
+                if (map[i].y + j > tilesHeight - mapY / ratio ||
+                    map[i].y + j < -tilesHeight - mapY / ratio) {
                     continue;
                 }
                 //c.fillRect((map[i].x + k) * (ratio)+mapX, (map[i].y + j) * (ratio), ratio, ratio);
@@ -1316,7 +1322,6 @@ window.addEventListener("keyup", function (event) {
 
 
 //collision detector
-
 function colCheck(shapeA, shapeB) {
     // get the vectors to check against
     var offFocus = mapX / ratio;
@@ -1358,6 +1363,7 @@ function colCheck(shapeA, shapeB) {
                 }
             }
         }
+
     }
 
     return colDir;
@@ -1366,6 +1372,13 @@ function colCheck(shapeA, shapeB) {
 
 // TOUCH CONTROLS START
 
+window.addEventListener("touchstart", function () {
+    showControls()
+})
+
+function showcontrol() {
+    id("arrowCont").style.display = "block";
+}
 id("left").addEventListener("touchstart", function () {
     player.L = true;
     id("left").style.transform = "scale(1.5)";
@@ -1430,6 +1443,9 @@ if (window.opener) {
         }
         map.splice(spTiles[i], 1);
     }
+    player.x = spawnPoint.x * ratio;
+    player.y = spawnPoint.y * ratio;
+
 }
 var mapHeight = 0;
 for (i = map.length - 1; i >= 0; i--) {
