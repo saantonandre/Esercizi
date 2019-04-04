@@ -1372,11 +1372,14 @@ function colCheck(shapeA, shapeB) {
 
 // TOUCH CONTROLS START
 
+function showControls() {
+    id("arrowCont").style.display = "block";
+}
 window.addEventListener("touchstart", function () {
     showControls()
 })
 
-function showcontrol() {
+function showcontrols() {
     id("arrowCont").style.display = "block";
 }
 id("left").addEventListener("touchstart", function () {
