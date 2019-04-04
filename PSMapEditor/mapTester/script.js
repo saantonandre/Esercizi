@@ -1423,7 +1423,12 @@ id("down").addEventListener("touchend", function () {
 
 if (window.opener) {
     console.log(window.opener.mapCode);
-    eval(window.opener.mapCode);
+    if(window.opener.mapCode){
+        eval(window.opener.mapCode);
+    }else {
+        eval(window.opener.map);
+    }
+    
     var spTiles = [];
     for (i = map.length - 1; i >= 0; i--) {
         if (map[i].type === 17 ||
