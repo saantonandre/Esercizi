@@ -32,7 +32,6 @@ var tiles = [
         [7, 6], [8, 6], [9, 6], //grass short
         [11, 4], //bouncy ball
         [10, 4], //animated grass
-        [12, 5], //speeder
     ]
 var spawnPoint = {
     x: 3,

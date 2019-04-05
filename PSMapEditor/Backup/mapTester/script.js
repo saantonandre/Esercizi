@@ -122,9 +122,7 @@ var tiles = [
         [7, 4], [8, 4], [9, 4], //rock top
         [7, 5], [8, 5], //rock to grass
         [7, 6], [8, 6], [9, 6], //grass short
-        [11, 4], //bouncy
-        [10, 4], //animated grass
-        [12, 5], //speeder
+        [11, 4] //bouncy
     ];
 
 setInterval(function () {
@@ -323,7 +321,9 @@ class Monster {
     }
 }
 //shows the number of monsters
-setInterval(function () {}, 500);
+setInterval(function () {
+    id("monsternumber").innerHTML = monsters.length;
+}, 500);
 
 function randomMovement(serial) {
     //console.log(monsters[i].serial+" "+ serial);
@@ -690,25 +690,8 @@ class Bouncy {
         this.repeat = false;
         this.running = false;
         this.frameCounter = 0;
-        this.slowness = 3;
         this.frame = 0;
         this.type = "bouncy";
-    }
-}
-class Speeder {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-        this.w = 1;
-        this.h = 1;
-        this.sheet = id("sheet");
-        this.sprite = [[12, 5], [12, 6], [12, 7], [12, 8]];
-        this.repeat = true;
-        this.running = true;
-        this.frameCounter = 0;
-        this.slowness = 3;
-        this.frame = 0;
-        this.type = "speeder";
     }
 }
 
@@ -716,7 +699,7 @@ function renderSpecialTiles() {
     for (i = 0; i < specialTiles.length; i++) {
         if (specialTiles[i].running) {
             specialTiles[i].frameCounter++;
-            if (specialTiles[i].frameCounter > specialTiles[i].slowness) {
+            if (specialTiles[i].frameCounter > 3) {
                 specialTiles[i].frame++;
                 specialTiles[i].frameCounter = 0;
             }
@@ -729,15 +712,13 @@ function renderSpecialTiles() {
         }
         let collision = colCheck(player, specialTiles[i]);
         if (collision !== null) {
-            if (specialTiles[i].type === "bouncy") {
-                var bouncynessX = 0.3;
-                var bouncynessY = 0.3;
-                var bounceOrNot = player.dash ? bouncynessX * ratio * dir : 0;
-                player.xVel = 0;
-                player.yVel = 0;
-            }
             specialTiles[i].running = true;
-            var dir = player.left ? 1 : -1;
+            player.xVel = 0;
+            player.yVel = 0;
+            let dir = player.left ? 1 : -1;
+            let bouncynessX = 0.3;
+            let bouncynessY = 0.3;
+            let bounceOrNot = player.dash ? bouncynessX * ratio * dir : 0;
             switch (collision) {
 
                 case "b":
@@ -747,8 +728,6 @@ function renderSpecialTiles() {
                         player.yVel = -bouncynessY * ratio;
                         player.dash = false;
                         player.dashCd = false;
-                    } else if (specialTiles[i].type === "speeder") {
-                        player.xVelExt += 0.08 * ratio;
                     }
                     break;
                 case "l":
@@ -767,8 +746,6 @@ function renderSpecialTiles() {
                         player.dashCd = false;
                         player.xVelExt = bounceOrNot;
                         player.yVel = -bouncynessY * ratio;
-                    } else if (specialTiles[i].type === "speeder") {
-                        console.log("collided")
                     }
                     break;
                 case "t":
@@ -777,6 +754,7 @@ function renderSpecialTiles() {
                     }
                     break;
             }
+            adjustCollided(player);
         }
         c.drawImage(
             specialTiles[i].sheet,
@@ -886,15 +864,15 @@ function loop() {
     c.fillRect(0, 0, canvas.width, canvas.height);
     //calculate character
     //draw environment
-    moveCamera();
     checkCollisions();
-    renderSpecialTiles();
     calculateCharacter(player);
     for (i = 0; i < monsters.length; i++) {
         monsters[i].frameCounter++;
         calculateMonsters(monsters[i]);
     }
+    moveCamera();
     drawEnvironment();
+    renderSpecialTiles();
     //draw character
     for (i = monsters.length - 1; i >= 0; i--) {
         drawMonsters(monsters[i]);
@@ -905,7 +883,6 @@ function loop() {
     }
     renderHpBars();
     renderTexts();
-    id("monsternumber").innerHTML = parseInt(player.xVelExt);
     requestAnimationFrame(loop)
 }
 ///////////////////////////////////////////////////////////////////////////////
@@ -960,7 +937,6 @@ function adjustCollided(p) {
     if (p.col.L) {
         p.x += p.col.L * ratio;
         p.dash = false;
-        p.dashCd = true;
         if (p.xVelExt < 0) {
             p.xVelExt = 0;
         }
@@ -969,7 +945,6 @@ function adjustCollided(p) {
     if (p.col.R) {
         p.x -= p.col.R * ratio // - (0.02 * tileSize);
         p.dash = false;
-        p.dashCd = true;
         if (p.xVelExt > 0) {
             p.xVelExt = 0;
         }
@@ -1002,7 +977,7 @@ function calculateCharacter(p) {
             p.dash = false;
         }
     }
-    adjustCollided(player);
+    adjustCollided(p);
     if (!p.dash) {
         if (p.L && !p.col.L && !p.R) {
             p.xVel = -p.speed;
@@ -1030,7 +1005,7 @@ function calculateCharacter(p) {
     p.x += p.xVelExt;
     p.y += p.yVelExt;
     if (p.xVelExt !== 0 && p.grounded) {
-        p.xVelExt *= 0.8;
+        p.xVelExt *= 0.5;
     } else if (p.xVelExt !== 0) {
         p.xVelExt *= 0.98;
     }
@@ -1291,63 +1266,6 @@ function drawMonsters(m) {
 
 
 
-//collision detector
-function colCheck(shapeA, shapeB) {
-    // get the vectors to check against
-    var offFocus = mapX / ratio;
-    var vX = (shapeA.hitbox.x + offFocus + (shapeA.hitbox.w / 2)) - (shapeB.x + (mapX / ratio) + (shapeB.w / 2)),
-        vY = (shapeA.hitbox.y + (shapeA.hitbox.h / 2)) - (shapeB.y + (shapeB.h / 2)),
-        // add the half widths and half heights of the objects
-        hWidths = (shapeA.hitbox.w / 2) + (shapeB.w / 2),
-        hHeights = (shapeA.hitbox.h / 2) + (shapeB.h / 2),
-        colDir = null;
-
-    // if the x and y vector are less than the half width or half height, they we must be inside the object, causing a collision
-    if (Math.abs(vX) < hWidths && Math.abs(vY) < hHeights) {
-        // figures out on which side we are colliding (top, bottom, left, or right)
-        var oX = hWidths - Math.abs(vX),
-            oY = hHeights - Math.abs(vY);
-        if (oX >= oY) {
-            if (vY > 0) {
-                colDir = "t";
-                if (shapeA.col.T < oY && oY > 1 / ratio) {
-                    shapeA.col.T = oY;
-                }
-            } else {
-                colDir = "b";
-                shapeA.grounded = true;
-                if (shapeA.col.B < oY && oY > 1 / ratio) {
-                    shapeA.col.B = oY;
-                }
-            }
-        } else {
-            if (vX > 0) {
-                colDir = "l";
-                if (shapeA.col.L < oX && oX > 1 / ratio) {
-                    shapeA.col.L = oX;
-                }
-            } else {
-                colDir = "r";
-                if (shapeA.col.R < oX && oX > 1 / ratio) {
-                    shapeA.col.R = oX;
-                }
-            }
-        }
-
-    }
-
-    return colDir;
-
-}
-
-
-//Mouse controls
-window.onclick = function () {
-    player.attackEvent();
-}
-window.oncontextmenu = function () {
-    return false;
-}
 // Keyboard controls
 window.addEventListener("keydown", function (event) {
     var key = event.keyCode;
@@ -1402,16 +1320,63 @@ window.addEventListener("keyup", function (event) {
 });
 
 
+
+//collision detector
+function colCheck(shapeA, shapeB) {
+    // get the vectors to check against
+    var offFocus = mapX / ratio;
+    var vX = (shapeA.hitbox.x + offFocus + (shapeA.hitbox.w / 2)) - (shapeB.x + (mapX / ratio) + (shapeB.w / 2)),
+        vY = (shapeA.hitbox.y + (shapeA.hitbox.h / 2)) - (shapeB.y + (shapeB.h / 2)),
+        // add the half widths and half heights of the objects
+        hWidths = (shapeA.hitbox.w / 2) + (shapeB.w / 2),
+        hHeights = (shapeA.hitbox.h / 2) + (shapeB.h / 2),
+        colDir = null;
+
+    // if the x and y vector are less than the half width or half height, they we must be inside the object, causing a collision
+    if (Math.abs(vX) < hWidths && Math.abs(vY) < hHeights) {
+        // figures out on which side we are colliding (top, bottom, left, or right)
+        var oX = hWidths - Math.abs(vX),
+            oY = hHeights - Math.abs(vY);
+        if (oX >= oY) {
+            if (vY > 0) {
+                colDir = "t";
+                if (shapeA.col.T < oY && oY > 1 / ratio) {
+                    shapeA.col.T = oY;
+                }
+            } else {
+                colDir = "b";
+                shapeA.grounded = true;
+                if (shapeA.col.B < oY && oY > 1 / ratio) {
+                    shapeA.col.B = oY;
+                }
+            }
+        } else {
+            if (vX > 0) {
+                colDir = "l";
+                if (shapeA.col.L < oX && oX > 1 / ratio) {
+                    shapeA.col.L = oX;
+                }
+            } else {
+                colDir = "r";
+                if (shapeA.col.R < oX && oX > 1 / ratio) {
+                    shapeA.col.R = oX;
+                }
+            }
+        }
+
+    }
+
+    return colDir;
+
+}
+
 // TOUCH CONTROLS START
 
-function showControls() {
-    id("arrowCont").style.display = "block";
-}
 window.addEventListener("touchstart", function () {
     showControls()
 })
 
-function showcontrols() {
+function showcontrol() {
     id("arrowCont").style.display = "block";
 }
 id("left").addEventListener("touchstart", function () {
@@ -1458,35 +1423,23 @@ id("down").addEventListener("touchend", function () {
 
 if (window.opener) {
     console.log(window.opener.mapCode);
-    if (window.opener.mapCode) {
-        eval(window.opener.mapCode);
-    } else {
-        eval(window.opener.map);
-    }
-
+    eval(window.opener.mapCode);
     var spTiles = [];
     for (i = map.length - 1; i >= 0; i--) {
         if (map[i].type === 17 ||
-            map[i].type === 18 ||
-            map[i].type === 19) {
+            map[i].type === 18) {
             spTiles.push(i);
         }
     }
     for (i = 0; i < spTiles.length; i++) {
-        for (j = 0; j < map[spTiles[i]].h; j++) {
-            for (k = 0; k < map[spTiles[i]].w; k++) {
-                switch (map[spTiles[i]].type) {
-                    case 17:
-                        specialTiles.push(new Bouncy(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
-                        break;
-                    case 18:
-                        visualFxs.push(new Grass(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
-                        break;
-                    case 19:
-                        specialTiles.push(new Speeder(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
-                        break;
-                }
-            }
+        console.log(spTiles[i]);
+        switch (map[spTiles[i]].type) {
+            case 17:
+                specialTiles.push(new Bouncy(map[spTiles[i]].x, map[spTiles[i]].y));
+                break;
+            case 18:
+                visualFxs.push(new Grass(map[spTiles[i]].x, map[spTiles[i]].y));
+                break;
         }
         map.splice(spTiles[i], 1);
     }
