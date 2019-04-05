@@ -1340,10 +1340,12 @@ function colCheck(shapeA, shapeB) {
 
 }
 
-
+var touchDevice=false;
 //Mouse controls
 window.onclick = function () {
-    player.attackEvent();
+    if (!touchDevice) {
+        player.attackEvent();
+    }
 }
 window.oncontextmenu = function () {
     return false;
@@ -1408,6 +1410,7 @@ function showControls() {
     id("arrowCont").style.display = "block";
 }
 window.addEventListener("touchstart", function () {
+    touchDevice=true;
     showControls()
 })
 
