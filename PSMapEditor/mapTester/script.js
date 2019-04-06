@@ -3,99 +3,1093 @@ function id(arg) {
     return document.getElementById(arg);
 }
 var map = [{
-    x: 4,
-    y: 4,
-    w: 1,
-    h: 1,
-    type: 13
-}, {
-    x: 5,
-    y: 4,
-    w: 1,
-    h: 1,
-    type: 11
-}, {
-    x: 4,
-    y: 5,
-    w: 1,
-    h: 4,
-    type: 4
-}, {
-    x: 5,
-    y: 5,
-    w: 1,
-    h: 4,
-    type: 5
-}, {
-    x: 3,
-    y: 5,
-    w: 1,
-    h: 4,
-    type: 3
-}, {
-    x: 9,
-    y: 2,
+    x: 1,
+    y: 6,
     w: 1,
     h: 1,
     type: 0
 }, {
-    x: 10,
-    y: 2,
+    x: 2,
+    y: 6,
+    w: 9,
+    h: 1,
+    type: 1
+}, {
+    x: 1,
+    y: 7,
+    w: 1,
+    h: 2,
+    type: 3
+}, {
+    x: 1,
+    y: 9,
+    w: 1,
+    h: 1,
+    type: 6
+}, {
+    x: 2,
+    y: 7,
+    w: 12,
+    h: 2,
+    type: 4
+}, {
+    x: 11,
+    y: 6,
+    w: 3,
+    h: 1,
+    type: 1
+}, {
+    x: 14,
+    y: 6,
     w: 1,
     h: 1,
     type: 2
 }, {
-    x: 10,
-    y: 3,
+    x: 14,
+    y: 7,
     w: 1,
-    h: 6,
+    h: 1,
     type: 5
 }, {
+    x: 15,
+    y: 8,
+    w: 2,
+    h: 1,
+    type: 10
+}, {
+    x: 17,
+    y: 8,
+    w: 1,
+    h: 1,
+    type: 12
+}, {
+    x: 18,
+    y: 8,
+    w: 4,
+    h: 1,
+    type: 1
+}, {
+    x: 24,
+    y: 8,
+    w: 1,
+    h: 1,
+    type: 16
+}, {
+    x: 22,
+    y: 8,
+    w: 2,
+    h: 1,
+    type: 15
+}, {
+    x: 21,
+    y: 9,
+    w: 1,
+    h: 1,
+    type: 8
+}, {
+    x: 20,
+    y: 10,
+    w: 1,
+    h: 1,
+    type: 8
+}, {
+    x: 19,
+    y: 11,
+    w: 1,
+    h: 1,
+    type: 8
+}, {
+    x: 18,
+    y: 12,
+    w: 1,
+    h: 1,
+    type: 8
+}, {
+    x: 17,
+    y: 13,
+    w: 1,
+    h: 3,
+    type: 5
+}, {
+    x: 18,
+    y: 16,
+    w: 1,
+    h: 1,
+    type: 11
+}, {
+    x: 19,
+    y: 17,
+    w: 1,
+    h: 1,
+    type: 11
+}, {
+    x: 20,
+    y: 18,
+    w: 1,
+    h: 1,
+    type: 11
+}, {
+    x: 21,
+    y: 19,
+    w: 13,
+    h: 1,
+    type: 10
+}, {
     x: 14,
+    y: 8,
+    w: 1,
+    h: 1,
+    type: 4
+}, {
+    x: 2,
+    y: 9,
+    w: 19,
+    h: 1,
+    type: 4
+}, {
+    x: 3,
+    y: 10,
+    w: 17,
+    h: 1,
+    type: 4
+}, {
+    x: 4,
+    y: 11,
+    w: 15,
+    h: 1,
+    type: 4
+}, {
+    x: 16,
+    y: 12,
+    w: 2,
+    h: 1,
+    type: 4
+}, {
+    x: 16,
+    y: 13,
+    w: 1,
+    h: 3,
+    type: 4
+}, {
+    x: 16,
+    y: 16,
+    w: 2,
+    h: 1,
+    type: 4
+}, {
+    x: 16,
+    y: 17,
+    w: 3,
+    h: 1,
+    type: 4
+}, {
+    x: 16,
+    y: 18,
+    w: 4,
+    h: 1,
+    type: 4
+}, {
+    x: 16,
+    y: 19,
+    w: 5,
+    h: 1,
+    type: 4
+}, {
+    x: 15,
+    y: 13,
+    w: 1,
+    h: 7,
+    type: 3
+}, {
+    x: 2,
+    y: 10,
+    w: 1,
+    h: 1,
+    type: 6
+}, {
+    x: 3,
+    y: 11,
+    w: 1,
+    h: 1,
+    type: 6
+}, {
+    x: 4,
+    y: 12,
+    w: 1,
+    h: 1,
+    type: 6
+}, {
+    x: 5,
+    y: 12,
+    w: 10,
+    h: 1,
+    type: 7
+}, {
+    x: 15,
+    y: 12,
+    w: 1,
+    h: 1,
+    type: 4
+}, {
+    x: 18,
+    y: 20,
+    w: 17,
+    h: 1,
+    type: 4
+}, {
+    x: 18,
+    y: 21,
+    w: 1,
+    h: 1,
+    type: 6
+}, {
+    x: 15,
+    y: 20,
+    w: 1,
+    h: 1,
+    type: 6
+}, {
+    x: 16,
+    y: 20,
+    w: 2,
+    h: 1,
+    type: 7
+}, {
+    x: 19,
+    y: 21,
+    w: 16,
+    h: 1,
+    type: 7
+}, {
+    x: 35,
+    y: 21,
+    w: 1,
+    h: 1,
+    type: 8
+}, {
+    x: 36,
+    y: 20,
+    w: 1,
+    h: 1,
+    type: 8
+}, {
+    x: 37,
+    y: 19,
+    w: 1,
+    h: 1,
+    type: 8
+}, {
+    x: 27,
+    y: 8,
+    w: 1,
+    h: 1,
+    type: 14
+}, {
+    x: 28,
+    y: 8,
+    w: 1,
+    h: 1,
+    type: 15
+}, {
+    x: 29,
+    y: 9,
+    w: 1,
+    h: 3,
+    type: 3
+}, {
+    x: 29,
+    y: 12,
+    w: 1,
+    h: 1,
+    type: 6
+}, {
+    x: 31,
+    y: 13,
+    w: 1,
+    h: 1,
+    type: 7
+}, {
+    x: 30,
+    y: 13,
+    w: 1,
+    h: 1,
+    type: 6
+}, {
+    x: 32,
+    y: 14,
+    w: 1,
+    h: 2,
+    type: 3
+}, {
+    x: 32,
+    y: 16,
+    w: 1,
+    h: 1,
+    type: 6
+}, {
+    x: 33,
+    y: 16,
+    w: 5,
+    h: 1,
+    type: 7
+}, {
+    x: 35,
+    y: 20,
+    w: 1,
+    h: 1,
+    type: 4
+}, {
+    x: 34,
+    y: 19,
+    w: 3,
+    h: 1,
+    type: 10
+}, {
+    x: 38,
+    y: 16,
+    w: 1,
+    h: 1,
+    type: 8
+}, {
+    x: 38,
+    y: 5,
+    w: 1,
+    h: 11,
+    type: 5
+}, {
+    x: 38,
+    y: 4,
+    w: 1,
+    h: 1,
+    type: 5
+}, {
+    x: 37,
+    y: 4,
+    w: 1,
+    h: 4,
+    type: 3
+}, {
+    x: 29,
+    y: 8,
+    w: 1,
+    h: 1,
+    type: 13
+}, {
+    x: 30,
+    y: 8,
+    w: 1,
+    h: 1,
+    type: 13
+}, {
+    x: 31,
+    y: 8,
+    w: 6,
+    h: 1,
+    type: 10
+}, {
+    x: 37,
+    y: 8,
+    w: 1,
+    h: 8,
+    type: 4
+}, {
+    x: 33,
+    y: 14,
+    w: 4,
+    h: 2,
+    type: 4
+}, {
+    x: 32,
+    y: 13,
+    w: 5,
+    h: 1,
+    type: 4
+}, {
+    x: 30,
+    y: 9,
+    w: 7,
+    h: 4,
+    type: 4
+}, {
+    x: 37,
+    y: 3,
+    w: 1,
+    h: 1,
+    type: 0
+}, {
+    x: 38,
+    y: 3,
+    w: 1,
+    h: 1,
+    type: 2
+}, {
+    x: 39,
+    y: 19,
+    w: 1,
+    h: 1,
+    type: 14
+}, {
+    x: 2,
+    y: 5,
+    w: 1,
+    h: 1,
+    type: 18
+}, {
+    x: 7,
+    y: 5,
+    w: 1,
+    h: 1,
+    type: 18
+}, {
+    x: 13,
+    y: 5,
+    w: 1,
+    h: 1,
+    type: 18
+}, {
+    x: 18,
+    y: 7,
+    w: 1,
+    h: 1,
+    type: 18
+}, {
+    x: 22,
+    y: 7,
+    w: 1,
+    h: 1,
+    type: 18
+}, {
+    x: 28,
+    y: 7,
+    w: 1,
+    h: 1,
+    type: 18
+}, {
+    x: 30,
+    y: 7,
+    w: 1,
+    h: 1,
+    type: 18
+}, {
+    x: 38,
+    y: 2,
+    w: 1,
+    h: 1,
+    type: 18
+}, {
+    x: 41,
+    y: 18,
+    w: 1,
+    h: 1,
+    type: 18
+}, {
+    x: 48,
+    y: 5,
+    w: 1,
+    h: 1,
+    type: 9
+}, {
+    x: 48,
+    y: 6,
+    w: 1,
+    h: 24,
+    type: 3
+}, {
+    x: 49,
+    y: 6,
+    w: 1,
+    h: 24,
+    type: 5
+}, {
+    x: 49,
+    y: 5,
+    w: 1,
+    h: 1,
+    type: 11
+}, {
+    x: 53,
+    y: 9,
+    w: 1,
+    h: 1,
+    type: 9
+}, {
+    x: 54,
+    y: 9,
+    w: 1,
+    h: 1,
+    type: 11
+}, {
+    x: 53,
+    y: 10,
+    w: 1,
+    h: 20,
+    type: 3
+}, {
+    x: 54,
+    y: 10,
+    w: 1,
+    h: 20,
+    type: 5
+}, {
+    x: 58,
+    y: 7,
+    w: 1,
+    h: 1,
+    type: 14
+}, {
+    x: 59,
+    y: 7,
+    w: 1,
+    h: 1,
+    type: 16
+}, {
+    x: 64,
+    y: 7,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 46,
+    y: 16,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 44,
+    y: 13,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 46,
+    y: 10,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 44,
+    y: 7,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 40,
+    y: 19,
+    w: 4,
+    h: 1,
+    type: 15
+}, {
+    x: 44,
+    y: 19,
+    w: 1,
+    h: 1,
+    type: 16
+}, {
+    x: 48,
+    y: 30,
+    w: 1,
+    h: 1,
+    type: 6
+}, {
+    x: 53,
+    y: 30,
+    w: 1,
+    h: 1,
+    type: 6
+}, {
+    x: 49,
+    y: 30,
+    w: 1,
+    h: 1,
+    type: 8
+}, {
+    x: 54,
+    y: 30,
+    w: 1,
+    h: 1,
+    type: 8
+}, {
+    x: 69,
+    y: 8,
+    w: 1,
+    h: 1,
+    type: 0
+}, {
+    x: 69,
+    y: 9,
+    w: 1,
+    h: 25,
+    type: 3
+}, {
+    x: 70,
+    y: 9,
+    w: 1,
+    h: 25,
+    type: 5
+}, {
+    x: 70,
+    y: 8,
+    w: 1,
+    h: 1,
+    type: 2
+}, {
+    x: 69,
+    y: 34,
+    w: 1,
+    h: 1,
+    type: 3
+}, {
+    x: 72,
+    y: 2,
+    w: 1,
+    h: 1,
+    type: 9
+}, {
+    x: 73,
+    y: 2,
+    w: 1,
+    h: 1,
+    type: 11
+}, {
+    x: 72,
+    y: 3,
+    w: 1,
+    h: 28,
+    type: 3
+}, {
+    x: 72,
+    y: 31,
+    w: 1,
+    h: 1,
+    type: 6
+}, {
+    x: 73,
+    y: 31,
+    w: 4,
+    h: 1,
+    type: 7
+}, {
+    x: 73,
+    y: 3,
+    w: 1,
+    h: 27,
+    type: 5
+}, {
+    x: 73,
+    y: 30,
+    w: 1,
+    h: 1,
+    type: 4
+}, {
+    x: 77,
+    y: 30,
+    w: 1,
+    h: 1,
+    type: 11
+}, {
+    x: 77,
+    y: 31,
+    w: 1,
+    h: 1,
+    type: 8
+}, {
+    x: 69,
+    y: 35,
+    w: 1,
+    h: 1,
+    type: 6
+}, {
+    x: 70,
+    y: 34,
+    w: 1,
+    h: 1,
+    type: 4
+}, {
+    x: 70,
+    y: 35,
+    w: 9,
+    h: 1,
+    type: 7
+}, {
+    x: 79,
+    y: 34,
+    w: 1,
+    h: 1,
+    type: 11
+}, {
+    x: 79,
+    y: 35,
+    w: 1,
+    h: 1,
+    type: 8
+}, {
+    x: 78,
+    y: 31,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 76,
+    y: 27,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 85,
+    y: 29,
+    w: 1,
+    h: 1,
+    type: 9
+}, {
+    x: 85,
+    y: 30,
+    w: 1,
+    h: 1,
+    type: 6
+}, {
+    x: 86,
+    y: 29,
+    w: 1,
+    h: 1,
+    type: 12
+}, {
+    x: 87,
+    y: 29,
+    w: 4,
+    h: 1,
+    type: 1
+}, {
+    x: 86,
+    y: 30,
+    w: 5,
+    h: 1,
+    type: 7
+}, {
+    x: 91,
+    y: 29,
+    w: 1,
+    h: 1,
+    type: 2
+}, {
+    x: 91,
+    y: 30,
+    w: 1,
+    h: 1,
+    type: 8
+}, {
+    x: 87,
+    y: 16,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 87,
+    y: 15,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 87,
+    y: 14,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 87,
+    y: 13,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 87,
+    y: 12,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 87,
+    y: 11,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 87,
+    y: 10,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 87,
+    y: 9,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 87,
+    y: 8,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 89,
+    y: 7,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 95,
+    y: 3,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 98,
     y: 3,
     w: 1,
     h: 1,
     type: 14
 }, {
-    x: 17,
+    x: 99,
     y: 3,
-    w: 1,
-    h: 1,
-    type: 2
-}, {
-    x: 15,
-    y: 3,
-    w: 1,
+    w: 2,
     h: 1,
     type: 15
 }, {
-    x: 16,
+    x: 101,
     y: 3,
     w: 1,
     h: 1,
-    type: 1
+    type: 16
 }, {
-    x: 16,
-    y: 4,
-    w: 1,
+    x: 99,
+    y: 2,
+    w: 2,
     h: 1,
-    type: 3
+    type: 18
 }, {
-    x: 16,
-    y: 5,
+    x: 104,
+    y: 4,
     w: 1,
     h: 1,
     type: 6
 }, {
-    x: 17,
+    x: 104,
+    y: 2,
+    w: 1,
+    h: 2,
+    type: 3
+}, {
+    x: 104,
+    y: 1,
+    w: 1,
+    h: 1,
+    type: 9
+}, {
+    x: 105,
+    y: 1,
+    w: 1,
+    h: 1,
+    type: 10
+}, {
+    x: 106,
+    y: 1,
+    w: 1,
+    h: 1,
+    type: 11
+}, {
+    x: 105,
+    y: 4,
+    w: 2,
+    h: 1,
+    type: 7
+}, {
+    x: 109,
+    y: 4,
+    w: 2,
+    h: 1,
+    type: 7
+}, {
+    x: 108,
     y: 4,
     w: 1,
     h: 1,
-    type: 5
+    type: 6
+}, {
+    x: 108,
+    y: 2,
+    w: 1,
+    h: 2,
+    type: 3
+}, {
+    x: 108,
+    y: 1,
+    w: 1,
+    h: 1,
+    type: 9
+}, {
+    x: 109,
+    y: 1,
+    w: 1,
+    h: 1,
+    type: 10
+}, {
+    x: 110,
+    y: 1,
+    w: 1,
+    h: 1,
+    type: 11
+}, {
+    x: 106,
+    y: 3,
+    w: 1,
+    h: 1,
+    type: 11
+}, {
+    x: 110,
+    y: 3,
+    w: 1,
+    h: 1,
+    type: 11
+}, {
+    x: 90,
+    y: 19,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 90,
+    y: 18,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 90,
+    y: 17,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 93,
+    y: 5,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 90,
+    y: 26,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 90,
+    y: 25,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 90,
+    y: 24,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 90,
+    y: 23,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 90,
+    y: 22,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 90,
+    y: 21,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 90,
+    y: 20,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 87,
+    y: 28,
+    w: 1,
+    h: 1,
+    type: 18
+}, {
+    x: 89,
+    y: 28,
+    w: 1,
+    h: 1,
+    type: 18
+}, {
+    x: 69,
+    y: 7,
+    w: 1,
+    h: 1,
+    type: 18
+}, {
+    x: 58,
+    y: 6,
+    w: 1,
+    h: 1,
+    type: 18
+}, {
+    x: 25,
+    y: 17,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 71,
+    y: 34,
+    w: 1,
+    h: 1,
+    type: 17
+}, {
+    x: 72,
+    y: 34,
+    w: 7,
+    h: 1,
+    type: 10
+}, {
+    x: 74,
+    y: 30,
+    w: 2,
+    h: 1,
+    type: 1
+}, {
+    x: 76,
+    y: 30,
+    w: 1,
+    h: 1,
+    type: 13
+}, {
+    x: 75,
+    y: 29,
+    w: 1,
+    h: 1,
+    type: 18
+}, {
+    x: 26,
+    y: 17,
+    w: 1,
+    h: 1,
+    type: 17
 }, ];
 spawnPoint = {
-    x: 3,
-    y: 2
+    x: 9,
+    y: 5
+};
+spawnPoint = {
+    x: 9,
+    y: 5
 };
 //canvas-related variables
 var canvas = id("canvas");
@@ -150,7 +1144,7 @@ var player = {
     hp: 100,
     grounded: false,
     stun: false,
-    speed: 0.06 * ratio,
+    speed: 0.1 * ratio,
     precision: 100,
     hitbox: {
         x: 0,
@@ -545,7 +1539,7 @@ var visualFxs = [];
 class DmgFx {
     constructor(m, s) {
         this.x = m.x;
-        this.y = m.y+m.h/2;
+        this.y = m.y + m.h / 2;
         if (s === undefined) {
             this.sprite = parseInt(Math.random() * 3);
         } else {
@@ -768,7 +1762,7 @@ function renderSpecialTiles() {
             if (specialTiles[i].type === "bouncy") {
                 var bouncynessX = 0.3;
                 var bouncynessY = 0.3;
-                var bounceOrNot = player.dash ? bouncynessX * ratio * dir : 0;
+                var bounceOrNot = player.dash ? 0.35*ratio : 0;
                 player.xVel = 0;
                 player.yVel = 0;
             }
@@ -779,7 +1773,6 @@ function renderSpecialTiles() {
                 case "b":
                     if (specialTiles[i].type === "bouncy") {
                         player.grounded = false;
-                        player.xVelExt = player.xVel * ratio;
                         player.yVel = -bouncynessY * ratio;
                         player.dash = false;
                         player.dashCd = false;
@@ -801,15 +1794,16 @@ function renderSpecialTiles() {
                         player.grounded = false;
                         player.dash = false;
                         player.dashCd = false;
-                        player.xVelExt = bounceOrNot;
+                        player.xVelExt = -bounceOrNot;
                         player.yVel = -bouncynessY * ratio;
-                    } else if (specialTiles[i].type === "speeder") {
-                        console.log("collided")
+                        console.log(player)
                     }
                     break;
                 case "t":
                     if (specialTiles[i].type === "bouncy") {
-                        player.yVel = 0;
+                        if (player.yVel < 0) {
+                            player.yVel = 0;
+                        }
                     }
                     break;
             }
@@ -923,14 +1917,15 @@ function loop() {
     //calculate character
     //draw environment
     moveCamera();
-    checkCollisions();
-    renderSpecialTiles();
     calculateCharacter(player);
+    checkCollisions();
     for (i = 0; i < monsters.length; i++) {
         monsters[i].frameCounter++;
         calculateMonsters(monsters[i]);
     }
     drawEnvironment();
+    renderSpecialTiles();
+    adjustCollided(player);
     //draw character
     for (i = monsters.length - 1; i >= 0; i--) {
         drawMonsters(monsters[i]);
@@ -956,6 +1951,30 @@ function moveCamera() {
     let cameraDir = player.left ? 6 : 2;
     if (mapX < -player.x + cameraDir * ratio) {
         // means camera moves forward
+        if (Math.abs((-player.x + cameraDir * ratio - mapX) / 6) > 1 / 100 * ratio) {
+            mapX += (-player.x + cameraDir * ratio - mapX) / 6;
+        }
+    } else if (mapX > -player.x + cameraDir * ratio) {
+        // means camera moves backward
+        if (Math.abs((-player.x + cameraDir * ratio - mapX) / 6) > 1 / 100 * ratio) {
+            mapX += (-player.x + cameraDir * ratio - mapX) / 6;
+        }
+    }
+    if (mapY < -player.y + 2 * ratio) {
+        // means camera moves downward
+        if (Math.abs((-player.y + 2 * ratio - mapY) / 6) > 1 / 100 * ratio) {
+            mapY += (-player.y + 2 * ratio - mapY) / 6;
+        }
+    } else if (mapY > -player.y + 4 * ratio) {
+        // means camera moves upward
+        if (Math.abs((-player.y + 4 * ratio - mapY) / 6) > 1 / 100 * ratio) {
+            mapY += (-player.y + 4 * ratio - mapY) / 6;
+        }
+    }
+    /*
+    let cameraDir = player.left ? 6 : 2;
+    if (mapX < -player.x + cameraDir * ratio) {
+        // means camera moves forward
         mapX += (-player.x + cameraDir * ratio - mapX) / 6;
     } else if (mapX > -player.x + cameraDir * ratio) {
         // means camera moves backward
@@ -966,9 +1985,9 @@ function moveCamera() {
         mapY += (-player.y + 2 * ratio - mapY) / 6;
     } else if (mapY > -player.y + 4 * ratio) {
         // means camera moves upward
-        mapY += (-player.y + 4 * ratio - mapY) / 6;
+        mapY += (-player.y + 2 * ratio - mapY) / 6;
     }
-
+    */
 }
 
 function checkCollisions() {
@@ -1000,6 +2019,9 @@ function adjustCollided(p) {
         if (p.xVelExt < 0) {
             p.xVelExt = 0;
         }
+        if (p.xVel < 0) {
+            p.xVel = 0;
+        }
 
     }
     if (p.col.R) {
@@ -1009,11 +2031,16 @@ function adjustCollided(p) {
         if (p.xVelExt > 0) {
             p.xVelExt = 0;
         }
+        if (p.xVel > 0) {
+            p.xVel = 0;
+        }
 
     }
     if (p.col.T) {
         p.y += p.col.T * ratio // + (0.02 * tileSize);
-        p.yVel = 0;
+        if (p.yVel < 0) {
+            p.yVel = 0;
+        }
         p.dash = false;
 
     }
@@ -1028,7 +2055,7 @@ function adjustCollided(p) {
 function calculateCharacter(p) {
     //controls calculation
     if (p.dash) {
-        p.left ? p.xVel = -p.speed * 8 : p.xVel = p.speed * 8;
+        p.xVel = p.left ? -p.speed * 5 : p.speed * 5;
         p.yVel = 0;
         p.yVelExt = 0;
         p.xVelExt = 0;
@@ -1038,13 +2065,20 @@ function calculateCharacter(p) {
             p.dash = false;
         }
     }
-    adjustCollided(player);
     if (!p.dash) {
         if (p.L && !p.col.L && !p.R) {
-            p.xVel = -p.speed;
+            if (p.xVel > -p.speed) {
+                p.xVel -= p.speed / 10;
+            } else {
+                p.xVel = -p.speed;
+            }
             p.left = true;
         } else if (p.R && !p.col.R && !p.L) {
-            p.xVel = p.speed;
+            if (p.xVel < p.speed) {
+                p.xVel += p.speed / 10;
+            } else {
+                p.xVel = p.speed;
+            }
             p.left = false;
         } else if ((!p.L && !p.R || p.L && p.R)) {
             p.xVel = 0;
@@ -1502,7 +2536,11 @@ if (window.opener) {
     } else {
         eval(window.opener.map);
     }
+}
 
+var mapHeight = 0;
+
+function initializeMap() {
     var spTiles = [];
     for (i = map.length - 1; i >= 0; i--) {
         if (map[i].type === 17 ||
@@ -1532,13 +2570,13 @@ if (window.opener) {
     player.x = spawnPoint.x * ratio;
     player.y = spawnPoint.y * ratio;
 
-}
-var mapHeight = 0;
-for (i = map.length - 1; i >= 0; i--) {
-    if (map[i].y + map[i].h > mapHeight) {
-        mapHeight = map[i].y + map[i].h;
+    for (i = map.length - 1; i >= 0; i--) {
+        if (map[i].y + map[i].h > mapHeight) {
+            mapHeight = map[i].y + map[i].h;
+        }
     }
 }
+initializeMap();
 requestAnimationFrame(loop)
 
 //starts the program
