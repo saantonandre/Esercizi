@@ -151,7 +151,7 @@ var player = {
     grounded: false,
     stun: false,
     speed: 0.06 * ratio,
-    precision: 10,
+    precision: 100,
     hitbox: {
         x: 0,
         y: 0,
@@ -190,6 +190,12 @@ var player = {
             player.grounded = false;
             player.dashCd = false;
             player.yVel = -0.27 * ratio;
+            var dir = 0;
+            if (player.xVel !== 0) {
+                dir = player.left ? 2 : 1;
+            }
+            visualFxs.push(new JumpFx(player.x / ratio, player.y / ratio, dir));
+
         }
     },
     attacking: function (hitbox) {
@@ -525,15 +531,21 @@ class DmgText {
 }
 var dmgSprites = {
     x: [[0, 0, 0, 0], [16, 16, 16, 16], [32, 32, 32, 32]],
-    y: [[80, 96, 112, 128], [80, 96, 112, 128], [80, 96, 112, 128]],
+    y: [[64, 80, 96, 112], [64, 80, 96, 112], [64, 80, 96, 112]],
     w: [16, 16, 32],
+    h: [16, 16, 16],
+};
+var jmpSprites = {
+    x: [[0, 0, 0, 0, 0], [16, 16, 16, 16, 16], [32, 32, 32, 32, 32]],
+    y: [[128, 144, 160, 176, 192], [128, 144, 160, 176, 192], [128, 144, 160, 176, 192]],
+    w: [16, 16, 16],
     h: [16, 16, 16],
 };
 var visualFxs = [];
 class DmgFx {
     constructor(m, s) {
-        this.x = m.x + m.w / 2;
-        this.y = m.y - 5;
+        this.x = m.x;
+        this.y = m.y+m.h/2;
         if (s === undefined) {
             this.sprite = parseInt(Math.random() * 3);
         } else {
@@ -544,19 +556,36 @@ class DmgFx {
         this.sheet = id("sheet");
         this.repeat = false;
         this.frameCounter = 0;
+        this.slowness = 3;
         this.frame = 0;
         this.type = "dmg";
+    }
+}
+class JumpFx {
+    constructor(x, y, dir) {
+        this.x = x * ratio;
+        this.y = y * ratio;
+        // dir 0 = jump straight, dir 1 = jump right, dir 2 = jump left
+        this.sprite = dir;
+        this.rotation = 0;
+        this.sheet = id("sheet");
+        this.repeat = false;
+        this.frameCounter = 0;
+        this.slowness = 4;
+        this.frame = 0;
+        this.type = "jump";
     }
 }
 class Grass {
     constructor(x, y) {
         this.x = x * ratio;
-        this.y = (y + 0.02) * ratio;
+        this.y = y * ratio;
         this.sprite = 0;
-        this.rotation = false;
+        this.rotation = 0;
         this.sheet = id("sheet");
         this.repeat = true;
         this.frameCounter = 0;
+        this.slowness = 10;
         this.frame = 0;
         this.type = "grass";
     }
@@ -580,6 +609,8 @@ class Cloud {
         this.sprite = parseInt(Math.random() * 4);
         this.sheet = id("sheet");
         this.type = "cloud";
+        this.rotation = 0;
+        this.slowness = 5;
         this.movX = -s / 1000 * ratio;
         this.movY = 0;
     }
@@ -609,23 +640,31 @@ if (typeof imported !== "undefined") {
 
 function drawFxs(fx) {
     //animation computing
-    if (fx.type == "cloud") {
-        var spritePos = cloudSprites;
-        if (fx.x < mapX - 30 * ratio) {
-            fx.x = mapX + 30 * ratio;
-        }
+    switch (fx.type) {
+        case "cloud":
+            var spritePos = cloudSprites;
+            if (fx.x < mapX - 30 * ratio) {
+                fx.x = mapX + 30 * ratio;
+            }
+
+            break;
+        case "dmg":
+            var spritePos = dmgSprites;
+            break;
+        case "grass":
+            var spritePos = grassSprite;
+            break;
+        case "jump":
+            var spritePos = jmpSprites;
+            break;
     }
-    if (fx.type == "dmg") {
-        var spritePos = dmgSprites;
-    }
-    if (fx.type == "grass") {
-        var spritePos = grassSprite;
-    }
+    var fxX = fx.x + mapX;
+    var fxY = fx.y + mapY;
+    var fxW = spritePos.w[fx.sprite] / tileSize * ratio;
+    var fxH = spritePos.h[fx.sprite] / tileSize * ratio;
     if (fx.frameCounter !== undefined) {
         fx.frameCounter++;
-        var slowness = 5;
-        fx.type == "grass" ? slowness = 10 : 0;
-        if (fx.frameCounter > slowness) {
+        if (fx.frameCounter > fx.slowness) {
             fx.frame++;
             fx.frameCounter = 0;
         }
@@ -642,13 +681,10 @@ function drawFxs(fx) {
         fx.y += fx.movY;
     }
     //draw on canvascontext.translate(x, y);
-    var fxW = spritePos.w[fx.sprite] / tileSize * ratio;
-    var fxH = spritePos.h[fx.sprite] / tileSize * ratio;
-    var fxX = fx.x + mapX;
-    var fxY = fx.y + fxH / 2 + mapY;
 
     //c.translate(fxX+fxW/2, fxY+fxH/2);
-    if (fx.rotation != undefined) {
+    if (fx.rotation > 0) {
+        fxY -= fxH / 2;
         c.save();
         c.translate(fxX, fxY);
         c.rotate(fx.rotation * Math.PI / 180);
@@ -666,8 +702,8 @@ function drawFxs(fx) {
     } else {
         c.drawImage(
             fx.sheet,
-            spritePos.x[fx.sprite],
-            spritePos.y[fx.sprite],
+            spritePos.x[fx.sprite][fx.frame],
+            spritePos.y[fx.sprite][fx.frame],
             spritePos.w[fx.sprite],
             spritePos.h[fx.sprite],
             fxX,
@@ -1340,7 +1376,7 @@ function colCheck(shapeA, shapeB) {
 
 }
 
-var touchDevice=false;
+var touchDevice = false;
 //Mouse controls
 window.onclick = function () {
     if (!touchDevice) {
@@ -1410,7 +1446,7 @@ function showControls() {
     id("arrowCont").style.display = "block";
 }
 window.addEventListener("touchstart", function () {
-    touchDevice=true;
+    touchDevice = true;
     showControls()
 })
 
