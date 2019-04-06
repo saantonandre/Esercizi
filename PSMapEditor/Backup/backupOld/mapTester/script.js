@@ -3,1093 +3,99 @@ function id(arg) {
     return document.getElementById(arg);
 }
 var map = [{
-    x: 1,
-    y: 6,
-    w: 1,
-    h: 1,
-    type: 0
-}, {
-    x: 2,
-    y: 6,
-    w: 9,
-    h: 1,
-    type: 1
-}, {
-    x: 1,
-    y: 7,
-    w: 1,
-    h: 2,
-    type: 3
-}, {
-    x: 1,
-    y: 9,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 2,
-    y: 7,
-    w: 12,
-    h: 2,
-    type: 4
-}, {
-    x: 11,
-    y: 6,
-    w: 3,
-    h: 1,
-    type: 1
-}, {
-    x: 14,
-    y: 6,
-    w: 1,
-    h: 1,
-    type: 2
-}, {
-    x: 14,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 5
-}, {
-    x: 15,
-    y: 8,
-    w: 2,
-    h: 1,
-    type: 10
-}, {
-    x: 17,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 12
-}, {
-    x: 18,
-    y: 8,
-    w: 4,
-    h: 1,
-    type: 1
-}, {
-    x: 24,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 16
-}, {
-    x: 22,
-    y: 8,
-    w: 2,
-    h: 1,
-    type: 15
-}, {
-    x: 21,
-    y: 9,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 20,
-    y: 10,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 19,
-    y: 11,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 18,
-    y: 12,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 17,
-    y: 13,
-    w: 1,
-    h: 3,
-    type: 5
-}, {
-    x: 18,
-    y: 16,
-    w: 1,
-    h: 1,
-    type: 11
-}, {
-    x: 19,
-    y: 17,
-    w: 1,
-    h: 1,
-    type: 11
-}, {
-    x: 20,
-    y: 18,
-    w: 1,
-    h: 1,
-    type: 11
-}, {
-    x: 21,
-    y: 19,
-    w: 13,
-    h: 1,
-    type: 10
-}, {
-    x: 14,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 4
-}, {
-    x: 2,
-    y: 9,
-    w: 19,
-    h: 1,
-    type: 4
-}, {
-    x: 3,
-    y: 10,
-    w: 17,
-    h: 1,
-    type: 4
-}, {
     x: 4,
-    y: 11,
-    w: 15,
-    h: 1,
-    type: 4
-}, {
-    x: 16,
-    y: 12,
-    w: 2,
-    h: 1,
-    type: 4
-}, {
-    x: 16,
-    y: 13,
-    w: 1,
-    h: 3,
-    type: 4
-}, {
-    x: 16,
-    y: 16,
-    w: 2,
-    h: 1,
-    type: 4
-}, {
-    x: 16,
-    y: 17,
-    w: 3,
-    h: 1,
-    type: 4
-}, {
-    x: 16,
-    y: 18,
-    w: 4,
-    h: 1,
-    type: 4
-}, {
-    x: 16,
-    y: 19,
-    w: 5,
-    h: 1,
-    type: 4
-}, {
-    x: 15,
-    y: 13,
-    w: 1,
-    h: 7,
-    type: 3
-}, {
-    x: 2,
-    y: 10,
+    y: 4,
     w: 1,
     h: 1,
-    type: 6
-}, {
-    x: 3,
-    y: 11,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 4,
-    y: 12,
-    w: 1,
-    h: 1,
-    type: 6
+    type: 13
 }, {
     x: 5,
-    y: 12,
-    w: 10,
-    h: 1,
-    type: 7
-}, {
-    x: 15,
-    y: 12,
+    y: 4,
     w: 1,
     h: 1,
+    type: 11
+}, {
+    x: 4,
+    y: 5,
+    w: 1,
+    h: 4,
     type: 4
 }, {
-    x: 18,
-    y: 20,
-    w: 17,
-    h: 1,
-    type: 4
+    x: 5,
+    y: 5,
+    w: 1,
+    h: 4,
+    type: 5
 }, {
-    x: 18,
-    y: 21,
+    x: 3,
+    y: 5,
+    w: 1,
+    h: 4,
+    type: 3
+}, {
+    x: 9,
+    y: 2,
     w: 1,
     h: 1,
-    type: 6
+    type: 0
+}, {
+    x: 10,
+    y: 2,
+    w: 1,
+    h: 1,
+    type: 2
+}, {
+    x: 10,
+    y: 3,
+    w: 1,
+    h: 6,
+    type: 5
+}, {
+    x: 14,
+    y: 3,
+    w: 1,
+    h: 1,
+    type: 14
+}, {
+    x: 17,
+    y: 3,
+    w: 1,
+    h: 1,
+    type: 2
 }, {
     x: 15,
-    y: 20,
+    y: 3,
     w: 1,
     h: 1,
-    type: 6
+    type: 15
 }, {
     x: 16,
-    y: 20,
-    w: 2,
-    h: 1,
-    type: 7
-}, {
-    x: 19,
-    y: 21,
-    w: 16,
-    h: 1,
-    type: 7
-}, {
-    x: 35,
-    y: 21,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 36,
-    y: 20,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 37,
-    y: 19,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 27,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 14
-}, {
-    x: 28,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 15
-}, {
-    x: 29,
-    y: 9,
-    w: 1,
-    h: 3,
-    type: 3
-}, {
-    x: 29,
-    y: 12,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 31,
-    y: 13,
-    w: 1,
-    h: 1,
-    type: 7
-}, {
-    x: 30,
-    y: 13,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 32,
-    y: 14,
-    w: 1,
-    h: 2,
-    type: 3
-}, {
-    x: 32,
-    y: 16,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 33,
-    y: 16,
-    w: 5,
-    h: 1,
-    type: 7
-}, {
-    x: 35,
-    y: 20,
-    w: 1,
-    h: 1,
-    type: 4
-}, {
-    x: 34,
-    y: 19,
-    w: 3,
-    h: 1,
-    type: 10
-}, {
-    x: 38,
-    y: 16,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 38,
-    y: 5,
-    w: 1,
-    h: 11,
-    type: 5
-}, {
-    x: 38,
-    y: 4,
-    w: 1,
-    h: 1,
-    type: 5
-}, {
-    x: 37,
-    y: 4,
-    w: 1,
-    h: 4,
-    type: 3
-}, {
-    x: 29,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 13
-}, {
-    x: 30,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 13
-}, {
-    x: 31,
-    y: 8,
-    w: 6,
-    h: 1,
-    type: 10
-}, {
-    x: 37,
-    y: 8,
-    w: 1,
-    h: 8,
-    type: 4
-}, {
-    x: 33,
-    y: 14,
-    w: 4,
-    h: 2,
-    type: 4
-}, {
-    x: 32,
-    y: 13,
-    w: 5,
-    h: 1,
-    type: 4
-}, {
-    x: 30,
-    y: 9,
-    w: 7,
-    h: 4,
-    type: 4
-}, {
-    x: 37,
     y: 3,
     w: 1,
-    h: 1,
-    type: 0
-}, {
-    x: 38,
-    y: 3,
-    w: 1,
-    h: 1,
-    type: 2
-}, {
-    x: 39,
-    y: 19,
-    w: 1,
-    h: 1,
-    type: 14
-}, {
-    x: 2,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 7,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 13,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 18,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 22,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 28,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 30,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 38,
-    y: 2,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 41,
-    y: 18,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 48,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 9
-}, {
-    x: 48,
-    y: 6,
-    w: 1,
-    h: 24,
-    type: 3
-}, {
-    x: 49,
-    y: 6,
-    w: 1,
-    h: 24,
-    type: 5
-}, {
-    x: 49,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 11
-}, {
-    x: 53,
-    y: 9,
-    w: 1,
-    h: 1,
-    type: 9
-}, {
-    x: 54,
-    y: 9,
-    w: 1,
-    h: 1,
-    type: 11
-}, {
-    x: 53,
-    y: 10,
-    w: 1,
-    h: 20,
-    type: 3
-}, {
-    x: 54,
-    y: 10,
-    w: 1,
-    h: 20,
-    type: 5
-}, {
-    x: 58,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 14
-}, {
-    x: 59,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 16
-}, {
-    x: 64,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 46,
-    y: 16,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 44,
-    y: 13,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 46,
-    y: 10,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 44,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 40,
-    y: 19,
-    w: 4,
-    h: 1,
-    type: 15
-}, {
-    x: 44,
-    y: 19,
-    w: 1,
-    h: 1,
-    type: 16
-}, {
-    x: 48,
-    y: 30,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 53,
-    y: 30,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 49,
-    y: 30,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 54,
-    y: 30,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 69,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 0
-}, {
-    x: 69,
-    y: 9,
-    w: 1,
-    h: 25,
-    type: 3
-}, {
-    x: 70,
-    y: 9,
-    w: 1,
-    h: 25,
-    type: 5
-}, {
-    x: 70,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 2
-}, {
-    x: 69,
-    y: 34,
-    w: 1,
-    h: 1,
-    type: 3
-}, {
-    x: 72,
-    y: 2,
-    w: 1,
-    h: 1,
-    type: 9
-}, {
-    x: 73,
-    y: 2,
-    w: 1,
-    h: 1,
-    type: 11
-}, {
-    x: 72,
-    y: 3,
-    w: 1,
-    h: 28,
-    type: 3
-}, {
-    x: 72,
-    y: 31,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 73,
-    y: 31,
-    w: 4,
-    h: 1,
-    type: 7
-}, {
-    x: 73,
-    y: 3,
-    w: 1,
-    h: 27,
-    type: 5
-}, {
-    x: 73,
-    y: 30,
-    w: 1,
-    h: 1,
-    type: 4
-}, {
-    x: 77,
-    y: 30,
-    w: 1,
-    h: 1,
-    type: 11
-}, {
-    x: 77,
-    y: 31,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 69,
-    y: 35,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 70,
-    y: 34,
-    w: 1,
-    h: 1,
-    type: 4
-}, {
-    x: 70,
-    y: 35,
-    w: 9,
-    h: 1,
-    type: 7
-}, {
-    x: 79,
-    y: 34,
-    w: 1,
-    h: 1,
-    type: 11
-}, {
-    x: 79,
-    y: 35,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 78,
-    y: 31,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 76,
-    y: 27,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 85,
-    y: 29,
-    w: 1,
-    h: 1,
-    type: 9
-}, {
-    x: 85,
-    y: 30,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 86,
-    y: 29,
-    w: 1,
-    h: 1,
-    type: 12
-}, {
-    x: 87,
-    y: 29,
-    w: 4,
     h: 1,
     type: 1
 }, {
-    x: 86,
-    y: 30,
-    w: 5,
-    h: 1,
-    type: 7
-}, {
-    x: 91,
-    y: 29,
-    w: 1,
-    h: 1,
-    type: 2
-}, {
-    x: 91,
-    y: 30,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 87,
-    y: 16,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 87,
-    y: 15,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 87,
-    y: 14,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 87,
-    y: 13,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 87,
-    y: 12,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 87,
-    y: 11,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 87,
-    y: 10,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 87,
-    y: 9,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 87,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 89,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 95,
-    y: 3,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 98,
-    y: 3,
-    w: 1,
-    h: 1,
-    type: 14
-}, {
-    x: 99,
-    y: 3,
-    w: 2,
-    h: 1,
-    type: 15
-}, {
-    x: 101,
-    y: 3,
-    w: 1,
-    h: 1,
-    type: 16
-}, {
-    x: 99,
-    y: 2,
-    w: 2,
-    h: 1,
-    type: 18
-}, {
-    x: 104,
+    x: 16,
     y: 4,
     w: 1,
     h: 1,
-    type: 6
-}, {
-    x: 104,
-    y: 2,
-    w: 1,
-    h: 2,
     type: 3
 }, {
-    x: 104,
-    y: 1,
-    w: 1,
-    h: 1,
-    type: 9
-}, {
-    x: 105,
-    y: 1,
-    w: 1,
-    h: 1,
-    type: 10
-}, {
-    x: 106,
-    y: 1,
-    w: 1,
-    h: 1,
-    type: 11
-}, {
-    x: 105,
-    y: 4,
-    w: 2,
-    h: 1,
-    type: 7
-}, {
-    x: 109,
-    y: 4,
-    w: 2,
-    h: 1,
-    type: 7
-}, {
-    x: 108,
-    y: 4,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 108,
-    y: 2,
-    w: 1,
-    h: 2,
-    type: 3
-}, {
-    x: 108,
-    y: 1,
-    w: 1,
-    h: 1,
-    type: 9
-}, {
-    x: 109,
-    y: 1,
-    w: 1,
-    h: 1,
-    type: 10
-}, {
-    x: 110,
-    y: 1,
-    w: 1,
-    h: 1,
-    type: 11
-}, {
-    x: 106,
-    y: 3,
-    w: 1,
-    h: 1,
-    type: 11
-}, {
-    x: 110,
-    y: 3,
-    w: 1,
-    h: 1,
-    type: 11
-}, {
-    x: 90,
-    y: 19,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 90,
-    y: 18,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 90,
-    y: 17,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 93,
+    x: 16,
     y: 5,
     w: 1,
     h: 1,
-    type: 17
+    type: 6
 }, {
-    x: 90,
-    y: 26,
+    x: 17,
+    y: 4,
     w: 1,
     h: 1,
-    type: 17
-}, {
-    x: 90,
-    y: 25,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 90,
-    y: 24,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 90,
-    y: 23,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 90,
-    y: 22,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 90,
-    y: 21,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 90,
-    y: 20,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 87,
-    y: 28,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 89,
-    y: 28,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 69,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 58,
-    y: 6,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 25,
-    y: 17,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 71,
-    y: 34,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 72,
-    y: 34,
-    w: 7,
-    h: 1,
-    type: 10
-}, {
-    x: 74,
-    y: 30,
-    w: 2,
-    h: 1,
-    type: 1
-}, {
-    x: 76,
-    y: 30,
-    w: 1,
-    h: 1,
-    type: 13
-}, {
-    x: 75,
-    y: 29,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 26,
-    y: 17,
-    w: 1,
-    h: 1,
-    type: 17
+    type: 5
 }, ];
 spawnPoint = {
-    x: 9,
-    y: 5
-};
-spawnPoint = {
-    x: 9,
-    y: 5
+    x: 3,
+    y: 2
 };
 //canvas-related variables
 var canvas = id("canvas");
@@ -1116,9 +122,7 @@ var tiles = [
         [7, 4], [8, 4], [9, 4], //rock top
         [7, 5], [8, 5], //rock to grass
         [7, 6], [8, 6], [9, 6], //grass short
-        [11, 4], //bouncy
-        [10, 4], //animated grass
-        [12, 5], //speeder
+        [11, 4] //bouncy
     ];
 
 setInterval(function () {
@@ -1144,8 +148,8 @@ var player = {
     hp: 100,
     grounded: false,
     stun: false,
-    speed: 0.1 * ratio,
-    precision: 100,
+    speed: 0.06 * ratio,
+    precision: 10,
     hitbox: {
         x: 0,
         y: 0,
@@ -1184,12 +188,6 @@ var player = {
             player.grounded = false;
             player.dashCd = false;
             player.yVel = -0.27 * ratio;
-            var dir = 0;
-            if (player.xVel !== 0) {
-                dir = player.left ? 2 : 1;
-            }
-            visualFxs.push(new JumpFx(player.x / ratio, player.y / ratio, dir));
-
         }
     },
     attacking: function (hitbox) {
@@ -1323,7 +321,9 @@ class Monster {
     }
 }
 //shows the number of monsters
-setInterval(function () {}, 500);
+setInterval(function () {
+    id("monsternumber").innerHTML = monsters.length;
+}, 500);
 
 function randomMovement(serial) {
     //console.log(monsters[i].serial+" "+ serial);
@@ -1525,21 +525,15 @@ class DmgText {
 }
 var dmgSprites = {
     x: [[0, 0, 0, 0], [16, 16, 16, 16], [32, 32, 32, 32]],
-    y: [[64, 80, 96, 112], [64, 80, 96, 112], [64, 80, 96, 112]],
+    y: [[80, 96, 112, 128], [80, 96, 112, 128], [80, 96, 112, 128]],
     w: [16, 16, 32],
-    h: [16, 16, 16],
-};
-var jmpSprites = {
-    x: [[0, 0, 0, 0, 0], [16, 16, 16, 16, 16], [32, 32, 32, 32, 32]],
-    y: [[128, 144, 160, 176, 192], [128, 144, 160, 176, 192], [128, 144, 160, 176, 192]],
-    w: [16, 16, 16],
     h: [16, 16, 16],
 };
 var visualFxs = [];
 class DmgFx {
     constructor(m, s) {
-        this.x = m.x;
-        this.y = m.y + m.h / 2;
+        this.x = m.x + m.w / 2;
+        this.y = m.y - 5;
         if (s === undefined) {
             this.sprite = parseInt(Math.random() * 3);
         } else {
@@ -1550,36 +544,19 @@ class DmgFx {
         this.sheet = id("sheet");
         this.repeat = false;
         this.frameCounter = 0;
-        this.slowness = 3;
         this.frame = 0;
         this.type = "dmg";
-    }
-}
-class JumpFx {
-    constructor(x, y, dir) {
-        this.x = x * ratio;
-        this.y = y * ratio;
-        // dir 0 = jump straight, dir 1 = jump right, dir 2 = jump left
-        this.sprite = dir;
-        this.rotation = 0;
-        this.sheet = id("sheet");
-        this.repeat = false;
-        this.frameCounter = 0;
-        this.slowness = 4;
-        this.frame = 0;
-        this.type = "jump";
     }
 }
 class Grass {
     constructor(x, y) {
         this.x = x * ratio;
-        this.y = y * ratio;
+        this.y = (y + 0.02) * ratio;
         this.sprite = 0;
-        this.rotation = 0;
+        this.rotation = false;
         this.sheet = id("sheet");
         this.repeat = true;
         this.frameCounter = 0;
-        this.slowness = 10;
         this.frame = 0;
         this.type = "grass";
     }
@@ -1603,8 +580,6 @@ class Cloud {
         this.sprite = parseInt(Math.random() * 4);
         this.sheet = id("sheet");
         this.type = "cloud";
-        this.rotation = 0;
-        this.slowness = 5;
         this.movX = -s / 1000 * ratio;
         this.movY = 0;
     }
@@ -1634,31 +609,23 @@ if (typeof imported !== "undefined") {
 
 function drawFxs(fx) {
     //animation computing
-    switch (fx.type) {
-        case "cloud":
-            var spritePos = cloudSprites;
-            if (fx.x < mapX - 30 * ratio) {
-                fx.x = mapX + 30 * ratio;
-            }
-
-            break;
-        case "dmg":
-            var spritePos = dmgSprites;
-            break;
-        case "grass":
-            var spritePos = grassSprite;
-            break;
-        case "jump":
-            var spritePos = jmpSprites;
-            break;
+    if (fx.type == "cloud") {
+        var spritePos = cloudSprites;
+        if (fx.x < mapX - 30 * ratio) {
+            fx.x = mapX + 30 * ratio;
+        }
     }
-    var fxX = fx.x + mapX;
-    var fxY = fx.y + mapY;
-    var fxW = spritePos.w[fx.sprite] / tileSize * ratio;
-    var fxH = spritePos.h[fx.sprite] / tileSize * ratio;
+    if (fx.type == "dmg") {
+        var spritePos = dmgSprites;
+    }
+    if (fx.type == "grass") {
+        var spritePos = grassSprite;
+    }
     if (fx.frameCounter !== undefined) {
         fx.frameCounter++;
-        if (fx.frameCounter > fx.slowness) {
+        var slowness = 5;
+        fx.type == "grass" ? slowness = 10 : 0;
+        if (fx.frameCounter > slowness) {
             fx.frame++;
             fx.frameCounter = 0;
         }
@@ -1675,10 +642,13 @@ function drawFxs(fx) {
         fx.y += fx.movY;
     }
     //draw on canvascontext.translate(x, y);
+    var fxW = spritePos.w[fx.sprite] / tileSize * ratio;
+    var fxH = spritePos.h[fx.sprite] / tileSize * ratio;
+    var fxX = fx.x + mapX;
+    var fxY = fx.y + fxH / 2 + mapY;
 
     //c.translate(fxX+fxW/2, fxY+fxH/2);
-    if (fx.rotation > 0) {
-        fxY -= fxH / 2;
+    if (fx.rotation != undefined) {
         c.save();
         c.translate(fxX, fxY);
         c.rotate(fx.rotation * Math.PI / 180);
@@ -1696,8 +666,8 @@ function drawFxs(fx) {
     } else {
         c.drawImage(
             fx.sheet,
-            spritePos.x[fx.sprite][fx.frame],
-            spritePos.y[fx.sprite][fx.frame],
+            spritePos.x[fx.sprite],
+            spritePos.y[fx.sprite],
             spritePos.w[fx.sprite],
             spritePos.h[fx.sprite],
             fxX,
@@ -1720,25 +690,8 @@ class Bouncy {
         this.repeat = false;
         this.running = false;
         this.frameCounter = 0;
-        this.slowness = 3;
         this.frame = 0;
         this.type = "bouncy";
-    }
-}
-class Speeder {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-        this.w = 1;
-        this.h = 1;
-        this.sheet = id("sheet");
-        this.sprite = [[12, 5], [12, 6], [12, 7], [12, 8]];
-        this.repeat = true;
-        this.running = true;
-        this.frameCounter = 0;
-        this.slowness = 3;
-        this.frame = 0;
-        this.type = "speeder";
     }
 }
 
@@ -1746,7 +699,7 @@ function renderSpecialTiles() {
     for (i = 0; i < specialTiles.length; i++) {
         if (specialTiles[i].running) {
             specialTiles[i].frameCounter++;
-            if (specialTiles[i].frameCounter > specialTiles[i].slowness) {
+            if (specialTiles[i].frameCounter > 3) {
                 specialTiles[i].frame++;
                 specialTiles[i].frameCounter = 0;
             }
@@ -1759,25 +712,22 @@ function renderSpecialTiles() {
         }
         let collision = colCheck(player, specialTiles[i]);
         if (collision !== null) {
-            if (specialTiles[i].type === "bouncy") {
-                var bouncynessX = 0.3;
-                var bouncynessY = 0.3;
-                var bounceOrNot = player.dash ? 0.35*ratio : 0;
-                player.xVel = 0;
-                player.yVel = 0;
-            }
             specialTiles[i].running = true;
-            var dir = player.left ? 1 : -1;
+            player.xVel = 0;
+            player.yVel = 0;
+            let dir = player.left ? 1 : -1;
+            let bouncynessX = 0.3;
+            let bouncynessY = 0.3;
+            let bounceOrNot = player.dash ? bouncynessX * ratio * dir : 0;
             switch (collision) {
 
                 case "b":
                     if (specialTiles[i].type === "bouncy") {
                         player.grounded = false;
+                        player.xVelExt = player.xVel * ratio;
                         player.yVel = -bouncynessY * ratio;
                         player.dash = false;
                         player.dashCd = false;
-                    } else if (specialTiles[i].type === "speeder") {
-                        player.xVelExt += 0.08 * ratio;
                     }
                     break;
                 case "l":
@@ -1794,19 +744,17 @@ function renderSpecialTiles() {
                         player.grounded = false;
                         player.dash = false;
                         player.dashCd = false;
-                        player.xVelExt = -bounceOrNot;
+                        player.xVelExt = bounceOrNot;
                         player.yVel = -bouncynessY * ratio;
-                        console.log(player)
                     }
                     break;
                 case "t":
                     if (specialTiles[i].type === "bouncy") {
-                        if (player.yVel < 0) {
-                            player.yVel = 0;
-                        }
+                        player.yVel = 0;
                     }
                     break;
             }
+            adjustCollided(player);
         }
         c.drawImage(
             specialTiles[i].sheet,
@@ -1916,16 +864,15 @@ function loop() {
     c.fillRect(0, 0, canvas.width, canvas.height);
     //calculate character
     //draw environment
-    moveCamera();
-    calculateCharacter(player);
     checkCollisions();
+    calculateCharacter(player);
     for (i = 0; i < monsters.length; i++) {
         monsters[i].frameCounter++;
         calculateMonsters(monsters[i]);
     }
+    moveCamera();
     drawEnvironment();
     renderSpecialTiles();
-    adjustCollided(player);
     //draw character
     for (i = monsters.length - 1; i >= 0; i--) {
         drawMonsters(monsters[i]);
@@ -1936,7 +883,6 @@ function loop() {
     }
     renderHpBars();
     renderTexts();
-    id("monsternumber").innerHTML = parseInt(player.xVelExt);
     requestAnimationFrame(loop)
 }
 ///////////////////////////////////////////////////////////////////////////////
@@ -1951,30 +897,6 @@ function moveCamera() {
     let cameraDir = player.left ? 6 : 2;
     if (mapX < -player.x + cameraDir * ratio) {
         // means camera moves forward
-        if (Math.abs((-player.x + cameraDir * ratio - mapX) / 6) > 1 / 100 * ratio) {
-            mapX += (-player.x + cameraDir * ratio - mapX) / 6;
-        }
-    } else if (mapX > -player.x + cameraDir * ratio) {
-        // means camera moves backward
-        if (Math.abs((-player.x + cameraDir * ratio - mapX) / 6) > 1 / 100 * ratio) {
-            mapX += (-player.x + cameraDir * ratio - mapX) / 6;
-        }
-    }
-    if (mapY < -player.y + 2 * ratio) {
-        // means camera moves downward
-        if (Math.abs((-player.y + 2 * ratio - mapY) / 6) > 1 / 100 * ratio) {
-            mapY += (-player.y + 2 * ratio - mapY) / 6;
-        }
-    } else if (mapY > -player.y + 4 * ratio) {
-        // means camera moves upward
-        if (Math.abs((-player.y + 4 * ratio - mapY) / 6) > 1 / 100 * ratio) {
-            mapY += (-player.y + 4 * ratio - mapY) / 6;
-        }
-    }
-    /*
-    let cameraDir = player.left ? 6 : 2;
-    if (mapX < -player.x + cameraDir * ratio) {
-        // means camera moves forward
         mapX += (-player.x + cameraDir * ratio - mapX) / 6;
     } else if (mapX > -player.x + cameraDir * ratio) {
         // means camera moves backward
@@ -1985,9 +907,9 @@ function moveCamera() {
         mapY += (-player.y + 2 * ratio - mapY) / 6;
     } else if (mapY > -player.y + 4 * ratio) {
         // means camera moves upward
-        mapY += (-player.y + 2 * ratio - mapY) / 6;
+        mapY += (-player.y + 4 * ratio - mapY) / 6;
     }
-    */
+
 }
 
 function checkCollisions() {
@@ -2015,32 +937,22 @@ function adjustCollided(p) {
     if (p.col.L) {
         p.x += p.col.L * ratio;
         p.dash = false;
-        p.dashCd = true;
         if (p.xVelExt < 0) {
             p.xVelExt = 0;
-        }
-        if (p.xVel < 0) {
-            p.xVel = 0;
         }
 
     }
     if (p.col.R) {
         p.x -= p.col.R * ratio // - (0.02 * tileSize);
         p.dash = false;
-        p.dashCd = true;
         if (p.xVelExt > 0) {
             p.xVelExt = 0;
-        }
-        if (p.xVel > 0) {
-            p.xVel = 0;
         }
 
     }
     if (p.col.T) {
         p.y += p.col.T * ratio // + (0.02 * tileSize);
-        if (p.yVel < 0) {
-            p.yVel = 0;
-        }
+        p.yVel = 0;
         p.dash = false;
 
     }
@@ -2055,7 +967,7 @@ function adjustCollided(p) {
 function calculateCharacter(p) {
     //controls calculation
     if (p.dash) {
-        p.xVel = p.left ? -p.speed * 5 : p.speed * 5;
+        p.left ? p.xVel = -p.speed * 8 : p.xVel = p.speed * 8;
         p.yVel = 0;
         p.yVelExt = 0;
         p.xVelExt = 0;
@@ -2065,20 +977,13 @@ function calculateCharacter(p) {
             p.dash = false;
         }
     }
+    adjustCollided(p);
     if (!p.dash) {
         if (p.L && !p.col.L && !p.R) {
-            if (p.xVel > -p.speed) {
-                p.xVel -= p.speed / 10;
-            } else {
-                p.xVel = -p.speed;
-            }
+            p.xVel = -p.speed;
             p.left = true;
         } else if (p.R && !p.col.R && !p.L) {
-            if (p.xVel < p.speed) {
-                p.xVel += p.speed / 10;
-            } else {
-                p.xVel = p.speed;
-            }
+            p.xVel = p.speed;
             p.left = false;
         } else if ((!p.L && !p.R || p.L && p.R)) {
             p.xVel = 0;
@@ -2100,7 +1005,7 @@ function calculateCharacter(p) {
     p.x += p.xVelExt;
     p.y += p.yVelExt;
     if (p.xVelExt !== 0 && p.grounded) {
-        p.xVelExt *= 0.8;
+        p.xVelExt *= 0.5;
     } else if (p.xVelExt !== 0) {
         p.xVelExt *= 0.98;
     }
@@ -2361,65 +1266,6 @@ function drawMonsters(m) {
 
 
 
-//collision detector
-function colCheck(shapeA, shapeB) {
-    // get the vectors to check against
-    var offFocus = mapX / ratio;
-    var vX = (shapeA.hitbox.x + offFocus + (shapeA.hitbox.w / 2)) - (shapeB.x + (mapX / ratio) + (shapeB.w / 2)),
-        vY = (shapeA.hitbox.y + (shapeA.hitbox.h / 2)) - (shapeB.y + (shapeB.h / 2)),
-        // add the half widths and half heights of the objects
-        hWidths = (shapeA.hitbox.w / 2) + (shapeB.w / 2),
-        hHeights = (shapeA.hitbox.h / 2) + (shapeB.h / 2),
-        colDir = null;
-
-    // if the x and y vector are less than the half width or half height, they we must be inside the object, causing a collision
-    if (Math.abs(vX) < hWidths && Math.abs(vY) < hHeights) {
-        // figures out on which side we are colliding (top, bottom, left, or right)
-        var oX = hWidths - Math.abs(vX),
-            oY = hHeights - Math.abs(vY);
-        if (oX >= oY) {
-            if (vY > 0) {
-                colDir = "t";
-                if (shapeA.col.T < oY && oY > 1 / ratio) {
-                    shapeA.col.T = oY;
-                }
-            } else {
-                colDir = "b";
-                shapeA.grounded = true;
-                if (shapeA.col.B < oY && oY > 1 / ratio) {
-                    shapeA.col.B = oY;
-                }
-            }
-        } else {
-            if (vX > 0) {
-                colDir = "l";
-                if (shapeA.col.L < oX && oX > 1 / ratio) {
-                    shapeA.col.L = oX;
-                }
-            } else {
-                colDir = "r";
-                if (shapeA.col.R < oX && oX > 1 / ratio) {
-                    shapeA.col.R = oX;
-                }
-            }
-        }
-
-    }
-
-    return colDir;
-
-}
-
-var touchDevice = false;
-//Mouse controls
-window.onclick = function () {
-    if (!touchDevice) {
-        player.attackEvent();
-    }
-}
-window.oncontextmenu = function () {
-    return false;
-}
 // Keyboard controls
 window.addEventListener("keydown", function (event) {
     var key = event.keyCode;
@@ -2474,17 +1320,63 @@ window.addEventListener("keyup", function (event) {
 });
 
 
+
+//collision detector
+function colCheck(shapeA, shapeB) {
+    // get the vectors to check against
+    var offFocus = mapX / ratio;
+    var vX = (shapeA.hitbox.x + offFocus + (shapeA.hitbox.w / 2)) - (shapeB.x + (mapX / ratio) + (shapeB.w / 2)),
+        vY = (shapeA.hitbox.y + (shapeA.hitbox.h / 2)) - (shapeB.y + (shapeB.h / 2)),
+        // add the half widths and half heights of the objects
+        hWidths = (shapeA.hitbox.w / 2) + (shapeB.w / 2),
+        hHeights = (shapeA.hitbox.h / 2) + (shapeB.h / 2),
+        colDir = null;
+
+    // if the x and y vector are less than the half width or half height, they we must be inside the object, causing a collision
+    if (Math.abs(vX) < hWidths && Math.abs(vY) < hHeights) {
+        // figures out on which side we are colliding (top, bottom, left, or right)
+        var oX = hWidths - Math.abs(vX),
+            oY = hHeights - Math.abs(vY);
+        if (oX >= oY) {
+            if (vY > 0) {
+                colDir = "t";
+                if (shapeA.col.T < oY && oY > 1 / ratio) {
+                    shapeA.col.T = oY;
+                }
+            } else {
+                colDir = "b";
+                shapeA.grounded = true;
+                if (shapeA.col.B < oY && oY > 1 / ratio) {
+                    shapeA.col.B = oY;
+                }
+            }
+        } else {
+            if (vX > 0) {
+                colDir = "l";
+                if (shapeA.col.L < oX && oX > 1 / ratio) {
+                    shapeA.col.L = oX;
+                }
+            } else {
+                colDir = "r";
+                if (shapeA.col.R < oX && oX > 1 / ratio) {
+                    shapeA.col.R = oX;
+                }
+            }
+        }
+
+    }
+
+    return colDir;
+
+}
+
 // TOUCH CONTROLS START
 
-function showControls() {
-    id("arrowCont").style.display = "block";
-}
 window.addEventListener("touchstart", function () {
-    touchDevice = true;
     showControls()
 })
 
-function showcontrols() {
+function showcontrol() {
     id("arrowCont").style.display = "block";
 }
 id("left").addEventListener("touchstart", function () {
@@ -2531,52 +1423,36 @@ id("down").addEventListener("touchend", function () {
 
 if (window.opener) {
     console.log(window.opener.mapCode);
-    if (window.opener.mapCode) {
-        eval(window.opener.mapCode);
-    } else {
-        eval(window.opener.map);
-    }
-}
-
-var mapHeight = 0;
-
-function initializeMap() {
+    eval(window.opener.mapCode);
     var spTiles = [];
     for (i = map.length - 1; i >= 0; i--) {
         if (map[i].type === 17 ||
-            map[i].type === 18 ||
-            map[i].type === 19) {
+            map[i].type === 18) {
             spTiles.push(i);
         }
     }
     for (i = 0; i < spTiles.length; i++) {
-        for (j = 0; j < map[spTiles[i]].h; j++) {
-            for (k = 0; k < map[spTiles[i]].w; k++) {
-                switch (map[spTiles[i]].type) {
-                    case 17:
-                        specialTiles.push(new Bouncy(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
-                        break;
-                    case 18:
-                        visualFxs.push(new Grass(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
-                        break;
-                    case 19:
-                        specialTiles.push(new Speeder(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
-                        break;
-                }
-            }
+        console.log(spTiles[i]);
+        switch (map[spTiles[i]].type) {
+            case 17:
+                specialTiles.push(new Bouncy(map[spTiles[i]].x, map[spTiles[i]].y));
+                break;
+            case 18:
+                visualFxs.push(new Grass(map[spTiles[i]].x, map[spTiles[i]].y));
+                break;
         }
         map.splice(spTiles[i], 1);
     }
     player.x = spawnPoint.x * ratio;
     player.y = spawnPoint.y * ratio;
 
-    for (i = map.length - 1; i >= 0; i--) {
-        if (map[i].y + map[i].h > mapHeight) {
-            mapHeight = map[i].y + map[i].h;
-        }
+}
+var mapHeight = 0;
+for (i = map.length - 1; i >= 0; i--) {
+    if (map[i].y + map[i].h > mapHeight) {
+        mapHeight = map[i].y + map[i].h;
     }
 }
-initializeMap();
 requestAnimationFrame(loop)
 
 //starts the program

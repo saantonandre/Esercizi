@@ -1096,11 +1096,11 @@ var canvas = id("canvas");
 var c = canvas.getContext("2d");
 canvas.width = (window.innerHeight < window.innerWidth) ? window.innerHeight / 1.1 : window.innerWidth / 1.1;
 canvas.width -= canvas.width % 16;
-canvas.height = canvas.width;
+canvas.height = canvas.width/4*3;
 c.imageSmoothingEnabled = false;
 var tileSize = 16;
-var tilesWidth = 12;
-var tilesHeight = 12;
+var tilesWidth = 20;
+var tilesHeight = tilesWidth*(canvas.height/canvas.width);
 var ratio = canvas.width / (tilesWidth);
 var textSize = Math.round(0.3 * ratio);
 var fontSize = textSize + "px";
@@ -1948,7 +1948,7 @@ function moveCamera() {
     mapX=-player.x+2*ratio;
     mapY=-player.y+3*ratio;
     */
-    let cameraDir = player.left ? 6 : 2;
+    let cameraDir = player.left ? tilesWidth/2 : tilesWidth/6;
     if (mapX < -player.x + cameraDir * ratio) {
         // means camera moves forward
         if (Math.abs((-player.x + cameraDir * ratio - mapX) / 6) > 1 / 100 * ratio) {
@@ -1960,15 +1960,15 @@ function moveCamera() {
             mapX += (-player.x + cameraDir * ratio - mapX) / 6;
         }
     }
-    if (mapY < -player.y + 2 * ratio) {
+    if (mapY < -player.y + tilesHeight/4 * ratio) {
         // means camera moves downward
-        if (Math.abs((-player.y + 2 * ratio - mapY) / 6) > 1 / 100 * ratio) {
-            mapY += (-player.y + 2 * ratio - mapY) / 6;
+        if (Math.abs((-player.y + tilesHeight/4 * ratio - mapY) / 6) > 1 / 100 * ratio) {
+            mapY += (-player.y + tilesHeight/4 * ratio - mapY) / 6;
         }
-    } else if (mapY > -player.y + 4 * ratio) {
+    } else if (mapY > -player.y + tilesHeight/2 * ratio) {
         // means camera moves upward
-        if (Math.abs((-player.y + 4 * ratio - mapY) / 6) > 1 / 100 * ratio) {
-            mapY += (-player.y + 4 * ratio - mapY) / 6;
+        if (Math.abs((-player.y + tilesHeight/2 * ratio - mapY) / 6) > 1 / 100 * ratio) {
+            mapY += (-player.y + tilesHeight/2 * ratio - mapY) / 6;
         }
     }
     /*
