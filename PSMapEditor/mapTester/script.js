@@ -1096,11 +1096,11 @@ var canvas = id("canvas");
 var c = canvas.getContext("2d");
 canvas.width = (window.innerHeight < window.innerWidth) ? window.innerHeight / 1.1 : window.innerWidth / 1.1;
 canvas.width -= canvas.width % 16;
-canvas.height = canvas.width/4*3;
+canvas.height = canvas.width / 4 * 3;
 c.imageSmoothingEnabled = false;
 var tileSize = 16;
 var tilesWidth = 20;
-var tilesHeight = tilesWidth*(canvas.height/canvas.width);
+var tilesHeight = tilesWidth * (canvas.height / canvas.width);
 var ratio = canvas.width / (tilesWidth);
 var textSize = Math.round(0.3 * ratio);
 var fontSize = textSize + "px";
@@ -1762,7 +1762,7 @@ function renderSpecialTiles() {
             if (specialTiles[i].type === "bouncy") {
                 var bouncynessX = 0.3;
                 var bouncynessY = 0.3;
-                var bounceOrNot = player.dash ? 0.35*ratio : 0;
+                var bounceOrNot = player.dash ? 0.35 * ratio : 0;
                 player.xVel = 0;
                 player.yVel = 0;
             }
@@ -1777,7 +1777,8 @@ function renderSpecialTiles() {
                         player.dash = false;
                         player.dashCd = false;
                     } else if (specialTiles[i].type === "speeder") {
-                        player.xVelExt += 0.08 * ratio;
+                        player.xVelExt += 0.07 * ratio;
+                        player.grounded = true;
                     }
                     break;
                 case "l":
@@ -1948,7 +1949,7 @@ function moveCamera() {
     mapX=-player.x+2*ratio;
     mapY=-player.y+3*ratio;
     */
-    let cameraDir = player.left ? tilesWidth/2 : tilesWidth/6;
+    let cameraDir = player.left ? tilesWidth / 2 : tilesWidth / 6;
     if (mapX < -player.x + cameraDir * ratio) {
         // means camera moves forward
         if (Math.abs((-player.x + cameraDir * ratio - mapX) / 6) > 1 / 100 * ratio) {
@@ -1960,15 +1961,15 @@ function moveCamera() {
             mapX += (-player.x + cameraDir * ratio - mapX) / 6;
         }
     }
-    if (mapY < -player.y + tilesHeight/4 * ratio) {
+    if (mapY < -player.y + tilesHeight / 4 * ratio) {
         // means camera moves downward
-        if (Math.abs((-player.y + tilesHeight/4 * ratio - mapY) / 6) > 1 / 100 * ratio) {
-            mapY += (-player.y + tilesHeight/4 * ratio - mapY) / 6;
+        if (Math.abs((-player.y + tilesHeight / 4 * ratio - mapY) / 6) > 1 / 100 * ratio) {
+            mapY += (-player.y + tilesHeight / 4 * ratio - mapY) / 6;
         }
-    } else if (mapY > -player.y + tilesHeight/2 * ratio) {
+    } else if (mapY > -player.y + tilesHeight / 2 * ratio) {
         // means camera moves upward
-        if (Math.abs((-player.y + tilesHeight/2 * ratio - mapY) / 6) > 1 / 100 * ratio) {
-            mapY += (-player.y + tilesHeight/2 * ratio - mapY) / 6;
+        if (Math.abs((-player.y + tilesHeight / 2 * ratio - mapY) / 6) > 1 / 100 * ratio) {
+            mapY += (-player.y + tilesHeight / 2 * ratio - mapY) / 6;
         }
     }
     /*
@@ -2014,8 +2015,10 @@ function checkCollisions() {
 function adjustCollided(p) {
     if (p.col.L) {
         p.x += p.col.L * ratio;
-        p.dash = false;
-        p.dashCd = true;
+        if (p.dash) {
+            p.dash = false;
+            p.dashCd = true;
+        }
         if (p.xVelExt < 0) {
             p.xVelExt = 0;
         }
@@ -2026,8 +2029,10 @@ function adjustCollided(p) {
     }
     if (p.col.R) {
         p.x -= p.col.R * ratio // - (0.02 * tileSize);
-        p.dash = false;
-        p.dashCd = true;
+        if (p.dash) {
+            p.dash = false;
+            p.dashCd = true;
+        }
         if (p.xVelExt > 0) {
             p.xVelExt = 0;
         }
@@ -2041,14 +2046,19 @@ function adjustCollided(p) {
         if (p.yVel < 0) {
             p.yVel = 0;
         }
-        p.dash = false;
+        if (p.dash) {
+            p.dash = false;
+            p.dashCd = true;
+        }
 
     }
     if (p.col.B) {
         p.y -= p.col.B * ratio - 1;
         p.grounded = true;
-        p.dashCd = false;
-        p.dash = false;
+        if (p.dashCd || p.dash) {
+            p.dashCd = false;
+            p.dash = false;
+        }
     }
 }
 
@@ -2274,11 +2284,11 @@ function drawCharacter(p) {
     if (p.dash) {
         c.globalCompositeOperation = "difference";
         c.globalAlpha = 0.4;
-        c.drawImage(p.sheet, p.actionX[p.action][frame], p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x + mapX - p.xVel, p.y + mapY, p.w, p.h);
+        c.drawImage(p.sheet, p.actionX[p.action][0], p.actionY[p.action][0], p.sprite.w, p.sprite.h, p.x + mapX - p.xVel * 2, p.y + mapY, p.w, p.h);
         c.globalAlpha = 0.6;
-        c.drawImage(p.sheet, p.actionX[p.action][frame], p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x + mapX - p.xVel / 1.5, p.y + mapY, p.w, p.h);
+        c.drawImage(p.sheet, p.actionX[p.action][0], p.actionY[p.action][0], p.sprite.w, p.sprite.h, p.x + mapX - p.xVel, p.y + mapY, p.w, p.h);
         c.globalAlpha = 0.8;
-        c.drawImage(p.sheet, p.actionX[p.action][frame], p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x + mapX, p.y + mapY, p.w, p.h);
+        c.drawImage(p.sheet, p.actionX[p.action][0], p.actionY[p.action][0], p.sprite.w, p.sprite.h, p.x + mapX, p.y + mapY, p.w, p.h);
         c.globalAlpha = 1;
         c.globalCompositeOperation = "source-over";
     } else
