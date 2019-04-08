@@ -1149,11 +1149,12 @@ var audio = {
 }
 
 audio.walking.playbackRate = 1.4;
-audio.bounce1.volume = 0.5;
-audio.bounce2.volume = 0.5;
-audio.bounce3.volume = 0.5;
-audio.bounce4.volume = 0.5;
-audio.speed1.volume = 0.5;
+audio.speed1.playbackRate = 0.7;
+audio.bounce1.volume = 0.4;
+audio.bounce2.volume = 0.4;
+audio.bounce3.volume = 0.4;
+audio.bounce4.volume = 0.4;
+audio.speed1.volume = 0.8;
 audio.speed2.volume = 0.5;
 audio.dash.volume = 0.5;
 audio.walking.volume = 1;
