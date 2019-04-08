@@ -1156,6 +1156,7 @@ audio.bounce3.volume = 0.4;
 audio.bounce4.volume = 0.4;
 audio.speed1.volume = 0.8;
 audio.speed2.volume = 0.5;
+audio.jump.volume = 0.5;
 audio.dash.volume = 0.5;
 audio.walking.volume = 1;
 //environment
