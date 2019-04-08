@@ -1094,11 +1094,11 @@ spawnPoint = {
 Audio.prototype.playy = function () {
     var aud = this;
     if (aud.paused) {
-        aud.play();
+        aud.play().catch(function (e) {});
     } else {
         aud.pause();
         aud.currentTime = 0;
-        aud.play();
+        aud.play().catch(function (e) {});
     }
 }
 //canvas-related variables
@@ -1258,6 +1258,7 @@ var player = {
         }
     },
     attackEvent: function () {
+        console.log("attack");
         if (player.grounded && !player.attack) {
             player.attack = true;
             frame = 0;
@@ -1311,6 +1312,7 @@ class Monster {
         this.w = 1 * ratio;
         this.h = 1 * ratio;
         this.sheet = id("sheet");
+        this.jumpForce=0.2;
         this.xVel = 0;
         this.yVel = 0;
         this.speed = 0 * ratio;
@@ -1350,10 +1352,16 @@ class Monster {
         this.actionX = [];
         this.actionY = [];
         this.action = 0;
-        this.jump = function () {
+        //setTimeout(randomMovement, 1000, this.serial);
+
+    }
+    move(arg) {
+        leftRightMovement(arg);
+    };
+    jump(){
             if (this.grounded) {
                 this.grounded = false;
-                this.yVel = -0.18 * ratio;
+                this.yVel = -this.jumpForce * ratio;
                 let dir = 0;
                 if (this.xVel !== 0) {
                     dir = this.left ? 2 : 1;
@@ -1361,13 +1369,7 @@ class Monster {
                 visualFxs.push(new JumpFx(this.x / ratio, this.y / ratio, dir));
 
             }
-        };
-        //setTimeout(randomMovement, 1000, this.serial);
-
     }
-    move(arg) {
-        leftRightMovement(arg);
-    };
 }
 //shows the number of monsters
 setInterval(function () {
@@ -1449,7 +1451,7 @@ function leftRightMovement(serial) {
                 cols.upLeft = true;
             }
         };
-        console.log(cols);
+        //console.log(cols);
         let dir = monst.left ? 0 : 1;
         if (monst.left) {
             if ((cols.left && cols.upLeft) || !cols.btLeft) {
@@ -1689,10 +1691,10 @@ var dmgSprites = {
     h: [16, 16, 16],
 };
 var jmpSprites = {
-    x: [[0, 0, 0, 0, 0], [16, 16, 16, 16, 16], [32, 32, 32, 32, 32],[48, 48, 48, 48, 48],[64, 64, 64, 64, 64]],
-    y: [[128, 144, 160, 176, 192], [128, 144, 160, 176, 192], [128, 144, 160, 176, 192],[128, 144, 160, 176, 192],[128, 144, 160, 176, 192] ],
-    w: [16, 16, 16],
-    h: [16, 16, 16],
+    x: [[0, 0, 0, 0, 0], [16, 16, 16, 16, 16], [32, 32, 32, 32, 32], [48, 48, 48, 48, 48], [64, 64, 64, 64, 64]],
+    y: [[128, 144, 160, 176, 192], [128, 144, 160, 176, 192], [128, 144, 160, 176, 192], [128, 144, 160, 176, 192], [128, 144, 160, 176, 192]],
+    w: [16, 16, 16, 16, 16],
+    h: [16, 16, 16, 16, 16],
 };
 var visualFxs = [];
 class DmgFx {
@@ -1724,7 +1726,7 @@ class JumpFx {
         this.sheet = id("sheet");
         this.repeat = false;
         this.frameCounter = 0;
-        this.slowness = 4;
+        this.slowness = (dir > 2) ? 2 : 4;
         this.frame = 0;
         this.type = "jump";
     }
@@ -1868,36 +1870,45 @@ function drawFxs(fx) {
 }
 
 var specialTiles = [];
-class Bouncy {
+class SpecialTile {
     constructor(x, y) {
         this.x = x;
         this.y = y;
         this.w = 1;
         this.h = 1;
         this.sheet = id("sheet");
-        this.sprite = [[11, 4], [11, 5], [11, 6], [11, 7]];
+        this.sprite = [];
         this.repeat = false;
         this.running = false;
         this.frameCounter = 0;
         this.slowness = 3;
         this.frame = 0;
+        this.type = "";
+    }
+}
+class Bouncy extends SpecialTile {
+    constructor(x, y) {
+        super(x, y);
+        this.sprite = [[11, 4], [11, 5], [11, 6], [11, 7]];
+        this.repeat = false;
+        this.running = false;
+        this.slowness = 3;
         this.type = "bouncy";
     }
 }
-class Speeder {
+class Speeder extends SpecialTile {
     constructor(x, y) {
-        this.x = x;
-        this.y = y;
-        this.w = 1;
-        this.h = 1;
-        this.sheet = id("sheet");
+        super(x, y);
         this.sprite = [[12, 5], [12, 6], [12, 7], [12, 8]];
         this.repeat = true;
         this.running = true;
-        this.frameCounter = 0;
         this.slowness = 3;
-        this.frame = 0;
         this.type = "speeder";
+    }
+}
+class MovingPlat extends SpecialTile {
+    constructor(x, y, yVel, xVel, range) {
+        super(x, y);
     }
 }
 
@@ -1944,7 +1955,7 @@ function renderSpecialTiles() {
                     break;
                 case "l":
                     if (specialTiles[i].type === "bouncy") {
-                            audio.bounce2.playy()
+                        audio.bounce2.playy()
                         player.grounded = false;
                         player.dash = false;
                         player.dashCd = false;
@@ -1960,7 +1971,7 @@ function renderSpecialTiles() {
                         player.dashCd = false;
                         player.xVelExt = -bounceOrNot;
                         player.yVel = -bouncynessY * ratio;
-                        console.log(player)
+                        //console.log(player)
                     }
                     break;
                 case "t":
@@ -2432,6 +2443,7 @@ function drawEnvironment() {
         }
     }
 }
+
 function drawCharacter(p) {
     //animation computing
     var slowness = 6;
@@ -2624,28 +2636,66 @@ function colCheck(shapeA, shapeB) {
 }
 var touchDevice = false;
 //Mouse controls
-window.onclick = function () {
-    if (!touchDevice) {
-        player.attackEvent();
+window.onmousedown = function (e) {
+    if (typeof e === 'object') {
+        switch (e.button) {
+            case 0:
+                //console.log('Left button clicked.');
+                if (!touchDevice) {
+                    player.attackEvent();
+                }
+                break;
+            case 1:
+                //console.log('Middle button clicked.');
+                break;
+            case 2:
+                //console.log('Right button clicked.');
+                player.jump();
+                break;
+            default:
+                console.log(`Unknown button code: ${btnCode}`);
+        }
     }
 }
-window.oncontextmenu = function () {
-    return false;
+window.oncontextmenu = function (event) {
+    event.preventDefault();
 }
 // Keyboard controls
 window.addEventListener("keydown", function (event) {
     var key = event.keyCode;
+    event.preventDefault();
     switch (key) {
-        case 65: //left key down
+        case 65: //left key down (A / left arrow)
             player.L = true;
             break;
-        case 68: //right key down
+        case 37: 
+            player.L = true;
+            break;
+        case 68: //right key down (D / right arrow)
             player.R = true;
             break;
-        case 83: //down key down
+        case 39: 
+            player.R = true;
+            break;
+        case 83: //down key down (S /down arrow)
             watchDown = true;
             break;
-        case 70: //attack key down
+        case 40: 
+            watchDown = true;
+            break;
+        case 87: //jump key down (W / Z / up arrow)
+            player.jump();
+            break;
+        case 90:
+            player.jump();
+            break;
+        case 38:
+            player.jump();
+            break;
+        case 70: //attack key down (F / X)
+            player.attackEvent();
+            break;
+        case 88: 
             player.attackEvent();
             break;
         case 71: //g key down
@@ -2657,9 +2707,6 @@ window.addEventListener("keydown", function (event) {
             //console.log(monsters[0].atkHitbox, player.hitbox);
             darken.go = false;
             darken.alpha = 0.0;
-            break;
-        case 87: //jump key down
-            player.jump();
             break;
         case 49: // 1
             create("Slime", 5 - mapX / ratio, -mapY / ratio);
@@ -2681,13 +2728,22 @@ window.addEventListener("keydown", function (event) {
 window.addEventListener("keyup", function (event) {
     var key = event.keyCode;
     switch (key) {
-        case 65: //left key up
+        case 65: //left key up (A / left arrow)
             player.L = false;
             break;
-        case 68: //right key up
+        case 37: 
+            player.L = false;
+            break;
+        case 68: //right key up (D / right arrow)
             player.R = false;
             break;
-        case 83: //down key down
+        case 39: 
+            player.R = false;
+            break;
+        case 83: //down key up (S /down arrow)
+            watchDown = false;
+            break;
+        case 40: 
             watchDown = false;
             break;
     }
@@ -2750,7 +2806,7 @@ id("down").addEventListener("touchend", function () {
 // TOUCH CONTROLS END
 
 if (window.opener) {
-    console.log(window.opener.mapCode);
+    //console.log(window.opener.mapCode);
     if (window.opener.mapCode) {
         eval(window.opener.mapCode);
     } else {
