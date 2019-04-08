@@ -1262,6 +1262,8 @@ var player = {
             player.attack = true;
             frame = 0;
         } else if (!player.attack && !player.dashCd) {
+            var dir = player.left ? 4 : 3;
+            visualFxs.push(new JumpFx(player.x / ratio, player.y / ratio, dir));
             audio.dash.playy();
             player.dashCd = true;
             player.dash = true;
@@ -1687,8 +1689,8 @@ var dmgSprites = {
     h: [16, 16, 16],
 };
 var jmpSprites = {
-    x: [[0, 0, 0, 0, 0], [16, 16, 16, 16, 16], [32, 32, 32, 32, 32]],
-    y: [[128, 144, 160, 176, 192], [128, 144, 160, 176, 192], [128, 144, 160, 176, 192]],
+    x: [[0, 0, 0, 0, 0], [16, 16, 16, 16, 16], [32, 32, 32, 32, 32],[48, 48, 48, 48, 48],[64, 64, 64, 64, 64]],
+    y: [[128, 144, 160, 176, 192], [128, 144, 160, 176, 192], [128, 144, 160, 176, 192],[128, 144, 160, 176, 192],[128, 144, 160, 176, 192] ],
     w: [16, 16, 16],
     h: [16, 16, 16],
 };
