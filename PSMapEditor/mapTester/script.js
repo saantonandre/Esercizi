@@ -1094,7 +1094,8 @@ spawnPoint = {
 //canvas-related variables
 var canvas = id("canvas");
 var c = canvas.getContext("2d");
-canvas.width = (window.innerHeight < window.innerWidth) ? window.innerHeight / 1.1 : window.innerWidth / 1.1;
+//canvas.width = (window.innerHeight < window.innerWidth) ? window.innerHeight / 1.1 : window.innerWidth / 1.1;
+canvas.width = window.innerWidth * (window.innerHeight / window.innerWidth) / 1.1;
 canvas.width -= canvas.width % 16;
 canvas.height = canvas.width / 4 * 3;
 c.imageSmoothingEnabled = false;
@@ -1269,7 +1270,7 @@ var random2 = Math.random() * 800 + 100;
 var series = 0; //a unique identificative number for each monster
 class Monster {
     constructor(x, y) {
-        this.serial = series;
+        this.serial = series++;
         this.x = parseFloat(x * ratio);
         this.y = parseFloat(y * ratio);
         this.w = 1 * ratio;
@@ -1314,16 +1315,142 @@ class Monster {
         this.actionX = [];
         this.actionY = [];
         this.action = 0;
+        this.jump = function () {
+            if (this.grounded) {
+                this.grounded = false;
+                this.yVel = -0.18 * ratio;
+                let dir = 0;
+                if (this.xVel !== 0) {
+                    dir = this.left ? 2 : 1;
+                }
+                visualFxs.push(new JumpFx(this.x / ratio, this.y / ratio, dir));
+
+            }
+        };
         //setTimeout(randomMovement, 1000, this.serial);
 
-        series++;
     }
-    move() {
-        randomMovement(this.serial);
-    }
+    move(arg) {
+        leftRightMovement(arg);
+    };
 }
 //shows the number of monsters
-setInterval(function () {}, 500);
+setInterval(function () {
+    id("monsternumber").innerHTML = monsters.length;
+}, 500);
+function leftRightMovement(serial) {
+    //console.log(monsters[i].serial+" "+ serial);
+    let ser = serial;
+    let targetMonster = null;
+    for (j = 0; j < monsters.length; j++) {
+        if (monsters[j].serial === ser) {
+            targetMonster = j;
+            break;
+        }
+    }
+    if (targetMonster !== null) {
+        let monst = monsters[targetMonster];
+        let points = {
+            upLeft: {
+                x: monst.x / ratio - 0.5,
+                y: monst.y / ratio + monst.h / ratio - 1  - 0.5
+            },
+            upRight: {
+                x: monst.x / ratio + monst.w / ratio + 0.5,
+                y: monst.y / ratio + monst.h / ratio - 1 - 0.5
+            },
+            btLeft: {
+                x: monst.x / ratio+0.2,
+                y: monst.y / ratio + monst.h / ratio + 1.5
+            },
+            btRight: {
+                x: monst.x / ratio + monst.w / ratio-0.2,
+                y: monst.y / ratio + monst.h / ratio + 1.5
+            },
+            left: {
+                x: monst.x / ratio - 0.5,
+                y: monst.y / ratio + monst.h / ratio / 2
+            }, // provisional
+            right: {
+                x: monst.x / ratio + monst.w / ratio + 0.5,
+                y: monst.y / ratio + monst.h / ratio / 2
+            } // provisional
+        }
+        c.fillStyle="red";
+        c.fillRect(points.upLeft.x*ratio+mapX,points.upLeft.y*ratio+mapY,4,4);
+        c.fillRect(points.left.x*ratio+mapX,points.left.y*ratio+mapY,4,4);
+        c.fillRect(points.right.x*ratio+mapX,points.right.y*ratio+mapY,4,4);
+        c.fillRect(points.btLeft.x*ratio+mapX,points.btLeft.y*ratio+mapY,4,4);
+        c.fillRect(points.btRight.x*ratio+mapX,points.btRight.y*ratio+mapY,4,4);
+        c.fillRect(points.upRight.x*ratio+mapX,points.upRight.y*ratio+mapY,4,4);
+        let cols = {
+            upLeft: false,
+            upRight: false,
+            btLeft: false,
+            btRight: false,
+            left: false,
+            right: false
+        }
+        var bottomLeftCol = monst.x;
+        var bottomRightColX = monst.x;
+        for (j = 0; j < map.length; j++) {
+            if (pointSquareCol(points.btLeft, map[j])) {
+                cols.btLeft = true;
+            }
+            if (pointSquareCol(points.left, map[j])) {
+                cols.left = true;
+            }
+            if (pointSquareCol(points.btRight, map[j])) {
+                cols.btRight = true;
+            }
+            if (pointSquareCol(points.right, map[j])) {
+                cols.right = true;
+            }
+            if (pointSquareCol(points.upRight, map[j])) {
+                cols.upRight = true;
+            }
+            if (pointSquareCol(points.upLeft, map[j])) {
+                cols.upLeft = true;
+            }
+        };
+        console.log(cols);
+        let dir = monst.left ? 0 : 1;
+        if (monst.left) {
+            if ((cols.left && cols.upLeft) || !cols.btLeft) {
+                dir = 1;
+            } else if (cols.left && !cols.upLeft) {
+                monsters[targetMonster].jump();
+            }
+
+        } else {
+            if ((cols.Right && cols.upRight) || !cols.btRight) {
+                dir = 0;
+            } else if (cols.right && !cols.upRight) {
+                monsters[targetMonster].jump();
+            }
+        }
+        switch (dir) {
+            case 0:
+                    monsters[targetMonster].left = true;
+                if (!monsters[targetMonster].col.L) {
+                    monsters[targetMonster].L = true;
+                    monsters[targetMonster].R = false;
+                }
+                break;
+            case 1:
+                    monsters[targetMonster].left = false;
+                if (!monsters[targetMonster].col.R) {
+                    monsters[targetMonster].L = false;
+                    monsters[targetMonster].R = true;
+                }
+                break;
+            case 2:
+                monsters[targetMonster].L = false;
+                monsters[targetMonster].R = false;
+                break;
+        }
+    }
+}
 
 function randomMovement(serial) {
     //console.log(monsters[i].serial+" "+ serial);
@@ -1363,7 +1490,7 @@ function randomMovement(serial) {
 class Slime extends Monster {
     constructor(x, y) {
         super(x, y);
-        this.speed = 0.01 * ratio;
+        this.speed = 0.02 * ratio;
         this.hp = 16;
         this.maxHp = this.hp;
         this.type = "Slime";
@@ -1374,7 +1501,7 @@ class Slime extends Monster {
 class Lizard extends Monster {
     constructor(x, y) {
         super(x, y);
-        this.speed = 0.02 * ratio;
+        this.speed = 0.04 * ratio;
         this.hp = 12;
         this.maxHp = this.hp;
         this.type = "Lizard";
@@ -1385,7 +1512,7 @@ class Lizard extends Monster {
 class Bear extends Monster {
     constructor(x, y) {
         super(x, y);
-        this.speed = 0.02 * ratio;
+        this.speed = 0.04 * ratio;
         this.hp = 60;
         this.maxHp = this.hp;
         this.type = "Bear";
@@ -1402,8 +1529,9 @@ class Bear extends Monster {
     }
     attackEvent(bear) {
         if (collided(player.hitbox, bear.atkHitbox)) {
-            player.y -= 0.05 * ratio;
-            player.yVel = -0.05 * ratio;
+            player.yVelExt += -0.3 * ratio;
+            player.xVelExt += bear.left ? -0.3 * ratio : 0.3 * ratio;
+            player.left = bear.left;
             player.dashCd = true;
             var playerHB = player.hitbox;
             playerHB.x *= ratio;
@@ -1452,7 +1580,7 @@ class Dummy extends Monster {
 class Zombie extends Monster {
     constructor(x, y) {
         super(x, y);
-        this.speed = 0.005 * ratio;
+        this.speed = 0.02 * ratio;
         this.hp = 20;
         this.maxHp = this.hp;
         this.type = "Zombie";
@@ -1463,7 +1591,7 @@ class Zombie extends Monster {
 class Superzombie extends Zombie {
     constructor(x, y) {
         super(x, y);
-        this.speed = 0.002 * ratio;
+        this.speed = 0.04 * ratio;
         this.hp = 60;
         this.maxHp = this.hp;
         this.w = 2 * ratio;
@@ -1476,17 +1604,14 @@ function create(type, x, y) {
         case "Slime":
             //console.log("creating a Slime");
             monsters.push(new Slime(x, y));
-            monsters[monsters.length - 1].move();
             break;
         case "Lizard":
             //console.log("creating a Lizard");
             monsters.push(new Lizard(x, y));
-            monsters[monsters.length - 1].move();
             break;
         case "Zombie":
             monsters.push(new Zombie(x, y));
             //console.log("creating a Zombie");
-            monsters[monsters.length - 1].move();
             break;
         case "Dummy":
             monsters.push(new Dummy(x, y));
@@ -1494,12 +1619,10 @@ function create(type, x, y) {
         case "Superzombie":
             monsters.push(new Superzombie(x, y));
             //console.log("creating a Superzombie");
-            monsters[monsters.length - 1].move();
             break;
         case "Bear":
             monsters.push(new Bear(x, y));
             //console.log("creating a Superzombie");
-            monsters[monsters.length - 1].move();
             break;
     }
 }
@@ -1885,6 +2008,15 @@ function collided(square1, square2) {
     }
     return false;
 }
+
+function pointSquareCol(point, square) {
+    if (point.x > square.x && point.x < square.x + square.w) {
+        if (point.y > square.y && point.y < square.y + square.h) {
+            return true;
+        }
+    }
+    return false;
+}
 /*
 actions:
 0:idle right
@@ -1924,6 +2056,7 @@ function loop() {
         monsters[i].frameCounter++;
         calculateMonsters(monsters[i]);
     }
+
     drawEnvironment();
     renderSpecialTiles();
     adjustCollided(player);
@@ -1937,12 +2070,21 @@ function loop() {
     }
     renderHpBars();
     renderTexts();
-    id("monsternumber").innerHTML = parseInt(player.xVelExt);
+    if (darken.go) {
+        c.globalAlpha = darken.alpha / 1.5;
+        c.fillStyle = "#000000";
+        c.fillRect(0, 0, canvas.width, canvas.height);
+        c.globalAlpha = 1;
+        if (darken.alpha < 1) {
+            darken.alpha += 0.001;
+        }
+    }
     requestAnimationFrame(loop)
 }
 ///////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////// MAIN LOOP //////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
+var watchDown = false;
 
 function moveCamera() {
     /*
@@ -1961,15 +2103,16 @@ function moveCamera() {
             mapX += (-player.x + cameraDir * ratio - mapX) / 6;
         }
     }
-    if (mapY < -player.y + tilesHeight / 4 * ratio) {
+    let lookDown = watchDown ? tilesHeight / 4 * ratio : 0;
+    if (mapY < -(player.y + lookDown) + tilesHeight / 2 * ratio) {
         // means camera moves downward
-        if (Math.abs((-player.y + tilesHeight / 4 * ratio - mapY) / 6) > 1 / 100 * ratio) {
-            mapY += (-player.y + tilesHeight / 4 * ratio - mapY) / 6;
+        if (Math.abs((-(player.y + lookDown) + tilesHeight / 2 * ratio - mapY) / 6) > 1 / 100 * ratio) {
+            mapY += (-(player.y + lookDown) + tilesHeight / 2 * ratio - mapY) / 6;
         }
-    } else if (mapY > -player.y + tilesHeight / 2 * ratio) {
+    } else if (mapY > -(player.y + lookDown) + tilesHeight / 2 * ratio) {
         // means camera moves upward
-        if (Math.abs((-player.y + tilesHeight / 2 * ratio - mapY) / 6) > 1 / 100 * ratio) {
-            mapY += (-player.y + tilesHeight / 2 * ratio - mapY) / 6;
+        if (Math.abs((-(player.y + lookDown) + tilesHeight / 2 * ratio - mapY) / 6) > 1 / 100 * ratio) {
+            mapY += (-(player.y + lookDown) + tilesHeight / 2 * ratio - mapY) / 6;
         }
     }
     /*
@@ -2140,6 +2283,9 @@ function calculateCharacter(p) {
 }
 
 function calculateMonsters(m) {
+    //leftRightMovement(m.serial);
+    //AI
+    m.move(m.serial);
     if (m.attack) {
         m.L = false;
         m.R = false;
@@ -2197,6 +2343,10 @@ function calculateMonsters(m) {
 }
 var bg_1 = id("bg1");
 var bg_2 = id("bg2");
+var darken = {
+    go: false,
+    alpha: 0
+}
 
 function drawEnvironment() {
     for (i = 0; i < 5; i++) {
@@ -2207,6 +2357,8 @@ function drawEnvironment() {
             bg_2.width / tileSize * ratio,
             bg_2.height / tileSize * ratio
         );
+    }
+    for (i = 0; i < 5; i++) {
         c.drawImage(
             bg_1,
             -tilesWidth * ratio + (bg_1.width / tileSize * ratio * i) + mapX / 8,
@@ -2214,6 +2366,12 @@ function drawEnvironment() {
             bg_1.width / tileSize * ratio,
             bg_1.height / tileSize * ratio
         );
+    }
+    if (darken.go) {
+        c.globalAlpha = darken.alpha;
+        c.fillStyle = "black";
+        c.fillRect(0, 0, canvas.width, canvas.height);
+        c.globalAlpha = 1;
     }
     for (i = 0; i < map.length; i++) {
         for (j = 0; j < map[i].h; j++) {
@@ -2419,7 +2577,6 @@ function colCheck(shapeA, shapeB) {
     return colDir;
 
 }
-
 var touchDevice = false;
 //Mouse controls
 window.onclick = function () {
@@ -2440,34 +2597,39 @@ window.addEventListener("keydown", function (event) {
         case 68: //right key down
             player.R = true;
             break;
+        case 83: //down key down
+            watchDown = true;
+            break;
         case 70: //attack key down
             player.attackEvent();
             break;
         case 71: //g key down
             //console.log(player);
-            mapY++;
+            darken.go = true;
+            darken.alpha = 0.0;
             break;
         case 72: //h key down
             //console.log(monsters[0].atkHitbox, player.hitbox);
-            mapY--;
+            darken.go = false;
+            darken.alpha = 0.0;
             break;
         case 87: //jump key down
             player.jump();
             break;
         case 49: // 1
-            create("Slime", 5 - mapX / ratio, 0);
+            create("Slime", 5 - mapX / ratio, -mapY / ratio);
             break;
-        case 50: // 1
-            create("Lizard", 5 - mapX / ratio, 0);
+        case 50: // 2
+            create("Lizard", 5 - mapX / ratio, -mapY / ratio);
             break;
-        case 51: // 1
-            create("Zombie", 5 - mapX / ratio, 0);
+        case 51: // 3
+            create("Zombie", 5 - mapX / ratio, -mapY / ratio);
             break;
-        case 52: // 1
-            create("Superzombie", 5 - mapX / ratio, 0);
+        case 52: // 4
+            create("Superzombie", 5 - mapX / ratio, -mapY / ratio);
             break;
-        case 53: // 1
-            create("Bear", 5 - mapX / ratio, 0);
+        case 53: // 5
+            create("Bear", 5 - mapX / ratio, -mapY / ratio);
             break;
     }
 });
@@ -2479,6 +2641,9 @@ window.addEventListener("keyup", function (event) {
             break;
         case 68: //right key up
             player.R = false;
+            break;
+        case 83: //down key down
+            watchDown = false;
             break;
     }
 });

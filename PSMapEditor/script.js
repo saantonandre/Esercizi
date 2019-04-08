@@ -6,6 +6,7 @@ function id(arg) {
 var canvas = id("canvas");
 var sheet = id("sheet");
 var c = canvas.getContext("2d");
+c.imageSmoothingEnabled = false;
 var map = [];
 var hitBoxes = [];
 var cellQuantityW = id("mapSizeW").value;
@@ -38,38 +39,40 @@ var spawnPoint = {
     x: 3,
     y: 2
 };
-for (i = 0; i < tiles.length; i++) {
-    var canv = document.createElement('canvas');
-    canv.id = "canvas" + i;
-    canv.width = 32;
-    canv.height = 32;
-    canv.number = i;
-    if (i === 0) {
-        canv.className += " selected";
-    }
-    //canvas.style.position = "absolute";
-    canv.getContext("2d").drawImage(
-        sheet,
-        tiles[i][0] * 16,
-        tiles[i][1] * 16,
-        16,
-        16,
-        0,
-        0,
-        canv.width,
-        canv.height
-    )
-    var body = document.getElementsByTagName("body")[0];
-    id("cont2").appendChild(canv);
-    id("canvas" + i).onclick = function () {
-        selectedType = this.number;
-        for (j = 0; j < tiles.length; j++) {
-            id("canvas" + j).classList.remove("selected");
+window.onload = function () {
+    for (i = 0; i < tiles.length; i++) {
+        var canv = document.createElement('canvas');
+        canv.id = "canvas" + i;
+        canv.width = 32;
+        canv.height = 32;
+        canv.number = i;
+        canv.getContext("2d").imageSmoothingEnabled = false;
+        if (i === 0) {
+            canv.className += " selected";
         }
-        this.className += " selected";
+        //canvas.style.position = "absolute";
+        canv.getContext("2d").drawImage(
+            sheet,
+            tiles[i][0] * 16,
+            tiles[i][1] * 16,
+            16,
+            16,
+            0,
+            0,
+            canv.width,
+            canv.height
+        )
+        var body = document.getElementsByTagName("body")[0];
+        id("cont2").appendChild(canv);
+        id("canvas" + i).onclick = function () {
+            selectedType = this.number;
+            for (j = 0; j < tiles.length; j++) {
+                id("canvas" + j).classList.remove("selected");
+            }
+            this.className += " selected";
+        }
     }
 }
-
 //LAUNCH TESTMODE
 id("test").onclick = function () {
     mapExport(false);
@@ -238,7 +241,7 @@ function resizeMap() {
             yMax = map[i].y + map[i].h;
         }
     }
-    console.log(xMax+"  "+yMax)
+    console.log(xMax + "  " + yMax)
     cellQuantityW = xMax;
     id("mapSizeW").value = xMax;
     cellQuantityH = yMax;
