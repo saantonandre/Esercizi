@@ -1091,6 +1091,16 @@ spawnPoint = {
     x: 9,
     y: 5
 };
+Audio.prototype.playy = function () {
+    var aud = this;
+    if (aud.paused) {
+        aud.play();
+    } else {
+        aud.pause();
+        aud.currentTime = 0;
+        aud.play();
+    }
+}
 //canvas-related variables
 var canvas = id("canvas");
 var c = canvas.getContext("2d");
@@ -1126,7 +1136,27 @@ setInterval(function () {
     id("FPS").innerHTML = fps + " FPS";
     fps = 0;
 }, 1000);
+var audio = {
+    jump: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/jump.mp3"),
+    bounce1: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/bounce1.mp3"),
+    bounce2: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/bounce2.mp3"),
+    bounce3: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/bounce3.mp3"),
+    bounce4: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/bounce4.mp3"),
+    speed1: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/speed1.mp3"),
+    speed2: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/speed2.mp3"),
+    dash: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/dash.mp3"),
+    walking: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/walking.mp3"),
+}
 
+audio.walking.playbackRate = 1.4;
+audio.bounce1.volume = 0.5;
+audio.bounce2.volume = 0.5;
+audio.bounce3.volume = 0.5;
+audio.bounce4.volume = 0.5;
+audio.speed1.volume = 0.5;
+audio.speed2.volume = 0.5;
+audio.dash.volume = 0.5;
+audio.walking.volume = 1;
 //environment
 var player = {
     x: 2 * ratio,
@@ -1182,6 +1212,7 @@ var player = {
     attackDMG: 7,
     jump: function () {
         if (player.grounded) {
+            audio.jump.playy();
             player.grounded = false;
             player.dashCd = false;
             player.yVel = -0.27 * ratio;
@@ -1229,6 +1260,7 @@ var player = {
             player.attack = true;
             frame = 0;
         } else if (!player.attack && !player.dashCd) {
+            audio.dash.playy();
             player.dashCd = true;
             player.dash = true;
             player.dashIn = player.x / ratio;
@@ -1266,7 +1298,6 @@ var shake = 0;
 var shakeArr = [-2, +5, -5, +2];
 
 var monsters = [];
-var random2 = Math.random() * 800 + 100;
 var series = 0; //a unique identificative number for each monster
 class Monster {
     constructor(x, y) {
@@ -1338,6 +1369,7 @@ class Monster {
 setInterval(function () {
     id("monsternumber").innerHTML = monsters.length;
 }, 500);
+
 function leftRightMovement(serial) {
     //console.log(monsters[i].serial+" "+ serial);
     let ser = serial;
@@ -1353,18 +1385,18 @@ function leftRightMovement(serial) {
         let points = {
             upLeft: {
                 x: monst.x / ratio - 0.5,
-                y: monst.y / ratio + monst.h / ratio - 1  - 0.5
+                y: monst.y / ratio + monst.h / ratio - 1 - 0.5
             },
             upRight: {
                 x: monst.x / ratio + monst.w / ratio + 0.5,
                 y: monst.y / ratio + monst.h / ratio - 1 - 0.5
             },
             btLeft: {
-                x: monst.x / ratio+0.2,
+                x: monst.x / ratio + 0.2,
                 y: monst.y / ratio + monst.h / ratio + 1.5
             },
             btRight: {
-                x: monst.x / ratio + monst.w / ratio-0.2,
+                x: monst.x / ratio + monst.w / ratio - 0.2,
                 y: monst.y / ratio + monst.h / ratio + 1.5
             },
             left: {
@@ -1376,13 +1408,13 @@ function leftRightMovement(serial) {
                 y: monst.y / ratio + monst.h / ratio / 2
             } // provisional
         }
-        c.fillStyle="red";
-        c.fillRect(points.upLeft.x*ratio+mapX,points.upLeft.y*ratio+mapY,4,4);
-        c.fillRect(points.left.x*ratio+mapX,points.left.y*ratio+mapY,4,4);
-        c.fillRect(points.right.x*ratio+mapX,points.right.y*ratio+mapY,4,4);
-        c.fillRect(points.btLeft.x*ratio+mapX,points.btLeft.y*ratio+mapY,4,4);
-        c.fillRect(points.btRight.x*ratio+mapX,points.btRight.y*ratio+mapY,4,4);
-        c.fillRect(points.upRight.x*ratio+mapX,points.upRight.y*ratio+mapY,4,4);
+        c.fillStyle = "red";
+        c.fillRect(points.upLeft.x * ratio + mapX, points.upLeft.y * ratio + mapY, 4, 4);
+        c.fillRect(points.left.x * ratio + mapX, points.left.y * ratio + mapY, 4, 4);
+        c.fillRect(points.right.x * ratio + mapX, points.right.y * ratio + mapY, 4, 4);
+        c.fillRect(points.btLeft.x * ratio + mapX, points.btLeft.y * ratio + mapY, 4, 4);
+        c.fillRect(points.btRight.x * ratio + mapX, points.btRight.y * ratio + mapY, 4, 4);
+        c.fillRect(points.upRight.x * ratio + mapX, points.upRight.y * ratio + mapY, 4, 4);
         let cols = {
             upLeft: false,
             upRight: false,
@@ -1431,14 +1463,14 @@ function leftRightMovement(serial) {
         }
         switch (dir) {
             case 0:
-                    monsters[targetMonster].left = true;
+                monsters[targetMonster].left = true;
                 if (!monsters[targetMonster].col.L) {
                     monsters[targetMonster].L = true;
                     monsters[targetMonster].R = false;
                 }
                 break;
             case 1:
-                    monsters[targetMonster].left = false;
+                monsters[targetMonster].left = false;
                 if (!monsters[targetMonster].col.R) {
                     monsters[targetMonster].L = false;
                     monsters[targetMonster].R = true;
@@ -1899,13 +1931,16 @@ function renderSpecialTiles() {
                         player.yVel = -bouncynessY * ratio;
                         player.dash = false;
                         player.dashCd = false;
+                        audio.bounce1.playy()
                     } else if (specialTiles[i].type === "speeder") {
+                        audio.speed1.playy();
                         player.xVelExt += 0.07 * ratio;
                         player.grounded = true;
                     }
                     break;
                 case "l":
                     if (specialTiles[i].type === "bouncy") {
+                            audio.bounce2.playy()
                         player.grounded = false;
                         player.dash = false;
                         player.dashCd = false;
@@ -1915,6 +1950,7 @@ function renderSpecialTiles() {
                     break;
                 case "r":
                     if (specialTiles[i].type === "bouncy") {
+                        audio.bounce3.playy()
                         player.grounded = false;
                         player.dash = false;
                         player.dashCd = false;
@@ -1925,6 +1961,7 @@ function renderSpecialTiles() {
                     break;
                 case "t":
                     if (specialTiles[i].type === "bouncy") {
+                        audio.bounce1.playy()
                         if (player.yVel < 0) {
                             player.yVel = 0;
                         }
@@ -2391,7 +2428,6 @@ function drawEnvironment() {
         }
     }
 }
-
 function drawCharacter(p) {
     //animation computing
     var slowness = 6;
@@ -2422,6 +2458,11 @@ function drawCharacter(p) {
                 p.action = 3; //walk left
             }
         }
+    }
+    if (p.xVel !== 0 && p.grounded && !(p.attack || p.dash)) {
+        audio.walking.play();
+    } else {
+        audio.walking.pause();
     }
 
     if (frameCounter > slowness) {
@@ -2752,6 +2793,8 @@ function initializeMap() {
     }
 }
 initializeMap();
-requestAnimationFrame(loop)
+window.onload = function () {
+    requestAnimationFrame(loop);
+}
 
 //starts the program
