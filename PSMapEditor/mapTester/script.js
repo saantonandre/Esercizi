@@ -1177,7 +1177,7 @@ var player = {
     hp: 100,
     grounded: false,
     stun: false,
-    speed: 0.1 * ratio,
+    speed: 0.12 * ratio,
     precision: 100,
     hitbox: {
         x: 0,
@@ -1258,7 +1258,6 @@ var player = {
         }
     },
     attackEvent: function () {
-        console.log("attack");
         if (player.grounded && !player.attack) {
             player.attack = true;
             frame = 0;
@@ -1312,7 +1311,8 @@ class Monster {
         this.w = 1 * ratio;
         this.h = 1 * ratio;
         this.sheet = id("sheet");
-        this.jumpForce=0.2;
+        this.jumpForce = 0.22 * ratio;
+        this.maxVelocity = 0.3 * ratio;
         this.xVel = 0;
         this.yVel = 0;
         this.speed = 0 * ratio;
@@ -1358,17 +1358,17 @@ class Monster {
     move(arg) {
         leftRightMovement(arg);
     };
-    jump(){
-            if (this.grounded) {
-                this.grounded = false;
-                this.yVel = -this.jumpForce * ratio;
-                let dir = 0;
-                if (this.xVel !== 0) {
-                    dir = this.left ? 2 : 1;
-                }
-                visualFxs.push(new JumpFx(this.x / ratio, this.y / ratio, dir));
-
+    jump() {
+        if (this.grounded) {
+            this.grounded = false;
+            this.yVel = -this.jumpForce;
+            let dir = 0;
+            if (this.xVel !== 0) {
+                dir = this.left ? 2 : 1;
             }
+            visualFxs.push(new JumpFx(this.x / ratio, this.y / ratio, dir));
+
+        }
     }
 }
 //shows the number of monsters
@@ -1377,7 +1377,9 @@ setInterval(function () {
 }, 500);
 
 function leftRightMovement(serial) {
+
     //console.log(monsters[i].serial+" "+ serial);
+
     let ser = serial;
     let targetMonster = null;
     for (j = 0; j < monsters.length; j++) {
@@ -1401,12 +1403,20 @@ function leftRightMovement(serial) {
                 x: monst.x / ratio + 0.2,
                 y: monst.y / ratio + monst.h / ratio + 1.5
             },
+            btLeft2: {
+                x: monst.x / ratio + 0.2,
+                y: monst.y / ratio + 1 + monst.h / ratio / 2
+            },
             btRight: {
                 x: monst.x / ratio + monst.w / ratio - 0.2,
                 y: monst.y / ratio + monst.h / ratio + 1.5
             },
+            btRight2: {
+                x: monst.x / ratio + monst.w / ratio - 0.2,
+                y: monst.y / ratio + 1 + monst.h / ratio / 2
+            },
             left: {
-                x: monst.x / ratio - 0.5,
+                x: monst.x / ratio - 0.2,
                 y: monst.y / ratio + monst.h / ratio / 2
             }, // provisional
             right: {
@@ -1414,73 +1424,79 @@ function leftRightMovement(serial) {
                 y: monst.y / ratio + monst.h / ratio / 2
             } // provisional
         }
-        c.fillStyle = "red";
-        c.fillRect(points.upLeft.x * ratio + mapX, points.upLeft.y * ratio + mapY, 4, 4);
-        c.fillRect(points.left.x * ratio + mapX, points.left.y * ratio + mapY, 4, 4);
-        c.fillRect(points.right.x * ratio + mapX, points.right.y * ratio + mapY, 4, 4);
-        c.fillRect(points.btLeft.x * ratio + mapX, points.btLeft.y * ratio + mapY, 4, 4);
-        c.fillRect(points.btRight.x * ratio + mapX, points.btRight.y * ratio + mapY, 4, 4);
-        c.fillRect(points.upRight.x * ratio + mapX, points.upRight.y * ratio + mapY, 4, 4);
         let cols = {
             upLeft: false,
             upRight: false,
             btLeft: false,
             btRight: false,
+            btLeft2: false,
+            btRight2: false,
             left: false,
             right: false
         }
         var bottomLeftCol = monst.x;
         var bottomRightColX = monst.x;
-        for (j = 0; j < map.length; j++) {
-            if (pointSquareCol(points.btLeft, map[j])) {
-                cols.btLeft = true;
-            }
-            if (pointSquareCol(points.left, map[j])) {
-                cols.left = true;
-            }
-            if (pointSquareCol(points.btRight, map[j])) {
-                cols.btRight = true;
-            }
-            if (pointSquareCol(points.right, map[j])) {
-                cols.right = true;
-            }
-            if (pointSquareCol(points.upRight, map[j])) {
-                cols.upRight = true;
-            }
-            if (pointSquareCol(points.upLeft, map[j])) {
-                cols.upLeft = true;
+
+        for (let j = 0; j < map.length; j++) {
+            if (monst.left) {
+                if (pointSquareCol(points.upLeft, map[j])) {
+                    cols.upLeft = true;
+                }
+                if (pointSquareCol(points.left, map[j])) {
+                    cols.left = true;
+                }
+                if (pointSquareCol(points.btLeft, map[j])) {
+                    cols.btLeft = true;
+                }
+                if (pointSquareCol(points.btLeft2, map[j])) {
+                    cols.btLeft2 = true;
+                }
+            } else {
+                if (pointSquareCol(points.btRight, map[j])) {
+                    cols.btRight = true;
+                }
+                if (pointSquareCol(points.right, map[j])) {
+                    cols.right = true;
+                }
+                if (pointSquareCol(points.upRight, map[j])) {
+                    cols.upRight = true;
+                }
+                if (pointSquareCol(points.btRight2, map[j])) {
+                    cols.btRight2 = true;
+                }
+
             }
         };
-        //console.log(cols);
         let dir = monst.left ? 0 : 1;
         if (monst.left) {
-            if ((cols.left && cols.upLeft) || !cols.btLeft) {
-                dir = 1;
-            } else if (cols.left && !cols.upLeft) {
+            if (cols.left && !cols.upLeft) {
                 monsters[targetMonster].jump();
+            } else if ((cols.left && cols.upLeft) || (!cols.btLeft && !cols.btLeft2)) {
+                if (monst.grounded) {
+                    dir = 1;
+                }
+
             }
 
         } else {
-            if ((cols.Right && cols.upRight) || !cols.btRight) {
-                dir = 0;
-            } else if (cols.right && !cols.upRight) {
+            if (cols.right && !cols.upRight) {
                 monsters[targetMonster].jump();
+            } else if ((cols.right && cols.upRight) || (!cols.btRight && !cols.btRight2)) {
+                if (monst.grounded) {
+                    dir = 0;
+                }
             }
         }
         switch (dir) {
             case 0:
                 monsters[targetMonster].left = true;
-                if (!monsters[targetMonster].col.L) {
-                    monsters[targetMonster].L = true;
-                    monsters[targetMonster].R = false;
-                }
+                monsters[targetMonster].L = true;
+                monsters[targetMonster].R = false;
                 break;
             case 1:
                 monsters[targetMonster].left = false;
-                if (!monsters[targetMonster].col.R) {
-                    monsters[targetMonster].L = false;
-                    monsters[targetMonster].R = true;
-                }
+                monsters[targetMonster].L = false;
+                monsters[targetMonster].R = true;
                 break;
             case 2:
                 monsters[targetMonster].L = false;
@@ -1489,7 +1505,7 @@ function leftRightMovement(serial) {
         }
     }
 }
-
+/*
 function randomMovement(serial) {
     //console.log(monsters[i].serial+" "+ serial);
     var targetMonster = null;
@@ -1524,7 +1540,7 @@ function randomMovement(serial) {
         return 0;
     }
 }
-
+*/
 class Slime extends Monster {
     constructor(x, y) {
         super(x, y);
@@ -2192,14 +2208,15 @@ function checkCollisions() {
     player.col.R = false;
     player.col.T = false;
     player.col.B = false;
-    for (i = 0; i < monsters.length; i++) {
+    for (let i = 0; i < monsters.length; i++) {
         monsters[i].grounded = false;
         monsters[i].col.L = false;
         monsters[i].col.R = false;
         monsters[i].col.T = false;
         monsters[i].col.B = false;
+        colCheck(player, monsters[i]);
     }
-    for (i = 0; i < map.length; i++) {
+    for (let i = 0; i < map.length; i++) {
         colCheck(player, map[i]);
         for (m = 0; m < monsters.length; m++) {
             colCheck(monsters[m], map[i]);
@@ -2307,7 +2324,11 @@ function calculateCharacter(p) {
     if (p.xVelExt !== 0 && p.grounded) {
         p.xVelExt *= 0.8;
     } else if (p.xVelExt !== 0) {
-        p.xVelExt *= 0.98;
+        if (p.xVelExt > 0.05) {
+            p.xVelExt -= 0.05;
+        } else if (p.xVelExt < -0.05) {
+            p.xVelExt += 0.05;
+        }
     }
     if (p.xVelExt < 0.001 * ratio && p.xVelExt > -0.001 * ratio) {
         p.xVelExt = 0;
@@ -2336,20 +2357,20 @@ function calculateCharacter(p) {
 
 function calculateMonsters(m) {
     //leftRightMovement(m.serial);
-    //AI
-    m.move(m.serial);
+    if (!(fps % 15) && m.grounded) {
+        //^AI is refreshed every 1/4 seconds
+        m.move(m.serial);
+    }
     if (m.attack) {
         m.L = false;
         m.R = false;
     }
     if (m.col.L) {
         m.x += m.col.L * ratio;
-        m.L = false;
 
     }
     if (m.col.R) {
         m.x -= m.col.R * ratio;
-        m.R = false;
 
     }
     if (m.col.T) {
@@ -2374,6 +2395,9 @@ function calculateMonsters(m) {
     }
     if (!m.grounded) {
         m.yVel += gForce;
+        if (m.yVel > m.maxVelocity) {
+            m.yVel = m.maxVelocity;
+        }
     } else if (m.yVel > 0) {
         m.yVel = 0;
     }
@@ -2589,12 +2613,22 @@ function drawMonsters(m) {
 //collision detector
 function colCheck(shapeA, shapeB) {
     // get the vectors to check against
+    if (typeof shapeA.hitbox !== "undefined") {
+        var shapeAA = shapeA.hitbox;
+    } else {
+        var shapeAA = shapeA;
+    }
+    if (typeof shapeB.hitbox !== "undefined") {
+        var shapeBB = shapeB.hitbox;
+    } else {
+        var shapeBB = shapeB;
+    }
     var offFocus = mapX / ratio;
-    var vX = (shapeA.hitbox.x + offFocus + (shapeA.hitbox.w / 2)) - (shapeB.x + (mapX / ratio) + (shapeB.w / 2)),
-        vY = (shapeA.hitbox.y + (shapeA.hitbox.h / 2)) - (shapeB.y + (shapeB.h / 2)),
+    var vX = (shapeAA.x + offFocus + (shapeAA.w / 2)) - (shapeBB.x + (mapX / ratio) + (shapeBB.w / 2)),
+        vY = (shapeAA.y + (shapeAA.h / 2)) - (shapeBB.y + (shapeBB.h / 2)),
         // add the half widths and half heights of the objects
-        hWidths = (shapeA.hitbox.w / 2) + (shapeB.w / 2),
-        hHeights = (shapeA.hitbox.h / 2) + (shapeB.h / 2),
+        hWidths = (shapeA.hitbox.w / 2) + (shapeBB.w / 2),
+        hHeights = (shapeA.hitbox.h / 2) + (shapeBB.h / 2),
         colDir = null;
 
     // if the x and y vector are less than the half width or half height, they we must be inside the object, causing a collision
@@ -2605,25 +2639,28 @@ function colCheck(shapeA, shapeB) {
         if (oX >= oY) {
             if (vY > 0) {
                 colDir = "t";
-                if (shapeA.col.T < oY && oY > 1 / ratio) {
+                if (shapeA.col.T < oY && oY > 1 / ratio && !shapeB.xVel) {
                     shapeA.col.T = oY;
                 }
             } else {
                 colDir = "b";
                 shapeA.grounded = true;
-                if (shapeA.col.B < oY && oY > 1 / ratio) {
+                if (shapeA.col.B < oY && oY > 1 / ratio && oY < 0.02 * ratio) {
                     shapeA.col.B = oY;
+                }
+                if (shapeB.xVel) {
+                    shapeA.xVelExt = shapeB.xVel;
                 }
             }
         } else {
             if (vX > 0) {
                 colDir = "l";
-                if (shapeA.col.L < oX && oX > 1 / ratio) {
+                if (shapeA.col.L < oX && oX > 1 / ratio && !shapeB.xVel) {
                     shapeA.col.L = oX;
                 }
             } else {
                 colDir = "r";
-                if (shapeA.col.R < oX && oX > 1 / ratio) {
+                if (shapeA.col.R < oX && oX > 1 / ratio && !shapeB.xVel) {
                     shapeA.col.R = oX;
                 }
             }
@@ -2668,19 +2705,19 @@ window.addEventListener("keydown", function (event) {
         case 65: //left key down (A / left arrow)
             player.L = true;
             break;
-        case 37: 
+        case 37:
             player.L = true;
             break;
         case 68: //right key down (D / right arrow)
             player.R = true;
             break;
-        case 39: 
+        case 39:
             player.R = true;
             break;
         case 83: //down key down (S /down arrow)
             watchDown = true;
             break;
-        case 40: 
+        case 40:
             watchDown = true;
             break;
         case 87: //jump key down (W / Z / up arrow)
@@ -2695,7 +2732,7 @@ window.addEventListener("keydown", function (event) {
         case 70: //attack key down (F / X)
             player.attackEvent();
             break;
-        case 88: 
+        case 88:
             player.attackEvent();
             break;
         case 71: //g key down
@@ -2731,19 +2768,19 @@ window.addEventListener("keyup", function (event) {
         case 65: //left key up (A / left arrow)
             player.L = false;
             break;
-        case 37: 
+        case 37:
             player.L = false;
             break;
         case 68: //right key up (D / right arrow)
             player.R = false;
             break;
-        case 39: 
+        case 39:
             player.R = false;
             break;
         case 83: //down key up (S /down arrow)
             watchDown = false;
             break;
-        case 40: 
+        case 40:
             watchDown = false;
             break;
     }
