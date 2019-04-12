@@ -1180,12 +1180,14 @@ audio.haydn_1.volume = 0.3;
 audio.haydn_2.volume = 0.3;
 audio.bach_1.volume = 0.3;
 audio.bach_2.volume = 0.3;
+/*
 audio.ambient_1.loop = true;
 audio.ambient_2.loop = true;
 audio.haydn_1.loop = true;
 audio.haydn_2.loop = true;
 audio.bach_1.loop = true;
 audio.bach_2.loop = true;
+*/
 //environment
 var player = {
     x: 2 * ratio,
@@ -1231,14 +1233,15 @@ var player = {
         w: 16,
         h: 16,
     },
-    actionX: [[0], [16], [0, 0, 0, 0], [16, 16, 16, 16], [96], [96], [32, 32, 32, 32], [80, 80, 80, 80]],
-    actionY: [[0], [0], [0, 16, 32, 48], [0, 16, 32, 48], [16], [48], [0, 16, 32, 48], [0, 16, 32, 48]],
+    actionX: [[0], [1], [0, 0, 0, 0], [1, 1, 1, 1], [6], [6], [2, 2, 2, 2], [5, 5, 5, 5], [11, 11, 11, 12, 12, 12]],
+    actionY: [[0], [0], [0, 1, 2, 3], [0, 1, 2, 3], [1], [3], [0, 1, 2, 3], [0, 1, 2, 3], [10, 11, 12, 10, 11, 12]],
     action: 0,
     attack: 0,
     dash: false,
     dashIn: 0,
     dashCd: 0,
     attackDMG: 7,
+    dance: false,
     jump: function () {
         if (player.grounded) {
             audio.jump.playy();
@@ -2506,6 +2509,7 @@ function drawCharacter(p) {
     //animation computing
     var slowness = 6;
     if (p.attack || p.dash) {
+        p.dance = false;
         slowness = 4;
         if (!p.left) {
             p.action = 6; //atk right
@@ -2514,6 +2518,7 @@ function drawCharacter(p) {
         }
     } else {
         if (!p.grounded) {
+            p.dance = false;
             if (!p.left) {
                 p.action = 4; //jmp right
             } else {
@@ -2525,7 +2530,12 @@ function drawCharacter(p) {
             } else {
                 p.action = 1; //idle left
             }
+            if (p.dance) {
+                p.action = 8; //dance
+            }
+
         } else if (p.xVel !== 0) {
+            p.dance = false;
             if (!p.left) {
                 p.action = 2; //walk right
             } else {
@@ -2557,26 +2567,25 @@ function drawCharacter(p) {
     if (p.dash) {
         c.globalCompositeOperation = "difference";
         c.globalAlpha = 0.4;
-        c.drawImage(p.sheet, p.actionX[p.action][0], p.actionY[p.action][0], p.sprite.w, p.sprite.h, p.x + mapX - p.xVel * 2, p.y + mapY, p.w, p.h);
+        c.drawImage(p.sheet, p.actionX[p.action][0] * tileSize, p.actionY[p.action][0] * tileSize, p.sprite.w, p.sprite.h, p.x + mapX - p.xVel * 2, p.y + mapY, p.w, p.h);
         c.globalAlpha = 0.6;
-        c.drawImage(p.sheet, p.actionX[p.action][0], p.actionY[p.action][0], p.sprite.w, p.sprite.h, p.x + mapX - p.xVel, p.y + mapY, p.w, p.h);
+        c.drawImage(p.sheet, p.actionX[p.action][0] * tileSize, p.actionY[p.action][0] * tileSize, p.sprite.w, p.sprite.h, p.x + mapX - p.xVel, p.y + mapY, p.w, p.h);
         c.globalAlpha = 0.8;
-        c.drawImage(p.sheet, p.actionX[p.action][0], p.actionY[p.action][0], p.sprite.w, p.sprite.h, p.x + mapX, p.y + mapY, p.w, p.h);
+        c.drawImage(p.sheet, p.actionX[p.action][0] * tileSize, p.actionY[p.action][0] * tileSize, p.sprite.w, p.sprite.h, p.x + mapX, p.y + mapY, p.w, p.h);
         c.globalAlpha = 1;
         c.globalCompositeOperation = "source-over";
-    } else
-        c.drawImage(p.sheet, p.actionX[p.action][frame], p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x + mapX, p.y + mapY, p.w, p.h);
+    } else {
+        c.drawImage(p.sheet, p.actionX[p.action][frame] * tileSize, p.actionY[p.action][frame] * tileSize, p.sprite.w, p.sprite.h, p.x + mapX, p.y + mapY, p.w, p.h);
+    }
     //the attack animation takes up 2 tiles in width, so I decided to print the other map separately
     if (p.attack) {
         if (p.action == 6) {
-            c.drawImage(p.sheet, p.actionX[p.action][frame] + 16, p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x + mapX + p.w, p.y + mapY, p.w, p.h);
+            c.drawImage(p.sheet, p.actionX[p.action][frame] * tileSize + 16, p.actionY[p.action][frame] * tileSize, p.sprite.w, p.sprite.h, p.x + mapX + p.w, p.y + mapY, p.w, p.h);
         } else if (p.action == 7) {
-            c.drawImage(p.sheet, p.actionX[p.action][frame] - 16, p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x + mapX - p.w, p.y + mapY, p.w, p.h);
+            c.drawImage(p.sheet, p.actionX[p.action][frame] * tileSize - 16, p.actionY[p.action][frame] * tileSize, p.sprite.w, p.sprite.h, p.x + mapX - p.w, p.y + mapY, p.w, p.h);
         }
     }
 }
-
-
 /*
 0:idle right
 1:idle left
@@ -2769,6 +2778,9 @@ window.addEventListener("keydown", function (event) {
         case 88:
             player.attackEvent();
             break;
+        case 69: //dance key (E)
+            player.dance = true;
+            break;
         case 71: //g key down
             //console.log(player);
             darken.go = true;
@@ -2875,18 +2887,17 @@ id("down").addEventListener("touchend", function () {
     id("down").style.opacity = "0.5";
 });
 // TOUCH CONTROLS END
-
 var bgColor = "#0099dd";
 var mapHeight = 0;
 var biomes = [{
     background: true,
     ambient: audio.ambient_1,
-    music: audio.haydn_1,
+    music: [audio.haydn_1, audio.haydn_2],
     bgColor: "#0099dd"
 }, {
     background: false,
     ambient: audio.ambient_2,
-    music: audio.bach_1,
+    music: [audio.bach_1, audio.bach_2],
     bgColor: "#222034"
 }]
 var biome = 0;
@@ -2899,6 +2910,7 @@ if (window.opener) {
         eval(window.opener.map);
     }
 }
+
 function initializeMap() {
     var spTiles = [];
     for (i = map.length - 1; i >= 0; i--) {
@@ -2936,11 +2948,20 @@ function initializeMap() {
     }
     background = biomes[biome].background;
     bgColor = biomes[biome].bgColor;
-    audio.walking.onplay = function () {
+    audio.walking.addEventListener("play", function () {
         biomes[biome].ambient.play();
-        biomes[biome].music.play();
-    }
-
+        biomes[biome].music[Math.floor(Math.random() * 2)].play();
+        biomes[biome].music[1].addEventListener('ended', function () {
+            if (this.paused)
+                biomes[biome].music[0].play();
+        })
+        biomes[biome].music[0].addEventListener('ended', function () {
+            if (this.paused)
+                biomes[biome].music[1].play();
+        })
+    }, {
+        once: true
+    });
 }
 initializeMap();
 window.onload = function () {
