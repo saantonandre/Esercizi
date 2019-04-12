@@ -1127,10 +1127,19 @@ var tiles = [
         [7, 4], [8, 4], [9, 4], //rock top
         [7, 5], [8, 5], //rock to grass
         [7, 6], [8, 6], [9, 6], //grass short
-        [11, 4], //bouncy
+        [11, 4], //bouncy ball
         [10, 4], //animated grass
         [12, 5], //speeder
-    ];
+        [5, 7], [6, 7], [7, 7], //stone top
+        [5, 8], [6, 8], [7, 8], //stone middle
+        [5, 9], [6, 9], [7, 9], //stone bottom
+        [5, 10], [6, 10], [7, 10], //stone 2 top
+        [5, 11], [6, 11], [7, 11], //stone 2 middle
+        [5, 12], [6, 12], [7, 12], //stone 2 bottom
+        [8, 12], [9, 12], [10, 12], //stone 3
+        [9, 8], //stone single
+        [9, 9], //trap
+    ]
 
 setInterval(function () {
     id("FPS").innerHTML = fps + " FPS";
@@ -1146,6 +1155,12 @@ var audio = {
     speed2: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/speed2.mp3"),
     dash: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/dash.mp3"),
     walking: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/walking.mp3"),
+    ambient_1: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/ambient/outside.mp3"),
+    ambient_2: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/ambient/castle.mp3"),
+    haydn_1: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/music/Haydn-1.mp3"),
+    haydn_2: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/music/Haydn-2.mp3"),
+    bach_1: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/music/Bach-1.mp3"),
+    bach_2: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/music/Bach-2.mp3"),
 }
 
 audio.walking.playbackRate = 1.4;
@@ -1159,6 +1174,18 @@ audio.speed2.volume = 0.5;
 audio.jump.volume = 0.5;
 audio.dash.volume = 0.5;
 audio.walking.volume = 1;
+audio.ambient_1.volume = 0.2;
+audio.ambient_2.volume = 0.2;
+audio.haydn_1.volume = 0.3;
+audio.haydn_2.volume = 0.3;
+audio.bach_1.volume = 0.3;
+audio.bach_2.volume = 0.3;
+audio.ambient_1.loop = true;
+audio.ambient_2.loop = true;
+audio.haydn_1.loop = true;
+audio.haydn_2.loop = true;
+audio.bach_1.loop = true;
+audio.bach_2.loop = true;
 //environment
 var player = {
     x: 2 * ratio,
@@ -2113,7 +2140,7 @@ function loop() {
     }
     paused = 0;
     c.clearRect(0, 0, canvas.width, canvas.height);
-    c.fillStyle = "#0099dd";
+    c.fillStyle = bgColor;
     c.fillRect(0, 0, canvas.width, canvas.height);
     //calculate character
     //draw environment
@@ -2419,12 +2446,13 @@ function calculateMonsters(m) {
 }
 var bg_1 = id("bg1");
 var bg_2 = id("bg2");
+var background = false;
 var darken = {
     go: false,
     alpha: 0
 }
 
-function drawEnvironment() {
+function drawBackground() {
     for (i = 0; i < 5; i++) {
         c.drawImage(
             bg_2,
@@ -2442,6 +2470,12 @@ function drawEnvironment() {
             bg_1.width / tileSize * ratio,
             bg_1.height / tileSize * ratio
         );
+    }
+}
+
+function drawEnvironment() {
+    if (background) {
+        drawBackground();
     }
     if (darken.go) {
         c.globalAlpha = darken.alpha;
@@ -2842,6 +2876,21 @@ id("down").addEventListener("touchend", function () {
 });
 // TOUCH CONTROLS END
 
+var bgColor = "#0099dd";
+var mapHeight = 0;
+var biomes = [{
+    background: true,
+    ambient: audio.ambient_1,
+    music: audio.haydn_1,
+    bgColor: "#0099dd"
+}, {
+    background: false,
+    ambient: audio.ambient_2,
+    music: audio.bach_1,
+    bgColor: "#222034"
+}]
+var biome = 0;
+
 if (window.opener) {
     //console.log(window.opener.mapCode);
     if (window.opener.mapCode) {
@@ -2850,9 +2899,6 @@ if (window.opener) {
         eval(window.opener.map);
     }
 }
-
-var mapHeight = 0;
-
 function initializeMap() {
     var spTiles = [];
     for (i = map.length - 1; i >= 0; i--) {
@@ -2888,6 +2934,13 @@ function initializeMap() {
             mapHeight = map[i].y + map[i].h;
         }
     }
+    background = biomes[biome].background;
+    bgColor = biomes[biome].bgColor;
+    audio.walking.onplay = function () {
+        biomes[biome].ambient.play();
+        biomes[biome].music.play();
+    }
+
 }
 initializeMap();
 window.onload = function () {

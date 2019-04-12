@@ -34,6 +34,15 @@ var tiles = [
         [11, 4], //bouncy ball
         [10, 4], //animated grass
         [12, 5], //speeder
+        [5, 7], [6, 7], [7, 7], //stone top
+        [5, 8], [6, 8], [7, 8], //stone middle
+        [5, 9], [6, 9], [7, 9], //stone bottom
+        [5, 10], [6, 10], [7, 10], //stone 2 top
+        [5, 11], [6, 11], [7, 11], //stone 2 middle
+        [5, 12], [6, 12], [7, 12], //stone 2 bottom
+        [8, 12], [9, 12], [10, 12], //stone 3
+        [9, 8], //stone single
+        [9, 9], //trap
     ]
 var spawnPoint = {
     x: 3,
