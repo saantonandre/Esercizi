@@ -1161,6 +1161,7 @@ var audio = {
     haydn_2: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/music/Haydn-2.mp3"),
     bach_1: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/music/Bach-1.mp3"),
     bach_2: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/music/Bach-2.mp3"),
+    crabRave: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/music/CrabRave.mp3"), //troll
 }
 
 audio.walking.playbackRate = 1.4;
@@ -1180,6 +1181,7 @@ audio.haydn_1.volume = 0.3;
 audio.haydn_2.volume = 0.3;
 audio.bach_1.volume = 0.3;
 audio.bach_2.volume = 0.3;
+audio.crabRave.volume = 0.5;//troll
 /*
 audio.ambient_1.loop = true;
 audio.ambient_2.loop = true;
@@ -2780,6 +2782,10 @@ window.addEventListener("keydown", function (event) {
             break;
         case 69: //dance key (E)
             player.dance = true;
+            //troll
+            audio.crabRave.play();
+            biomes[biome].music[0].pause();
+            biomes[biome].music[1].pause();
             break;
         case 71: //g key down
             //console.log(player);
