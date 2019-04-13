@@ -1800,27 +1800,24 @@ var cloudSprites = {
 var grassSprite = {
     x: [[160, 160, 160, 160]],
     y: [[64, 80, 96, 112]],
-    w: [[16]],
-    h: [[16]],
+    w: [16],
+    h: [16],
 };
 class Cloud {
     constructor(x, y, s) {
         this.x = x * ratio;
         this.y = y * ratio;
-        this.sprite = parseInt(Math.random() * 4);
-        this.sheet = id("sheet");
-        this.type = "cloud";
+        this.sprite = Math.floor(Math.random() * 4);
         this.rotation = 0;
+        this.sheet = id("sheet");
+        this.repeat = true;
+        this.frameCounter = 0;
         this.slowness = 5;
+        this.frame = 0;
+        this.type = "cloud";
         this.movX = -s / 1000 * ratio;
         this.movY = 0;
     }
-}
-for (i = 0; i < 30; i++) {
-    var ran1 = parseInt(Math.random() * 100 + (mapX / ratio));
-    var ran2 = Math.random() * 4 - 2;
-    var ran3 = parseInt(Math.random() * 20 + 1);
-    visualFxs.push(new Cloud(ran1, ran2, ran3));
 }
 /*
 visualFxs.push(new Grass(3, 2));
@@ -1844,8 +1841,8 @@ function drawFxs(fx) {
     switch (fx.type) {
         case "cloud":
             var spritePos = cloudSprites;
-            if (fx.x < mapX - 30 * ratio) {
-                fx.x = mapX + 30 * ratio;
+            if (fx.x < 30 * ratio) {
+                fx.x = (mapWidth + 20) * ratio;
             }
 
             break;
@@ -1877,11 +1874,11 @@ function drawFxs(fx) {
             }
         }
     }
+    //draw on canvascontext.translate(x, y);
     if (fx.movX || fx.movY) {
         fx.x += fx.movX;
         fx.y += fx.movY;
     }
-    //draw on canvascontext.translate(x, y);
 
     //c.translate(fxX+fxW/2, fxY+fxH/2);
     if (fx.rotation > 0) {
@@ -2447,31 +2444,79 @@ function calculateMonsters(m) {
         //console.log("attacking");
     }
 }
-var bg_1 = id("bg1");
-var bg_2 = id("bg2");
+var backgrounds = [id("bg1"), id("cloud1"), id("cloud2"), id("bg2"), id("bg3"), id("bg4")]
 var background = false;
 var darken = {
     go: false,
     alpha: 0
 }
+var cloudsX = [0, 0];
 
 function drawBackground() {
-    for (i = 0; i < 5; i++) {
+    /*
+    for (let j = 0; j < 5; j++) {
         c.drawImage(
-            bg_2,
-            -tilesWidth * ratio + (bg_2.width / tileSize * ratio * i) + mapX / 16,
-            tilesHeight / 2 * ratio + mapY / 16,
-            bg_2.width / tileSize * ratio,
-            bg_2.height / tileSize * ratio
+            backgrounds[0],
+            -tilesWidth * 2 * ratio + (backgrounds[0].width / tileSize * ratio * j),
+            -tilesHeight * ratio / 4,
+            backgrounds[0].width / tileSize * ratio,
+            backgrounds[0].height / tileSize * ratio
         );
     }
-    for (i = 0; i < 5; i++) {
+*/
+    for (let j = 0; j < 5; j++) {
         c.drawImage(
-            bg_1,
-            -tilesWidth * ratio + (bg_1.width / tileSize * ratio * i) + mapX / 8,
-            tilesHeight / 2 * ratio + mapY / 8,
-            bg_1.width / tileSize * ratio,
-            bg_1.height / tileSize * ratio
+            backgrounds[1],
+            -tilesWidth * 2 * ratio + (backgrounds[1].width / tileSize * ratio * j) + mapX / 20 - cloudsX[0],
+            mapY / 20,
+            backgrounds[1].width / tileSize * ratio,
+            backgrounds[1].height / tileSize * ratio
+        );
+    }
+    cloudsX[0] += (backgrounds[1].width / tileSize * ratio) / 4000;
+    if (cloudsX[0] >= backgrounds[1].width / tileSize * ratio) {
+        cloudsX[0] = 0;
+    }
+
+    for (let j = 0; j < 5; j++) {
+        c.drawImage(
+            backgrounds[2],
+            -tilesWidth * 2 * ratio + (backgrounds[2].width / tileSize * ratio * j) + mapX / 18 - cloudsX[1],
+            mapY / 18,
+            backgrounds[2].width / tileSize * ratio,
+            backgrounds[2].height / tileSize * ratio
+        );
+    }
+    cloudsX[1] += (backgrounds[2].width / tileSize * ratio) / 6000;
+    if (cloudsX[1] >= backgrounds[1].width / tileSize * ratio) {
+        cloudsX[1] = 0;
+    }
+    for (let j = 0; j < 5; j++) {
+        c.drawImage(
+            backgrounds[3],
+            -tilesWidth * 2 * ratio + (backgrounds[3].width / tileSize * ratio * j) + mapX / 10,
+            mapY / 10,
+            backgrounds[3].width / tileSize * ratio,
+            backgrounds[3].height / tileSize * ratio
+        );
+    }
+
+    for (let j = 0; j < 5; j++) {
+        c.drawImage(
+            backgrounds[4],
+            -tilesWidth * 2 * ratio + (backgrounds[4].width / tileSize * ratio * j) + mapX / 8,
+            mapY / 8,
+            backgrounds[4].width / tileSize * ratio,
+            backgrounds[4].height / tileSize * ratio
+        );
+    }
+    for (let j = 0; j < 5; j++) {
+        c.drawImage(
+            backgrounds[5],
+            -tilesWidth * 2 * ratio + (backgrounds[4].width / tileSize * ratio * j) + mapX / 6,
+            mapY / 6,
+            backgrounds[5].width / tileSize * ratio,
+            backgrounds[5].height / tileSize * ratio
         );
     }
 }
@@ -2889,6 +2934,7 @@ id("down").addEventListener("touchend", function () {
 // TOUCH CONTROLS END
 var bgColor = "#0099dd";
 var mapHeight = 0;
+var mapWidth = 0;
 var biomes = [{
     background: true,
     ambient: audio.ambient_1,
@@ -2898,7 +2944,7 @@ var biomes = [{
     background: false,
     ambient: audio.ambient_2,
     music: [audio.bach_1, audio.bach_2],
-    bgColor: "#222034"
+    bgColor: "#0099dd"
 }]
 var biome = 0;
 
@@ -2946,6 +2992,11 @@ function initializeMap() {
             mapHeight = map[i].y + map[i].h;
         }
     }
+    for (i = map.length - 1; i >= 0; i--) {
+        if (map[i].x + map[i].w > mapWidth) {
+            mapWidth = map[i].x + map[i].w;
+        }
+    }
     background = biomes[biome].background;
     bgColor = biomes[biome].bgColor;
     audio.walking.addEventListener("play", function () {
@@ -2962,8 +3013,17 @@ function initializeMap() {
     }, {
         once: true
     });
+
+    for (i = 0; i < 30; i++) {
+        var ran1 = parseInt(Math.random() * mapWidth + (player.x / ratio));
+        var ran2 = Math.random() * mapHeight / 4 - mapHeight / 8;
+        var ran3 = parseInt(Math.random() * 20 + 1);
+        visualFxs.push(new Cloud(ran1, ran2, ran3));
+    }
 }
+
 initializeMap();
+
 window.onload = function () {
     requestAnimationFrame(loop);
 }
