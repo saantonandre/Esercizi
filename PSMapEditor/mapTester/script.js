@@ -1174,7 +1174,7 @@ audio.speed2.volume = 0.5;
 audio.jump.volume = 0.5;
 audio.dash.volume = 0.5;
 audio.walking.volume = 1;
-audio.ambient_1.volume = 0.2;
+audio.ambient_1.volume = 0.1;
 audio.ambient_2.volume = 0.2;
 audio.haydn_1.volume = 0.3;
 audio.haydn_2.volume = 0.3;
@@ -1985,8 +1985,8 @@ class MovingPlat extends SpecialTile {
     }
 }
 //x, y,sprite, xVel, yVel, range
-specialTiles.push(new MovingPlat(25, 5, [[7, 6]], 0, 4, 14))
-specialTiles.push(new MovingPlat(26, 5, [[9, 6]], 0, 4, 14))
+//specialTiles.push(new MovingPlat(25, 5, [[7, 6]], 0, 4, 14))
+//specialTiles.push(new MovingPlat(26, 5, [[9, 6]], 0, 4, 14))
 
 function renderSpecialTiles() {
     for (i = 0; i < specialTiles.length; i++) {
