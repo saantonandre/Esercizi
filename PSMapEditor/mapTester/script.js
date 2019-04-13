@@ -1841,7 +1841,7 @@ function drawFxs(fx) {
     switch (fx.type) {
         case "cloud":
             var spritePos = cloudSprites;
-            if (fx.x < 30 * ratio) {
+            if (fx.x < -20 * ratio) {
                 fx.x = (mapWidth + 20) * ratio;
             }
 
@@ -1950,13 +1950,49 @@ class Speeder extends SpecialTile {
     }
 }
 class MovingPlat extends SpecialTile {
-    constructor(x, y, yVel, xVel, range) {
+    constructor(x, y, sprite, xVel, yVel, range) {
         super(x, y);
+        this.sprite = sprite;
+        this.xVel = xVel / ratio;
+        this.yVel = yVel / ratio;
+        this.xI = x;
+        this.yI = y;
+        this.dir = 1;
+        this.range = range;
+        this.repeat = false;
+        this.running = false;
+        this.slowness = 3;
+        this.type = "movingPlat";
+    }
+    move() {
+        if (this.dir) {
+            this.x += this.xVel;
+            this.y += this.yVel;
+            if (this.x >= this.xI + this.range && this.xVel !== 0 || this.y > this.yI + this.range && this.yVel !== 0) {
+                this.xVel *= -1;
+                this.yVel *= -1;
+                this.dir = 0;
+            }
+        } else {
+            this.x += this.xVel;
+            this.y += this.yVel;
+            if (this.x <= this.xI && this.xVel !== 0 || this.y <= this.yI && this.yVel !== 0) {
+                this.xVel *= -1;
+                this.yVel *= -1;
+                this.dir = 1;
+            }
+        }
     }
 }
+//x, y,sprite, xVel, yVel, range
+specialTiles.push(new MovingPlat(25, 5, [[7, 6]], 0, 4, 14))
+specialTiles.push(new MovingPlat(26, 5, [[9, 6]], 0, 4, 14))
 
 function renderSpecialTiles() {
     for (i = 0; i < specialTiles.length; i++) {
+        if (specialTiles[i].move !== undefined) {
+            specialTiles[i].move();
+        }
         if (specialTiles[i].running) {
             specialTiles[i].frameCounter++;
             if (specialTiles[i].frameCounter > specialTiles[i].slowness) {
@@ -1994,6 +2030,14 @@ function renderSpecialTiles() {
                         audio.speed1.playy();
                         player.xVelExt += 0.07 * ratio;
                         player.grounded = true;
+                    } else if (specialTiles[i].type === "movingPlat") {
+                        player.xVelExt = specialTiles[i].xVel * ratio;
+                        if (specialTiles[i].yVel < 0) {
+                            player.yVelExt = specialTiles[i].yVel * ratio;
+                        } else if (specialTiles[i].yVel * ratio < player.maxVelocity) {
+                            player.grounded = true;
+                            player.yVelExt = specialTiles[i].yVel * ratio;
+                        }
                     }
                     break;
                 case "l":
@@ -2004,6 +2048,11 @@ function renderSpecialTiles() {
                         player.dashCd = false;
                         player.xVelExt = bounceOrNot;
                         player.yVel = -bouncynessY * ratio;
+                    } else if (specialTiles[i].type === "movingPlat") {
+                        player.xVel = 0;
+                        if (specialTiles[i].xVel > 0) {
+                            player.xVelExt = specialTiles[i].xVel * ratio;
+                        }
                     }
                     break;
                 case "r":
@@ -2015,14 +2064,19 @@ function renderSpecialTiles() {
                         player.xVelExt = -bounceOrNot;
                         player.yVel = -bouncynessY * ratio;
                         //console.log(player)
+                    } else if (specialTiles[i].type === "movingPlat") {
+                        player.xVel = 0;
+                        if (specialTiles[i].xVel < 0) {
+                            player.xVelExt = specialTiles[i].xVel * ratio;
+                        }
                     }
                     break;
                 case "t":
+                    if (player.yVel < 0) {
+                        player.yVel = 0;
+                    }
                     if (specialTiles[i].type === "bouncy") {
                         audio.bounce1.playy()
-                        if (player.yVel < 0) {
-                            player.yVel = 0;
-                        }
                     }
                     break;
             }
@@ -2513,8 +2567,26 @@ function drawBackground() {
     for (let j = 0; j < 5; j++) {
         c.drawImage(
             backgrounds[5],
-            -tilesWidth * 2 * ratio + (backgrounds[4].width / tileSize * ratio * j) + mapX / 6,
+            -tilesWidth * 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + mapX / 6,
             mapY / 6,
+            backgrounds[5].width / tileSize * ratio,
+            backgrounds[5].height / tileSize * ratio
+        );
+    }
+    for (let j = 0; j < 5; j++) {
+        c.drawImage(
+            backgrounds[5],
+            -tilesWidth * 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + mapX / 5,
+            (backgrounds[5].height / tileSize * ratio) / 5 + mapY / 5,
+            backgrounds[5].width / tileSize * ratio,
+            backgrounds[5].height / tileSize * ratio
+        );
+    }
+    for (let j = 0; j < 5; j++) {
+        c.fillStyle = "#323c39";
+        c.fillRect(
+            -tilesWidth * 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + mapX / 5,
+            mapY / 5 + backgrounds[5].height / tileSize * ratio,
             backgrounds[5].width / tileSize * ratio,
             backgrounds[5].height / tileSize * ratio
         );
@@ -2939,12 +3011,21 @@ var biomes = [{
     background: true,
     ambient: audio.ambient_1,
     music: [audio.haydn_1, audio.haydn_2],
-    bgColor: "#0099dd"
+    bgColor: "#0099dd",
+    other: function () {
+        for (let j = 0; j < 30; j++) {
+            var ran1 = parseInt(Math.random() * mapWidth + (player.x / ratio));
+            var ran2 = Math.random() * mapHeight / 4 - mapHeight / 8;
+            var ran3 = parseInt(Math.random() * 20 + 1);
+            visualFxs.push(new Cloud(ran1, ran2, ran3));
+        }
+    }
 }, {
     background: false,
     ambient: audio.ambient_2,
     music: [audio.bach_1, audio.bach_2],
-    bgColor: "#0099dd"
+    bgColor: "#222034",
+    other: function () {}
 }]
 var biome = 0;
 
@@ -2999,6 +3080,7 @@ function initializeMap() {
     }
     background = biomes[biome].background;
     bgColor = biomes[biome].bgColor;
+    biomes[biome].other();
     audio.walking.addEventListener("play", function () {
         biomes[biome].ambient.play();
         biomes[biome].music[Math.floor(Math.random() * 2)].play();
@@ -3014,12 +3096,6 @@ function initializeMap() {
         once: true
     });
 
-    for (i = 0; i < 30; i++) {
-        var ran1 = parseInt(Math.random() * mapWidth + (player.x / ratio));
-        var ran2 = Math.random() * mapHeight / 4 - mapHeight / 8;
-        var ran3 = parseInt(Math.random() * 20 + 1);
-        visualFxs.push(new Cloud(ran1, ran2, ran3));
-    }
 }
 
 initializeMap();
