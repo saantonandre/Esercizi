@@ -1828,8 +1828,8 @@ class JumpFx {
 }
 class DeathFx {
     constructor(x, y) {
-        this.x = (x - 1) * ratio;
-        this.y = (y - 1) * ratio;
+        this.x = (x - 0.5) * ratio;
+        this.y = (y - 0.5) * ratio;
         // dir 0 = jump straight, dir 1 = jump right, dir 2 = jump left
         this.sprite = 0;
         this.rotation = 0;
