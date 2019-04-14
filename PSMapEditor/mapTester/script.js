@@ -1155,6 +1155,7 @@ var audio = {
     speed1: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/speed1.mp3"),
     speed2: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/speed2.mp3"),
     dash: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/dash.mp3"),
+    death: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/death.mp3"),
     walking: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/walking.mp3"),
     ambient_1: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/ambient/outside.mp3"),
     ambient_2: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/ambient/castle.mp3"),
@@ -1174,9 +1175,12 @@ audio.speed1.volume = 0.8;
 audio.speed2.volume = 0.5;
 audio.jump.volume = 0.5;
 audio.dash.volume = 0.5;
+audio.death.volume = 0.5;
 audio.walking.volume = 1;
 audio.ambient_1.volume = 0.1;
 audio.ambient_2.volume = 0.2;
+audio.ambient_1.loop = true;
+audio.ambient_2.loop = true;
 audio.haydn_1.volume = 0.3;
 audio.haydn_2.volume = 0.3;
 audio.bach_1.volume = 0.3;
@@ -1247,12 +1251,12 @@ var player = {
     jumpMaxReached: false,
     jumpCounter: 10,
     jump: function () {
-        if (this.grounded) {
+        if (this.grounded && !this.dead) {
             audio.jump.playy();
             this.jumping = true;
             this.grounded = false;
             this.dashCd = false;
-            this.yVel = -0.13 * ratio;
+            this.yVel = -0.08 * ratio;
             var dir = 0;
             if (this.xVel !== 0) {
                 dir = this.left ? 2 : 1;
@@ -1293,10 +1297,10 @@ var player = {
         }
     },
     attackEvent: function () {
-        if (player.grounded && !player.attack) {
+        if (player.grounded && !player.attack && !this.dead) {
             player.attack = true;
             frame = 0;
-        } else if (!player.attack && !player.dashCd) {
+        } else if (!player.attack && !player.dashCd && !this.dead) {
             var dir = player.left ? 4 : 3;
             visualFxs.push(new JumpFx(player.x / ratio, player.y / ratio, dir));
             audio.dash.playy();
@@ -1307,12 +1311,15 @@ var player = {
 
     },
     respawnEvent: function () {
+        this.dead = false;
         this.y = 1 * ratio;
         this.yVel = 0;
         this.xVel = 0;
         this.yVelExt = 0;
         this.xVelExt = 0;
         this.left = false;
+        this.dash = false;
+        this.dashCd = false;
 
         if (typeof spawnPoint !== "undefined") {
             this.x = spawnPoint.x * ratio;
@@ -1359,6 +1366,7 @@ class Monster {
         this.maxHp = this.hp;
         this.type = null;
         this.attack = false;
+        this.dead = false;
         this.hitbox = {
             x: 0,
             y: 0,
@@ -1497,6 +1505,36 @@ function leftRightMovement(serial) {
                     cols.upRight = true;
                 }
                 if (pointSquareCol(points.btRight2, map[j])) {
+                    cols.btRight2 = true;
+                }
+
+            }
+        };
+        for (let j = 0; j < specialTiles.length; j++) {
+            if (monst.left) {
+                if (pointSquareCol(points.upLeft, specialTiles[j])) {
+                    cols.upLeft = true;
+                }
+                if (pointSquareCol(points.left, specialTiles[j])) {
+                    cols.left = true;
+                }
+                if (pointSquareCol(points.btLeft, specialTiles[j])) {
+                    cols.btLeft = true;
+                }
+                if (pointSquareCol(points.btLeft2, specialTiles[j])) {
+                    cols.btLeft2 = true;
+                }
+            } else {
+                if (pointSquareCol(points.btRight, specialTiles[j])) {
+                    cols.btRight = true;
+                }
+                if (pointSquareCol(points.right, specialTiles[j])) {
+                    cols.right = true;
+                }
+                if (pointSquareCol(points.upRight, specialTiles[j])) {
+                    cols.upRight = true;
+                }
+                if (pointSquareCol(points.btRight2, specialTiles[j])) {
                     cols.btRight2 = true;
                 }
 
@@ -1788,6 +1826,21 @@ class JumpFx {
         this.type = "jump";
     }
 }
+class DeathFx {
+    constructor(x, y) {
+        this.x = (x - 1) * ratio;
+        this.y = (y - 1) * ratio;
+        // dir 0 = jump straight, dir 1 = jump right, dir 2 = jump left
+        this.sprite = 0;
+        this.rotation = 0;
+        this.sheet = id("sheet");
+        this.repeat = false;
+        this.frameCounter = 0;
+        this.slowness = 3;
+        this.frame = 0;
+        this.type = "death";
+    }
+}
 class RingFx {
     constructor(x, y, dir) {
         this.x = x * ratio;
@@ -1828,6 +1881,12 @@ var grassSprite = {
     y: [[64, 80, 96, 112]],
     w: [16],
     h: [16],
+};
+var deathSprite = {
+    x: [[304, 304, 304, 304, 304, 304]],
+    y: [[80, 112, 144, 176, 208, 240]],
+    w: [32],
+    h: [32],
 };
 class Cloud {
     constructor(x, y, s) {
@@ -1884,6 +1943,10 @@ function drawFxs(fx) {
         case "jump":
             var spritePos = jmpSprites;
             break;
+        case "death":
+            var spritePos = deathSprite;
+            break;
+
     }
     var fxX = fx.x + mapX;
     var fxY = fx.y + mapY;
@@ -1966,6 +2029,12 @@ class Bouncy extends SpecialTile {
         this.running = false;
         this.slowness = 3;
         this.type = "bouncy";
+        this.hitbox = {
+            x: x + 0.1,
+            y: y + 0.1,
+            w: 0.8,
+            h: 0.8
+        };
     }
 }
 class Speeder extends SpecialTile {
@@ -1986,6 +2055,12 @@ class Spikes extends SpecialTile {
         this.running = false;
         this.slowness = 3;
         this.type = "spikes";
+        this.hitbox = {
+            x: x + 0.2,
+            y: y + 0.2,
+            w: 0.6,
+            h: 0.6
+        };
     }
 }
 class MovingPlat extends SpecialTile {
@@ -2080,7 +2155,14 @@ function renderSpecialTiles() {
                             player.yVelExt = specialTiles[i].yVel * ratio;
                         }
                     } else if (specialTiles[i].type === "spikes") {
-                        player.respawnEvent();
+                        if (!player.dead) {
+                            visualFxs.push(new DeathFx(player.x / ratio, player.y / ratio));
+                            audio.death.play();
+                            player.dead = true;
+                            setTimeout(function () {
+                                player.respawnEvent();
+                            }, 300);
+                        }
                     }
                     break;
                 case "l":
@@ -2103,7 +2185,14 @@ function renderSpecialTiles() {
                             player.xVelExt = specialTiles[i].xVel * ratio;
                         }
                     } else if (specialTiles[i].type === "spikes") {
-                        player.respawnEvent();
+                        if (!player.dead) {
+                            visualFxs.push(new DeathFx(player.x / ratio, player.y / ratio));
+                            audio.death.play();
+                            player.dead = true;
+                            setTimeout(function () {
+                                player.respawnEvent();
+                            }, 300);
+                        }
                     }
                     break;
                 case "r":
@@ -2127,7 +2216,14 @@ function renderSpecialTiles() {
                             player.xVelExt = specialTiles[i].xVel * ratio;
                         }
                     } else if (specialTiles[i].type === "spikes") {
-                        player.respawnEvent();
+                        if (!player.dead) {
+                            visualFxs.push(new DeathFx(player.x / ratio, player.y / ratio));
+                            audio.death.play();
+                            player.dead = true;
+                            setTimeout(function () {
+                                player.respawnEvent();
+                            }, 300);
+                        }
                     }
                     break;
                 case "t":
@@ -2137,7 +2233,14 @@ function renderSpecialTiles() {
                     if (specialTiles[i].type === "bouncy") {
                         audio.bounce1.playy()
                     } else if (specialTiles[i].type === "spikes") {
-                        player.respawnEvent();
+                        if (!player.dead) {
+                            visualFxs.push(new DeathFx(player.x / ratio, player.y / ratio));
+                            audio.death.play();
+                            player.dead = true;
+                            setTimeout(function () {
+                                player.respawnEvent();
+                            }, 300);
+                        }
                     }
                     break;
             }
@@ -2220,9 +2323,14 @@ function collided(square1, square2) {
 }
 
 function pointSquareCol(point, square) {
-    if (point.x > square.x && point.x < square.x + square.w) {
-        if (point.y > square.y && point.y < square.y + square.h) {
-            return true;
+    if (point.x > square.x) {
+        if (point.x < square.x + square.w) {
+            if (point.y > square.y) {
+                if (point.y < square.y + square.h) {
+                    return true;
+                }
+            }
+
         }
     }
     return false;
@@ -2260,7 +2368,11 @@ function loop() {
     //calculate character
     //draw environment
     moveCamera();
-    calculateCharacter(player);
+    if (!player.dead) {
+        calculateCharacter(player);
+    } else if (!audio.walking.paused) {
+        audio.walking.pause();
+    }
     checkCollisions();
     for (i = 0; i < monsters.length; i++) {
         monsters[i].frameCounter++;
@@ -2269,7 +2381,9 @@ function loop() {
 
     drawEnvironment();
     renderSpecialTiles();
-    adjustCollided(player);
+    if (!player.dead) {
+        adjustCollided(player);
+    }
     //draw character
     for (i = monsters.length - 1; i >= 0; i--) {
         drawMonsters(monsters[i]);
@@ -2277,7 +2391,10 @@ function loop() {
     for (i = visualFxs.length - 1; i >= 0; i--) {
         drawFxs(visualFxs[i]);
     }
-    drawCharacter(player);
+
+    if (!player.dead) {
+        drawCharacter(player);
+    }
     renderHpBars();
     renderTexts();
     if (darken.go) {
@@ -2441,7 +2558,7 @@ function calculateCharacter(p) {
         p.jumpCounter = 0;
     }
     if (!p.jumpMaxReached && p.jumping && p.yVel < 0) {
-        p.yVel -= 0.012 * ratio;
+        p.yVel -= (0.08 / (p.jumpCounter + 1)) * ratio;
         p.jumpCounter++;
     }
     if (p.dash) {
