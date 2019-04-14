@@ -42,7 +42,8 @@ var tiles = [
         [5, 12], [6, 12], [7, 12], //stone 2 bottom
         [8, 12], [9, 12], [10, 12], //stone 3
         [9, 8], //stone single
-        [9, 9], //trap
+        [13, 5], [13, 6], [13, 7], [13, 8], //traps rock
+        [14, 5], [14, 6], [14, 7], [14, 8], //traps stone
     ]
 var spawnPoint = {
     x: 3,

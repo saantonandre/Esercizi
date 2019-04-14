@@ -1138,7 +1138,8 @@ var tiles = [
         [5, 12], [6, 12], [7, 12], //stone 2 bottom
         [8, 12], [9, 12], [10, 12], //stone 3
         [9, 8], //stone single
-        [9, 9], //trap
+        [13, 5], [13, 6], [13, 7], [13, 8], //traps rock
+        [14, 5], [14, 6], [14, 7], [14, 8], //traps stone
     ]
 
 setInterval(function () {
@@ -1242,17 +1243,21 @@ var player = {
     dashCd: 0,
     attackDMG: 7,
     dance: false,
+    jumping: false,
+    jumpMaxReached: false,
+    jumpCounter: 10,
     jump: function () {
-        if (player.grounded) {
+        if (this.grounded) {
             audio.jump.playy();
-            player.grounded = false;
-            player.dashCd = false;
-            player.yVel = -0.27 * ratio;
+            this.jumping = true;
+            this.grounded = false;
+            this.dashCd = false;
+            this.yVel = -0.13 * ratio;
             var dir = 0;
-            if (player.xVel !== 0) {
-                dir = player.left ? 2 : 1;
+            if (this.xVel !== 0) {
+                dir = this.left ? 2 : 1;
             }
-            visualFxs.push(new JumpFx(player.x / ratio, player.y / ratio, dir));
+            visualFxs.push(new JumpFx(this.x / ratio, this.y / ratio, dir));
 
         }
     },
@@ -1742,6 +1747,12 @@ var jmpSprites = {
     w: [16, 16, 16, 16, 16],
     h: [16, 16, 16, 16, 16],
 };
+var ringSprites = {
+    x: [[0, 0, 0, 0, 0], [16, 16, 16, 16, 16], [32, 32, 32, 32, 32]],
+    y: [[208, 224, 240, 256, 272], [208, 224, 240, 256, 272], [208, 224, 240, 256, 272]],
+    w: [16, 16, 16],
+    h: [16, 16, 16],
+};
 var visualFxs = [];
 class DmgFx {
     constructor(m, s) {
@@ -1772,9 +1783,24 @@ class JumpFx {
         this.sheet = id("sheet");
         this.repeat = false;
         this.frameCounter = 0;
-        this.slowness = (dir > 2) ? 2 : 4;
+        this.slowness = (dir > 2) ? 1 : 4;
         this.frame = 0;
         this.type = "jump";
+    }
+}
+class RingFx {
+    constructor(x, y, dir) {
+        this.x = x * ratio;
+        this.y = y * ratio;
+        // dir 0 = jump straight, dir 1 = jump right, dir 2 = jump left
+        this.sprite = dir;
+        this.rotation = 0;
+        this.sheet = id("sheet");
+        this.repeat = false;
+        this.frameCounter = 0;
+        this.slowness = 5;
+        this.frame = 0;
+        this.type = "ring";
     }
 }
 class Grass {
@@ -1851,6 +1877,9 @@ function drawFxs(fx) {
             break;
         case "grass":
             var spritePos = grassSprite;
+            break;
+        case "ring":
+            var spritePos = ringSprites;
             break;
         case "jump":
             var spritePos = jmpSprites;
@@ -1949,6 +1978,16 @@ class Speeder extends SpecialTile {
         this.type = "speeder";
     }
 }
+class Spikes extends SpecialTile {
+    constructor(x, y, tile) {
+        super(x, y);
+        this.sprite = [tiles[tile]];
+        this.repeat = false;
+        this.running = false;
+        this.slowness = 3;
+        this.type = "spikes";
+    }
+}
 class MovingPlat extends SpecialTile {
     constructor(x, y, sprite, xVel, yVel, range) {
         super(x, y);
@@ -2025,6 +2064,8 @@ function renderSpecialTiles() {
                         player.yVel = -bouncynessY * ratio;
                         player.dash = false;
                         player.dashCd = false;
+                        //ring VFX
+                        visualFxs.push(new RingFx(player.x / ratio, player.y / ratio, 2));
                         audio.bounce1.playy()
                     } else if (specialTiles[i].type === "speeder") {
                         audio.speed1.playy();
@@ -2038,10 +2079,18 @@ function renderSpecialTiles() {
                             player.grounded = true;
                             player.yVelExt = specialTiles[i].yVel * ratio;
                         }
+                    } else if (specialTiles[i].type === "spikes") {
+                        player.respawnEvent();
                     }
                     break;
                 case "l":
                     if (specialTiles[i].type === "bouncy") {
+                        //ring VFX
+                        if (bounceOrNot !== 0) {
+                            visualFxs.push(new RingFx(player.x / ratio, player.y / ratio, 0));
+                        } else {
+                            visualFxs.push(new RingFx(player.x / ratio, player.y / ratio, 2));
+                        }
                         audio.bounce2.playy()
                         player.grounded = false;
                         player.dash = false;
@@ -2053,10 +2102,18 @@ function renderSpecialTiles() {
                         if (specialTiles[i].xVel > 0) {
                             player.xVelExt = specialTiles[i].xVel * ratio;
                         }
+                    } else if (specialTiles[i].type === "spikes") {
+                        player.respawnEvent();
                     }
                     break;
                 case "r":
                     if (specialTiles[i].type === "bouncy") {
+                        //ring VFX
+                        if (bounceOrNot !== 0) {
+                            visualFxs.push(new RingFx(player.x / ratio, player.y / ratio, 1));
+                        } else {
+                            visualFxs.push(new RingFx(player.x / ratio, player.y / ratio, 2));
+                        }
                         audio.bounce3.playy()
                         player.grounded = false;
                         player.dash = false;
@@ -2069,6 +2126,8 @@ function renderSpecialTiles() {
                         if (specialTiles[i].xVel < 0) {
                             player.xVelExt = specialTiles[i].xVel * ratio;
                         }
+                    } else if (specialTiles[i].type === "spikes") {
+                        player.respawnEvent();
                     }
                     break;
                 case "t":
@@ -2077,6 +2136,8 @@ function renderSpecialTiles() {
                     }
                     if (specialTiles[i].type === "bouncy") {
                         audio.bounce1.playy()
+                    } else if (specialTiles[i].type === "spikes") {
+                        player.respawnEvent();
                     }
                     break;
             }
@@ -2213,10 +2274,10 @@ function loop() {
     for (i = monsters.length - 1; i >= 0; i--) {
         drawMonsters(monsters[i]);
     }
-    drawCharacter(player);
     for (i = visualFxs.length - 1; i >= 0; i--) {
         drawFxs(visualFxs[i]);
     }
+    drawCharacter(player);
     renderHpBars();
     renderTexts();
     if (darken.go) {
@@ -2295,12 +2356,26 @@ function checkCollisions() {
         monsters[i].col.R = false;
         monsters[i].col.T = false;
         monsters[i].col.B = false;
-        colCheck(player, monsters[i]);
+        if (collided(player.hitbox, monsters[i].hitbox)) {
+            colCheck(player, monsters[i].hitbox);
+        }
     }
     for (let i = 0; i < map.length; i++) {
-        colCheck(player, map[i]);
+        if (collided(player.hitbox, map[i])) {
+            colCheck(player, map[i]);
+        }
         for (m = 0; m < monsters.length; m++) {
-            colCheck(monsters[m], map[i]);
+            if (collided(monsters[m].hitbox, map[i])) {
+                colCheck(monsters[m], map[i]);
+            }
+        }
+    };
+
+    for (let i = 0; i < specialTiles.length; i++) {
+        for (m = 0; m < monsters.length; m++) {
+            if (collided(monsters[m].hitbox, specialTiles[i])) {
+                colCheck(monsters[m], specialTiles[i]);
+            }
         }
     }
 }
@@ -2357,7 +2432,20 @@ function adjustCollided(p) {
 
 function calculateCharacter(p) {
     //controls calculation
+    if (p.jumpCounter >= 10) {
+        p.jumpMaxReached = true;
+    }
+    if (p.grounded) {
+        p.jumping = false;
+        p.jumpMaxReached = false;
+        p.jumpCounter = 0;
+    }
+    if (!p.jumpMaxReached && p.jumping && p.yVel < 0) {
+        p.yVel -= 0.012 * ratio;
+        p.jumpCounter++;
+    }
     if (p.dash) {
+        p.jumping = false;
         p.xVel = p.left ? -p.speed * 5 : p.speed * 5;
         p.yVel = 0;
         p.yVelExt = 0;
@@ -2858,6 +2946,7 @@ window.oncontextmenu = function (event) {
     event.preventDefault();
 }
 // Keyboard controls
+var jmpKeyPressed = 0;
 window.addEventListener("keydown", function (event) {
     var key = event.keyCode;
     event.preventDefault();
@@ -2881,13 +2970,22 @@ window.addEventListener("keydown", function (event) {
             watchDown = true;
             break;
         case 87: //jump key down (W / Z / up arrow)
-            player.jump();
+            if (!jmpKeyPressed) {
+                player.jump();
+                jmpKeyPressed = true;
+            }
             break;
         case 90:
-            player.jump();
+            if (!jmpKeyPressed) {
+                player.jump();
+                jmpKeyPressed = true;
+            }
             break;
         case 38:
-            player.jump();
+            if (!jmpKeyPressed) {
+                player.jump();
+                jmpKeyPressed = true;
+            }
             break;
         case 70: //attack key down (F / X)
             player.attackEvent();
@@ -2946,6 +3044,18 @@ window.addEventListener("keyup", function (event) {
         case 40:
             watchDown = false;
             break;
+        case 87: //jump key down (W / Z / up arrow)
+            player.jumping = false;
+            jmpKeyPressed = false;
+            break;
+        case 90:
+            player.jumping = false;
+            jmpKeyPressed = false;
+            break;
+        case 38:
+            player.jumping = false;
+            jmpKeyPressed = false;
+            break;
     }
 });
 
@@ -2986,7 +3096,10 @@ id("right").addEventListener("touchend", function () {
 });
 
 id("up").addEventListener("touchstart", function () {
-    player.jump();
+    if (!jmpKeyPressed) {
+        player.jump();
+        jmpKeyPressed = true;
+    }
     id("up").style.transform = "scale(1.5)";
     id("up").style.opacity = "1";
 });
@@ -2996,6 +3109,8 @@ id("down").addEventListener("touchstart", function () {
     id("down").style.opacity = "1";
 });
 id("up").addEventListener("touchend", function () {
+    player.jumping = false;
+    jmpKeyPressed = false;
     id("up").style.transform = "";
     id("up").style.opacity = "0.5";
 });
@@ -3041,12 +3156,24 @@ if (window.opener) {
 function initializeMap() {
     var spTiles = [];
     for (i = map.length - 1; i >= 0; i--) {
-        if (map[i].type === 17 ||
-            map[i].type === 18 ||
-            map[i].type === 19) {
-            spTiles.push(i);
+        switch (map[i].type) {
+            case 17:
+            case 18:
+            case 19:
+            case 42:
+            case 43:
+            case 44:
+            case 45:
+            case 46:
+            case 47:
+            case 48:
+            case 49:
+                spTiles.push(i);
+                break
         }
     }
+    //[13, 5],[13, 6],[13, 7],[13, 8], //traps rock
+    //[14, 5],[14, 6],[14, 7],[14, 8], //traps stone
     for (i = 0; i < spTiles.length; i++) {
         for (j = 0; j < map[spTiles[i]].h; j++) {
             for (k = 0; k < map[spTiles[i]].w; k++) {
@@ -3059,6 +3186,18 @@ function initializeMap() {
                         break;
                     case 19:
                         specialTiles.push(new Speeder(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
+                        break;
+                    case 42: // up
+                    case 43: // right
+                    case 44: // bottom
+                    case 45: // left
+                        specialTiles.push(new Spikes(map[spTiles[i]].x + k, map[spTiles[i]].y + j, map[spTiles[i]].type));
+                        break;
+                    case 46: // up
+                    case 47: // right
+                    case 48: // bottom
+                    case 49: // left
+                        specialTiles.push(new Spikes(map[spTiles[i]].x + k, map[spTiles[i]].y + j, map[spTiles[i]].type));
                         break;
                 }
             }
