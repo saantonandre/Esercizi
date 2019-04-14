@@ -1927,7 +1927,8 @@ function drawFxs(fx) {
         case "cloud":
             var spritePos = cloudSprites;
             if (fx.x < -20 * ratio) {
-                fx.x = (mapWidth + 20) * ratio;
+                let ww = (mapWidth < 100) ? 100 : mapWidth;
+                fx.x = (ww + 20) * ratio;
             }
 
             break;
@@ -3246,8 +3247,10 @@ var biomes = [{
     bgColor: "#0099dd",
     other: function () {
         for (let j = 0; j < 30; j++) {
-            var ran1 = parseInt(Math.random() * mapWidth + (player.x / ratio));
-            var ran2 = Math.random() * mapHeight / 4 - mapHeight / 8;
+            let ww = (mapWidth < 100) ? 100 : mapWidth;
+            let hh = (mapHeight < 50) ? 50 : mapHeight;
+            var ran1 = parseInt(Math.random() * ww + (player.x / ratio));
+            var ran2 = Math.random() * hh / 4 - hh / 8;
             var ran3 = parseInt(Math.random() * 20 + 1);
             visualFxs.push(new Cloud(ran1, ran2, ran3));
         }
