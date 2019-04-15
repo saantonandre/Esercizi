@@ -1104,8 +1104,8 @@ Audio.prototype.playy = function () {
 //canvas-related variables
 var canvas = id("canvas");
 var c = canvas.getContext("2d");
-//canvas.width = (window.innerHeight < window.innerWidth) ? window.innerHeight / 1.1 : window.innerWidth / 1.1;
-canvas.width = window.innerWidth * (window.innerHeight / window.innerWidth) / 1.1;
+canvas.width = (window.innerHeight < window.innerWidth) ? window.innerHeight : window.innerWidth;
+//canvas.width = window.innerWidth * (window.innerHeight / window.innerWidth) / 1.1;
 canvas.width -= canvas.width % 16;
 canvas.height = canvas.width / 4 * 3;
 c.imageSmoothingEnabled = false;
@@ -1140,6 +1140,8 @@ var tiles = [
         [9, 8], //stone single
         [13, 5], [13, 6], [13, 7], [13, 8], //traps rock
         [14, 5], [14, 6], [14, 7], [14, 8], //traps stone
+        [12, 0], //slime spawn
+        [12, 8], //speeder 2
     ]
 
 setInterval(function () {
@@ -1460,11 +1462,11 @@ function leftRightMovement(serial) {
             },
             left: {
                 x: monst.x / ratio - 0.2,
-                y: monst.y / ratio + monst.h / ratio / 2
+                y: monst.y / ratio + monst.h / ratio / 1.1
             }, // provisional
             right: {
                 x: monst.x / ratio + monst.w / ratio + 0.5,
-                y: monst.y / ratio + monst.h / ratio / 2
+                y: monst.y / ratio + monst.h / ratio / 1.1
             } // provisional
         }
         let cols = {
@@ -2025,7 +2027,7 @@ class SpecialTile {
 class Bouncy extends SpecialTile {
     constructor(x, y) {
         super(x, y);
-        this.sprite = [[11, 4], [11, 5], [11, 6], [11, 7]];
+        this.sprite = biome ? [[11, 8], [11, 9], [11, 10], [11, 11]] : [[11, 4], [11, 5], [11, 6], [11, 7]];
         this.repeat = false;
         this.running = false;
         this.slowness = 3;
@@ -2039,12 +2041,13 @@ class Bouncy extends SpecialTile {
     }
 }
 class Speeder extends SpecialTile {
-    constructor(x, y) {
+    constructor(x, y, dir) {
         super(x, y);
-        this.sprite = [[12, 5], [12, 6], [12, 7], [12, 8]];
         this.repeat = true;
         this.running = true;
+        this.dir = dir;
         this.slowness = 3;
+        this.sprite = (this.dir === 0) ? [[12, 5], [12, 6], [12, 7]] : [[12, 8], [12, 9], [12, 10]];
         this.type = "speeder";
     }
 }
@@ -2145,7 +2148,11 @@ function renderSpecialTiles() {
                         audio.bounce1.playy()
                     } else if (specialTiles[i].type === "speeder") {
                         audio.speed1.playy();
-                        player.xVelExt += 0.07 * ratio;
+                        if (specialTiles[i].dir === 0) {
+                            player.xVelExt += 0.06 * ratio;
+                        } else if (specialTiles[i].dir === 1) {
+                            player.xVelExt -= 0.06 * ratio;
+                        }
                         player.grounded = true;
                     } else if (specialTiles[i].type === "movingPlat") {
                         player.xVelExt = specialTiles[i].xVel * ratio;
@@ -2475,7 +2482,7 @@ function checkCollisions() {
         monsters[i].col.T = false;
         monsters[i].col.B = false;
         if (collided(player.hitbox, monsters[i].hitbox)) {
-            colCheck(player, monsters[i].hitbox);
+            colCheck(player, monsters[i]);
         }
     }
     for (let i = 0; i < map.length; i++) {
@@ -2644,7 +2651,7 @@ function calculateCharacter(p) {
 
 function calculateMonsters(m) {
     //leftRightMovement(m.serial);
-    if (!(fps % 15) && m.grounded) {
+    if (!(fps % 15) && m.grounded && !m.hit) {
         //^AI is refreshed every 1/4 seconds
         m.move(m.serial);
     }
@@ -2677,7 +2684,7 @@ function calculateMonsters(m) {
     } else if (m.R && !m.col.R && !m.L && !m.hit) {
         m.xVel = m.speed;
         m.left = false;
-    } else if (!m.L && !m.R || m.L && m.R) {
+    } else if ((!m.L && !m.R) || (m.L && m.R) || m.hit) {
         m.xVel = 0;
     }
     if (!m.grounded) {
@@ -3015,6 +3022,7 @@ function colCheck(shapeA, shapeB) {
                     shapeA.col.B = oY;
                 }
                 if (shapeB.xVel) {
+                    console.log("xvelext++")
                     shapeA.xVelExt = shapeB.xVel;
                 }
             }
@@ -3288,6 +3296,8 @@ function initializeMap() {
             case 47:
             case 48:
             case 49:
+            case 50:
+            case 51:
                 spTiles.push(i);
                 break
         }
@@ -3304,8 +3314,8 @@ function initializeMap() {
                     case 18:
                         visualFxs.push(new Grass(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
                         break;
-                    case 19:
-                        specialTiles.push(new Speeder(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
+                    case 19: // speeder R
+                        specialTiles.push(new Speeder(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 0));
                         break;
                     case 42: // up
                     case 43: // right
@@ -3318,6 +3328,12 @@ function initializeMap() {
                     case 48: // bottom
                     case 49: // left
                         specialTiles.push(new Spikes(map[spTiles[i]].x + k, map[spTiles[i]].y + j, map[spTiles[i]].type));
+                        break;
+                    case 50: // slime
+                        create("Slime", map[spTiles[i]].x + k, map[spTiles[i]].y + j);
+                        break;
+                    case 51: // speeder L
+                        specialTiles.push(new Speeder(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 1));
                         break;
                 }
             }
@@ -3354,13 +3370,12 @@ function initializeMap() {
     }, {
         once: true
     });
-
+    requestAnimationFrame(loop);
 }
 
-initializeMap();
 
 window.onload = function () {
-    requestAnimationFrame(loop);
+    initializeMap();
 }
 
 //starts the program

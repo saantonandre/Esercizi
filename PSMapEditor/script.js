@@ -45,6 +45,8 @@ var tiles = [
         [9, 8], //stone single
         [13, 5], [13, 6], [13, 7], [13, 8], //traps rock
         [14, 5], [14, 6], [14, 7], [14, 8], //traps stone
+        [12, 0], //slime spawn
+        [12, 8], //speeder 2
     ]
 var spawnPoint = {
     x: 3,
@@ -93,7 +95,7 @@ id("test").onclick = function () {
 id("biomes").onclick = function () {
     if (biome == 0) {
         biome = 1;
-    }else if (biome == 1) {
+    } else if (biome == 1) {
         biome = 0;
     }
     id("biomes").innerText = "biome: " + biome;
