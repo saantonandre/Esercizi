@@ -1322,12 +1322,11 @@ var player = {
         this.left = false;
         this.dash = false;
         this.dashCd = false;
-
         if (typeof spawnPoint !== "undefined") {
             this.x = spawnPoint.x * ratio;
             this.y = spawnPoint.y * ratio;
-            mapX = 0;
-            mapY = 0;
+            mapX = -player.x + (tilesWidth / 6) * ratio - 2 * ratio;
+            mapY = -player.y + (tilesHeight / 2) * ratio;
         } else {
             mapX = 0;
             mapY = 0;
@@ -2169,7 +2168,7 @@ function renderSpecialTiles() {
                             player.dead = true;
                             setTimeout(function () {
                                 player.respawnEvent();
-                            }, 300);
+                            }, 800);
                         }
                     }
                     break;
@@ -2199,7 +2198,7 @@ function renderSpecialTiles() {
                             player.dead = true;
                             setTimeout(function () {
                                 player.respawnEvent();
-                            }, 300);
+                            }, 800);
                         }
                     }
                     break;
@@ -2230,7 +2229,7 @@ function renderSpecialTiles() {
                             player.dead = true;
                             setTimeout(function () {
                                 player.respawnEvent();
-                            }, 300);
+                            }, 800);
                         }
                     }
                     break;
@@ -2247,7 +2246,7 @@ function renderSpecialTiles() {
                             player.dead = true;
                             setTimeout(function () {
                                 player.respawnEvent();
-                            }, 300);
+                            }, 800);
                         }
                     }
                     break;
