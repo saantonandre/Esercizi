@@ -1241,7 +1241,7 @@ var player = {
         h: 16,
     },
     actionX: [[0], [1], [0, 0, 0, 0], [1, 1, 1, 1], [6], [6], [2, 2, 2, 2], [5, 5, 5, 5], [11, 11, 11, 12, 12, 12]],
-    actionY: [[0], [0], [0, 1, 2, 3], [0, 1, 2, 3], [1], [3], [0, 1, 2, 3], [0, 1, 2, 3], [10, 11, 12, 10, 11, 12]],
+    actionY: [[0], [0], [0, 1, 2, 3], [0, 1, 2, 3], [1], [3], [0, 1, 2, 3], [0, 1, 2, 3], [12, 13, 14, 12, 13, 14]],
     action: 0,
     attack: 0,
     dash: false,
@@ -2419,13 +2419,19 @@ function loop() {
 ////////////////////////////////// MAIN LOOP //////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 var watchDown = false;
+var cameraType = 0;
 
 function moveCamera() {
     /*
     mapX=-player.x+2*ratio;
     mapY=-player.y+3*ratio;
     */
-    let cameraDir = player.left ? tilesWidth / 2 : tilesWidth / 6;
+    if (cameraType === 0) {
+        var cameraDir = tilesWidth / 2 - 2;
+    } else if (cameraType === 1) {
+        var cameraDir = player.left ? tilesWidth / 2 : tilesWidth / 6;
+    }
+    //let cameraDir = player.left ? tilesWidth / 2 : tilesWidth / 6;
     if (mapX < -player.x + cameraDir * ratio) {
         // means camera moves forward
         if (Math.abs((-player.x + cameraDir * ratio - mapX) / 6) > 1 / 100 * ratio) {
@@ -3067,20 +3073,26 @@ window.onmousedown = function (e) {
                 }
                 break;
             default:
-                console.log(`Unknown button code: ${btnCode}`);
+                console.log(`Unknown button code`);
         }
     }
 }
 window.onmouseup = function (e) {
     if (typeof e === 'object') {
         switch (e.button) {
+            case 0:
+                //console.log('Left button clicked.');
+                break;
+            case 1:
+                //console.log('Middle button clicked.');
+                break;
             case 2:
                 //console.log('Right button clicked.');
                 player.jumping = false;
                 jmpKeyPressed = false;
                 break;
             default:
-                console.log(`Unknown button code: ${btnCode}`);
+                console.log(`Unknown button code`);
         }
     }
 }
@@ -3093,35 +3105,19 @@ window.addEventListener("keydown", function (event) {
     event.preventDefault();
     switch (key) {
         case 65: //left key down (A / left arrow)
-            player.L = true;
-            break;
         case 37:
             player.L = true;
             break;
         case 68: //right key down (D / right arrow)
-            player.R = true;
-            break;
         case 39:
             player.R = true;
             break;
         case 83: //down key down (S /down arrow)
-            watchDown = true;
-            break;
         case 40:
             watchDown = true;
             break;
         case 87: //jump key down (W / Z / up arrow)
-            if (!jmpKeyPressed) {
-                player.jump();
-                jmpKeyPressed = true;
-            }
-            break;
         case 90:
-            if (!jmpKeyPressed) {
-                player.jump();
-                jmpKeyPressed = true;
-            }
-            break;
         case 38:
             if (!jmpKeyPressed) {
                 player.jump();
@@ -3129,10 +3125,14 @@ window.addEventListener("keydown", function (event) {
             }
             break;
         case 70: //attack key down (F / X)
-            player.attackEvent();
-            break;
         case 88:
             player.attackEvent();
+            break;
+        case 67: //camera key (C)
+            cameraType++;
+            if (cameraType > 1) {
+                cameraType = 0;
+            }
             break;
         case 69: //dance key (E)
             player.dance = true;
@@ -3168,31 +3168,19 @@ window.addEventListener("keyup", function (event) {
     var key = event.keyCode;
     switch (key) {
         case 65: //left key up (A / left arrow)
-            player.L = false;
-            break;
         case 37:
             player.L = false;
             break;
         case 68: //right key up (D / right arrow)
-            player.R = false;
-            break;
         case 39:
             player.R = false;
             break;
         case 83: //down key up (S /down arrow)
-            watchDown = false;
-            break;
         case 40:
             watchDown = false;
             break;
         case 87: //jump key down (W / Z / up arrow)
-            player.jumping = false;
-            jmpKeyPressed = false;
-            break;
         case 90:
-            player.jumping = false;
-            jmpKeyPressed = false;
-            break;
         case 38:
             player.jumping = false;
             jmpKeyPressed = false;
