@@ -1258,7 +1258,7 @@ var player = {
             this.jumping = true;
             this.grounded = false;
             this.dashCd = false;
-            this.yVel = -0.08 * ratio;
+            this.yVel = -0.02 * ratio;
             var dir = 0;
             if (this.xVel !== 0) {
                 dir = this.left ? 2 : 1;
@@ -2565,7 +2565,7 @@ function calculateCharacter(p) {
         p.jumpCounter = 0;
     }
     if (!p.jumpMaxReached && p.jumping && p.yVel < 0) {
-        p.yVel -= (0.08 / (p.jumpCounter + 1)) * ratio;
+        p.yVel -= (0.1 / (p.jumpCounter + 1)) * ratio;
         p.jumpCounter++;
     }
     if (p.dash) {
@@ -3046,6 +3046,7 @@ function colCheck(shapeA, shapeB) {
 }
 var touchDevice = false;
 //Mouse controls
+var jmpKeyPressed = 0;
 window.onmousedown = function (e) {
     if (typeof e === 'object') {
         switch (e.button) {
@@ -3060,7 +3061,23 @@ window.onmousedown = function (e) {
                 break;
             case 2:
                 //console.log('Right button clicked.');
-                player.jump();
+                if (!jmpKeyPressed) {
+                    player.jump();
+                    jmpKeyPressed = true;
+                }
+                break;
+            default:
+                console.log(`Unknown button code: ${btnCode}`);
+        }
+    }
+}
+window.onmouseup = function (e) {
+    if (typeof e === 'object') {
+        switch (e.button) {
+            case 2:
+                //console.log('Right button clicked.');
+                player.jumping = false;
+                jmpKeyPressed = false;
                 break;
             default:
                 console.log(`Unknown button code: ${btnCode}`);
@@ -3071,7 +3088,6 @@ window.oncontextmenu = function (event) {
     event.preventDefault();
 }
 // Keyboard controls
-var jmpKeyPressed = 0;
 window.addEventListener("keydown", function (event) {
     var key = event.keyCode;
     event.preventDefault();
