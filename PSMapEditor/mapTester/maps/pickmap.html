@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="shortcut icon" href="https://saantonandre.github.io/PixelSamurai/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css?family=VT323" rel="stylesheet">
     <style>
         html {
             background: #f0f0f0;
@@ -26,7 +27,8 @@
             color: #FFF;
             text-decoration: none;
             line-height: 43px;
-            font-family: 'Oswald', Helvetica;
+            font-family: 'VT323', monospace;
+            font-size: 30px;
             display: block;
             margin: 30px;
         }
@@ -132,7 +134,7 @@
         }
         for (i = 0; i < maps.length; i++) {
             let button = document.createElement("button");
-            let text = document.createTextNode("LEVEL - " + (i + 1));
+            let text = document.createTextNode("Test Map #" + (i + 1));
             button.appendChild(text);
             button.number = i;
             button.classList += "push_button "
