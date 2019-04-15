@@ -8,6 +8,7 @@ var sheet = id("sheet");
 var c = canvas.getContext("2d");
 c.imageSmoothingEnabled = false;
 var map = [];
+var biome = 0;
 var hitBoxes = [];
 var cellQuantityW = id("mapSizeW").value;
 var cellQuantityH = id("mapSizeH").value;
@@ -88,6 +89,14 @@ id("test").onclick = function () {
     mapExport(false);
     var mapTester = window.open("mapTester/index.html");
     //mapTester.tile=map;
+}
+id("biomes").onclick = function () {
+    if (biome == 0) {
+        biome = 1;
+    }else if (biome == 1) {
+        biome = 0;
+    }
+    id("biomes").innerText = "biome: " + biome;
 }
 //TOGGLES INTERACTIVE BLOCKS
 id("interactive").onclick = function () {
@@ -222,6 +231,7 @@ function mapExport(downloadTxt) {
     }
     mapCode += ']; ';
     mapCode += "spawnPoint = {x : " + spawnPoint.x + ",y : " + spawnPoint.y + "};";
+    mapCode += "biome = " + biome + ";";
     console.log(mapCode);
     if (downloadTxt) {
         download('mapCode.txt', mapCode);
