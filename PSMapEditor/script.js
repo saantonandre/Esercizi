@@ -328,7 +328,7 @@ function renderMap() {
         }
     }
     for (i = 0; i < map.length; i++) {
-        if (map[i].type < 51) {
+        if (map[i].type <= 51) {
             for (j = 0; j < map[i].h; j++) {
                 for (k = 0; k < map[i].w; k++) {
                     //c.fillRect((tile[i].x + k) * (ratio)+mapX, (tile[i].y + j) * (ratio), ratio, ratio);
