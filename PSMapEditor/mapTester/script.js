@@ -3,30 +3,6 @@ function id(arg) {
     return document.getElementById(arg);
 }
 var map = [{
-    x: 1,
-    y: 6,
-    w: 1,
-    h: 1,
-    type: 0
-}, {
-    x: 2,
-    y: 6,
-    w: 9,
-    h: 1,
-    type: 1
-}, {
-    x: 1,
-    y: 7,
-    w: 1,
-    h: 2,
-    type: 3
-}, {
-    x: 1,
-    y: 9,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
     x: 2,
     y: 7,
     w: 12,
@@ -38,1057 +14,9 @@ var map = [{
     w: 3,
     h: 1,
     type: 1
-}, {
-    x: 14,
-    y: 6,
-    w: 1,
-    h: 1,
-    type: 2
-}, {
-    x: 14,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 5
-}, {
-    x: 15,
-    y: 8,
-    w: 2,
-    h: 1,
-    type: 10
-}, {
-    x: 17,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 12
-}, {
-    x: 18,
-    y: 8,
-    w: 4,
-    h: 1,
-    type: 1
-}, {
-    x: 24,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 16
-}, {
-    x: 22,
-    y: 8,
-    w: 2,
-    h: 1,
-    type: 15
-}, {
-    x: 21,
-    y: 9,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 20,
-    y: 10,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 19,
-    y: 11,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 18,
-    y: 12,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 17,
-    y: 13,
-    w: 1,
-    h: 3,
-    type: 5
-}, {
-    x: 18,
-    y: 16,
-    w: 1,
-    h: 1,
-    type: 11
-}, {
-    x: 19,
-    y: 17,
-    w: 1,
-    h: 1,
-    type: 11
-}, {
-    x: 20,
-    y: 18,
-    w: 1,
-    h: 1,
-    type: 11
-}, {
-    x: 21,
-    y: 19,
-    w: 13,
-    h: 1,
-    type: 10
-}, {
-    x: 14,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 4
-}, {
-    x: 2,
-    y: 9,
-    w: 19,
-    h: 1,
-    type: 4
-}, {
-    x: 3,
-    y: 10,
-    w: 17,
-    h: 1,
-    type: 4
-}, {
-    x: 4,
-    y: 11,
-    w: 15,
-    h: 1,
-    type: 4
-}, {
-    x: 16,
-    y: 12,
-    w: 2,
-    h: 1,
-    type: 4
-}, {
-    x: 16,
-    y: 13,
-    w: 1,
-    h: 3,
-    type: 4
-}, {
-    x: 16,
-    y: 16,
-    w: 2,
-    h: 1,
-    type: 4
-}, {
-    x: 16,
-    y: 17,
-    w: 3,
-    h: 1,
-    type: 4
-}, {
-    x: 16,
-    y: 18,
-    w: 4,
-    h: 1,
-    type: 4
-}, {
-    x: 16,
-    y: 19,
-    w: 5,
-    h: 1,
-    type: 4
-}, {
-    x: 15,
-    y: 13,
-    w: 1,
-    h: 7,
-    type: 3
-}, {
-    x: 2,
-    y: 10,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 3,
-    y: 11,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 4,
-    y: 12,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 5,
-    y: 12,
-    w: 10,
-    h: 1,
-    type: 7
-}, {
-    x: 15,
-    y: 12,
-    w: 1,
-    h: 1,
-    type: 4
-}, {
-    x: 18,
-    y: 20,
-    w: 17,
-    h: 1,
-    type: 4
-}, {
-    x: 18,
-    y: 21,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 15,
-    y: 20,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 16,
-    y: 20,
-    w: 2,
-    h: 1,
-    type: 7
-}, {
-    x: 19,
-    y: 21,
-    w: 16,
-    h: 1,
-    type: 7
-}, {
-    x: 35,
-    y: 21,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 36,
-    y: 20,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 37,
-    y: 19,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 27,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 14
-}, {
-    x: 28,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 15
-}, {
-    x: 29,
-    y: 9,
-    w: 1,
-    h: 3,
-    type: 3
-}, {
-    x: 29,
-    y: 12,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 31,
-    y: 13,
-    w: 1,
-    h: 1,
-    type: 7
-}, {
-    x: 30,
-    y: 13,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 32,
-    y: 14,
-    w: 1,
-    h: 2,
-    type: 3
-}, {
-    x: 32,
-    y: 16,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 33,
-    y: 16,
-    w: 5,
-    h: 1,
-    type: 7
-}, {
-    x: 35,
-    y: 20,
-    w: 1,
-    h: 1,
-    type: 4
-}, {
-    x: 34,
-    y: 19,
-    w: 3,
-    h: 1,
-    type: 10
-}, {
-    x: 38,
-    y: 16,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 38,
-    y: 5,
-    w: 1,
-    h: 11,
-    type: 5
-}, {
-    x: 38,
-    y: 4,
-    w: 1,
-    h: 1,
-    type: 5
-}, {
-    x: 37,
-    y: 4,
-    w: 1,
-    h: 4,
-    type: 3
-}, {
-    x: 29,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 13
-}, {
-    x: 30,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 13
-}, {
-    x: 31,
-    y: 8,
-    w: 6,
-    h: 1,
-    type: 10
-}, {
-    x: 37,
-    y: 8,
-    w: 1,
-    h: 8,
-    type: 4
-}, {
-    x: 33,
-    y: 14,
-    w: 4,
-    h: 2,
-    type: 4
-}, {
-    x: 32,
-    y: 13,
-    w: 5,
-    h: 1,
-    type: 4
-}, {
-    x: 30,
-    y: 9,
-    w: 7,
-    h: 4,
-    type: 4
-}, {
-    x: 37,
-    y: 3,
-    w: 1,
-    h: 1,
-    type: 0
-}, {
-    x: 38,
-    y: 3,
-    w: 1,
-    h: 1,
-    type: 2
-}, {
-    x: 39,
-    y: 19,
-    w: 1,
-    h: 1,
-    type: 14
-}, {
-    x: 2,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 7,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 13,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 18,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 22,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 28,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 30,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 38,
-    y: 2,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 41,
-    y: 18,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 48,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 9
-}, {
-    x: 48,
-    y: 6,
-    w: 1,
-    h: 24,
-    type: 3
-}, {
-    x: 49,
-    y: 6,
-    w: 1,
-    h: 24,
-    type: 5
-}, {
-    x: 49,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 11
-}, {
-    x: 53,
-    y: 9,
-    w: 1,
-    h: 1,
-    type: 9
-}, {
-    x: 54,
-    y: 9,
-    w: 1,
-    h: 1,
-    type: 11
-}, {
-    x: 53,
-    y: 10,
-    w: 1,
-    h: 20,
-    type: 3
-}, {
-    x: 54,
-    y: 10,
-    w: 1,
-    h: 20,
-    type: 5
-}, {
-    x: 58,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 14
-}, {
-    x: 59,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 16
-}, {
-    x: 64,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 46,
-    y: 16,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 44,
-    y: 13,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 46,
-    y: 10,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 44,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 40,
-    y: 19,
-    w: 4,
-    h: 1,
-    type: 15
-}, {
-    x: 44,
-    y: 19,
-    w: 1,
-    h: 1,
-    type: 16
-}, {
-    x: 48,
-    y: 30,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 53,
-    y: 30,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 49,
-    y: 30,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 54,
-    y: 30,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 69,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 0
-}, {
-    x: 69,
-    y: 9,
-    w: 1,
-    h: 25,
-    type: 3
-}, {
-    x: 70,
-    y: 9,
-    w: 1,
-    h: 25,
-    type: 5
-}, {
-    x: 70,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 2
-}, {
-    x: 69,
-    y: 34,
-    w: 1,
-    h: 1,
-    type: 3
-}, {
-    x: 72,
-    y: 2,
-    w: 1,
-    h: 1,
-    type: 9
-}, {
-    x: 73,
-    y: 2,
-    w: 1,
-    h: 1,
-    type: 11
-}, {
-    x: 72,
-    y: 3,
-    w: 1,
-    h: 28,
-    type: 3
-}, {
-    x: 72,
-    y: 31,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 73,
-    y: 31,
-    w: 4,
-    h: 1,
-    type: 7
-}, {
-    x: 73,
-    y: 3,
-    w: 1,
-    h: 27,
-    type: 5
-}, {
-    x: 73,
-    y: 30,
-    w: 1,
-    h: 1,
-    type: 4
-}, {
-    x: 77,
-    y: 30,
-    w: 1,
-    h: 1,
-    type: 11
-}, {
-    x: 77,
-    y: 31,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 69,
-    y: 35,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 70,
-    y: 34,
-    w: 1,
-    h: 1,
-    type: 4
-}, {
-    x: 70,
-    y: 35,
-    w: 9,
-    h: 1,
-    type: 7
-}, {
-    x: 79,
-    y: 34,
-    w: 1,
-    h: 1,
-    type: 11
-}, {
-    x: 79,
-    y: 35,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 78,
-    y: 31,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 76,
-    y: 27,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 85,
-    y: 29,
-    w: 1,
-    h: 1,
-    type: 9
-}, {
-    x: 85,
-    y: 30,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 86,
-    y: 29,
-    w: 1,
-    h: 1,
-    type: 12
-}, {
-    x: 87,
-    y: 29,
-    w: 4,
-    h: 1,
-    type: 1
-}, {
-    x: 86,
-    y: 30,
-    w: 5,
-    h: 1,
-    type: 7
-}, {
-    x: 91,
-    y: 29,
-    w: 1,
-    h: 1,
-    type: 2
-}, {
-    x: 91,
-    y: 30,
-    w: 1,
-    h: 1,
-    type: 8
-}, {
-    x: 87,
-    y: 16,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 87,
-    y: 15,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 87,
-    y: 14,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 87,
-    y: 13,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 87,
-    y: 12,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 87,
-    y: 11,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 87,
-    y: 10,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 87,
-    y: 9,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 87,
-    y: 8,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 89,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 95,
-    y: 3,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 98,
-    y: 3,
-    w: 1,
-    h: 1,
-    type: 14
-}, {
-    x: 99,
-    y: 3,
-    w: 2,
-    h: 1,
-    type: 15
-}, {
-    x: 101,
-    y: 3,
-    w: 1,
-    h: 1,
-    type: 16
-}, {
-    x: 99,
-    y: 2,
-    w: 2,
-    h: 1,
-    type: 18
-}, {
-    x: 104,
-    y: 4,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 104,
-    y: 2,
-    w: 1,
-    h: 2,
-    type: 3
-}, {
-    x: 104,
-    y: 1,
-    w: 1,
-    h: 1,
-    type: 9
-}, {
-    x: 105,
-    y: 1,
-    w: 1,
-    h: 1,
-    type: 10
-}, {
-    x: 106,
-    y: 1,
-    w: 1,
-    h: 1,
-    type: 11
-}, {
-    x: 105,
-    y: 4,
-    w: 2,
-    h: 1,
-    type: 7
-}, {
-    x: 109,
-    y: 4,
-    w: 2,
-    h: 1,
-    type: 7
-}, {
-    x: 108,
-    y: 4,
-    w: 1,
-    h: 1,
-    type: 6
-}, {
-    x: 108,
-    y: 2,
-    w: 1,
-    h: 2,
-    type: 3
-}, {
-    x: 108,
-    y: 1,
-    w: 1,
-    h: 1,
-    type: 9
-}, {
-    x: 109,
-    y: 1,
-    w: 1,
-    h: 1,
-    type: 10
-}, {
-    x: 110,
-    y: 1,
-    w: 1,
-    h: 1,
-    type: 11
-}, {
-    x: 106,
-    y: 3,
-    w: 1,
-    h: 1,
-    type: 11
-}, {
-    x: 110,
-    y: 3,
-    w: 1,
-    h: 1,
-    type: 11
-}, {
-    x: 90,
-    y: 19,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 90,
-    y: 18,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 90,
-    y: 17,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 93,
-    y: 5,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 90,
-    y: 26,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 90,
-    y: 25,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 90,
-    y: 24,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 90,
-    y: 23,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 90,
-    y: 22,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 90,
-    y: 21,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 90,
-    y: 20,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 87,
-    y: 28,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 89,
-    y: 28,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 69,
-    y: 7,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 58,
-    y: 6,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 25,
-    y: 17,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 71,
-    y: 34,
-    w: 1,
-    h: 1,
-    type: 17
-}, {
-    x: 72,
-    y: 34,
-    w: 7,
-    h: 1,
-    type: 10
-}, {
-    x: 74,
-    y: 30,
-    w: 2,
-    h: 1,
-    type: 1
-}, {
-    x: 76,
-    y: 30,
-    w: 1,
-    h: 1,
-    type: 13
-}, {
-    x: 75,
-    y: 29,
-    w: 1,
-    h: 1,
-    type: 18
-}, {
-    x: 26,
-    y: 17,
-    w: 1,
-    h: 1,
-    type: 17
-}, ];
+}];
 spawnPoint = {
-    x: 9,
-    y: 5
-};
-spawnPoint = {
-    x: 9,
+    x: 3,
     y: 5
 };
 Audio.prototype.playy = function () {
@@ -1101,18 +29,15 @@ Audio.prototype.playy = function () {
         aud.play().catch(function (e) {});
     }
 }
-//canvas-related variables
+//Canvas-related variables
 var canvas = id("canvas");
 var c = canvas.getContext("2d");
-/*
-canvas.width = (window.innerHeight < window.innerWidth) ? window.innerHeight : window.innerWidth;
-//canvas.width = window.innerWidth * (window.innerHeight / window.innerWidth) / 1.1;
-canvas.width -= canvas.width % 16;
-canvas.height = canvas.width / 4 * 3;
-*/
+//  The size of the tiles in the spritesheet
 var tileSize = 16;
 var tilesWidth = 20;
 var tilesHeight = 15;
+
+// Pixel perfection
 var biggestPossible = 1;
 var ratioWidth = Math.floor(window.innerWidth / (tileSize * tilesWidth));
 var ratioHeight = Math.floor(window.innerHeight / (tileSize * tilesHeight))
@@ -1121,13 +46,9 @@ if (ratioWidth !== ratioHeight) {
 }
 canvas.width = tileSize * tilesWidth * biggestPossible;
 canvas.height = tileSize * tilesHeight * biggestPossible;
-console.log(canvas.width)
-console.log(canvas.height)
 c.imageSmoothingEnabled = false;
 //var tilesHeight = tilesWidth * (canvas.height / canvas.width);
 
-//////PIXEL PERFECTION//////
-//////PIXEL PERFECTION//////
 
 var ratio = canvas.width / (tilesWidth);
 var textSize = Math.round(0.3 * ratio);
@@ -1213,15 +134,8 @@ audio.haydn_1.volume = 0.3;
 audio.haydn_2.volume = 0.3;
 audio.bach_1.volume = 0.3;
 audio.bach_2.volume = 0.3;
-/*
-audio.ambient_1.loop = true;
-audio.ambient_2.loop = true;
-audio.haydn_1.loop = true;
-audio.haydn_2.loop = true;
-audio.bach_1.loop = true;
-audio.bach_2.loop = true;
-*/
-//environment
+
+
 var player = {
     x: 2 * ratio,
     y: 2 * ratio,
@@ -1296,7 +210,7 @@ var player = {
     attacking: function (hitbox) {
         var hitSomething = 0;
         for (i = 0; i < monsters.length; i++) {
-            if (collided(hitbox, monsters[i].hitbox) && monsters[i].hp > 0) {
+            if (collided(hitbox, monsters[i]) && monsters[i].hp > 0) {
                 var DMG = Math.round(Math.random() * (player.attackDMG / 2) + player.attackDMG / 2);
                 var missChance = Math.round(Math.random() * (player.precision));
                 if (missChance === 1) {
@@ -1448,6 +362,7 @@ class Monster {
         }
     }
 }
+
 //shows the number of monsters
 setInterval(function () {
     id("monsternumber").innerHTML = monsters.length;
@@ -1612,42 +527,6 @@ function leftRightMovement(serial) {
         }
     }
 }
-/*
-function randomMovement(serial) {
-    //console.log(monsters[i].serial+" "+ serial);
-    var targetMonster = null;
-    for (i = 0; i < monsters.length; i++) {
-        if (monsters[i].serial == serial) {
-            targetMonster = i;
-        }
-    }
-    if (targetMonster !== null) {
-        var random = Math.random() * 800 + 100;
-        var random2 = parseInt(Math.random() * 3);
-        switch (random2) {
-            case 0:
-                if (!monsters[targetMonster].col.L) {
-                    monsters[targetMonster].L = true;
-                    monsters[targetMonster].R = false;
-                }
-                break;
-            case 1:
-                if (!monsters[targetMonster].col.R) {
-                    monsters[targetMonster].L = false;
-                    monsters[targetMonster].R = true;
-                }
-                break;
-            case 2:
-                monsters[targetMonster].L = false;
-                monsters[targetMonster].R = false;
-                break;
-        }
-        setTimeout(randomMovement, random, serial);
-    } else {
-        return 0;
-    }
-}
-*/
 class Slime extends Monster {
     constructor(x, y) {
         super(x, y);
@@ -1689,7 +568,7 @@ class Bear extends Monster {
         this.precision = 5;
     }
     attackEvent(bear) {
-        if (collided(player.hitbox, bear.atkHitbox)) {
+        if (collided(player, bear.atkHitbox)) {
             player.yVelExt += -0.3 * ratio;
             player.xVelExt += bear.left ? -0.3 * ratio : 0.3 * ratio;
             player.left = bear.left;
@@ -1714,15 +593,31 @@ class Bear extends Monster {
         }
     }
     searchPlayer(bear) {
-        if (collided(player.hitbox, bear.atkHitbox)) {
+        if (collided(player, bear.atkHitbox)) {
             bear.attack = true;
         }
     }
     attackSprite(m) {
         if (m.action == 6) {
-            c.drawImage(m.sheet, m.actionX[m.action][m.frame] + 32, m.actionY[m.action][m.frame], m.sprite.w / 2, m.sprite.h, (m.x + m.w + mapX) | 0, (m.y + mapY) | 0, (m.w / 2) | 0, (m.h) | 0);
+            c.drawImage(
+                m.sheet,
+                m.actionX[m.action][m.frame] + 32,
+                m.actionY[m.action][m.frame],
+                m.sprite.w / 2, m.sprite.h,
+                (m.x + m.w + mapX) | 0,
+                (m.y + mapY) | 0, (m.w / 2) | 0,
+                (m.h) | 0);
         } else if (m.action == 7) {
-            c.drawImage(m.sheet, m.actionX[m.action][m.frame] - 16, m.actionY[m.action][m.frame], m.sprite.w / 2, m.sprite.h, (m.x - m.w / 2 + mapX) | 0, (m.y + mapY) | 0, (m.w / 2) | 0, (m.h) | 0);
+            c.drawImage(
+                m.sheet,
+                m.actionX[m.action][m.frame] - 16,
+                m.actionY[m.action][m.frame],
+                m.sprite.w / 2,
+                m.sprite.h,
+                (m.x - m.w / 2 + mapX) | 0,
+                (m.y + mapY) | 0,
+                (m.w / 2) | 0,
+                (m.h) | 0);
         }
     }
 }
@@ -1759,43 +654,6 @@ class Superzombie extends Zombie {
         this.h = 2 * ratio;
     }
 }
-
-function create(type, x, y) {
-    switch (type) {
-        case "Slime":
-            //console.log("creating a Slime");
-            monsters.push(new Slime(x, y));
-            break;
-        case "Lizard":
-            //console.log("creating a Lizard");
-            monsters.push(new Lizard(x, y));
-            break;
-        case "Zombie":
-            monsters.push(new Zombie(x, y));
-            //console.log("creating a Zombie");
-            break;
-        case "Dummy":
-            monsters.push(new Dummy(x, y));
-            break;
-        case "Superzombie":
-            monsters.push(new Superzombie(x, y));
-            //console.log("creating a Superzombie");
-            break;
-        case "Bear":
-            monsters.push(new Bear(x, y));
-            //console.log("creating a Superzombie");
-            break;
-    }
-}
-/*
-0:idle right
-1:idle left
-2:walk right
-3:walk left
-4:hit
-5:death
-*/
-//player object
 var dmgTexts = [];
 class DmgText {
     constructor(m, text) {
@@ -1807,24 +665,6 @@ class DmgText {
         this.span = 40;
     }
 }
-var dmgSprites = {
-    x: [[0, 0, 0, 0], [16, 16, 16, 16], [32, 32, 32, 32]],
-    y: [[64, 80, 96, 112], [64, 80, 96, 112], [64, 80, 96, 112]],
-    w: [16, 16, 32],
-    h: [16, 16, 16],
-};
-var jmpSprites = {
-    x: [[0, 0, 0, 0, 0], [16, 16, 16, 16, 16], [32, 32, 32, 32, 32], [48, 48, 48, 48, 48], [64, 64, 64, 64, 64]],
-    y: [[128, 144, 160, 176, 192], [128, 144, 160, 176, 192], [128, 144, 160, 176, 192], [128, 144, 160, 176, 192], [128, 144, 160, 176, 192]],
-    w: [16, 16, 16, 16, 16],
-    h: [16, 16, 16, 16, 16],
-};
-var ringSprites = {
-    x: [[0, 0, 0, 0, 0], [16, 16, 16, 16, 16], [32, 32, 32, 32, 32]],
-    y: [[208, 224, 240, 256, 272], [208, 224, 240, 256, 272], [208, 224, 240, 256, 272]],
-    w: [16, 16, 16],
-    h: [16, 16, 16],
-};
 var visualFxs = [];
 class DmgFx {
     constructor(m, s) {
@@ -1843,6 +683,12 @@ class DmgFx {
         this.slowness = 3;
         this.frame = 0;
         this.type = "dmg";
+        this.spritePos = {
+            x: [[0, 0, 0, 0], [16, 16, 16, 16], [32, 32, 32, 32]],
+            y: [[64, 80, 96, 112], [64, 80, 96, 112], [64, 80, 96, 112]],
+            w: [16, 16, 32],
+            h: [16, 16, 16],
+        };
     }
 }
 class JumpFx {
@@ -1858,13 +704,18 @@ class JumpFx {
         this.slowness = (dir > 2) ? 1 : 4;
         this.frame = 0;
         this.type = "jump";
+        this.spritePos = {
+            x: [[0, 0, 0, 0, 0], [16, 16, 16, 16, 16], [32, 32, 32, 32, 32], [48, 48, 48, 48, 48], [64, 64, 64, 64, 64]],
+            y: [[128, 144, 160, 176, 192], [128, 144, 160, 176, 192], [128, 144, 160, 176, 192], [128, 144, 160, 176, 192], [128, 144, 160, 176, 192]],
+            w: [16, 16, 16, 16, 16],
+            h: [16, 16, 16, 16, 16],
+        };
     }
 }
 class DeathFx {
     constructor(x, y) {
         this.x = (x - 0.5) * ratio;
         this.y = (y - 0.5) * ratio;
-        // dir 0 = jump straight, dir 1 = jump right, dir 2 = jump left
         this.sprite = 0;
         this.rotation = 0;
         this.sheet = id("sheet");
@@ -1873,13 +724,18 @@ class DeathFx {
         this.slowness = 3;
         this.frame = 0;
         this.type = "death";
+        this.spritePos = {
+            x: [[304, 304, 304, 304, 304, 304]],
+            y: [[80, 112, 144, 176, 208, 240]],
+            w: [32],
+            h: [32],
+        };
     }
 }
 class RingFx {
     constructor(x, y, dir) {
         this.x = x * ratio;
         this.y = y * ratio;
-        // dir 0 = jump straight, dir 1 = jump right, dir 2 = jump left
         this.sprite = dir;
         this.rotation = 0;
         this.sheet = id("sheet");
@@ -1888,6 +744,12 @@ class RingFx {
         this.slowness = 5;
         this.frame = 0;
         this.type = "ring";
+        this.spritePos = {
+            x: [[0, 0, 0, 0, 0], [16, 16, 16, 16, 16], [32, 32, 32, 32, 32]],
+            y: [[208, 224, 240, 256, 272], [208, 224, 240, 256, 272], [208, 224, 240, 256, 272]],
+            w: [16, 16, 16],
+            h: [16, 16, 16],
+        };
     }
 }
 class Grass {
@@ -1902,26 +764,14 @@ class Grass {
         this.slowness = 10;
         this.frame = 0;
         this.type = "grass";
+        this.spritePos = {
+            x: [[160, 160, 160, 160]],
+            y: [[64, 80, 96, 112]],
+            w: [16],
+            h: [16],
+        };
     }
 }
-var cloudSprites = {
-    x: [[112], [112], [112], [112]],
-    y: [[0], [16], [32], [48]],
-    w: [16, 16, 16, 16],
-    h: [16, 16, 16, 16],
-};
-var grassSprite = {
-    x: [[160, 160, 160, 160]],
-    y: [[64, 80, 96, 112]],
-    w: [16],
-    h: [16],
-};
-var deathSprite = {
-    x: [[304, 304, 304, 304, 304, 304]],
-    y: [[80, 112, 144, 176, 208, 240]],
-    w: [32],
-    h: [32],
-};
 class Cloud {
     constructor(x, y, s) {
         this.x = x * ratio;
@@ -1936,20 +786,20 @@ class Cloud {
         this.type = "cloud";
         this.movX = -s / 1000 * ratio;
         this.movY = 0;
+        this.spritePos = {
+            x: [[112], [112], [112], [112]],
+            y: [[0], [16], [32], [48]],
+            w: [16, 16, 16, 16],
+            h: [16, 16, 16, 16],
+        };
+    }
+    action() {
+        if (this.x < -20 * ratio) {
+            let ww = (mapWidth < 100) ? 100 : mapWidth;
+            this.x = (ww + 20) * ratio;
+        }
     }
 }
-/*
-visualFxs.push(new Grass(3, 2));
-visualFxs.push(new Grass(7, 1));
-visualFxs.push(new Grass(2, 2));
-visualFxs.push(new Grass(5, 6));
-visualFxs.push(new Grass(8, 4));
-create("Bear", 4, 1);
-create("Slime", 5, 0);
-create("Dummy", 8, 4);
-create("Dummy", 7, 1);
-create("Dummy", 8, 1);
-*/
 
 if (typeof imported !== "undefined") {
     imported();
@@ -1957,43 +807,20 @@ if (typeof imported !== "undefined") {
 
 function drawFxs(fx) {
     //animation computing
-    switch (fx.type) {
-        case "cloud":
-            var spritePos = cloudSprites;
-            if (fx.x < -20 * ratio) {
-                let ww = (mapWidth < 100) ? 100 : mapWidth;
-                fx.x = (ww + 20) * ratio;
-            }
-
-            break;
-        case "dmg":
-            var spritePos = dmgSprites;
-            break;
-        case "grass":
-            var spritePos = grassSprite;
-            break;
-        case "ring":
-            var spritePos = ringSprites;
-            break;
-        case "jump":
-            var spritePos = jmpSprites;
-            break;
-        case "death":
-            var spritePos = deathSprite;
-            break;
-
+    if (fx.action !== undefined) {
+        fx.action();
     }
     var fxX = fx.x + mapX;
     var fxY = fx.y + mapY;
-    var fxW = spritePos.w[fx.sprite] / tileSize * ratio;
-    var fxH = spritePos.h[fx.sprite] / tileSize * ratio;
+    var fxW = fx.spritePos.w[fx.sprite] / tileSize * ratio;
+    var fxH = fx.spritePos.h[fx.sprite] / tileSize * ratio;
     if (fx.frameCounter !== undefined) {
         fx.frameCounter++;
         if (fx.frameCounter > fx.slowness) {
             fx.frame++;
             fx.frameCounter = 0;
         }
-        if (fx.frame > spritePos.x[fx.sprite].length - 1) {
+        if (fx.frame > fx.spritePos.x[fx.sprite].length - 1) {
             if (fx.repeat) {
                 fx.frame = 0;
             } else {
@@ -2015,10 +842,10 @@ function drawFxs(fx) {
         c.rotate(fx.rotation * Math.PI / 180);
         c.drawImage(
             fx.sheet,
-            spritePos.x[fx.sprite][fx.frame],
-            spritePos.y[fx.sprite][fx.frame],
-            spritePos.w[fx.sprite],
-            spritePos.h[fx.sprite],
+            fx.spritePos.x[fx.sprite][fx.frame],
+            fx.spritePos.y[fx.sprite][fx.frame],
+            fx.spritePos.w[fx.sprite],
+            fx.spritePos.h[fx.sprite],
             (-fxW / 2),
             (-fxH / 2),
             fxW | 0,
@@ -2027,10 +854,10 @@ function drawFxs(fx) {
     } else {
         c.drawImage(
             fx.sheet,
-            spritePos.x[fx.sprite][fx.frame],
-            spritePos.y[fx.sprite][fx.frame],
-            spritePos.w[fx.sprite],
-            spritePos.h[fx.sprite],
+            fx.spritePos.x[fx.sprite][fx.frame],
+            fx.spritePos.y[fx.sprite][fx.frame],
+            fx.spritePos.w[fx.sprite],
+            fx.spritePos.h[fx.sprite],
             fxX | 0,
             fxY | 0,
             fxW | 0,
@@ -2071,6 +898,61 @@ class Bouncy extends SpecialTile {
             h: 0.8
         };
     }
+    action(collider, colDir) {
+        this.running = true;
+        var bouncynessX = 0.3;
+        var bouncynessY = 0.3;
+        var bounceOrNot = collider.dash ? 0.35 * ratio : 0;
+        collider.xVel = 0;
+        collider.yVel = 0;
+        collider.grounded = false;
+        this.running = true;
+        var dir = player.left ? 1 : -1;
+        switch (colDir) {
+            case "b":
+                collider.grounded = false;
+                collider.yVel = -bouncynessY * ratio;
+                collider.dash = false;
+                collider.dashCd = false;
+                visualFxs.push(new RingFx(collider.x / ratio, collider.y / ratio, 2));
+                audio.bounce1.playy()
+                break;
+            case "l":
+                //ring VFX
+                if (bounceOrNot !== 0) {
+                    visualFxs.push(new RingFx(collider.x / ratio, collider.y / ratio, 0));
+                } else {
+                    visualFxs.push(new RingFx(collider.x / ratio, collider.y / ratio, 2));
+                }
+                audio.bounce2.playy()
+                collider.grounded = false;
+                collider.dash = false;
+                collider.dashCd = false;
+                collider.xVelExt = bounceOrNot;
+                collider.yVel = -bouncynessY * ratio;
+                break;
+            case "r":
+                if (bounceOrNot !== 0) {
+                    visualFxs.push(new RingFx(collider.x / ratio, collider.y / ratio, 1));
+                } else {
+                    visualFxs.push(new RingFx(collider.x / ratio, collider.y / ratio, 2));
+                }
+                audio.bounce3.playy()
+                collider.grounded = false;
+                collider.dash = false;
+                collider.dashCd = false;
+                collider.xVelExt = -bounceOrNot;
+                collider.yVel = -bouncynessY * ratio;
+                break;
+                break;
+            case "t":
+                if (collider.yVel < 0) {
+                    collider.yVel = 0;
+                }
+                audio.bounce1.playy()
+                break;
+        };
+    }
 }
 class Speeder extends SpecialTile {
     constructor(x, y, dir) {
@@ -2081,6 +963,26 @@ class Speeder extends SpecialTile {
         this.slowness = 3;
         this.sprite = (this.dir === 0) ? [[12, 5], [12, 6], [12, 7]] : [[12, 8], [12, 9], [12, 10]];
         this.type = "speeder";
+    }
+    action(collider, colDir) {
+        this.running = true;
+        var dir = player.left ? 1 : -1;
+        switch (colDir) {
+            case "b":
+                audio.speed1.playy();
+                if (this.dir === 0) {
+                    collider.xVelExt += 0.06 * ratio;
+                } else if (this.dir === 1) {
+                    collider.xVelExt -= 0.06 * ratio;
+                }
+                collider.grounded = true;
+                break;
+            case "t":
+                if (collider.yVel < 0) {
+                    collider.yVel = 0;
+                }
+                break;
+        };
     }
 }
 class Spikes extends SpecialTile {
@@ -2096,6 +998,28 @@ class Spikes extends SpecialTile {
             y: y + 0.2,
             w: 0.6,
             h: 0.6
+        };
+    }
+    action(collider, colDir) {
+        this.running = true;
+        var dir = collider.left ? 1 : -1;
+        switch (colDir) {
+            case "b":
+            case "l":
+            case "r":
+            case "t":
+                if (!collider.dead) {
+                    visualFxs.push(new DeathFx(collider.x / ratio, collider.y / ratio));
+                    audio.death.playy();
+                    collider.dead = true;
+                    setTimeout(function () {
+                        collider.respawnEvent();
+                    }, 800);
+                }
+                if (collider.yVel < 0) {
+                    collider.yVel = 0;
+                }
+                break;
         };
     }
 }
@@ -2133,6 +1057,38 @@ class MovingPlat extends SpecialTile {
             }
         }
     }
+    action(collider, colDir) {
+        this.running = true;
+        var dir = player.left ? 1 : -1;
+        switch (colDir) {
+            case "b":
+                collider.xVelExt = this.xVel * ratio;
+                if (this.yVel < 0) {
+                    collider.yVelExt = this.yVel * ratio;
+                } else if (this.yVel * ratio < collider.maxVelocity) {
+                    collider.grounded = true;
+                    collider.yVelExt = this.yVel * ratio;
+                }
+                break;
+            case "l":
+                collider.xVel = 0;
+                if (this.xVel > 0) {
+                    collider.xVelExt = this.xVel * ratio;
+                }
+                break;
+            case "r":
+                collider.xVel = 0;
+                if (this.xVel > 0) {
+                    collider.xVelExt = this.xVel * ratio;
+                }
+                break;
+            case "t":
+                if (collider.yVel < 0) {
+                    collider.yVel = 0;
+                }
+                break;
+        };
+    }
 }
 //x, y,sprite, xVel, yVel, range
 //specialTiles.push(new MovingPlat(25, 5, [[7, 6]], 0, 4, 14))
@@ -2156,133 +1112,13 @@ function renderSpecialTiles() {
                 }
             }
         }
-        let collision = colCheck(player, specialTiles[i]);
+        var collision = null;
+        if (collided(player, specialTiles[i])) {
+            collision = colCheck(player, specialTiles[i]);
+        }
         if (collision !== null) {
-            if (specialTiles[i].type === "bouncy") {
-                var bouncynessX = 0.3;
-                var bouncynessY = 0.3;
-                var bounceOrNot = player.dash ? 0.35 * ratio : 0;
-                player.xVel = 0;
-                player.yVel = 0;
-            }
-            specialTiles[i].running = true;
-            var dir = player.left ? 1 : -1;
-            switch (collision) {
-
-                case "b":
-                    if (specialTiles[i].type === "bouncy") {
-                        player.grounded = false;
-                        player.yVel = -bouncynessY * ratio;
-                        player.dash = false;
-                        player.dashCd = false;
-                        //ring VFX
-                        visualFxs.push(new RingFx(player.x / ratio, player.y / ratio, 2));
-                        audio.bounce1.playy()
-                    } else if (specialTiles[i].type === "speeder") {
-                        audio.speed1.playy();
-                        if (specialTiles[i].dir === 0) {
-                            player.xVelExt += 0.06 * ratio;
-                        } else if (specialTiles[i].dir === 1) {
-                            player.xVelExt -= 0.06 * ratio;
-                        }
-                        player.grounded = true;
-                    } else if (specialTiles[i].type === "movingPlat") {
-                        player.xVelExt = specialTiles[i].xVel * ratio;
-                        if (specialTiles[i].yVel < 0) {
-                            player.yVelExt = specialTiles[i].yVel * ratio;
-                        } else if (specialTiles[i].yVel * ratio < player.maxVelocity) {
-                            player.grounded = true;
-                            player.yVelExt = specialTiles[i].yVel * ratio;
-                        }
-                    } else if (specialTiles[i].type === "spikes") {
-                        if (!player.dead) {
-                            visualFxs.push(new DeathFx(player.x / ratio, player.y / ratio));
-                            audio.death.playy();
-                            player.dead = true;
-                            setTimeout(function () {
-                                player.respawnEvent();
-                            }, 800);
-                        }
-                    }
-                    break;
-                case "l":
-                    if (specialTiles[i].type === "bouncy") {
-                        //ring VFX
-                        if (bounceOrNot !== 0) {
-                            visualFxs.push(new RingFx(player.x / ratio, player.y / ratio, 0));
-                        } else {
-                            visualFxs.push(new RingFx(player.x / ratio, player.y / ratio, 2));
-                        }
-                        audio.bounce2.playy()
-                        player.grounded = false;
-                        player.dash = false;
-                        player.dashCd = false;
-                        player.xVelExt = bounceOrNot;
-                        player.yVel = -bouncynessY * ratio;
-                    } else if (specialTiles[i].type === "movingPlat") {
-                        player.xVel = 0;
-                        if (specialTiles[i].xVel > 0) {
-                            player.xVelExt = specialTiles[i].xVel * ratio;
-                        }
-                    } else if (specialTiles[i].type === "spikes") {
-                        if (!player.dead) {
-                            visualFxs.push(new DeathFx(player.x / ratio, player.y / ratio));
-                            audio.death.playy();
-                            player.dead = true;
-                            setTimeout(function () {
-                                player.respawnEvent();
-                            }, 800);
-                        }
-                    }
-                    break;
-                case "r":
-                    if (specialTiles[i].type === "bouncy") {
-                        //ring VFX
-                        if (bounceOrNot !== 0) {
-                            visualFxs.push(new RingFx(player.x / ratio, player.y / ratio, 1));
-                        } else {
-                            visualFxs.push(new RingFx(player.x / ratio, player.y / ratio, 2));
-                        }
-                        audio.bounce3.playy()
-                        player.grounded = false;
-                        player.dash = false;
-                        player.dashCd = false;
-                        player.xVelExt = -bounceOrNot;
-                        player.yVel = -bouncynessY * ratio;
-                        //console.log(player)
-                    } else if (specialTiles[i].type === "movingPlat") {
-                        player.xVel = 0;
-                        if (specialTiles[i].xVel < 0) {
-                            player.xVelExt = specialTiles[i].xVel * ratio;
-                        }
-                    } else if (specialTiles[i].type === "spikes") {
-                        if (!player.dead) {
-                            visualFxs.push(new DeathFx(player.x / ratio, player.y / ratio));
-                            audio.death.playy();
-                            player.dead = true;
-                            setTimeout(function () {
-                                player.respawnEvent();
-                            }, 800);
-                        }
-                    }
-                    break;
-                case "t":
-                    if (player.yVel < 0) {
-                        player.yVel = 0;
-                    }
-                    if (specialTiles[i].type === "bouncy") {
-                        audio.bounce1.playy()
-                    } else if (specialTiles[i].type === "spikes") {
-                        if (!player.dead) {
-                            visualFxs.push(new DeathFx(player.x / ratio, player.y / ratio));
-                            audio.death.playy();
-                            player.dead = true;
-                            setTimeout(function () {
-                                player.respawnEvent();
-                            }, 800);
-                        }
-                    }
-                    break;
+            if (specialTiles[i].action !== undefined) {
+                specialTiles[i].action(player, collision);
             }
         }
         c.drawImage(
@@ -2349,32 +1185,6 @@ function renderTexts() {
     }
 }
 
-function collided(square1, square2) {
-    if (square1.x < square2.x + square2.w) {
-        if (square1.x + square1.w > square2.x) {
-            if (square1.y < square2.y + square2.h) {
-                if (square1.y + square1.h > square2.y) {
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
-}
-
-function pointSquareCol(point, square) {
-    if (point.x > square.x) {
-        if (point.x < square.x + square.w) {
-            if (point.y > square.y) {
-                if (point.y < square.y + square.h) {
-                    return true;
-                }
-            }
-
-        }
-    }
-    return false;
-}
 /*
 actions:
 0:idle right
@@ -2437,15 +1247,6 @@ function loop() {
     }
     renderHpBars();
     renderTexts();
-    if (darken.go) {
-        c.globalAlpha = darken.alpha / 1.5;
-        c.fillStyle = "#000000";
-        c.fillRect(0, 0, canvas.width, canvas.height);
-        c.globalAlpha = 1;
-        if (darken.alpha < 1) {
-            darken.alpha += 0.001;
-        }
-    }
     requestAnimationFrame(loop)
 }
 ///////////////////////////////////////////////////////////////////////////////
@@ -2519,16 +1320,16 @@ function checkCollisions() {
         monsters[i].col.R = false;
         monsters[i].col.T = false;
         monsters[i].col.B = false;
-        if (collided(player.hitbox, monsters[i].hitbox)) {
+        if (collided(player, monsters[i])) {
             colCheck(player, monsters[i]);
         }
     }
     for (let i = 0; i < map.length; i++) {
-        if (collided(player.hitbox, map[i])) {
+        if (collided(player, map[i])) {
             colCheck(player, map[i]);
         }
         for (m = 0; m < monsters.length; m++) {
-            if (collided(monsters[m].hitbox, map[i])) {
+            if (collided(monsters[m], map[i])) {
                 colCheck(monsters[m], map[i]);
             }
         }
@@ -2536,7 +1337,7 @@ function checkCollisions() {
 
     for (let i = 0; i < specialTiles.length; i++) {
         for (m = 0; m < monsters.length; m++) {
-            if (collided(monsters[m].hitbox, specialTiles[i])) {
+            if (collided(monsters[m], specialTiles[i])) {
                 colCheck(monsters[m], specialTiles[i]);
             }
         }
@@ -2751,10 +1552,6 @@ function calculateMonsters(m) {
 }
 var backgrounds = [id("bg1"), id("cloud1"), id("cloud2"), id("bg2"), id("bg3"), id("bg4")]
 var background = false;
-var darken = {
-    go: false,
-    alpha: 0
-}
 var cloudsX = [0, 0];
 
 function drawBackground() {
@@ -2848,65 +1645,62 @@ function drawEnvironment() {
     if (background) {
         drawBackground();
     }
-    if (darken.go) {
-        c.globalAlpha = darken.alpha;
-        c.fillStyle = "black";
-        c.fillRect(0, 0, canvas.width, canvas.height);
-        c.globalAlpha = 1;
-    }
     for (let i = bgTiles.length - 1; i >= 0; i--) {
-        if (bgTiles[i].type === 61) {
-            for (let j = 0; j < bgTiles[i].h; j++) {
-                for (let k = 0; k < bgTiles[i].w; k++) {
-                    //skips out of bounds tiles
-                    if (bgTiles[i].x + k > tilesWidth - mapX / ratio ||
-                        bgTiles[i].x + k < -tilesWidth - mapX / ratio) {
-                        continue;
-                    }
-                    if (bgTiles[i].y + j > tilesHeight - mapY / ratio ||
-                        bgTiles[i].y + j < -tilesHeight - mapY / ratio) {
-                        continue;
-                    }
-                    //c.fillRect((map[i].x + k) * (ratio)+mapX, (map[i].y + j) * (ratio), ratio, ratio);
-                    c.drawImage(player.sheet, tiles[bgTiles[i].type][0] * 16, tiles[bgTiles[i].type][1] * 16, 16, 16, ((bgTiles[i].x + k) * ratio + mapX) | 0, ((bgTiles[i].y + j) * ratio + mapY) | 0, (ratio) | 0, (ratio) | 0);
-                }
-                c.globalAlpha = 1;
-            }
+        if (bgTiles[i].x + bgTiles[i].w > tilesWidth - mapX / ratio &&
+            bgTiles[i].x + bgTiles[i].w < -tilesWidth - mapX / ratio) {
+            continue;
         }
-    }
-    for (let i = bgTiles.length - 1; i >= 0; i--) {
-        if (bgTiles[i].type !== 61) {
-            for (let j = 0; j < bgTiles[i].h; j++) {
-                for (let k = 0; k < bgTiles[i].w; k++) {
-                    //skips out of bounds tiles
-                    if (bgTiles[i].x + k > tilesWidth - mapX / ratio ||
-                        bgTiles[i].x + k < -tilesWidth - mapX / ratio) {
-                        continue;
-                    }
-                    if (bgTiles[i].y + j > tilesHeight - mapY / ratio ||
-                        bgTiles[i].y + j < -tilesHeight - mapY / ratio) {
-                        continue;
-                    }
-                    //c.fillRect((map[i].x + k) * (ratio)+mapX, (map[i].y + j) * (ratio), ratio, ratio);
-                    c.drawImage(player.sheet, tiles[bgTiles[i].type][0] * 16, tiles[bgTiles[i].type][1] * 16, 16, 16, ((bgTiles[i].x + k) * ratio + mapX) | 0, ((bgTiles[i].y + j) * ratio + mapY) | 0, (ratio) | 0, (ratio) | 0);
+        if (bgTiles[i].y + bgTiles[i].h > tilesHeight - mapY / ratio &&
+            bgTiles[i].y + bgTiles[i].h < -tilesHeight - mapY / ratio) {
+            continue;
+        }
+        for (let j = 0; j < bgTiles[i].h; j++) {
+            for (let k = 0; k < bgTiles[i].w; k++) {
+                //skips out of bounds tiles
+                if (bgTiles[i].x + k > tilesWidth - mapX / ratio &&
+                    bgTiles[i].x + k < -tilesWidth - mapX / ratio) {
+                    continue;
                 }
+                if (bgTiles[i].y + j > tilesHeight - mapY / ratio &&
+                    bgTiles[i].y + j < -tilesHeight - mapY / ratio) {
+                    continue;
+                }
+                //c.fillRect((map[i].x + k) * (ratio)+mapX, (map[i].y + j) * (ratio), ratio, ratio);
+                c.drawImage(
+                    player.sheet,
+                    tiles[bgTiles[i].type][0] * 16,
+                    tiles[bgTiles[i].type][1] * 16,
+                    16,
+                    16,
+                    ((bgTiles[i].x + k) * ratio + mapX) | 0,
+                    ((bgTiles[i].y + j) * ratio + mapY) | 0,
+                    (ratio) | 0,
+                    (ratio) | 0);
             }
         }
     }
     for (let i = 0; i < map.length; i++) {
+        if (map[i].x + map[i].w > tilesWidth - mapX / ratio &&
+            map[i].x + map[i].w < -tilesWidth - mapX / ratio) {
+            continue;
+        }
+        if (map[i].y + map[i].h > tilesHeight - mapY / ratio &&
+            map[i].y + map[i].h < -tilesHeight - mapY / ratio) {
+            continue;
+        }
         for (let j = 0; j < map[i].h; j++) {
             for (let k = 0; k < map[i].w; k++) {
                 //skips out of bounds tiles
-                if (map[i].x + k > tilesWidth - mapX / ratio ||
-                    map[i].x + k < -tilesWidth - mapX / ratio) {
-                    continue;
-                }
-                if (map[i].y + j > tilesHeight - mapY / ratio ||
-                    map[i].y + j < -tilesHeight - mapY / ratio) {
-                    continue;
-                }
                 //c.fillRect((map[i].x + k) * (ratio)+mapX, (map[i].y + j) * (ratio), ratio, ratio);
-                c.drawImage(player.sheet, tiles[map[i].type][0] * 16, tiles[map[i].type][1] * 16, 16, 16, ((map[i].x + k) * ratio + mapX) | 0, ((map[i].y + j) * ratio + mapY) | 0, (ratio) | 0, (ratio) | 0);
+                c.drawImage(
+                    player.sheet, tiles[map[i].type][0] * 16,
+                    tiles[map[i].type][1] * 16,
+                    16,
+                    16,
+                    ((map[i].x + k) * ratio + mapX) | 0,
+                    ((map[i].y + j) * ratio + mapY) | 0,
+                    (ratio) | 0,
+                    (ratio) | 0);
             }
         }
     }
@@ -2974,22 +1768,76 @@ function drawCharacter(p) {
     if (p.dash) {
         c.globalCompositeOperation = "difference";
         c.globalAlpha = 0.4;
-        c.drawImage(p.sheet, p.actionX[p.action][0] * tileSize, p.actionY[p.action][0] * tileSize, p.sprite.w, p.sprite.h, (p.x + mapX - p.xVel * 2) | 0, (p.y + mapY) | 0, (p.w) | 0, (p.h) | 0);
+        c.drawImage(
+            p.sheet,
+            p.actionX[p.action][0] * tileSize,
+            p.actionY[p.action][0] * tileSize,
+            p.sprite.w,
+            p.sprite.h,
+            (p.x + mapX - p.xVel * 2) | 0,
+            (p.y + mapY) | 0,
+            (p.w) | 0,
+            (p.h) | 0);
         c.globalAlpha = 0.6;
-        c.drawImage(p.sheet, p.actionX[p.action][0] * tileSize, p.actionY[p.action][0] * tileSize, p.sprite.w, p.sprite.h, (p.x + mapX - p.xVel) | 0, (p.y + mapY) | 0, (p.w) | 0, (p.h) | 0);
+        c.drawImage(
+            p.sheet,
+            p.actionX[p.action][0] * tileSize,
+            p.actionY[p.action][0] * tileSize,
+            p.sprite.w,
+            p.sprite.h,
+            (p.x + mapX - p.xVel) | 0,
+            (p.y + mapY) | 0,
+            (p.w) | 0,
+            (p.h) | 0);
         c.globalAlpha = 0.8;
-        c.drawImage(p.sheet, p.actionX[p.action][0] * tileSize, p.actionY[p.action][0] * tileSize, p.sprite.w, p.sprite.h, (p.x + mapX) | 0, (p.y + mapY) | 0, (p.w) | 0, (p.h) | 0);
+        c.drawImage(
+            p.sheet,
+            p.actionX[p.action][0] * tileSize,
+            p.actionY[p.action][0] * tileSize,
+            p.sprite.w,
+            p.sprite.h,
+            (p.x + mapX) | 0,
+            (p.y + mapY) | 0,
+            (p.w) | 0,
+            (p.h) | 0);
         c.globalAlpha = 1;
         c.globalCompositeOperation = "source-over";
     } else {
-        c.drawImage(p.sheet, p.actionX[p.action][frame] * tileSize, p.actionY[p.action][frame] * tileSize, p.sprite.w, p.sprite.h, (p.x + mapX) | 0, (p.y + mapY) | 0, (p.w) | 0, (p.h) | 0);
+        c.drawImage(
+            p.sheet,
+            p.actionX[p.action][frame] * tileSize,
+            p.actionY[p.action][frame] * tileSize,
+            p.sprite.w,
+            p.sprite.h,
+            (p.x + mapX) | 0,
+            (p.y + mapY) | 0,
+            (p.w) | 0,
+            (p.h) | 0);
     }
     //the attack animation takes up 2 tiles in width, so I decided to print the other map separately
     if (p.attack) {
         if (p.action == 6) {
-            c.drawImage(p.sheet, p.actionX[p.action][frame] * tileSize + 16, p.actionY[p.action][frame] * tileSize, p.sprite.w, p.sprite.h, (p.x + mapX + p.w) | 0, (p.y + mapY) | 0, (p.w) | 0, (p.h) | 0);
+            c.drawImage(
+                p.sheet,
+                p.actionX[p.action][frame] * tileSize + 16,
+                p.actionY[p.action][frame] * tileSize,
+                p.sprite.w,
+                p.sprite.h,
+                (p.x + mapX + p.w) | 0,
+                (p.y + mapY) | 0,
+                (p.w) | 0,
+                (p.h) | 0);
         } else if (p.action == 7) {
-            c.drawImage(p.sheet, p.actionX[p.action][frame] * tileSize - 16, p.actionY[p.action][frame] * tileSize, p.sprite.w, p.sprite.h, (p.x + mapX - p.w) | 0, (p.y + mapY) | 0, (p.w) | 0, (p.h) | 0);
+            c.drawImage(
+                p.sheet,
+                p.actionX[p.action][frame] * tileSize - 16,
+                p.actionY[p.action][frame] * tileSize,
+                p.sprite.w,
+                p.sprite.h,
+                (p.x + mapX - p.w) | 0,
+                (p.y + mapY) | 0,
+                (p.w) | 0,
+                (p.h) | 0);
         }
     }
 }
@@ -3052,7 +1900,15 @@ function drawMonsters(m) {
         }
     }
     //draw on canvas
-    c.drawImage(m.sheet, m.actionX[m.action][m.frame], m.actionY[m.action][m.frame], m.sprite.w, m.sprite.h, (m.x + mapX) | 0, (m.y + mapY) | 0, (m.w) | 0, (m.h) | 0);
+    c.drawImage(
+        m.sheet,
+        m.actionX[m.action][m.frame],
+        m.actionY[m.action][m.frame],
+        m.sprite.w,
+        m.sprite.h, (m.x + mapX) | 0,
+        (m.y + mapY) | 0,
+        (m.w) | 0,
+        (m.h) | 0);
     if (m.attack) {
         m.attackSprite(m);
     }
@@ -3060,7 +1916,7 @@ function drawMonsters(m) {
 
 
 
-//collision detector
+// COLLISION DETECTORS
 function colCheck(shapeA, shapeB) {
     // get the vectors to check against
     if (typeof shapeA.hitbox !== "undefined") {
@@ -3121,6 +1977,35 @@ function colCheck(shapeA, shapeB) {
 
     return colDir;
 
+}
+
+function collided(a, b) {
+    var square1 = a.hitbox ? a.hitbox : a;
+    var square2 = b.hitbox ? b.hitbox : b;
+    if (square1.x < square2.x + square2.w) {
+        if (square1.x + square1.w > square2.x) {
+            if (square1.y < square2.y + square2.h) {
+                if (square1.y + square1.h > square2.y) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+function pointSquareCol(point, square) {
+    if (point.x > square.x) {
+        if (point.x < square.x + square.w) {
+            if (point.y > square.y) {
+                if (point.y < square.y + square.h) {
+                    return true;
+                }
+            }
+
+        }
+    }
+    return false;
 }
 var touchDevice = false;
 //Mouse controls
@@ -3210,29 +2095,25 @@ window.addEventListener("keydown", function (event) {
             player.dance = true;
             break;
         case 71: //g key down
-            //console.log(player);
-            darken.go = true;
-            darken.alpha = 0.0;
+            console.log(player);
             break;
         case 72: //h key down
-            //console.log(monsters[0].atkHitbox, player.hitbox);
-            darken.go = false;
-            darken.alpha = 0.0;
+            //nothing
             break;
         case 49: // 1
-            create("Slime", 5 - mapX / ratio, -mapY / ratio);
+            monsters.push(new Slime(5 - mapX / ratio, -mapY / ratio));
             break;
         case 50: // 2
-            create("Lizard", 5 - mapX / ratio, -mapY / ratio);
+            monsters.push(new Lizard(5 - mapX / ratio, -mapY / ratio));
             break;
         case 51: // 3
-            create("Zombie", 5 - mapX / ratio, -mapY / ratio);
+            monsters.push(new Zombie(5 - mapX / ratio, -mapY / ratio));
             break;
         case 52: // 4
-            create("Superzombie", 5 - mapX / ratio, -mapY / ratio);
+            monsters.push(new Superzombie(5 - mapX / ratio, -mapY / ratio));
             break;
         case 53: // 5
-            create("Bear", 5 - mapX / ratio, -mapY / ratio);
+            monsters.push(new Bear(5 - mapX / ratio, -mapY / ratio));
             break;
     }
 });
@@ -3423,7 +2304,7 @@ function initializeMap() {
                         specialTiles.push(new Spikes(map[spTiles[i]].x + k, map[spTiles[i]].y + j, map[spTiles[i]].type));
                         break;
                     case 50: // slime
-                        create("Slime", map[spTiles[i]].x + k, map[spTiles[i]].y + j);
+                        monsters.push(new Slime(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
                         break;
                     case 51: // speeder L
                         specialTiles.push(new Speeder(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 1));
