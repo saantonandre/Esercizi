@@ -1091,27 +1091,16 @@ spawnPoint = {
     x: 9,
     y: 5
 };
-Audio.prototype.playy = function () {
-    var aud = this;
-    if (aud.paused) {
-        aud.play().catch(function (e) {});
-    } else {
-        aud.pause();
-        aud.currentTime = 0;
-        aud.play().catch(function (e) {});
-    }
-}
 //canvas-related variables
 var canvas = id("canvas");
 var c = canvas.getContext("2d");
-//canvas.width = (window.innerHeight < window.innerWidth) ? window.innerHeight / 1.1 : window.innerWidth / 1.1;
-canvas.width = window.innerWidth * (window.innerHeight / window.innerWidth) / 1.1;
+canvas.width = (window.innerHeight < window.innerWidth) ? window.innerHeight / 1.1 : window.innerWidth / 1.1;
 canvas.width -= canvas.width % 16;
-canvas.height = canvas.width / 4 * 3;
+canvas.height = canvas.width;
 c.imageSmoothingEnabled = false;
 var tileSize = 16;
-var tilesWidth = 20;
-var tilesHeight = tilesWidth * (canvas.height / canvas.width);
+var tilesWidth = 12;
+var tilesHeight = 12;
 var ratio = canvas.width / (tilesWidth);
 var textSize = Math.round(0.3 * ratio);
 var fontSize = textSize + "px";
@@ -1127,67 +1116,16 @@ var tiles = [
         [7, 4], [8, 4], [9, 4], //rock top
         [7, 5], [8, 5], //rock to grass
         [7, 6], [8, 6], [9, 6], //grass short
-        [11, 4], //bouncy ball
+        [11, 4], //bouncy
         [10, 4], //animated grass
         [12, 5], //speeder
-        [5, 7], [6, 7], [7, 7], //stone top
-        [5, 8], [6, 8], [7, 8], //stone middle
-        [5, 9], [6, 9], [7, 9], //stone bottom
-        [5, 10], [6, 10], [7, 10], //stone 2 top
-        [5, 11], [6, 11], [7, 11], //stone 2 middle
-        [5, 12], [6, 12], [7, 12], //stone 2 bottom
-        [8, 12], [9, 12], [10, 12], //stone 3
-        [9, 8], //stone single
-        [9, 9], //trap
-    ]
+    ];
 
 setInterval(function () {
     id("FPS").innerHTML = fps + " FPS";
     fps = 0;
 }, 1000);
-var audio = {
-    jump: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/jump.mp3"),
-    bounce1: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/bounce1.mp3"),
-    bounce2: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/bounce2.mp3"),
-    bounce3: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/bounce3.mp3"),
-    bounce4: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/bounce4.mp3"),
-    speed1: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/speed1.mp3"),
-    speed2: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/speed2.mp3"),
-    dash: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/dash.mp3"),
-    walking: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/walking.mp3"),
-    ambient_1: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/ambient/outside.mp3"),
-    ambient_2: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/ambient/castle.mp3"),
-    haydn_1: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/music/Haydn-1.mp3"),
-    haydn_2: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/music/Haydn-2.mp3"),
-    bach_1: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/music/Bach-1.mp3"),
-    bach_2: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/music/Bach-2.mp3"),
-}
 
-audio.walking.playbackRate = 1.4;
-audio.speed1.playbackRate = 0.7;
-audio.bounce1.volume = 0.4;
-audio.bounce2.volume = 0.4;
-audio.bounce3.volume = 0.4;
-audio.bounce4.volume = 0.4;
-audio.speed1.volume = 0.8;
-audio.speed2.volume = 0.5;
-audio.jump.volume = 0.5;
-audio.dash.volume = 0.5;
-audio.walking.volume = 1;
-audio.ambient_1.volume = 0.1;
-audio.ambient_2.volume = 0.2;
-audio.haydn_1.volume = 0.3;
-audio.haydn_2.volume = 0.3;
-audio.bach_1.volume = 0.3;
-audio.bach_2.volume = 0.3;
-/*
-audio.ambient_1.loop = true;
-audio.ambient_2.loop = true;
-audio.haydn_1.loop = true;
-audio.haydn_2.loop = true;
-audio.bach_1.loop = true;
-audio.bach_2.loop = true;
-*/
 //environment
 var player = {
     x: 2 * ratio,
@@ -1206,7 +1144,7 @@ var player = {
     hp: 100,
     grounded: false,
     stun: false,
-    speed: 0.12 * ratio,
+    speed: 0.1 * ratio,
     precision: 100,
     hitbox: {
         x: 0,
@@ -1233,18 +1171,16 @@ var player = {
         w: 16,
         h: 16,
     },
-    actionX: [[0], [1], [0, 0, 0, 0], [1, 1, 1, 1], [6], [6], [2, 2, 2, 2], [5, 5, 5, 5], [11, 11, 11, 12, 12, 12]],
-    actionY: [[0], [0], [0, 1, 2, 3], [0, 1, 2, 3], [1], [3], [0, 1, 2, 3], [0, 1, 2, 3], [10, 11, 12, 10, 11, 12]],
+    actionX: [[0], [16], [0, 0, 0, 0], [16, 16, 16, 16], [96], [96], [32, 32, 32, 32], [80, 80, 80, 80]],
+    actionY: [[0], [0], [0, 16, 32, 48], [0, 16, 32, 48], [16], [48], [0, 16, 32, 48], [0, 16, 32, 48]],
     action: 0,
     attack: 0,
     dash: false,
     dashIn: 0,
     dashCd: 0,
     attackDMG: 7,
-    dance: false,
     jump: function () {
         if (player.grounded) {
-            audio.jump.playy();
             player.grounded = false;
             player.dashCd = false;
             player.yVel = -0.27 * ratio;
@@ -1292,9 +1228,6 @@ var player = {
             player.attack = true;
             frame = 0;
         } else if (!player.attack && !player.dashCd) {
-            var dir = player.left ? 4 : 3;
-            visualFxs.push(new JumpFx(player.x / ratio, player.y / ratio, dir));
-            audio.dash.playy();
             player.dashCd = true;
             player.dash = true;
             player.dashIn = player.x / ratio;
@@ -1332,17 +1265,16 @@ var shake = 0;
 var shakeArr = [-2, +5, -5, +2];
 
 var monsters = [];
+var random2 = Math.random() * 800 + 100;
 var series = 0; //a unique identificative number for each monster
 class Monster {
     constructor(x, y) {
-        this.serial = series++;
+        this.serial = series;
         this.x = parseFloat(x * ratio);
         this.y = parseFloat(y * ratio);
         this.w = 1 * ratio;
         this.h = 1 * ratio;
         this.sheet = id("sheet");
-        this.jumpForce = 0.22 * ratio;
-        this.maxVelocity = 0.3 * ratio;
         this.xVel = 0;
         this.yVel = 0;
         this.speed = 0 * ratio;
@@ -1384,158 +1316,15 @@ class Monster {
         this.action = 0;
         //setTimeout(randomMovement, 1000, this.serial);
 
+        series++;
     }
-    move(arg) {
-        leftRightMovement(arg);
-    };
-    jump() {
-        if (this.grounded) {
-            this.grounded = false;
-            this.yVel = -this.jumpForce;
-            let dir = 0;
-            if (this.xVel !== 0) {
-                dir = this.left ? 2 : 1;
-            }
-            visualFxs.push(new JumpFx(this.x / ratio, this.y / ratio, dir));
-
-        }
+    move() {
+        randomMovement(this.serial);
     }
 }
 //shows the number of monsters
-setInterval(function () {
-    id("monsternumber").innerHTML = monsters.length;
-}, 500);
+setInterval(function () {}, 500);
 
-function leftRightMovement(serial) {
-
-    //console.log(monsters[i].serial+" "+ serial);
-
-    let ser = serial;
-    let targetMonster = null;
-    for (j = 0; j < monsters.length; j++) {
-        if (monsters[j].serial === ser) {
-            targetMonster = j;
-            break;
-        }
-    }
-    if (targetMonster !== null) {
-        let monst = monsters[targetMonster];
-        let points = {
-            upLeft: {
-                x: monst.x / ratio - 0.5,
-                y: monst.y / ratio + monst.h / ratio - 1 - 0.5
-            },
-            upRight: {
-                x: monst.x / ratio + monst.w / ratio + 0.5,
-                y: monst.y / ratio + monst.h / ratio - 1 - 0.5
-            },
-            btLeft: {
-                x: monst.x / ratio + 0.2,
-                y: monst.y / ratio + monst.h / ratio + 1.5
-            },
-            btLeft2: {
-                x: monst.x / ratio + 0.2,
-                y: monst.y / ratio + 1 + monst.h / ratio / 2
-            },
-            btRight: {
-                x: monst.x / ratio + monst.w / ratio - 0.2,
-                y: monst.y / ratio + monst.h / ratio + 1.5
-            },
-            btRight2: {
-                x: monst.x / ratio + monst.w / ratio - 0.2,
-                y: monst.y / ratio + 1 + monst.h / ratio / 2
-            },
-            left: {
-                x: monst.x / ratio - 0.2,
-                y: monst.y / ratio + monst.h / ratio / 2
-            }, // provisional
-            right: {
-                x: monst.x / ratio + monst.w / ratio + 0.5,
-                y: monst.y / ratio + monst.h / ratio / 2
-            } // provisional
-        }
-        let cols = {
-            upLeft: false,
-            upRight: false,
-            btLeft: false,
-            btRight: false,
-            btLeft2: false,
-            btRight2: false,
-            left: false,
-            right: false
-        }
-        var bottomLeftCol = monst.x;
-        var bottomRightColX = monst.x;
-
-        for (let j = 0; j < map.length; j++) {
-            if (monst.left) {
-                if (pointSquareCol(points.upLeft, map[j])) {
-                    cols.upLeft = true;
-                }
-                if (pointSquareCol(points.left, map[j])) {
-                    cols.left = true;
-                }
-                if (pointSquareCol(points.btLeft, map[j])) {
-                    cols.btLeft = true;
-                }
-                if (pointSquareCol(points.btLeft2, map[j])) {
-                    cols.btLeft2 = true;
-                }
-            } else {
-                if (pointSquareCol(points.btRight, map[j])) {
-                    cols.btRight = true;
-                }
-                if (pointSquareCol(points.right, map[j])) {
-                    cols.right = true;
-                }
-                if (pointSquareCol(points.upRight, map[j])) {
-                    cols.upRight = true;
-                }
-                if (pointSquareCol(points.btRight2, map[j])) {
-                    cols.btRight2 = true;
-                }
-
-            }
-        };
-        let dir = monst.left ? 0 : 1;
-        if (monst.left) {
-            if (cols.left && !cols.upLeft) {
-                monsters[targetMonster].jump();
-            } else if ((cols.left && cols.upLeft) || (!cols.btLeft && !cols.btLeft2)) {
-                if (monst.grounded) {
-                    dir = 1;
-                }
-
-            }
-
-        } else {
-            if (cols.right && !cols.upRight) {
-                monsters[targetMonster].jump();
-            } else if ((cols.right && cols.upRight) || (!cols.btRight && !cols.btRight2)) {
-                if (monst.grounded) {
-                    dir = 0;
-                }
-            }
-        }
-        switch (dir) {
-            case 0:
-                monsters[targetMonster].left = true;
-                monsters[targetMonster].L = true;
-                monsters[targetMonster].R = false;
-                break;
-            case 1:
-                monsters[targetMonster].left = false;
-                monsters[targetMonster].L = false;
-                monsters[targetMonster].R = true;
-                break;
-            case 2:
-                monsters[targetMonster].L = false;
-                monsters[targetMonster].R = false;
-                break;
-        }
-    }
-}
-/*
 function randomMovement(serial) {
     //console.log(monsters[i].serial+" "+ serial);
     var targetMonster = null;
@@ -1570,11 +1359,11 @@ function randomMovement(serial) {
         return 0;
     }
 }
-*/
+
 class Slime extends Monster {
     constructor(x, y) {
         super(x, y);
-        this.speed = 0.02 * ratio;
+        this.speed = 0.01 * ratio;
         this.hp = 16;
         this.maxHp = this.hp;
         this.type = "Slime";
@@ -1585,7 +1374,7 @@ class Slime extends Monster {
 class Lizard extends Monster {
     constructor(x, y) {
         super(x, y);
-        this.speed = 0.04 * ratio;
+        this.speed = 0.02 * ratio;
         this.hp = 12;
         this.maxHp = this.hp;
         this.type = "Lizard";
@@ -1596,7 +1385,7 @@ class Lizard extends Monster {
 class Bear extends Monster {
     constructor(x, y) {
         super(x, y);
-        this.speed = 0.04 * ratio;
+        this.speed = 0.02 * ratio;
         this.hp = 60;
         this.maxHp = this.hp;
         this.type = "Bear";
@@ -1613,9 +1402,8 @@ class Bear extends Monster {
     }
     attackEvent(bear) {
         if (collided(player.hitbox, bear.atkHitbox)) {
-            player.yVelExt += -0.3 * ratio;
-            player.xVelExt += bear.left ? -0.3 * ratio : 0.3 * ratio;
-            player.left = bear.left;
+            player.y -= 0.05 * ratio;
+            player.yVel = -0.05 * ratio;
             player.dashCd = true;
             var playerHB = player.hitbox;
             playerHB.x *= ratio;
@@ -1664,7 +1452,7 @@ class Dummy extends Monster {
 class Zombie extends Monster {
     constructor(x, y) {
         super(x, y);
-        this.speed = 0.02 * ratio;
+        this.speed = 0.005 * ratio;
         this.hp = 20;
         this.maxHp = this.hp;
         this.type = "Zombie";
@@ -1675,7 +1463,7 @@ class Zombie extends Monster {
 class Superzombie extends Zombie {
     constructor(x, y) {
         super(x, y);
-        this.speed = 0.04 * ratio;
+        this.speed = 0.002 * ratio;
         this.hp = 60;
         this.maxHp = this.hp;
         this.w = 2 * ratio;
@@ -1688,14 +1476,17 @@ function create(type, x, y) {
         case "Slime":
             //console.log("creating a Slime");
             monsters.push(new Slime(x, y));
+            monsters[monsters.length - 1].move();
             break;
         case "Lizard":
             //console.log("creating a Lizard");
             monsters.push(new Lizard(x, y));
+            monsters[monsters.length - 1].move();
             break;
         case "Zombie":
             monsters.push(new Zombie(x, y));
             //console.log("creating a Zombie");
+            monsters[monsters.length - 1].move();
             break;
         case "Dummy":
             monsters.push(new Dummy(x, y));
@@ -1703,10 +1494,12 @@ function create(type, x, y) {
         case "Superzombie":
             monsters.push(new Superzombie(x, y));
             //console.log("creating a Superzombie");
+            monsters[monsters.length - 1].move();
             break;
         case "Bear":
             monsters.push(new Bear(x, y));
             //console.log("creating a Superzombie");
+            monsters[monsters.length - 1].move();
             break;
     }
 }
@@ -1737,10 +1530,10 @@ var dmgSprites = {
     h: [16, 16, 16],
 };
 var jmpSprites = {
-    x: [[0, 0, 0, 0, 0], [16, 16, 16, 16, 16], [32, 32, 32, 32, 32], [48, 48, 48, 48, 48], [64, 64, 64, 64, 64]],
-    y: [[128, 144, 160, 176, 192], [128, 144, 160, 176, 192], [128, 144, 160, 176, 192], [128, 144, 160, 176, 192], [128, 144, 160, 176, 192]],
-    w: [16, 16, 16, 16, 16],
-    h: [16, 16, 16, 16, 16],
+    x: [[0, 0, 0, 0, 0], [16, 16, 16, 16, 16], [32, 32, 32, 32, 32]],
+    y: [[128, 144, 160, 176, 192], [128, 144, 160, 176, 192], [128, 144, 160, 176, 192]],
+    w: [16, 16, 16],
+    h: [16, 16, 16],
 };
 var visualFxs = [];
 class DmgFx {
@@ -1772,7 +1565,7 @@ class JumpFx {
         this.sheet = id("sheet");
         this.repeat = false;
         this.frameCounter = 0;
-        this.slowness = (dir > 2) ? 2 : 4;
+        this.slowness = 4;
         this.frame = 0;
         this.type = "jump";
     }
@@ -1800,24 +1593,27 @@ var cloudSprites = {
 var grassSprite = {
     x: [[160, 160, 160, 160]],
     y: [[64, 80, 96, 112]],
-    w: [16],
-    h: [16],
+    w: [[16]],
+    h: [[16]],
 };
 class Cloud {
     constructor(x, y, s) {
         this.x = x * ratio;
         this.y = y * ratio;
-        this.sprite = Math.floor(Math.random() * 4);
-        this.rotation = 0;
+        this.sprite = parseInt(Math.random() * 4);
         this.sheet = id("sheet");
-        this.repeat = true;
-        this.frameCounter = 0;
-        this.slowness = 5;
-        this.frame = 0;
         this.type = "cloud";
+        this.rotation = 0;
+        this.slowness = 5;
         this.movX = -s / 1000 * ratio;
         this.movY = 0;
     }
+}
+for (i = 0; i < 30; i++) {
+    var ran1 = parseInt(Math.random() * 100 + (mapX / ratio));
+    var ran2 = Math.random() * 4 - 2;
+    var ran3 = parseInt(Math.random() * 20 + 1);
+    visualFxs.push(new Cloud(ran1, ran2, ran3));
 }
 /*
 visualFxs.push(new Grass(3, 2));
@@ -1841,8 +1637,8 @@ function drawFxs(fx) {
     switch (fx.type) {
         case "cloud":
             var spritePos = cloudSprites;
-            if (fx.x < -20 * ratio) {
-                fx.x = (mapWidth + 20) * ratio;
+            if (fx.x < mapX - 30 * ratio) {
+                fx.x = mapX + 30 * ratio;
             }
 
             break;
@@ -1874,11 +1670,11 @@ function drawFxs(fx) {
             }
         }
     }
-    //draw on canvascontext.translate(x, y);
     if (fx.movX || fx.movY) {
         fx.x += fx.movX;
         fx.y += fx.movY;
     }
+    //draw on canvascontext.translate(x, y);
 
     //c.translate(fxX+fxW/2, fxY+fxH/2);
     if (fx.rotation > 0) {
@@ -1913,86 +1709,41 @@ function drawFxs(fx) {
 }
 
 var specialTiles = [];
-class SpecialTile {
+class Bouncy {
     constructor(x, y) {
         this.x = x;
         this.y = y;
         this.w = 1;
         this.h = 1;
         this.sheet = id("sheet");
-        this.sprite = [];
+        this.sprite = [[11, 4], [11, 5], [11, 6], [11, 7]];
         this.repeat = false;
         this.running = false;
         this.frameCounter = 0;
         this.slowness = 3;
         this.frame = 0;
-        this.type = "";
-    }
-}
-class Bouncy extends SpecialTile {
-    constructor(x, y) {
-        super(x, y);
-        this.sprite = [[11, 4], [11, 5], [11, 6], [11, 7]];
-        this.repeat = false;
-        this.running = false;
-        this.slowness = 3;
         this.type = "bouncy";
     }
 }
-class Speeder extends SpecialTile {
+class Speeder {
     constructor(x, y) {
-        super(x, y);
+        this.x = x;
+        this.y = y;
+        this.w = 1;
+        this.h = 1;
+        this.sheet = id("sheet");
         this.sprite = [[12, 5], [12, 6], [12, 7], [12, 8]];
         this.repeat = true;
         this.running = true;
+        this.frameCounter = 0;
         this.slowness = 3;
+        this.frame = 0;
         this.type = "speeder";
     }
 }
-class MovingPlat extends SpecialTile {
-    constructor(x, y, sprite, xVel, yVel, range) {
-        super(x, y);
-        this.sprite = sprite;
-        this.xVel = xVel / ratio;
-        this.yVel = yVel / ratio;
-        this.xI = x;
-        this.yI = y;
-        this.dir = 1;
-        this.range = range;
-        this.repeat = false;
-        this.running = false;
-        this.slowness = 3;
-        this.type = "movingPlat";
-    }
-    move() {
-        if (this.dir) {
-            this.x += this.xVel;
-            this.y += this.yVel;
-            if (this.x >= this.xI + this.range && this.xVel !== 0 || this.y > this.yI + this.range && this.yVel !== 0) {
-                this.xVel *= -1;
-                this.yVel *= -1;
-                this.dir = 0;
-            }
-        } else {
-            this.x += this.xVel;
-            this.y += this.yVel;
-            if (this.x <= this.xI && this.xVel !== 0 || this.y <= this.yI && this.yVel !== 0) {
-                this.xVel *= -1;
-                this.yVel *= -1;
-                this.dir = 1;
-            }
-        }
-    }
-}
-//x, y,sprite, xVel, yVel, range
-//specialTiles.push(new MovingPlat(25, 5, [[7, 6]], 0, 4, 14))
-//specialTiles.push(new MovingPlat(26, 5, [[9, 6]], 0, 4, 14))
 
 function renderSpecialTiles() {
     for (i = 0; i < specialTiles.length; i++) {
-        if (specialTiles[i].move !== undefined) {
-            specialTiles[i].move();
-        }
         if (specialTiles[i].running) {
             specialTiles[i].frameCounter++;
             if (specialTiles[i].frameCounter > specialTiles[i].slowness) {
@@ -2011,7 +1762,7 @@ function renderSpecialTiles() {
             if (specialTiles[i].type === "bouncy") {
                 var bouncynessX = 0.3;
                 var bouncynessY = 0.3;
-                var bounceOrNot = player.dash ? 0.35 * ratio : 0;
+                var bounceOrNot = player.dash ? 0.35*ratio : 0;
                 player.xVel = 0;
                 player.yVel = 0;
             }
@@ -2025,58 +1776,34 @@ function renderSpecialTiles() {
                         player.yVel = -bouncynessY * ratio;
                         player.dash = false;
                         player.dashCd = false;
-                        audio.bounce1.playy()
                     } else if (specialTiles[i].type === "speeder") {
-                        audio.speed1.playy();
-                        player.xVelExt += 0.07 * ratio;
-                        player.grounded = true;
-                    } else if (specialTiles[i].type === "movingPlat") {
-                        player.xVelExt = specialTiles[i].xVel * ratio;
-                        if (specialTiles[i].yVel < 0) {
-                            player.yVelExt = specialTiles[i].yVel * ratio;
-                        } else if (specialTiles[i].yVel * ratio < player.maxVelocity) {
-                            player.grounded = true;
-                            player.yVelExt = specialTiles[i].yVel * ratio;
-                        }
+                        player.xVelExt += 0.08 * ratio;
                     }
                     break;
                 case "l":
                     if (specialTiles[i].type === "bouncy") {
-                        audio.bounce2.playy()
                         player.grounded = false;
                         player.dash = false;
                         player.dashCd = false;
                         player.xVelExt = bounceOrNot;
                         player.yVel = -bouncynessY * ratio;
-                    } else if (specialTiles[i].type === "movingPlat") {
-                        player.xVel = 0;
-                        if (specialTiles[i].xVel > 0) {
-                            player.xVelExt = specialTiles[i].xVel * ratio;
-                        }
                     }
                     break;
                 case "r":
                     if (specialTiles[i].type === "bouncy") {
-                        audio.bounce3.playy()
                         player.grounded = false;
                         player.dash = false;
                         player.dashCd = false;
                         player.xVelExt = -bounceOrNot;
                         player.yVel = -bouncynessY * ratio;
-                        //console.log(player)
-                    } else if (specialTiles[i].type === "movingPlat") {
-                        player.xVel = 0;
-                        if (specialTiles[i].xVel < 0) {
-                            player.xVelExt = specialTiles[i].xVel * ratio;
-                        }
+                        console.log(player)
                     }
                     break;
                 case "t":
-                    if (player.yVel < 0) {
-                        player.yVel = 0;
-                    }
                     if (specialTiles[i].type === "bouncy") {
-                        audio.bounce1.playy()
+                        if (player.yVel < 0) {
+                            player.yVel = 0;
+                        }
                     }
                     break;
             }
@@ -2157,15 +1884,6 @@ function collided(square1, square2) {
     }
     return false;
 }
-
-function pointSquareCol(point, square) {
-    if (point.x > square.x && point.x < square.x + square.w) {
-        if (point.y > square.y && point.y < square.y + square.h) {
-            return true;
-        }
-    }
-    return false;
-}
 /*
 actions:
 0:idle right
@@ -2194,7 +1912,7 @@ function loop() {
     }
     paused = 0;
     c.clearRect(0, 0, canvas.width, canvas.height);
-    c.fillStyle = bgColor;
+    c.fillStyle = "#0099dd";
     c.fillRect(0, 0, canvas.width, canvas.height);
     //calculate character
     //draw environment
@@ -2205,7 +1923,6 @@ function loop() {
         monsters[i].frameCounter++;
         calculateMonsters(monsters[i]);
     }
-
     drawEnvironment();
     renderSpecialTiles();
     adjustCollided(player);
@@ -2219,28 +1936,19 @@ function loop() {
     }
     renderHpBars();
     renderTexts();
-    if (darken.go) {
-        c.globalAlpha = darken.alpha / 1.5;
-        c.fillStyle = "#000000";
-        c.fillRect(0, 0, canvas.width, canvas.height);
-        c.globalAlpha = 1;
-        if (darken.alpha < 1) {
-            darken.alpha += 0.001;
-        }
-    }
+    id("monsternumber").innerHTML = parseInt(player.xVelExt);
     requestAnimationFrame(loop)
 }
 ///////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////// MAIN LOOP //////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-var watchDown = false;
 
 function moveCamera() {
     /*
     mapX=-player.x+2*ratio;
     mapY=-player.y+3*ratio;
     */
-    let cameraDir = player.left ? tilesWidth / 2 : tilesWidth / 6;
+    let cameraDir = player.left ? 6 : 2;
     if (mapX < -player.x + cameraDir * ratio) {
         // means camera moves forward
         if (Math.abs((-player.x + cameraDir * ratio - mapX) / 6) > 1 / 100 * ratio) {
@@ -2252,16 +1960,15 @@ function moveCamera() {
             mapX += (-player.x + cameraDir * ratio - mapX) / 6;
         }
     }
-    let lookDown = watchDown ? tilesHeight / 4 * ratio : 0;
-    if (mapY < -(player.y + lookDown) + tilesHeight / 2 * ratio) {
+    if (mapY < -player.y + 2 * ratio) {
         // means camera moves downward
-        if (Math.abs((-(player.y + lookDown) + tilesHeight / 2 * ratio - mapY) / 6) > 1 / 100 * ratio) {
-            mapY += (-(player.y + lookDown) + tilesHeight / 2 * ratio - mapY) / 6;
+        if (Math.abs((-player.y + 2 * ratio - mapY) / 6) > 1 / 100 * ratio) {
+            mapY += (-player.y + 2 * ratio - mapY) / 6;
         }
-    } else if (mapY > -(player.y + lookDown) + tilesHeight / 2 * ratio) {
+    } else if (mapY > -player.y + 4 * ratio) {
         // means camera moves upward
-        if (Math.abs((-(player.y + lookDown) + tilesHeight / 2 * ratio - mapY) / 6) > 1 / 100 * ratio) {
-            mapY += (-(player.y + lookDown) + tilesHeight / 2 * ratio - mapY) / 6;
+        if (Math.abs((-player.y + 4 * ratio - mapY) / 6) > 1 / 100 * ratio) {
+            mapY += (-player.y + 4 * ratio - mapY) / 6;
         }
     }
     /*
@@ -2289,15 +1996,14 @@ function checkCollisions() {
     player.col.R = false;
     player.col.T = false;
     player.col.B = false;
-    for (let i = 0; i < monsters.length; i++) {
+    for (i = 0; i < monsters.length; i++) {
         monsters[i].grounded = false;
         monsters[i].col.L = false;
         monsters[i].col.R = false;
         monsters[i].col.T = false;
         monsters[i].col.B = false;
-        colCheck(player, monsters[i]);
     }
-    for (let i = 0; i < map.length; i++) {
+    for (i = 0; i < map.length; i++) {
         colCheck(player, map[i]);
         for (m = 0; m < monsters.length; m++) {
             colCheck(monsters[m], map[i]);
@@ -2308,10 +2014,8 @@ function checkCollisions() {
 function adjustCollided(p) {
     if (p.col.L) {
         p.x += p.col.L * ratio;
-        if (p.dash) {
-            p.dash = false;
-            p.dashCd = true;
-        }
+        p.dash = false;
+        p.dashCd = true;
         if (p.xVelExt < 0) {
             p.xVelExt = 0;
         }
@@ -2322,10 +2026,8 @@ function adjustCollided(p) {
     }
     if (p.col.R) {
         p.x -= p.col.R * ratio // - (0.02 * tileSize);
-        if (p.dash) {
-            p.dash = false;
-            p.dashCd = true;
-        }
+        p.dash = false;
+        p.dashCd = true;
         if (p.xVelExt > 0) {
             p.xVelExt = 0;
         }
@@ -2339,19 +2041,14 @@ function adjustCollided(p) {
         if (p.yVel < 0) {
             p.yVel = 0;
         }
-        if (p.dash) {
-            p.dash = false;
-            p.dashCd = true;
-        }
+        p.dash = false;
 
     }
     if (p.col.B) {
         p.y -= p.col.B * ratio - 1;
         p.grounded = true;
-        if (p.dashCd || p.dash) {
-            p.dashCd = false;
-            p.dash = false;
-        }
+        p.dashCd = false;
+        p.dash = false;
     }
 }
 
@@ -2405,11 +2102,7 @@ function calculateCharacter(p) {
     if (p.xVelExt !== 0 && p.grounded) {
         p.xVelExt *= 0.8;
     } else if (p.xVelExt !== 0) {
-        if (p.xVelExt > 0.05) {
-            p.xVelExt -= 0.05;
-        } else if (p.xVelExt < -0.05) {
-            p.xVelExt += 0.05;
-        }
+        p.xVelExt *= 0.98;
     }
     if (p.xVelExt < 0.001 * ratio && p.xVelExt > -0.001 * ratio) {
         p.xVelExt = 0;
@@ -2437,21 +2130,18 @@ function calculateCharacter(p) {
 }
 
 function calculateMonsters(m) {
-    //leftRightMovement(m.serial);
-    if (!(fps % 15) && m.grounded) {
-        //^AI is refreshed every 1/4 seconds
-        m.move(m.serial);
-    }
     if (m.attack) {
         m.L = false;
         m.R = false;
     }
     if (m.col.L) {
         m.x += m.col.L * ratio;
+        m.L = false;
 
     }
     if (m.col.R) {
         m.x -= m.col.R * ratio;
+        m.R = false;
 
     }
     if (m.col.T) {
@@ -2476,9 +2166,6 @@ function calculateMonsters(m) {
     }
     if (!m.grounded) {
         m.yVel += gForce;
-        if (m.yVel > m.maxVelocity) {
-            m.yVel = m.maxVelocity;
-        }
     } else if (m.yVel > 0) {
         m.yVel = 0;
     }
@@ -2498,110 +2185,25 @@ function calculateMonsters(m) {
         //console.log("attacking");
     }
 }
-var backgrounds = [id("bg1"), id("cloud1"), id("cloud2"), id("bg2"), id("bg3"), id("bg4")]
-var background = false;
-var darken = {
-    go: false,
-    alpha: 0
-}
-var cloudsX = [0, 0];
-
-function drawBackground() {
-    /*
-    for (let j = 0; j < 5; j++) {
-        c.drawImage(
-            backgrounds[0],
-            -tilesWidth * 2 * ratio + (backgrounds[0].width / tileSize * ratio * j),
-            -tilesHeight * ratio / 4,
-            backgrounds[0].width / tileSize * ratio,
-            backgrounds[0].height / tileSize * ratio
-        );
-    }
-*/
-    for (let j = 0; j < 5; j++) {
-        c.drawImage(
-            backgrounds[1],
-            -tilesWidth * 2 * ratio + (backgrounds[1].width / tileSize * ratio * j) + mapX / 20 - cloudsX[0],
-            mapY / 20,
-            backgrounds[1].width / tileSize * ratio,
-            backgrounds[1].height / tileSize * ratio
-        );
-    }
-    cloudsX[0] += (backgrounds[1].width / tileSize * ratio) / 4000;
-    if (cloudsX[0] >= backgrounds[1].width / tileSize * ratio) {
-        cloudsX[0] = 0;
-    }
-
-    for (let j = 0; j < 5; j++) {
-        c.drawImage(
-            backgrounds[2],
-            -tilesWidth * 2 * ratio + (backgrounds[2].width / tileSize * ratio * j) + mapX / 18 - cloudsX[1],
-            mapY / 18,
-            backgrounds[2].width / tileSize * ratio,
-            backgrounds[2].height / tileSize * ratio
-        );
-    }
-    cloudsX[1] += (backgrounds[2].width / tileSize * ratio) / 6000;
-    if (cloudsX[1] >= backgrounds[1].width / tileSize * ratio) {
-        cloudsX[1] = 0;
-    }
-    for (let j = 0; j < 5; j++) {
-        c.drawImage(
-            backgrounds[3],
-            -tilesWidth * 2 * ratio + (backgrounds[3].width / tileSize * ratio * j) + mapX / 10,
-            mapY / 10,
-            backgrounds[3].width / tileSize * ratio,
-            backgrounds[3].height / tileSize * ratio
-        );
-    }
-
-    for (let j = 0; j < 5; j++) {
-        c.drawImage(
-            backgrounds[4],
-            -tilesWidth * 2 * ratio + (backgrounds[4].width / tileSize * ratio * j) + mapX / 8,
-            mapY / 8,
-            backgrounds[4].width / tileSize * ratio,
-            backgrounds[4].height / tileSize * ratio
-        );
-    }
-    for (let j = 0; j < 5; j++) {
-        c.drawImage(
-            backgrounds[5],
-            -tilesWidth * 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + mapX / 6,
-            mapY / 6,
-            backgrounds[5].width / tileSize * ratio,
-            backgrounds[5].height / tileSize * ratio
-        );
-    }
-    for (let j = 0; j < 5; j++) {
-        c.drawImage(
-            backgrounds[5],
-            -tilesWidth * 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + mapX / 5,
-            (backgrounds[5].height / tileSize * ratio) / 5 + mapY / 5,
-            backgrounds[5].width / tileSize * ratio,
-            backgrounds[5].height / tileSize * ratio
-        );
-    }
-    for (let j = 0; j < 5; j++) {
-        c.fillStyle = "#323c39";
-        c.fillRect(
-            -tilesWidth * 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + mapX / 5,
-            mapY / 5 + backgrounds[5].height / tileSize * ratio,
-            backgrounds[5].width / tileSize * ratio,
-            backgrounds[5].height / tileSize * ratio
-        );
-    }
-}
+var bg_1 = id("bg1");
+var bg_2 = id("bg2");
 
 function drawEnvironment() {
-    if (background) {
-        drawBackground();
-    }
-    if (darken.go) {
-        c.globalAlpha = darken.alpha;
-        c.fillStyle = "black";
-        c.fillRect(0, 0, canvas.width, canvas.height);
-        c.globalAlpha = 1;
+    for (i = 0; i < 5; i++) {
+        c.drawImage(
+            bg_2,
+            -tilesWidth * ratio + (bg_2.width / tileSize * ratio * i) + mapX / 16,
+            tilesHeight / 2 * ratio + mapY / 16,
+            bg_2.width / tileSize * ratio,
+            bg_2.height / tileSize * ratio
+        );
+        c.drawImage(
+            bg_1,
+            -tilesWidth * ratio + (bg_1.width / tileSize * ratio * i) + mapX / 8,
+            tilesHeight / 2 * ratio + mapY / 8,
+            bg_1.width / tileSize * ratio,
+            bg_1.height / tileSize * ratio
+        );
     }
     for (i = 0; i < map.length; i++) {
         for (j = 0; j < map[i].h; j++) {
@@ -2626,7 +2228,6 @@ function drawCharacter(p) {
     //animation computing
     var slowness = 6;
     if (p.attack || p.dash) {
-        p.dance = false;
         slowness = 4;
         if (!p.left) {
             p.action = 6; //atk right
@@ -2635,7 +2236,6 @@ function drawCharacter(p) {
         }
     } else {
         if (!p.grounded) {
-            p.dance = false;
             if (!p.left) {
                 p.action = 4; //jmp right
             } else {
@@ -2647,23 +2247,13 @@ function drawCharacter(p) {
             } else {
                 p.action = 1; //idle left
             }
-            if (p.dance) {
-                p.action = 8; //dance
-            }
-
         } else if (p.xVel !== 0) {
-            p.dance = false;
             if (!p.left) {
                 p.action = 2; //walk right
             } else {
                 p.action = 3; //walk left
             }
         }
-    }
-    if (p.xVel !== 0 && p.grounded && !(p.attack || p.dash)) {
-        audio.walking.play();
-    } else {
-        audio.walking.pause();
     }
 
     if (frameCounter > slowness) {
@@ -2684,25 +2274,26 @@ function drawCharacter(p) {
     if (p.dash) {
         c.globalCompositeOperation = "difference";
         c.globalAlpha = 0.4;
-        c.drawImage(p.sheet, p.actionX[p.action][0] * tileSize, p.actionY[p.action][0] * tileSize, p.sprite.w, p.sprite.h, p.x + mapX - p.xVel * 2, p.y + mapY, p.w, p.h);
+        c.drawImage(p.sheet, p.actionX[p.action][frame], p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x + mapX - p.xVel, p.y + mapY, p.w, p.h);
         c.globalAlpha = 0.6;
-        c.drawImage(p.sheet, p.actionX[p.action][0] * tileSize, p.actionY[p.action][0] * tileSize, p.sprite.w, p.sprite.h, p.x + mapX - p.xVel, p.y + mapY, p.w, p.h);
+        c.drawImage(p.sheet, p.actionX[p.action][frame], p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x + mapX - p.xVel / 1.5, p.y + mapY, p.w, p.h);
         c.globalAlpha = 0.8;
-        c.drawImage(p.sheet, p.actionX[p.action][0] * tileSize, p.actionY[p.action][0] * tileSize, p.sprite.w, p.sprite.h, p.x + mapX, p.y + mapY, p.w, p.h);
+        c.drawImage(p.sheet, p.actionX[p.action][frame], p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x + mapX, p.y + mapY, p.w, p.h);
         c.globalAlpha = 1;
         c.globalCompositeOperation = "source-over";
-    } else {
-        c.drawImage(p.sheet, p.actionX[p.action][frame] * tileSize, p.actionY[p.action][frame] * tileSize, p.sprite.w, p.sprite.h, p.x + mapX, p.y + mapY, p.w, p.h);
-    }
+    } else
+        c.drawImage(p.sheet, p.actionX[p.action][frame], p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x + mapX, p.y + mapY, p.w, p.h);
     //the attack animation takes up 2 tiles in width, so I decided to print the other map separately
     if (p.attack) {
         if (p.action == 6) {
-            c.drawImage(p.sheet, p.actionX[p.action][frame] * tileSize + 16, p.actionY[p.action][frame] * tileSize, p.sprite.w, p.sprite.h, p.x + mapX + p.w, p.y + mapY, p.w, p.h);
+            c.drawImage(p.sheet, p.actionX[p.action][frame] + 16, p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x + mapX + p.w, p.y + mapY, p.w, p.h);
         } else if (p.action == 7) {
-            c.drawImage(p.sheet, p.actionX[p.action][frame] * tileSize - 16, p.actionY[p.action][frame] * tileSize, p.sprite.w, p.sprite.h, p.x + mapX - p.w, p.y + mapY, p.w, p.h);
+            c.drawImage(p.sheet, p.actionX[p.action][frame] - 16, p.actionY[p.action][frame], p.sprite.w, p.sprite.h, p.x + mapX - p.w, p.y + mapY, p.w, p.h);
         }
     }
 }
+
+
 /*
 0:idle right
 1:idle left
@@ -2773,22 +2364,12 @@ function drawMonsters(m) {
 //collision detector
 function colCheck(shapeA, shapeB) {
     // get the vectors to check against
-    if (typeof shapeA.hitbox !== "undefined") {
-        var shapeAA = shapeA.hitbox;
-    } else {
-        var shapeAA = shapeA;
-    }
-    if (typeof shapeB.hitbox !== "undefined") {
-        var shapeBB = shapeB.hitbox;
-    } else {
-        var shapeBB = shapeB;
-    }
     var offFocus = mapX / ratio;
-    var vX = (shapeAA.x + offFocus + (shapeAA.w / 2)) - (shapeBB.x + (mapX / ratio) + (shapeBB.w / 2)),
-        vY = (shapeAA.y + (shapeAA.h / 2)) - (shapeBB.y + (shapeBB.h / 2)),
+    var vX = (shapeA.hitbox.x + offFocus + (shapeA.hitbox.w / 2)) - (shapeB.x + (mapX / ratio) + (shapeB.w / 2)),
+        vY = (shapeA.hitbox.y + (shapeA.hitbox.h / 2)) - (shapeB.y + (shapeB.h / 2)),
         // add the half widths and half heights of the objects
-        hWidths = (shapeA.hitbox.w / 2) + (shapeBB.w / 2),
-        hHeights = (shapeA.hitbox.h / 2) + (shapeBB.h / 2),
+        hWidths = (shapeA.hitbox.w / 2) + (shapeB.w / 2),
+        hHeights = (shapeA.hitbox.h / 2) + (shapeB.h / 2),
         colDir = null;
 
     // if the x and y vector are less than the half width or half height, they we must be inside the object, causing a collision
@@ -2799,28 +2380,25 @@ function colCheck(shapeA, shapeB) {
         if (oX >= oY) {
             if (vY > 0) {
                 colDir = "t";
-                if (shapeA.col.T < oY && oY > 1 / ratio && !shapeB.xVel) {
+                if (shapeA.col.T < oY && oY > 1 / ratio) {
                     shapeA.col.T = oY;
                 }
             } else {
                 colDir = "b";
                 shapeA.grounded = true;
-                if (shapeA.col.B < oY && oY > 1 / ratio && oY < 0.02 * ratio) {
+                if (shapeA.col.B < oY && oY > 1 / ratio) {
                     shapeA.col.B = oY;
-                }
-                if (shapeB.xVel) {
-                    shapeA.xVelExt = shapeB.xVel;
                 }
             }
         } else {
             if (vX > 0) {
                 colDir = "l";
-                if (shapeA.col.L < oX && oX > 1 / ratio && !shapeB.xVel) {
+                if (shapeA.col.L < oX && oX > 1 / ratio) {
                     shapeA.col.L = oX;
                 }
             } else {
                 colDir = "r";
-                if (shapeA.col.R < oX && oX > 1 / ratio && !shapeB.xVel) {
+                if (shapeA.col.R < oX && oX > 1 / ratio) {
                     shapeA.col.R = oX;
                 }
             }
@@ -2831,120 +2409,66 @@ function colCheck(shapeA, shapeB) {
     return colDir;
 
 }
+
 var touchDevice = false;
 //Mouse controls
-window.onmousedown = function (e) {
-    if (typeof e === 'object') {
-        switch (e.button) {
-            case 0:
-                //console.log('Left button clicked.');
-                if (!touchDevice) {
-                    player.attackEvent();
-                }
-                break;
-            case 1:
-                //console.log('Middle button clicked.');
-                break;
-            case 2:
-                //console.log('Right button clicked.');
-                player.jump();
-                break;
-            default:
-                console.log(`Unknown button code: ${btnCode}`);
-        }
+window.onclick = function () {
+    if (!touchDevice) {
+        player.attackEvent();
     }
 }
-window.oncontextmenu = function (event) {
-    event.preventDefault();
+window.oncontextmenu = function () {
+    return false;
 }
 // Keyboard controls
 window.addEventListener("keydown", function (event) {
     var key = event.keyCode;
-    event.preventDefault();
     switch (key) {
-        case 65: //left key down (A / left arrow)
+        case 65: //left key down
             player.L = true;
             break;
-        case 37:
-            player.L = true;
-            break;
-        case 68: //right key down (D / right arrow)
+        case 68: //right key down
             player.R = true;
             break;
-        case 39:
-            player.R = true;
-            break;
-        case 83: //down key down (S /down arrow)
-            watchDown = true;
-            break;
-        case 40:
-            watchDown = true;
-            break;
-        case 87: //jump key down (W / Z / up arrow)
-            player.jump();
-            break;
-        case 90:
-            player.jump();
-            break;
-        case 38:
-            player.jump();
-            break;
-        case 70: //attack key down (F / X)
+        case 70: //attack key down
             player.attackEvent();
-            break;
-        case 88:
-            player.attackEvent();
-            break;
-        case 69: //dance key (E)
-            player.dance = true;
             break;
         case 71: //g key down
             //console.log(player);
-            darken.go = true;
-            darken.alpha = 0.0;
+            mapY++;
             break;
         case 72: //h key down
             //console.log(monsters[0].atkHitbox, player.hitbox);
-            darken.go = false;
-            darken.alpha = 0.0;
+            mapY--;
+            break;
+        case 87: //jump key down
+            player.jump();
             break;
         case 49: // 1
-            create("Slime", 5 - mapX / ratio, -mapY / ratio);
+            create("Slime", 5 - mapX / ratio, 0);
             break;
-        case 50: // 2
-            create("Lizard", 5 - mapX / ratio, -mapY / ratio);
+        case 50: // 1
+            create("Lizard", 5 - mapX / ratio, 0);
             break;
-        case 51: // 3
-            create("Zombie", 5 - mapX / ratio, -mapY / ratio);
+        case 51: // 1
+            create("Zombie", 5 - mapX / ratio, 0);
             break;
-        case 52: // 4
-            create("Superzombie", 5 - mapX / ratio, -mapY / ratio);
+        case 52: // 1
+            create("Superzombie", 5 - mapX / ratio, 0);
             break;
-        case 53: // 5
-            create("Bear", 5 - mapX / ratio, -mapY / ratio);
+        case 53: // 1
+            create("Bear", 5 - mapX / ratio, 0);
             break;
     }
 });
 window.addEventListener("keyup", function (event) {
     var key = event.keyCode;
     switch (key) {
-        case 65: //left key up (A / left arrow)
+        case 65: //left key up
             player.L = false;
             break;
-        case 37:
-            player.L = false;
-            break;
-        case 68: //right key up (D / right arrow)
+        case 68: //right key up
             player.R = false;
-            break;
-        case 39:
-            player.R = false;
-            break;
-        case 83: //down key up (S /down arrow)
-            watchDown = false;
-            break;
-        case 40:
-            watchDown = false;
             break;
     }
 });
@@ -3004,39 +2528,17 @@ id("down").addEventListener("touchend", function () {
     id("down").style.opacity = "0.5";
 });
 // TOUCH CONTROLS END
-var bgColor = "#0099dd";
-var mapHeight = 0;
-var mapWidth = 0;
-var biomes = [{
-    background: true,
-    ambient: audio.ambient_1,
-    music: [audio.haydn_1, audio.haydn_2],
-    bgColor: "#0099dd",
-    other: function () {
-        for (let j = 0; j < 30; j++) {
-            var ran1 = parseInt(Math.random() * mapWidth + (player.x / ratio));
-            var ran2 = Math.random() * mapHeight / 4 - mapHeight / 8;
-            var ran3 = parseInt(Math.random() * 20 + 1);
-            visualFxs.push(new Cloud(ran1, ran2, ran3));
-        }
-    }
-}, {
-    background: false,
-    ambient: audio.ambient_2,
-    music: [audio.bach_1, audio.bach_2],
-    bgColor: "#222034",
-    other: function () {}
-}]
-var biome = 0;
 
 if (window.opener) {
-    //console.log(window.opener.mapCode);
+    console.log(window.opener.mapCode);
     if (window.opener.mapCode) {
         eval(window.opener.mapCode);
     } else {
         eval(window.opener.map);
     }
 }
+
+var mapHeight = 0;
 
 function initializeMap() {
     var spTiles = [];
@@ -3073,35 +2575,8 @@ function initializeMap() {
             mapHeight = map[i].y + map[i].h;
         }
     }
-    for (i = map.length - 1; i >= 0; i--) {
-        if (map[i].x + map[i].w > mapWidth) {
-            mapWidth = map[i].x + map[i].w;
-        }
-    }
-    background = biomes[biome].background;
-    bgColor = biomes[biome].bgColor;
-    biomes[biome].other();
-    audio.walking.addEventListener("play", function () {
-        biomes[biome].ambient.play();
-        biomes[biome].music[Math.floor(Math.random() * 2)].play();
-        biomes[biome].music[1].addEventListener('ended', function () {
-            if (this.paused)
-                biomes[biome].music[0].play();
-        })
-        biomes[biome].music[0].addEventListener('ended', function () {
-            if (this.paused)
-                biomes[biome].music[1].play();
-        })
-    }, {
-        once: true
-    });
-
 }
-
 initializeMap();
-
-window.onload = function () {
-    requestAnimationFrame(loop);
-}
+requestAnimationFrame(loop)
 
 //starts the program
