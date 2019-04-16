@@ -2828,20 +2828,19 @@ function drawEnvironment() {
         c.globalAlpha = 1;
     }
     for (let i = bgTiles.length - 1; i >= 0; i--) {
-        for (let j = 0; j < bgTiles[i].h; j++) {
-            for (let k = 0; k < bgTiles[i].w; k++) {
-                //skips out of bounds tiles
-                if (bgTiles[i].x + k > tilesWidth - mapX / ratio ||
-                    bgTiles[i].x + k < -tilesWidth - mapX / ratio) {
-                    continue;
-                }
-                if (bgTiles[i].y + j > tilesHeight - mapY / ratio ||
-                    bgTiles[i].y + j < -tilesHeight - mapY / ratio) {
-                    continue;
-                }
-                //c.fillRect((map[i].x + k) * (ratio)+mapX, (map[i].y + j) * (ratio), ratio, ratio);
-                if (bgTiles[i].type === 61) {
-                    c.globalAlpha = 0.3;
+        if (bgTiles[i].type === 61) {
+            for (let j = 0; j < bgTiles[i].h; j++) {
+                for (let k = 0; k < bgTiles[i].w; k++) {
+                    //skips out of bounds tiles
+                    if (bgTiles[i].x + k > tilesWidth - mapX / ratio ||
+                        bgTiles[i].x + k < -tilesWidth - mapX / ratio) {
+                        continue;
+                    }
+                    if (bgTiles[i].y + j > tilesHeight - mapY / ratio ||
+                        bgTiles[i].y + j < -tilesHeight - mapY / ratio) {
+                        continue;
+                    }
+                    //c.fillRect((map[i].x + k) * (ratio)+mapX, (map[i].y + j) * (ratio), ratio, ratio);
                     c.drawImage(player.sheet, tiles[bgTiles[i].type][0] * 16, tiles[bgTiles[i].type][1] * 16, 16, 16, (bgTiles[i].x + k) * ratio + mapX, (bgTiles[i].y + j) * ratio + mapY, ratio, ratio);
                 }
                 c.globalAlpha = 1;
@@ -2849,19 +2848,19 @@ function drawEnvironment() {
         }
     }
     for (let i = bgTiles.length - 1; i >= 0; i--) {
-        for (let j = 0; j < bgTiles[i].h; j++) {
-            for (let k = 0; k < bgTiles[i].w; k++) {
-                //skips out of bounds tiles
-                if (bgTiles[i].x + k > tilesWidth - mapX / ratio ||
-                    bgTiles[i].x + k < -tilesWidth - mapX / ratio) {
-                    continue;
-                }
-                if (bgTiles[i].y + j > tilesHeight - mapY / ratio ||
-                    bgTiles[i].y + j < -tilesHeight - mapY / ratio) {
-                    continue;
-                }
-                //c.fillRect((map[i].x + k) * (ratio)+mapX, (map[i].y + j) * (ratio), ratio, ratio);
-                if (bgTiles[i].type !== 61) {
+        if (bgTiles[i].type !== 61) {
+            for (let j = 0; j < bgTiles[i].h; j++) {
+                for (let k = 0; k < bgTiles[i].w; k++) {
+                    //skips out of bounds tiles
+                    if (bgTiles[i].x + k > tilesWidth - mapX / ratio ||
+                        bgTiles[i].x + k < -tilesWidth - mapX / ratio) {
+                        continue;
+                    }
+                    if (bgTiles[i].y + j > tilesHeight - mapY / ratio ||
+                        bgTiles[i].y + j < -tilesHeight - mapY / ratio) {
+                        continue;
+                    }
+                    //c.fillRect((map[i].x + k) * (ratio)+mapX, (map[i].y + j) * (ratio), ratio, ratio);
                     c.drawImage(player.sheet, tiles[bgTiles[i].type][0] * 16, tiles[bgTiles[i].type][1] * 16, 16, 16, (bgTiles[i].x + k) * ratio + mapX, (bgTiles[i].y + j) * ratio + mapY, ratio, ratio);
                 }
             }
