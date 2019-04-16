@@ -47,6 +47,12 @@ var tiles = [
         [14, 5], [14, 6], [14, 7], [14, 8], //traps stone
         [12, 0], //slime spawn
         [12, 8], //speeder 2
+        [10, 8], [10, 9], [10, 10], [10, 11], // banner
+        [8, 10], [9, 10], [8, 11], [9, 11], // chandelier
+        [8, 9], // skeleton
+        [9, 7], // background rock
+        [8, 7],[8, 8], // throne
+
     ]
 var spawnPoint = {
     x: 3,
@@ -134,7 +140,7 @@ var square = {
 var infoDisp = false;
 
 // MAIN LOOP
-requestAnimationFrame(loop);
+setInterval(loop, 1000 / 15);
 
 function loop() {
     c.clearRect(0, 0, canvas.width, canvas.height);
@@ -143,7 +149,6 @@ function loop() {
     if (mouseDown) {
         renderSquare();
     }
-    requestAnimationFrame(loop);
 }
 
 function renderSquare() {
@@ -313,10 +318,22 @@ function renderMap() {
     }
     c.globalAlpha = 1;
     for (i = 0; i < map.length; i++) {
-        for (j = 0; j < map[i].h; j++) {
-            for (k = 0; k < map[i].w; k++) {
-                //c.fillRect((tile[i].x + k) * (ratio)+mapX, (tile[i].y + j) * (ratio), ratio, ratio);
-                c.drawImage(id("sheet"), tiles[map[i].type][0] * 16, tiles[map[i].type][1] * 16, 16, 16, (map[i].x + k) * cellSize, (map[i].y + j) * cellSize, cellSize, cellSize);
+        if (map[i].type > 51) {
+            for (j = 0; j < map[i].h; j++) {
+                for (k = 0; k < map[i].w; k++) {
+                    //c.fillRect((tile[i].x + k) * (ratio)+mapX, (tile[i].y + j) * (ratio), ratio, ratio);
+                    c.drawImage(id("sheet"), tiles[map[i].type][0] * 16, tiles[map[i].type][1] * 16, 16, 16, (map[i].x + k) * cellSize, (map[i].y + j) * cellSize, cellSize, cellSize);
+                }
+            }
+        }
+    }
+    for (i = 0; i < map.length; i++) {
+        if (map[i].type < 51) {
+            for (j = 0; j < map[i].h; j++) {
+                for (k = 0; k < map[i].w; k++) {
+                    //c.fillRect((tile[i].x + k) * (ratio)+mapX, (tile[i].y + j) * (ratio), ratio, ratio);
+                    c.drawImage(id("sheet"), tiles[map[i].type][0] * 16, tiles[map[i].type][1] * 16, 16, 16, (map[i].x + k) * cellSize, (map[i].y + j) * cellSize, cellSize, cellSize);
+                }
             }
         }
     }

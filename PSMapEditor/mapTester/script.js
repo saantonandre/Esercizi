@@ -1142,6 +1142,11 @@ var tiles = [
         [14, 5], [14, 6], [14, 7], [14, 8], //traps stone
         [12, 0], //slime spawn
         [12, 8], //speeder 2
+        [10, 8], [10, 9], [10, 10], [10, 11], // banner
+        [8, 10], [9, 10], [8, 11], [9, 11], // chandelier
+        [8, 9], // skeleton
+        [9, 7], // background rock
+        [8, 7], [8, 8], // throne
     ]
 
 setInterval(function () {
@@ -1336,6 +1341,7 @@ var player = {
     }
 };
 
+var bgTiles = [];
 if (typeof spawnPoint !== "undefined") {
     // player.x=spawnPoint.x*ratio;
     // player.y=spawnPoint.y*ratio;
@@ -2821,9 +2827,49 @@ function drawEnvironment() {
         c.fillRect(0, 0, canvas.width, canvas.height);
         c.globalAlpha = 1;
     }
-    for (i = 0; i < map.length; i++) {
-        for (j = 0; j < map[i].h; j++) {
-            for (k = 0; k < map[i].w; k++) {
+    for (let i = bgTiles.length - 1; i >= 0; i--) {
+        for (let j = 0; j < bgTiles[i].h; j++) {
+            for (let k = 0; k < bgTiles[i].w; k++) {
+                //skips out of bounds tiles
+                if (bgTiles[i].x + k > tilesWidth - mapX / ratio ||
+                    bgTiles[i].x + k < -tilesWidth - mapX / ratio) {
+                    continue;
+                }
+                if (bgTiles[i].y + j > tilesHeight - mapY / ratio ||
+                    bgTiles[i].y + j < -tilesHeight - mapY / ratio) {
+                    continue;
+                }
+                //c.fillRect((map[i].x + k) * (ratio)+mapX, (map[i].y + j) * (ratio), ratio, ratio);
+                if (bgTiles[i].type === 61) {
+                    c.globalAlpha = 0.3;
+                    c.drawImage(player.sheet, tiles[bgTiles[i].type][0] * 16, tiles[bgTiles[i].type][1] * 16, 16, 16, (bgTiles[i].x + k) * ratio + mapX, (bgTiles[i].y + j) * ratio + mapY, ratio, ratio);
+                }
+                c.globalAlpha = 1;
+            }
+        }
+    }
+    for (let i = bgTiles.length - 1; i >= 0; i--) {
+        for (let j = 0; j < bgTiles[i].h; j++) {
+            for (let k = 0; k < bgTiles[i].w; k++) {
+                //skips out of bounds tiles
+                if (bgTiles[i].x + k > tilesWidth - mapX / ratio ||
+                    bgTiles[i].x + k < -tilesWidth - mapX / ratio) {
+                    continue;
+                }
+                if (bgTiles[i].y + j > tilesHeight - mapY / ratio ||
+                    bgTiles[i].y + j < -tilesHeight - mapY / ratio) {
+                    continue;
+                }
+                //c.fillRect((map[i].x + k) * (ratio)+mapX, (map[i].y + j) * (ratio), ratio, ratio);
+                if (bgTiles[i].type !== 61) {
+                    c.drawImage(player.sheet, tiles[bgTiles[i].type][0] * 16, tiles[bgTiles[i].type][1] * 16, 16, 16, (bgTiles[i].x + k) * ratio + mapX, (bgTiles[i].y + j) * ratio + mapY, ratio, ratio);
+                }
+            }
+        }
+    }
+    for (let i = 0; i < map.length; i++) {
+        for (let j = 0; j < map[i].h; j++) {
+            for (let k = 0; k < map[i].w; k++) {
                 //skips out of bounds tiles
                 if (map[i].x + k > tilesWidth - mapX / ratio ||
                     map[i].x + k < -tilesWidth - mapX / ratio) {
@@ -3286,7 +3332,8 @@ if (window.opener) {
 
 function initializeMap() {
     var spTiles = [];
-    for (i = map.length - 1; i >= 0; i--) {
+    var removeList = [];
+    for (let i = map.length - 1; i >= 0; i--) {
         switch (map[i].type) {
             case 17:
             case 18:
@@ -3302,14 +3349,31 @@ function initializeMap() {
             case 50:
             case 51:
                 spTiles.push(i);
-                break
+                removeList.push(i);
+                break;
+            case 52:
+            case 53:
+            case 54:
+            case 55:
+            case 56:
+            case 57:
+            case 58:
+            case 59:
+            case 60:
+            case 61:
+            case 62:
+            case 63:
+                bgTiles.push(map[i]);
+                removeList.push(i);
+                break;
+
         }
     }
     //[13, 5],[13, 6],[13, 7],[13, 8], //traps rock
     //[14, 5],[14, 6],[14, 7],[14, 8], //traps stone
-    for (i = 0; i < spTiles.length; i++) {
-        for (j = 0; j < map[spTiles[i]].h; j++) {
-            for (k = 0; k < map[spTiles[i]].w; k++) {
+    for (let i = 0; i < spTiles.length; i++) {
+        for (let j = 0; j < map[spTiles[i]].h; j++) {
+            for (let k = 0; k < map[spTiles[i]].w; k++) {
                 switch (map[spTiles[i]].type) {
                     case 17:
                         specialTiles.push(new Bouncy(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
@@ -3341,7 +3405,9 @@ function initializeMap() {
                 }
             }
         }
-        map.splice(spTiles[i], 1);
+    }
+    for (let i = 0; i < removeList.length; i++) {
+        map.splice(removeList[i], 1);
     }
     player.x = spawnPoint.x * ratio;
     player.y = spawnPoint.y * ratio;
