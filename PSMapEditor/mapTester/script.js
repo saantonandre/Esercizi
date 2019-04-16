@@ -1104,14 +1104,31 @@ Audio.prototype.playy = function () {
 //canvas-related variables
 var canvas = id("canvas");
 var c = canvas.getContext("2d");
+/*
 canvas.width = (window.innerHeight < window.innerWidth) ? window.innerHeight : window.innerWidth;
 //canvas.width = window.innerWidth * (window.innerHeight / window.innerWidth) / 1.1;
 canvas.width -= canvas.width % 16;
 canvas.height = canvas.width / 4 * 3;
-c.imageSmoothingEnabled = false;
+*/
 var tileSize = 16;
 var tilesWidth = 20;
-var tilesHeight = tilesWidth * (canvas.height / canvas.width);
+var tilesHeight = 15;
+var biggestPossible = 1;
+var ratioWidth = Math.floor(window.innerWidth / (tileSize * tilesWidth));
+var ratioHeight = Math.floor(window.innerHeight / (tileSize * tilesHeight))
+if (ratioWidth !== ratioHeight) {
+    biggestPossible = ratioWidth < ratioHeight ? ratioWidth : ratioHeight;
+}
+canvas.width = tileSize * tilesWidth * biggestPossible;
+canvas.height = tileSize * tilesHeight * biggestPossible;
+console.log(canvas.width)
+console.log(canvas.height)
+c.imageSmoothingEnabled = false;
+//var tilesHeight = tilesWidth * (canvas.height / canvas.width);
+
+//////PIXEL PERFECTION//////
+//////PIXEL PERFECTION//////
+
 var ratio = canvas.width / (tilesWidth);
 var textSize = Math.round(0.3 * ratio);
 var fontSize = textSize + "px";
@@ -1164,6 +1181,8 @@ var audio = {
     dash: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/dash.mp3"),
     death: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/death.mp3"),
     walking: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/walking.mp3"),
+    attack: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/sword-attack.mp3"),
+    hit: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/sword-hit.mp3"),
     ambient_1: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/ambient/outside.mp3"),
     ambient_2: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/ambient/castle.mp3"),
     haydn_1: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/music/Haydn-1.mp3"),
@@ -1182,6 +1201,8 @@ audio.speed1.volume = 0.8;
 audio.speed2.volume = 0.5;
 audio.jump.volume = 0.5;
 audio.dash.volume = 0.5;
+audio.attack.volume = 0.5;
+audio.hit.volume = 0.5;
 audio.death.volume = 0.5;
 audio.walking.volume = 1;
 audio.ambient_1.volume = 0.1;
@@ -1273,6 +1294,7 @@ var player = {
         }
     },
     attacking: function (hitbox) {
+        var hitSomething = 0;
         for (i = 0; i < monsters.length; i++) {
             if (collided(hitbox, monsters[i].hitbox) && monsters[i].hp > 0) {
                 var DMG = Math.round(Math.random() * (player.attackDMG / 2) + player.attackDMG / 2);
@@ -1280,6 +1302,7 @@ var player = {
                 if (missChance === 1) {
                     DMG = "miss";
                 } else {
+                    hitSomething = 1;
                     shake = 4;
                     if (!parseInt(Math.random() * 3)) {
                         visualFxs.push(new DmgFx(monsters[i], 0));
@@ -1302,9 +1325,13 @@ var player = {
                 dmgTexts.push(new DmgText(monsters[i], DMG));
             }
         }
+        if (hitSomething) {
+            audio.hit.playy();
+        }
     },
     attackEvent: function () {
         if (player.grounded && !player.attack && !this.dead) {
+            audio.attack.playy();
             player.attack = true;
             frame = 0;
         } else if (!player.attack && !player.dashCd && !this.dead) {
@@ -1693,9 +1720,9 @@ class Bear extends Monster {
     }
     attackSprite(m) {
         if (m.action == 6) {
-            c.drawImage(m.sheet, m.actionX[m.action][m.frame] + 32, m.actionY[m.action][m.frame], m.sprite.w / 2, m.sprite.h, m.x + m.w + mapX, m.y + mapY, m.w / 2, m.h);
+            c.drawImage(m.sheet, m.actionX[m.action][m.frame] + 32, m.actionY[m.action][m.frame], m.sprite.w / 2, m.sprite.h, (m.x + m.w + mapX) | 0, (m.y + mapY) | 0, (m.w / 2) | 0, (m.h) | 0);
         } else if (m.action == 7) {
-            c.drawImage(m.sheet, m.actionX[m.action][m.frame] - 16, m.actionY[m.action][m.frame], m.sprite.w / 2, m.sprite.h, m.x - m.w / 2 + mapX, m.y + mapY, m.w / 2, m.h);
+            c.drawImage(m.sheet, m.actionX[m.action][m.frame] - 16, m.actionY[m.action][m.frame], m.sprite.w / 2, m.sprite.h, (m.x - m.w / 2 + mapX) | 0, (m.y + mapY) | 0, (m.w / 2) | 0, (m.h) | 0);
         }
     }
 }
@@ -1992,10 +2019,10 @@ function drawFxs(fx) {
             spritePos.y[fx.sprite][fx.frame],
             spritePos.w[fx.sprite],
             spritePos.h[fx.sprite],
-            -(fxW / 2),
-            -(fxH / 2),
-            fxW,
-            fxH);
+            (-fxW / 2),
+            (-fxH / 2),
+            fxW | 0,
+            fxH | 0);
         c.restore();
     } else {
         c.drawImage(
@@ -2004,10 +2031,10 @@ function drawFxs(fx) {
             spritePos.y[fx.sprite][fx.frame],
             spritePos.w[fx.sprite],
             spritePos.h[fx.sprite],
-            fxX,
-            fxY,
-            fxW,
-            fxH);
+            fxX | 0,
+            fxY | 0,
+            fxW | 0,
+            fxH | 0);
     }
     //c.translate(-(fxX+fxW/2), -(fxY+fxH/2));
 }
@@ -2170,7 +2197,7 @@ function renderSpecialTiles() {
                     } else if (specialTiles[i].type === "spikes") {
                         if (!player.dead) {
                             visualFxs.push(new DeathFx(player.x / ratio, player.y / ratio));
-                            audio.death.play();
+                            audio.death.playy();
                             player.dead = true;
                             setTimeout(function () {
                                 player.respawnEvent();
@@ -2200,7 +2227,7 @@ function renderSpecialTiles() {
                     } else if (specialTiles[i].type === "spikes") {
                         if (!player.dead) {
                             visualFxs.push(new DeathFx(player.x / ratio, player.y / ratio));
-                            audio.death.play();
+                            audio.death.playy();
                             player.dead = true;
                             setTimeout(function () {
                                 player.respawnEvent();
@@ -2231,7 +2258,7 @@ function renderSpecialTiles() {
                     } else if (specialTiles[i].type === "spikes") {
                         if (!player.dead) {
                             visualFxs.push(new DeathFx(player.x / ratio, player.y / ratio));
-                            audio.death.play();
+                            audio.death.playy();
                             player.dead = true;
                             setTimeout(function () {
                                 player.respawnEvent();
@@ -2248,7 +2275,7 @@ function renderSpecialTiles() {
                     } else if (specialTiles[i].type === "spikes") {
                         if (!player.dead) {
                             visualFxs.push(new DeathFx(player.x / ratio, player.y / ratio));
-                            audio.death.play();
+                            audio.death.playy();
                             player.dead = true;
                             setTimeout(function () {
                                 player.respawnEvent();
@@ -2264,10 +2291,10 @@ function renderSpecialTiles() {
             specialTiles[i].sprite[specialTiles[i].frame][1] * 16,
             16,
             16,
-            specialTiles[i].x * ratio + mapX,
-            specialTiles[i].y * ratio + mapY,
-            specialTiles[i].w * ratio,
-            specialTiles[i].h * ratio);
+            (specialTiles[i].x * ratio + mapX) | 0,
+            (specialTiles[i].y * ratio + mapY) | 0,
+            (specialTiles[i].w * ratio) | 0,
+            (specialTiles[i].h * ratio) | 0);
     }
 }
 
@@ -2281,10 +2308,10 @@ function renderHpBars() {
             0,
             16,
             2,
-            monsters[i].x + mapX + monsters[i].w / 2 - (ratio / 2),
-            monsters[i].y + mapY - 2 / 16 * ratio - (ratio / tileSize),
-            ratio,
-            2 / 16 * ratio
+            (monsters[i].x + mapX + monsters[i].w / 2 - (ratio / 2)) | 0,
+            (monsters[i].y + mapY - 2 / 16 * ratio - (ratio / tileSize)) | 0,
+            (ratio) | 0,
+            (2 / 16 * ratio) | 0
         )
         c.drawImage(
             id("hp-bar"),
@@ -2292,10 +2319,10 @@ function renderHpBars() {
             2,
             barW,
             2,
-            monsters[i].x + mapX + monsters[i].w / 2 - (ratio / 2),
-            monsters[i].y + mapY - 2 / 16 * ratio - (ratio / tileSize),
-            ratio * hpRatio,
-            2 / 16 * ratio
+            (monsters[i].x + mapX + monsters[i].w / 2 - (ratio / 2)) | 0,
+            (monsters[i].y + mapY - 2 / 16 * ratio - (ratio / tileSize)) | 0,
+            (ratio * hpRatio) | 0,
+            (2 / 16 * ratio) | 0
         )
     }
 }
@@ -2745,10 +2772,10 @@ function drawBackground() {
     for (let j = 0; j < 5; j++) {
         c.drawImage(
             backgrounds[1],
-            -tilesWidth * 2 * ratio + (backgrounds[1].width / tileSize * ratio * j) + mapX / 20 - cloudsX[0],
-            mapY / 20,
-            backgrounds[1].width / tileSize * ratio,
-            backgrounds[1].height / tileSize * ratio
+            (-tilesWidth * 2 * ratio + (backgrounds[1].width / tileSize * ratio * j) + mapX / 20 - cloudsX[0]) | 0,
+            (mapY / 20) | 0,
+            (backgrounds[1].width / tileSize * ratio) | 0,
+            (backgrounds[1].height / tileSize * ratio) | 0
         );
     }
     cloudsX[0] += (backgrounds[1].width / tileSize * ratio) / 4000;
@@ -2759,10 +2786,10 @@ function drawBackground() {
     for (let j = 0; j < 5; j++) {
         c.drawImage(
             backgrounds[2],
-            -tilesWidth * 2 * ratio + (backgrounds[2].width / tileSize * ratio * j) + mapX / 18 - cloudsX[1],
-            mapY / 18,
-            backgrounds[2].width / tileSize * ratio,
-            backgrounds[2].height / tileSize * ratio
+            (-tilesWidth * 2 * ratio + (backgrounds[2].width / tileSize * ratio * j) + mapX / 18 - cloudsX[1]) | 0,
+            (mapY / 18) | 0,
+            (backgrounds[2].width / tileSize * ratio) | 0,
+            (backgrounds[2].height / tileSize * ratio) | 0
         );
     }
     cloudsX[1] += (backgrounds[2].width / tileSize * ratio) / 6000;
@@ -2772,47 +2799,47 @@ function drawBackground() {
     for (let j = 0; j < 5; j++) {
         c.drawImage(
             backgrounds[3],
-            -tilesWidth * 2 * ratio + (backgrounds[3].width / tileSize * ratio * j) + mapX / 10,
-            mapY / 10,
-            backgrounds[3].width / tileSize * ratio,
-            backgrounds[3].height / tileSize * ratio
+            (-tilesWidth * 2 * ratio + (backgrounds[3].width / tileSize * ratio * j) + mapX / 10) | 0,
+            (mapY / 10) | 0,
+            (backgrounds[3].width / tileSize * ratio) | 0,
+            (backgrounds[3].height / tileSize * ratio) | 0
         );
     }
 
     for (let j = 0; j < 5; j++) {
         c.drawImage(
             backgrounds[4],
-            -tilesWidth * 2 * ratio + (backgrounds[4].width / tileSize * ratio * j) + mapX / 8,
-            mapY / 8,
-            backgrounds[4].width / tileSize * ratio,
-            backgrounds[4].height / tileSize * ratio
+            (-tilesWidth * 2 * ratio + (backgrounds[4].width / tileSize * ratio * j) + mapX / 8) | 0,
+            (mapY / 8) | 0,
+            (backgrounds[4].width / tileSize * ratio) | 0,
+            (backgrounds[4].height / tileSize * ratio) | 0
         );
     }
     for (let j = 0; j < 5; j++) {
         c.drawImage(
             backgrounds[5],
-            -tilesWidth * 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + mapX / 6,
-            mapY / 6,
-            backgrounds[5].width / tileSize * ratio,
-            backgrounds[5].height / tileSize * ratio
+            (-tilesWidth * 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + mapX / 6) | 0,
+            (mapY / 6) | 0,
+            (backgrounds[5].width / tileSize * ratio) | 0,
+            (backgrounds[5].height / tileSize * ratio) | 0
         );
     }
     for (let j = 0; j < 5; j++) {
         c.drawImage(
             backgrounds[5],
-            -tilesWidth * 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + mapX / 5,
-            (backgrounds[5].height / tileSize * ratio) / 5 + mapY / 5,
-            backgrounds[5].width / tileSize * ratio,
-            backgrounds[5].height / tileSize * ratio
+            (-tilesWidth * 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + mapX / 5) | 0,
+            ((backgrounds[5].height / tileSize * ratio) / 5 + mapY / 5) | 0,
+            (backgrounds[5].width / tileSize * ratio) | 0,
+            (backgrounds[5].height / tileSize * ratio) | 0
         );
     }
     for (let j = 0; j < 5; j++) {
         c.fillStyle = "#323c39";
         c.fillRect(
-            -tilesWidth * 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + mapX / 5,
-            mapY / 5 + backgrounds[5].height / tileSize * ratio,
-            backgrounds[5].width / tileSize * ratio,
-            backgrounds[5].height / tileSize * ratio
+            (-tilesWidth * 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + mapX / 5) | 0,
+            (mapY / 5 + backgrounds[5].height / tileSize * ratio) | 0,
+            (backgrounds[5].width / tileSize * ratio) | 0,
+            (backgrounds[5].height / tileSize * ratio) | 0
         );
     }
 }
@@ -2841,7 +2868,7 @@ function drawEnvironment() {
                         continue;
                     }
                     //c.fillRect((map[i].x + k) * (ratio)+mapX, (map[i].y + j) * (ratio), ratio, ratio);
-                    c.drawImage(player.sheet, tiles[bgTiles[i].type][0] * 16, tiles[bgTiles[i].type][1] * 16, 16, 16, (bgTiles[i].x + k) * ratio + mapX, (bgTiles[i].y + j) * ratio + mapY, ratio, ratio);
+                    c.drawImage(player.sheet, tiles[bgTiles[i].type][0] * 16, tiles[bgTiles[i].type][1] * 16, 16, 16, ((bgTiles[i].x + k) * ratio + mapX) | 0, ((bgTiles[i].y + j) * ratio + mapY) | 0, (ratio) | 0, (ratio) | 0);
                 }
                 c.globalAlpha = 1;
             }
@@ -2861,7 +2888,7 @@ function drawEnvironment() {
                         continue;
                     }
                     //c.fillRect((map[i].x + k) * (ratio)+mapX, (map[i].y + j) * (ratio), ratio, ratio);
-                    c.drawImage(player.sheet, tiles[bgTiles[i].type][0] * 16, tiles[bgTiles[i].type][1] * 16, 16, 16, (bgTiles[i].x + k) * ratio + mapX, (bgTiles[i].y + j) * ratio + mapY, ratio, ratio);
+                    c.drawImage(player.sheet, tiles[bgTiles[i].type][0] * 16, tiles[bgTiles[i].type][1] * 16, 16, 16, ((bgTiles[i].x + k) * ratio + mapX) | 0, ((bgTiles[i].y + j) * ratio + mapY) | 0, (ratio) | 0, (ratio) | 0);
                 }
             }
         }
@@ -2879,7 +2906,7 @@ function drawEnvironment() {
                     continue;
                 }
                 //c.fillRect((map[i].x + k) * (ratio)+mapX, (map[i].y + j) * (ratio), ratio, ratio);
-                c.drawImage(player.sheet, tiles[map[i].type][0] * 16, tiles[map[i].type][1] * 16, 16, 16, (map[i].x + k) * ratio + mapX, (map[i].y + j) * ratio + mapY, ratio, ratio);
+                c.drawImage(player.sheet, tiles[map[i].type][0] * 16, tiles[map[i].type][1] * 16, 16, 16, ((map[i].x + k) * ratio + mapX) | 0, ((map[i].y + j) * ratio + mapY) | 0, (ratio) | 0, (ratio) | 0);
             }
         }
     }
@@ -2947,22 +2974,22 @@ function drawCharacter(p) {
     if (p.dash) {
         c.globalCompositeOperation = "difference";
         c.globalAlpha = 0.4;
-        c.drawImage(p.sheet, p.actionX[p.action][0] * tileSize, p.actionY[p.action][0] * tileSize, p.sprite.w, p.sprite.h, p.x + mapX - p.xVel * 2, p.y + mapY, p.w, p.h);
+        c.drawImage(p.sheet, p.actionX[p.action][0] * tileSize, p.actionY[p.action][0] * tileSize, p.sprite.w, p.sprite.h, (p.x + mapX - p.xVel * 2) | 0, (p.y + mapY) | 0, (p.w) | 0, (p.h) | 0);
         c.globalAlpha = 0.6;
-        c.drawImage(p.sheet, p.actionX[p.action][0] * tileSize, p.actionY[p.action][0] * tileSize, p.sprite.w, p.sprite.h, p.x + mapX - p.xVel, p.y + mapY, p.w, p.h);
+        c.drawImage(p.sheet, p.actionX[p.action][0] * tileSize, p.actionY[p.action][0] * tileSize, p.sprite.w, p.sprite.h, (p.x + mapX - p.xVel) | 0, (p.y + mapY) | 0, (p.w) | 0, (p.h) | 0);
         c.globalAlpha = 0.8;
-        c.drawImage(p.sheet, p.actionX[p.action][0] * tileSize, p.actionY[p.action][0] * tileSize, p.sprite.w, p.sprite.h, p.x + mapX, p.y + mapY, p.w, p.h);
+        c.drawImage(p.sheet, p.actionX[p.action][0] * tileSize, p.actionY[p.action][0] * tileSize, p.sprite.w, p.sprite.h, (p.x + mapX) | 0, (p.y + mapY) | 0, (p.w) | 0, (p.h) | 0);
         c.globalAlpha = 1;
         c.globalCompositeOperation = "source-over";
     } else {
-        c.drawImage(p.sheet, p.actionX[p.action][frame] * tileSize, p.actionY[p.action][frame] * tileSize, p.sprite.w, p.sprite.h, p.x + mapX, p.y + mapY, p.w, p.h);
+        c.drawImage(p.sheet, p.actionX[p.action][frame] * tileSize, p.actionY[p.action][frame] * tileSize, p.sprite.w, p.sprite.h, (p.x + mapX) | 0, (p.y + mapY) | 0, (p.w) | 0, (p.h) | 0);
     }
     //the attack animation takes up 2 tiles in width, so I decided to print the other map separately
     if (p.attack) {
         if (p.action == 6) {
-            c.drawImage(p.sheet, p.actionX[p.action][frame] * tileSize + 16, p.actionY[p.action][frame] * tileSize, p.sprite.w, p.sprite.h, p.x + mapX + p.w, p.y + mapY, p.w, p.h);
+            c.drawImage(p.sheet, p.actionX[p.action][frame] * tileSize + 16, p.actionY[p.action][frame] * tileSize, p.sprite.w, p.sprite.h, (p.x + mapX + p.w) | 0, (p.y + mapY) | 0, (p.w) | 0, (p.h) | 0);
         } else if (p.action == 7) {
-            c.drawImage(p.sheet, p.actionX[p.action][frame] * tileSize - 16, p.actionY[p.action][frame] * tileSize, p.sprite.w, p.sprite.h, p.x + mapX - p.w, p.y + mapY, p.w, p.h);
+            c.drawImage(p.sheet, p.actionX[p.action][frame] * tileSize - 16, p.actionY[p.action][frame] * tileSize, p.sprite.w, p.sprite.h, (p.x + mapX - p.w) | 0, (p.y + mapY) | 0, (p.w) | 0, (p.h) | 0);
         }
     }
 }
@@ -3025,7 +3052,7 @@ function drawMonsters(m) {
         }
     }
     //draw on canvas
-    c.drawImage(m.sheet, m.actionX[m.action][m.frame], m.actionY[m.action][m.frame], m.sprite.w, m.sprite.h, m.x + mapX, m.y + mapY, m.w, m.h);
+    c.drawImage(m.sheet, m.actionX[m.action][m.frame], m.actionY[m.action][m.frame], m.sprite.w, m.sprite.h, (m.x + mapX) | 0, (m.y + mapY) | 0, (m.w) | 0, (m.h) | 0);
     if (m.attack) {
         m.attackSprite(m);
     }
