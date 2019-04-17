@@ -102,6 +102,7 @@ var tiles = [
         [8, 9], // skeleton
         [9, 7], // background rock
         [8, 7], [8, 8], // throne
+        [13, 12], // crystal
     ]
 
 setInterval(function () {
@@ -819,14 +820,14 @@ class Crystal {
     action() {
         if (this.sprite == 1) {
             if (this.frame == this.spritePos.x[1].length - 1) {
-                    if (this.frameCounter == this.slowness) {
-                        this.sprite = 2;
-                        var that=this;
-                        setTimeout(function () {
-                            that.sprite = 0;
-                            that.slowness=10;
-                        }, 3000)
-                    }
+                if (this.frameCounter == this.slowness) {
+                    this.sprite = 2;
+                    var that = this;
+                    setTimeout(function () {
+                        that.sprite = 0;
+                        that.slowness = 10;
+                    }, 3000)
+                }
             }
         }
         if (this.sprite == 0 && (player.dash) && collided(player, this.hitbox)) {
