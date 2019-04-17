@@ -795,26 +795,26 @@ class GhostGirl {
     }
     action() {
         if (this.x + this.w < player.x - 1) {
-            if (player.dead){
-                if(this.srite==0||this.srite==1){
+            if (player.dead) {
+                if (this.srite == 0 || this.srite == 1) {
                     this.frameCounter = 0;
                     this.frame = 0;
                 }
-            this.sprite = 2;
-            }else{
+                this.sprite = 2;
+            } else {
                 this.sprite = 0;
             }
             if (Math.abs(this.x - player.x) / 6 > 1 / 100 * ratio) {
                 this.x += Math.abs(this.x - player.x) / 50;
             }
         } else if (this.x > player.x + player.w + 1) {
-            if (player.dead){
-                if(this.srite==0||this.srite==1){
+            if (player.dead) {
+                if (this.srite == 0 || this.srite == 1) {
                     this.frameCounter = 0;
                     this.frame = 0;
                 }
-            this.sprite = 3;
-            }else{
+                this.sprite = 3;
+            } else {
                 this.sprite = 1;
             }
             if (Math.abs(this.x - player.x) / 6 > 1 / 100 * ratio) {
@@ -1286,6 +1286,14 @@ function loop() {
     }
     checkCollisions();
     for (i = 0; i < monsters.length; i++) {
+        if (monsters[i].hitbox.x + monsters[i].hitbox.w > tilesWidth - mapX / ratio &&
+            monsters[i].hitbox.x + monsters[i].hitbox.w < -tilesWidth - mapX / ratio) {
+            continue;
+        }
+        if (monsters[i].hitbox.y + monsters[i].hitbox.h > tilesHeight - mapY / ratio &&
+            monsters[i].hitbox.y + monsters[i].hitbox.h < -tilesHeight - mapY / ratio) {
+            continue;
+        }
         monsters[i].frameCounter++;
         calculateMonsters(monsters[i]);
     }
@@ -1297,6 +1305,14 @@ function loop() {
     }
     //draw character
     for (i = monsters.length - 1; i >= 0; i--) {
+        if (monsters[i].hitbox.x + monsters[i].hitbox.w > tilesWidth - mapX / ratio &&
+            monsters[i].hitbox.x + monsters[i].hitbox.w < -tilesWidth - mapX / ratio) {
+            continue;
+        }
+        if (monsters[i].hitbox.y + monsters[i].hitbox.h > tilesHeight - mapY / ratio &&
+            monsters[i].hitbox.y + monsters[i].hitbox.h < -tilesHeight - mapY / ratio) {
+            continue;
+        }
         drawMonsters(monsters[i]);
     }
     for (i = visualFxs.length - 1; i >= 0; i--) {
