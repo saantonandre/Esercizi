@@ -2,6 +2,19 @@
 function id(arg) {
     return document.getElementById(arg);
 }
+
+function detectMob() {
+    if (navigator.userAgent.match(/Android/i) ||
+        navigator.userAgent.match(/webOS/i) ||
+        navigator.userAgent.match(/iPhone/i) ||
+        navigator.userAgent.match(/iPod/i) ||
+        navigator.userAgent.match(/BlackBerry/i)
+    ) {
+        return true;
+    } else {
+        return false;
+    }
+}
 var map = [{
     x: 2,
     y: 7,
@@ -36,6 +49,10 @@ var c = canvas.getContext("2d");
 var tileSize = 16;
 var tilesWidth = 20;
 var tilesHeight = 15;
+if (detectMob === true) {
+    tilesWidth = 10;
+    tilesHeight = 6;
+}
 
 // Pixel perfection
 var biggestPossible = 1;
@@ -1286,12 +1303,7 @@ function loop() {
     }
     checkCollisions();
     for (i = 0; i < monsters.length; i++) {
-        if (monsters[i].hitbox.x + monsters[i].hitbox.w > tilesWidth - mapX / ratio &&
-            monsters[i].hitbox.x + monsters[i].hitbox.w < -tilesWidth - mapX / ratio) {
-            continue;
-        }
-        if (monsters[i].hitbox.y + monsters[i].hitbox.h > tilesHeight - mapY / ratio &&
-            monsters[i].hitbox.y + monsters[i].hitbox.h < -tilesHeight - mapY / ratio) {
+        if (isOutOfScreen(monsters[i])) {
             continue;
         }
         monsters[i].frameCounter++;
@@ -1305,12 +1317,7 @@ function loop() {
     }
     //draw character
     for (i = monsters.length - 1; i >= 0; i--) {
-        if (monsters[i].hitbox.x + monsters[i].hitbox.w > tilesWidth - mapX / ratio &&
-            monsters[i].hitbox.x + monsters[i].hitbox.w < -tilesWidth - mapX / ratio) {
-            continue;
-        }
-        if (monsters[i].hitbox.y + monsters[i].hitbox.h > tilesHeight - mapY / ratio &&
-            monsters[i].hitbox.y + monsters[i].hitbox.h < -tilesHeight - mapY / ratio) {
+        if (isOutOfScreen(monsters[i])) {
             continue;
         }
         drawMonsters(monsters[i]);
@@ -1385,6 +1392,19 @@ function moveCamera() {
     */
 }
 
+function isOutOfScreen(Entity) {
+    var entity = (Entity.hitbox !== undefined) ? Entity.hitbox : Entity;
+    if (entity.x + entity.w > tilesWidth - mapX / ratio &&
+        entity.x + entity.w < -tilesWidth - mapX / ratio) {
+        return true;
+    }
+    if (entity.y + entity.h > tilesHeight - mapY / ratio &&
+        entity.y + entity.h < -tilesHeight - mapY / ratio) {
+        return true;
+    }
+    return false;
+}
+
 function checkCollisions() {
     player.grounded = false;
     player.col.L = false;
@@ -1392,6 +1412,9 @@ function checkCollisions() {
     player.col.T = false;
     player.col.B = false;
     for (let i = 0; i < monsters.length; i++) {
+        if (isOutOfScreen(monsters[i])) {
+            continue;
+        }
         monsters[i].grounded = false;
         monsters[i].col.L = false;
         monsters[i].col.R = false;
@@ -1402,6 +1425,9 @@ function checkCollisions() {
         }
     }
     for (let i = 0; i < map.length; i++) {
+        if (isOutOfScreen(map[i])) {
+            continue;
+        }
         if (collided(player, map[i])) {
             colCheck(player, map[i]);
         }
@@ -1413,7 +1439,10 @@ function checkCollisions() {
     };
 
     for (let i = 0; i < specialTiles.length; i++) {
-        for (m = 0; m < monsters.length; m++) {
+        if (isOutOfScreen(specialTiles[i])) {
+            continue;
+        }
+        for (let m = 0; m < monsters.length; m++) {
             if (collided(monsters[m], specialTiles[i])) {
                 colCheck(monsters[m], specialTiles[i]);
             }
@@ -1632,17 +1661,6 @@ var background = false;
 var cloudsX = [0, 0];
 
 function drawBackground() {
-    /*
-    for (let j = 0; j < 5; j++) {
-        c.drawImage(
-            backgrounds[0],
-            -tilesWidth * 2 * ratio + (backgrounds[0].width / tileSize * ratio * j),
-            -tilesHeight * ratio / 4,
-            backgrounds[0].width / tileSize * ratio,
-            backgrounds[0].height / tileSize * ratio
-        );
-    }
-*/
     for (let j = 0; j < 5; j++) {
         c.drawImage(
             backgrounds[1],
@@ -1723,12 +1741,7 @@ function drawEnvironment() {
         drawBackground();
     }
     for (let i = bgTiles.length - 1; i >= 0; i--) {
-        if (bgTiles[i].x + bgTiles[i].w > tilesWidth - mapX / ratio &&
-            bgTiles[i].x + bgTiles[i].w < -tilesWidth - mapX / ratio) {
-            continue;
-        }
-        if (bgTiles[i].y + bgTiles[i].h > tilesHeight - mapY / ratio &&
-            bgTiles[i].y + bgTiles[i].h < -tilesHeight - mapY / ratio) {
+        if (isOutOfScreen(bgTiles[i])) {
             continue;
         }
         for (let j = 0; j < bgTiles[i].h; j++) {
@@ -1757,18 +1770,11 @@ function drawEnvironment() {
         }
     }
     for (let i = 0; i < map.length; i++) {
-        if (map[i].x + map[i].w > tilesWidth - mapX / ratio &&
-            map[i].x + map[i].w < -tilesWidth - mapX / ratio) {
-            continue;
-        }
-        if (map[i].y + map[i].h > tilesHeight - mapY / ratio &&
-            map[i].y + map[i].h < -tilesHeight - mapY / ratio) {
+        if (isOutOfScreen(map[i])) {
             continue;
         }
         for (let j = 0; j < map[i].h; j++) {
             for (let k = 0; k < map[i].w; k++) {
-                //skips out of bounds tiles
-                //c.fillRect((map[i].x + k) * (ratio)+mapX, (map[i].y + j) * (ratio), ratio, ratio);
                 c.drawImage(
                     player.sheet, tiles[map[i].type][0] * 16,
                     tiles[map[i].type][1] * 16,
