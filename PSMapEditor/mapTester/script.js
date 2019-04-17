@@ -3,18 +3,6 @@ function id(arg) {
     return document.getElementById(arg);
 }
 
-function detectMob() {
-    if (navigator.userAgent.match(/Android/i) ||
-        navigator.userAgent.match(/webOS/i) ||
-        navigator.userAgent.match(/iPhone/i) ||
-        navigator.userAgent.match(/iPod/i) ||
-        navigator.userAgent.match(/BlackBerry/i)
-    ) {
-        return true;
-    } else {
-        return false;
-    }
-}
 var map = [{
     x: 2,
     y: 7,
@@ -49,10 +37,6 @@ var c = canvas.getContext("2d");
 var tileSize = 16;
 var tilesWidth = 20;
 var tilesHeight = 15;
-if (detectMob === true) {
-    tilesWidth = 10;
-    tilesHeight = 6;
-}
 
 // Pixel perfection
 var biggestPossible = 1;
@@ -842,7 +826,6 @@ class Crystal {
         }
     }
 }
-visualFxs.push(new Crystal(4, 4));
 class GhostGirl {
     constructor(x, y) {
         this.x = x * ratio;
