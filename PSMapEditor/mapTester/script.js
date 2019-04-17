@@ -118,6 +118,7 @@ var audio = {
     speed2: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/speed2.mp3"),
     dash: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/dash.mp3"),
     death: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/death.mp3"),
+    crystal: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/crystal.mp3"),
     walking: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/walking.mp3"),
     attack: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/sword-attack.mp3"),
     hit: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/sword-hit.mp3"),
@@ -138,17 +139,18 @@ audio.bounce4.volume = 0.4;
 audio.speed1.volume = 0.8;
 audio.speed2.volume = 0.5;
 audio.jump.volume = 0.5;
-audio.dash.volume = 0.5;
+audio.dash.volume = 0.3;
 audio.attack.volume = 0.5;
 audio.hit.volume = 0.5;
 audio.death.volume = 0.5;
+audio.crystal.volume = 1;
 audio.walking.volume = 1;
 audio.ambient_1.volume = 0.1;
 audio.ambient_2.volume = 0.2;
 audio.ambient_1.loop = true;
 audio.ambient_2.loop = true;
-audio.haydn_1.volume = 0.3;
-audio.haydn_2.volume = 0.3;
+audio.haydn_1.volume = 0.2;
+audio.haydn_2.volume = 0.2;
 audio.bach_1.volume = 0.3;
 audio.bach_2.volume = 0.3;
 
@@ -789,6 +791,57 @@ class Grass {
         };
     }
 }
+class Crystal {
+    constructor(x, y) {
+        this.x = x * ratio;
+        this.y = y * ratio;
+        this.sprite = 0;
+        this.rotation = 0;
+        this.sheet = id("sheet");
+        this.repeat = true;
+        this.frameCounter = 0;
+        this.slowness = 10;
+        this.frame = 0;
+        this.type = "crystal";
+        this.hitbox = {
+            x: x + 0.3,
+            y: y + 0.3,
+            w: 0.4,
+            h: 0.4
+        };
+        this.spritePos = {
+            x: [[208, 208, 208, 208], [224, 224, 224, 224, 224, 224], [240]],
+            y: [[192, 208, 224, 240], [192, 208, 224, 240, 256, 272], [192]],
+            w: [16, 16, 16],
+            h: [16, 16, 16],
+        };
+    }
+    action() {
+        if (this.sprite == 1) {
+            if (this.frame == this.spritePos.x[1].length - 1) {
+                    if (this.frameCounter == this.slowness) {
+                        this.sprite = 2;
+                        var that=this;
+                        setTimeout(function () {
+                            that.sprite = 0;
+                            that.slowness=10;
+                        }, 3000)
+                    }
+            }
+        }
+        if (this.sprite == 0 && (player.dash) && collided(player, this.hitbox)) {
+            audio.crystal.playy();
+            player.dashCd = false;
+            this.sprite = 1;
+            this.frameCounter = 0;
+            this.frame = 0;
+            this.slowness = 6;
+            var thisX = this.x / ratio;
+            var thisY = this.y / ratio;
+        }
+    }
+}
+visualFxs.push(new Crystal(4, 4));
 class GhostGirl {
     constructor(x, y) {
         this.x = x * ratio;
@@ -2338,6 +2391,7 @@ function initializeMap() {
             case 49:
             case 50:
             case 51:
+            case 64:
                 spTiles.push(i);
                 removeList.push(i);
                 break;
@@ -2391,6 +2445,9 @@ function initializeMap() {
                         break;
                     case 51: // speeder L
                         specialTiles.push(new Speeder(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 1));
+                        break;
+                    case 64: // speeder L
+                        visualFxs.push(new Crystal(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
                         break;
                 }
             }
