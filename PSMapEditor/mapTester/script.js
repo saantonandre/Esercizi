@@ -772,6 +772,67 @@ class Grass {
         };
     }
 }
+class GhostGirl {
+    constructor(x, y) {
+        this.x = x * ratio;
+        this.y = y * ratio;
+        this.w = 1 * ratio;
+        this.h = 1 * ratio;
+        this.sprite = 0;
+        this.rotation = 0;
+        this.sheet = id("sheet");
+        this.repeat = true;
+        this.frameCounter = 0;
+        this.slowness = 6;
+        this.frame = 0;
+        this.type = "ghostgirl";
+        this.spritePos = {
+            x: [[48, 48, 48, 48], [64, 64, 64, 64], [80, 80, 80], [96, 96, 96]],
+            y: [[224, 240, 256, 272], [224, 240, 256, 272], [224, 240, 256, 240, 256, 240, 256], [224, 240, 256, 240, 256, 240, 256]],
+            w: [16, 16, 16, 16, 16, 16, 16],
+            h: [16, 16, 16, 16, 16, 16, 16],
+        };
+    }
+    action() {
+        if (this.x + this.w < player.x - 1) {
+            if (player.dead){
+                if(this.srite==0||this.srite==1){
+                    this.frameCounter = 0;
+                    this.frame = 0;
+                }
+            this.sprite = 2;
+            }else{
+                this.sprite = 0;
+            }
+            if (Math.abs(this.x - player.x) / 6 > 1 / 100 * ratio) {
+                this.x += Math.abs(this.x - player.x) / 50;
+            }
+        } else if (this.x > player.x + player.w + 1) {
+            if (player.dead){
+                if(this.srite==0||this.srite==1){
+                    this.frameCounter = 0;
+                    this.frame = 0;
+                }
+            this.sprite = 3;
+            }else{
+                this.sprite = 1;
+            }
+            if (Math.abs(this.x - player.x) / 6 > 1 / 100 * ratio) {
+                this.x -= Math.abs(this.x - player.x) / 50;
+            }
+        }
+        if (this.y + this.h < player.y - 1) {
+            if (Math.abs(this.y - player.y) / 6 > 1 / 100 * ratio) {
+                this.y += Math.abs(this.y - player.y) / 50;
+            }
+        } else if (this.y > player.y + player.h + 1) {
+            if (Math.abs(this.y - player.y) / 6 > 1 / 100 * ratio) {
+                this.y -= Math.abs(this.y - player.y) / 50;
+            }
+        }
+    }
+}
+visualFxs.push(new GhostGirl(0, 4));
 class Cloud {
     constructor(x, y, s) {
         this.x = x * ratio;
@@ -1014,7 +1075,7 @@ class Spikes extends SpecialTile {
                     collider.dead = true;
                     setTimeout(function () {
                         collider.respawnEvent();
-                    }, 800);
+                    }, 1500);
                 }
                 if (collider.yVel < 0) {
                     collider.yVel = 0;
