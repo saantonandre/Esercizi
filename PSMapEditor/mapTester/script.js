@@ -44,6 +44,8 @@ var ratioWidth = Math.floor(window.innerWidth / (tileSize * tilesWidth));
 var ratioHeight = Math.floor(window.innerHeight / (tileSize * tilesHeight))
 if (ratioWidth !== ratioHeight) {
     biggestPossible = ratioWidth < ratioHeight ? ratioWidth : ratioHeight;
+} else {
+    biggestPossible = ratioHeight;
 }
 canvas.width = tileSize * tilesWidth * biggestPossible;
 canvas.height = tileSize * tilesHeight * biggestPossible;
@@ -138,7 +140,25 @@ audio.haydn_1.volume = 0.2;
 audio.haydn_2.volume = 0.2;
 audio.bach_1.volume = 0.3;
 audio.bach_2.volume = 0.3;
-
+var voices = {
+    ghost: [
+        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/1.mp3"),
+        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/2.mp3"),
+        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/3.mp3"),
+        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/4.mp3"),
+        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/5.mp3"),
+        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/6.mp3"),
+        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/7.mp3"),
+        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/8.mp3"),
+        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/9.mp3"),
+        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/10.mp3"),
+        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/11.mp3"),
+        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/12.mp3"),
+        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/13.mp3"),
+        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/14.mp3"),
+        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/15.mp3"),
+           ],
+}
 
 var player = {
     x: 2 * ratio,
@@ -240,7 +260,7 @@ var player = {
                         monsters[i].frame = 0;
                     }
                 }
-                dmgTexts.push(new DmgText(monsters[i], DMG));
+                texts.push(new DmgText(monsters[i], DMG));
             }
         }
         if (hitSomething) {
@@ -593,7 +613,7 @@ class Bear extends Monster {
                 var randomFx = parseInt(Math.random() * 2 + 1);
                 visualFxs.push(new DmgFx(playerHB, randomFx));
             }
-            dmgTexts.push(new DmgText(playerHB, DMG));
+            texts.push(new DmgText(playerHB, DMG));
         }
     }
     searchPlayer(bear) {
@@ -658,7 +678,8 @@ class Superzombie extends Zombie {
         this.h = 2 * ratio;
     }
 }
-var dmgTexts = [];
+var textsRemoveList = [];
+var texts = [];
 class DmgText {
     constructor(m, text) {
         this.x = m.x + m.w / 2 + Math.floor(Math.random() * 16 - 8);
@@ -666,7 +687,78 @@ class DmgText {
         this.text = text;
         this.size = Math.round(0.4 * ratio);
         this.color = "#ac3232";
-        this.span = 40;
+        this.lifeSpan = 40; //duration (in frames) of the text appearence
+        this.color2 = "black"
+    }
+    draw(i) {
+        c.font = Math.round(this.size) + "px" + " 'Press Start 2P'";
+        this.size /= 1.01;
+        c.fillStyle = this.color2;
+        c.fillText(this.text, this.x + mapX + Math.round(textSize / 10), this.y + 10 + Math.round(this.size / 10) + mapY);
+        c.fillStyle = this.color;
+        c.fillText(this.text, this.x + mapX, this.y + 10 + mapY);
+        this.y -= 0.3;
+        this.lifeSpan--;
+        if (this.lifeSpan <= 0) {
+            textsRemoveList.push(i);
+        }
+    }
+}
+class DialogueText {
+    constructor(speaker, text, destroy) {
+        this.speaker = speaker;
+        this.x = this.speaker.x;
+        this.y = this.speaker.y;
+        this.wholeText = text;
+        this.text = "";
+        this.size = Math.round(0.4 * ratio);
+        this.sizeI = this.size;
+        this.color = "white";
+        this.lifeSpan = 0;
+        this.color2 = "black";
+        this.wait = 4;
+        this.waitCounter = 0;
+        this.destroy = (destroy !== undefined) ? destroy : true;
+        this.kill = false;
+        this.ongoing=true;
+        this.voice = voices.ghost[0];
+    }
+    draw(i) {
+        this.x = this.speaker.x + (this.speaker.w / 2);
+        this.y = this.speaker.y - this.size;
+        c.font = Math.round(this.size) + "px" + " 'VT323'";
+        /*
+        if (this.size > this.sizeI / 1.5) {
+            this.size /= 1.01;
+        }
+        */
+        c.fillStyle = this.color2;
+        c.fillText(this.text, this.x + mapX + Math.round(textSize / 10), this.y + 10 + Math.round(this.size / 10) + mapY);
+        c.fillStyle = this.color;
+        c.fillText(this.text, this.x + mapX, this.y + 10 + mapY);
+        if (this.lifeSpan >= this.wholeText.length) {
+            this.ongoing=false;
+            if (this.destroy) {
+                var that = this;
+                setTimeout(function () {
+                    that.kill = true
+                }, 2000);
+            }
+        } else {
+            if(this.voice.paused){
+                this.voice=voices.ghost[(Math.random()*voices.ghost.length)|0];
+                this.voice.playy();
+            }
+            this.waitCounter++;
+            if (this.waitCounter >= this.wait) {
+                this.lifeSpan++;
+                this.text += this.wholeText[this.lifeSpan - 1];
+                this.waitCounter = 0;
+            }
+        }
+        if (this.kill === true) {
+            textsRemoveList.push(i);
+        }
     }
 }
 var visualFxs = [];
@@ -884,6 +976,10 @@ class GhostGirl {
                 this.y -= Math.abs(this.y - player.y) / 50;
             }
         }
+    }
+    talk(dialogue) {
+        var that = this;
+        texts.push(new DialogueText(that, dialogue));
     }
 }
 visualFxs.push(new GhostGirl(0, 4));
@@ -1279,24 +1375,14 @@ function renderHpBars() {
 }
 //document.onclick=()=>alert(monsters[0].x+" "+monsters[0].y)
 function renderTexts() {
-    var removeList = [];
+    textsRemoveList = [];
     c.textAlign = "center";
     c.font = fontSize + " 'Press Start 2P'";
-    for (i = 0; i < dmgTexts.length; i++) {
-        c.font = Math.round(dmgTexts[i].size) + "px" + " 'Press Start 2P'";
-        dmgTexts[i].size /= 1.01;
-        c.fillStyle = "black";
-        c.fillText(dmgTexts[i].text, dmgTexts[i].x + mapX + Math.round(textSize / 10), dmgTexts[i].y + 10 + Math.round(dmgTexts[i].size / 10) + mapY);
-        c.fillStyle = dmgTexts[i].color;
-        c.fillText(dmgTexts[i].text, dmgTexts[i].x + mapX, dmgTexts[i].y + 10 + mapY);
-        dmgTexts[i].y -= 0.3;
-        dmgTexts[i].span--;
-        if (dmgTexts[i].span <= 0) {
-            removeList.push(i);
-        }
+    for (let i = 0; i < texts.length; i++) {
+        texts[i].draw();
     }
-    for (i = removeList.length - 1; i >= 0; i--) {
-        dmgTexts.splice(removeList[i], 1);
+    for (let i = textsRemoveList.length - 1; i >= 0; i--) {
+        texts.splice(textsRemoveList[i], 1);
     }
 }
 
