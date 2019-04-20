@@ -51,7 +51,7 @@ var tiles = [
         [8, 10], [9, 10], [8, 11], [9, 11], // chandelier
         [8, 9], // skeleton
         [9, 7], // background rock
-        [8, 7],[8, 8], // throne
+        [8, 7], [8, 8], // throne
         [13, 12], // crystal
 
     ]
@@ -225,24 +225,25 @@ id("exportMap").onclick = function () {
 
 function mapExport(downloadTxt) {
     mapCode = "";
-    mapCode += 'map = [';
+    mapCode += 'map=[';
     for (i = 0; i < map.length; i++) {
-        mapCode += '{x : ' + map[i].x + ',';
-        mapCode += 'y : ' + map[i].y + ',';
-        mapCode += 'w : ' + map[i].w + ',';
-        mapCode += 'h : ' + map[i].h + ',';
-        mapCode += 'type : ' + map[i].type;
+        mapCode += '{x:' + map[i].x + ',';
+        mapCode += 'y:' + map[i].y + ',';
+        mapCode += 'w:' + map[i].w + ',';
+        mapCode += 'h:' + map[i].h + ',';
+        mapCode += 'type:' + map[i].type;
         if (map[i].text !== undefined) {
-            mapCode += ",text : \'" + map[i].text + "\'";
+            mapCode += ",text:\'" + map[i].text + "\'";
         }
         mapCode += '},';
     }
-    mapCode += ']; ';
-    mapCode += "spawnPoint = {x : " + spawnPoint.x + ",y : " + spawnPoint.y + "};";
-    mapCode += "biome = " + biome + ";";
+    mapCode += '];';
+    mapCode += "spawnPoint={x:" + spawnPoint.x + ",y:" + spawnPoint.y + "};";
+    mapCode += "biome=" + biome + ";";
     console.log(mapCode);
     if (downloadTxt) {
-        download('mapCode.txt', mapCode);
+        var name = prompt("Map name : ", "mapCode");
+        download(name + '.txt', mapCode);
     }
 };
 // LOADS AND READS THE IMPORTED CODE

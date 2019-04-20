@@ -236,29 +236,24 @@ var player = {
         for (i = 0; i < monsters.length; i++) {
             if (collided(hitbox, monsters[i]) && monsters[i].hp > 0) {
                 var DMG = Math.round(Math.random() * (player.attackDMG / 2) + player.attackDMG / 2);
-                var missChance = Math.round(Math.random() * (player.precision));
-                if (missChance === 1) {
-                    DMG = "miss";
-                } else {
-                    hitSomething = 1;
-                    shake = 4;
-                    if (!parseInt(Math.random() * 3)) {
-                        visualFxs.push(new DmgFx(monsters[i], 0));
-                    }
-                    var randomFx = parseInt(Math.random() * 2 + 1);
-                    visualFxs.push(new DmgFx(monsters[i], randomFx));
-                    monsters[i].action = 4;
-                    monsters[i].hit = true;
-                    monsters[i].hp -= DMG;
-                    monsters[i].grounded = false;
-                    if (monsters[i].type != "Dummy") {
-                        monsters[i].yVel = -0.05 * ratio;
-                    }
-                    if (monsters[i].hp <= 0) {
-                        monsters[i].yVel = -0.15 * ratio;
-                        monsters[i].frameCounter = 0;
-                        monsters[i].frame = 0;
-                    }
+                hitSomething = 1;
+                shake = 4;
+                if (!parseInt(Math.random() * 3)) {
+                    visualFxs.push(new DmgFx(monsters[i], 0));
+                }
+                var randomFx = parseInt(Math.random() * 2 + 1);
+                visualFxs.push(new DmgFx(monsters[i], randomFx));
+                monsters[i].action = 4;
+                monsters[i].hit = true;
+                monsters[i].hp -= DMG;
+                monsters[i].grounded = false;
+                if (monsters[i].type != "Dummy") {
+                    monsters[i].yVel = -0.05 * ratio;
+                }
+                if (monsters[i].hp <= 0) {
+                    monsters[i].yVel = -0.15 * ratio;
+                    monsters[i].frameCounter = 0;
+                    monsters[i].frame = 0;
                 }
                 texts.push(new DmgText(monsters[i], DMG));
             }
@@ -720,7 +715,7 @@ class DialogueText {
         this.waitCounter = 0;
         this.destroy = (destroy !== undefined) ? destroy : true;
         this.kill = false;
-        this.ongoing=true;
+        this.ongoing = true;
         this.voice = voices.ghost[0];
     }
     draw(i) {
@@ -737,7 +732,7 @@ class DialogueText {
         c.fillStyle = this.color;
         c.fillText(this.text, this.x + mapX, this.y + 10 + mapY);
         if (this.lifeSpan >= this.wholeText.length) {
-            this.ongoing=false;
+            this.ongoing = false;
             if (this.destroy) {
                 var that = this;
                 setTimeout(function () {
@@ -745,8 +740,8 @@ class DialogueText {
                 }, 2000);
             }
         } else {
-            if(this.voice.paused){
-                this.voice=voices.ghost[(Math.random()*voices.ghost.length)|0];
+            if (this.voice.paused) {
+                this.voice = voices.ghost[(Math.random() * voices.ghost.length) | 0];
                 this.voice.playy();
             }
             this.waitCounter++;
@@ -1307,6 +1302,9 @@ class MovingPlat extends SpecialTile {
 
 function renderSpecialTiles() {
     for (i = 0; i < specialTiles.length; i++) {
+        if (isOutOfScreen(specialTiles[i])) {
+            continue;
+        }
         if (specialTiles[i].move !== undefined) {
             specialTiles[i].move();
         }
@@ -1647,6 +1645,7 @@ function calculateCharacter(p) {
         p.attacking(p.hitbox);
         if (Math.abs(p.dashIn - p.x / ratio) > 4) {
             p.dash = false;
+            p.xVel = 0;
         }
     }
     if (!p.dash) {
@@ -2161,7 +2160,6 @@ function colCheck(shapeA, shapeB) {
                     shapeA.col.B = oY;
                 }
                 if (shapeB.xVel) {
-                    console.log("xvelext++")
                     shapeA.xVelExt = shapeB.xVel;
                 }
             }
