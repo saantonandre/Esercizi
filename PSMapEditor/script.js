@@ -10,6 +10,7 @@ c.imageSmoothingEnabled = false;
 var map = [];
 var biome = 0;
 var hitBoxes = [];
+var camBoxes = [];
 var cellQuantityW = id("mapSizeW").value;
 var cellQuantityH = id("mapSizeH").value;
 var cellSize = 15;
@@ -122,12 +123,15 @@ id("interactive").onclick = function () {
 //SWITCH BETWEEN HITBOXES AND DISPLAYED
 var hitBoxToggle = false;
 id("toggle").onclick = function () {
-    if (hitBoxToggle) {
-        hitBoxToggle = false;
+    if (hitBoxToggle == 2) {
+        hitBoxToggle = 0;
         id("toggle").innerHTML = "drawing: displayed";
-    } else {
-        hitBoxToggle = true;
+    } else if (hitBoxToggle == 0) {
+        hitBoxToggle = 1;
         id("toggle").innerHTML = "drawing: hitboxes";
+    } else if (hitBoxToggle == 1) {
+        hitBoxToggle = 2;
+        id("toggle").innerHTML = "drawing: camera";
     }
 }
 
@@ -153,7 +157,7 @@ function loop() {
 }
 
 function renderSquare() {
-    if (hitBoxToggle)
+    if (hitBoxToggle == 1)
         c.strokeStyle = "#ff0000";
     else {
         c.strokeStyle = "#000000";
@@ -240,6 +244,19 @@ function mapExport(downloadTxt) {
     mapCode += '];';
     mapCode += "spawnPoint={x:" + spawnPoint.x + ",y:" + spawnPoint.y + "};";
     mapCode += "biome=" + biome + ";";
+    // cam boxes
+    if (camBoxes.length > 0) {
+        mapCode += 'camBoxes=[';
+        for (let i = 0; i < camBoxes.length; i++) {
+            mapCode += '{x:' + camBoxes[i].x + ',';
+            mapCode += 'y:' + camBoxes[i].y + ',';
+            mapCode += 'w:' + camBoxes[i].w + ',';
+            mapCode += 'h:' + camBoxes[i].h + ',';
+            mapCode += 'type:' + camBoxes[i].type;
+            mapCode += '},';
+        }
+        mapCode += '];';
+    }
     console.log(mapCode);
     if (downloadTxt) {
         var name = prompt("Map name : ", "mapCode");
@@ -343,19 +360,20 @@ function renderMap() {
 
     for (var i = 0; i < hitBoxes.length; i++) {
         c.fillStyle = "#000000";
-        c.beginPath()
         c.fillRect(hitBoxes[i].x * cellSize, hitBoxes[i].y * cellSize, hitBoxes[i].w * cellSize, hitBoxes[i].h * cellSize);
+    }
+    c.globalAlpha = 1;
+    for (var i = 0; i < camBoxes.length; i++) {
+        c.strokeStyle = "#002200";
+        c.beginPath();
+        c.rect(camBoxes[i].x * cellSize, camBoxes[i].y * cellSize, camBoxes[i].w * cellSize, camBoxes[i].h * cellSize);
         c.closePath();
         c.stroke();
     }
 
-    c.globalAlpha = 1;
     //draws spawnpoint
     c.fillStyle = "#0000cc";
-    c.beginPath()
     c.fillRect(spawnPoint.x * cellSize, spawnPoint.y * cellSize, 1 * cellSize, 1 * cellSize);
-    c.closePath();
-    c.stroke();
 }
 
 function renderGrid() {
@@ -456,7 +474,7 @@ canvas.addEventListener("mouseup", function () {
             square.h *= -1;
             square.y -= square.h;
         }
-        if (hitBoxToggle) {
+        if (hitBoxToggle == 1) {
             hitBoxes.push({
                 x: square.x,
                 y: square.y,
@@ -468,7 +486,7 @@ canvas.addEventListener("mouseup", function () {
                 var text = prompt("Insert the text for this interactive tile", "");
                 hitBoxes[hitBoxes.length - 1].text = text;
             }
-        } else {
+        } else if (hitBoxToggle == 0) {
             map.push({
                 x: square.x,
                 y: square.y,
@@ -481,6 +499,15 @@ canvas.addEventListener("mouseup", function () {
                 var text = prompt("Insert the text for this interactive tile", "");
                 map[map.length - 1].text = text;
             }
+        } else if (hitBoxToggle == 2) {
+            var typeOfCam = parseInt(prompt("type of camera", ""));
+            camBoxes.push({
+                x: square.x,
+                y: square.y,
+                w: square.w,
+                h: square.h,
+                type: typeOfCam,
+            });
         }
     }
 })
@@ -530,6 +557,7 @@ document.addEventListener("contextmenu", function (event) {
     var y = event.clientY + yy;
     removeElements(map, x, y);
     removeElements(hitBoxes, x, y);
+    removeElements(camBoxes, x, y);
 });
 
 function removeElements(arg, x, y) {

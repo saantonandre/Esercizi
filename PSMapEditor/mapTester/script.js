@@ -52,7 +52,7 @@ canvas.height = tileSize * tilesHeight * biggestPossible;
 c.imageSmoothingEnabled = false;
 //var tilesHeight = tilesWidth * (canvas.height / canvas.width);
 
-
+var camBoxes = [];
 var ratio = canvas.width / (tilesWidth);
 var textSize = Math.round(0.3 * ratio);
 var fontSize = textSize + "px";
@@ -1461,10 +1461,19 @@ var watchDown = false;
 var cameraType = 0;
 
 function moveCamera() {
-    /*
-    mapX=-player.x+2*ratio;
-    mapY=-player.y+3*ratio;
-    */
+    //locked camera
+    var camObject=0;
+    for (let i = 0; i < camBoxes.length; i++) {
+        if (collided(player, camBoxes[i])){
+            cameraType=camBoxes[i].type;
+            camObject=camBoxes[i];
+        }
+    }
+    if (!cam)
+    if (cameraType === 2) {
+        mapX=-camObject.x*ratio;
+        mapY=-camObject.y*ratio;
+    }
     if (cameraType === 0) {
         var cameraDir = tilesWidth / 2 - 2;
     } else if (cameraType === 1) {
@@ -1494,23 +1503,6 @@ function moveCamera() {
             mapY += (-(player.y + lookDown) + tilesHeight / 2 * ratio - mapY) / 6;
         }
     }
-    /*
-    let cameraDir = player.left ? 6 : 2;
-    if (mapX < -player.x + cameraDir * ratio) {
-        // means camera moves forward
-        mapX += (-player.x + cameraDir * ratio - mapX) / 6;
-    } else if (mapX > -player.x + cameraDir * ratio) {
-        // means camera moves backward
-        mapX += (-player.x + cameraDir * ratio - mapX) / 6;
-    }
-    if (mapY < -player.y + 2 * ratio) {
-        // means camera moves downward
-        mapY += (-player.y + 2 * ratio - mapY) / 6;
-    } else if (mapY > -player.y + 4 * ratio) {
-        // means camera moves upward
-        mapY += (-player.y + 2 * ratio - mapY) / 6;
-    }
-    */
 }
 
 function isOutOfScreen(Entity) {
