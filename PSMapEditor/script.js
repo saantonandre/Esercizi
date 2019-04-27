@@ -54,6 +54,8 @@ var tiles = [
         [9, 7], // background rock
         [8, 7], [8, 8], // throne
         [13, 12], // crystal
+        [16, 6], // door
+        [7, 14], // book
 
     ]
 var spawnPoint = {

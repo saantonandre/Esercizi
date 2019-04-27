@@ -1,72 +1,115 @@
 body {
-    margin: 0;
-    padding: 0;
     text-align: center;
+    padding: 0;
+    margin: 0;
+    background-color: #45283c;
     touch-action: none;
     user-select: none;
-    background-color: #45283c;
+    cursor: url('ui/cursor2.png'), auto;
+    image-rendering: optimizeSpeed;
+    /* STOP SMOOTHING, GIVE ME SPEED  */
+    image-rendering: -moz-crisp-edges;
+    /* Firefox                        */
+    image-rendering: -o-crisp-edges;
+    /* Opera                          */
+    image-rendering: -webkit-optimize-contrast;
+    /* Chrome (and eventually Safari) */
+    image-rendering: pixelated;
+    /* Chrome */
+    image-rendering: optimize-contrast;
+    /* CSS3 Proposed                  */
+    -ms-interpolation-mode: nearest-neighbor;
+}
+
+#menu {
+    margin:0;
+    padding:0;
+    border:0;
+    position:relative;
+    display: inline-block;
+    background-image: url(start-screen2.gif);
+    background-size:contain;
+    z-index: 200;
+}
+#buttons {
+    display: inline-block;
+    font-family: 'VT323', monospace;
+    font-size: 40px;
+    position: absolute;
+    text-align: left;
+    margin-top: 25%;
+    margin-left: 8%;
     color: white;
-    font-size: 12px;
-    cursor: url('cursor2.png'), auto;
+}
+
+.button {
+    border: 3px solid transparent;
+    padding: 3px;
+}
+
+.button:hover {
+    border: 3px solid white;
 }
 
 #canvas {
-    display: inline-block;
-    margin-top: 5px;
+    margin:0;
+    padding:0;
+    border:0;
+    z-index: 100;
+    visibility:hidden;
 }
-
-#ctrlCanvas {
-    display: inline-block;
-    margin-top: 5px;
+#pause-screen{
+    position:absolute;
+    width:100%;
+    height:100%;
+    background-color: black;
+    opacity:0.6;
+    z-index:200;
+    display:none;
 }
-
-#arrowCont {
-    position: absolute;
-    width: 100%;
-    height: 12vh;
-    bottom: 10vh;
+#options{
+    margin-top:10%;
 }
-
-.arrows {
-    height: 100%;
+.icons{
+    width:15%;
+    margin-right:2%
 }
-
-#right {
-    float: left;
-    opacity: 0.5;
-    margin-left: 10%;
-    background-color: transparent;
-    border-radius: 50%;
-    -webkit-user-select: none;
-    -webkit-touch-callout: none;
+.icons:hover,#ctrlButton:hover {
+    border: 3px solid white;
 }
-
-#up {
-    float: right;
-    opacity: 0.5;
-    margin-right: 5%;
-    background-color: transparent;
-    border-radius: 50%;
-    -webkit-user-select: none;
-    -webkit-touch-callout: none;
+#pause-icon{
+    width:20%;
+    margin-top:5%;
 }
-
-#down {
-    float: right;
-    opacity: 0.5;
-    margin-right: 5%;
-    background-color: transparent;
-    border-radius: 50%;
-    -webkit-user-select: none;
-    -webkit-touch-callout: none;
+.tutorials{
+    position:absolute;
+    width:100%;
+    height:100%;
+    opacity:0.8;
+    z-index:200;
 }
-
-#left {
-    float: left;
-    opacity: 0.5;
-    margin-left: 5%;
-    background-color: transparent;
-    border-radius: 50%;
-    -webkit-user-select: none;
-    -webkit-touch-callout: none;
+#controls{
+    visibility:hidden;
+}
+#bouncy{
+    visibility:hidden;
+    opacity:0.95;
+}
+#crystals{
+    visibility:hidden;
+    opacity:0.95;
+}
+#speeders{
+    visibility:hidden;
+    opacity:0.95;
+}
+#spikes{
+    visibility:hidden;
+    opacity:0.95;
+}
+#ctrlButton{
+    margin-top:5%;
+    font-family: 'VT323', monospace;
+    font-size: 50px;
+    color:white;
 }

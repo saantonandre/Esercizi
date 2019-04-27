@@ -6,11 +6,13 @@
     <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=VT323" rel="stylesheet">
     <link href="style.css" rel="stylesheet" type="text/css">
-    <link rel="shortcut icon" href="https://saantonandre.github.io/PixelSamurai/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="PixelSamurai/favicon.ico" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 <body>
-    <div style="position:absolute;width:100%;text-align:right;">
+    <div style="display:none;position:absolute;width:100%;text-align:right;">
         <span id="FPS"></span><br>
         <span id="stat"></span><br>
         <span id="playery"></span><br>
@@ -18,59 +20,75 @@
         <span id="ctrl-span" style="position:absolute"></span>
         <br>
     </div>
-    <div style="position:absolute;text-align:left;">
+    <div style="display:none;position:absolute;text-align:left;">
         <span style="float:right;"><b>Controls:</b><br><br><b>[A]-[D]</b> <br> move<br><br><b>[W]</b> <br> jump<br><br><b>[F]</b> <br> attack<br><br><b>[F] mid-air</b> <br> dash attack<br><br><b>[1]-[2]-[3]-[4]-[5]</b> <br> spawn monsters<br></span>
     </div>
-    <canvas id="canvas"></canvas>
+    <div id="menu">
+        <div id="buttons">
+            <div id="play" class="button">PLAY</div>
+        </div>
+        <img id="controls" class="tutorials" src="controls-screen1.png">
+        
+        <img id="bouncy" class="tutorials" src="tut-bouncy.png">
+        <img id="crystals" class="tutorials" src="tut-crystals.png">
+        <img id="speeders" class="tutorials" src="tut-speeders.png">
+        <img id="spikes" class="tutorials" src="tut-spikes.png">
+        <div id="pause-screen">
+            <img id="pause-icon" src="ui/pause.png">
+            <div id="options">
+                <img id="music" class="icons" src="ui/music-on.png">
+                <img id="audio" class="icons" src="ui/sound-on.png">
+                <div id="ctrlButton">CONTROLS</div><br>
+            </div>
+        </div>
+        <canvas id="canvas">
+        </canvas>
+    </div>
     <div style="display:none">
-        <img id="sheet" src="https://saantonandre.github.io/PixelSamurai/sheet10.png">
-        <img id="bearsheet" src="https://saantonandre.github.io/PixelSamurai/bear-spritesheet.png">
-        <img id="bg1" src="https://saantonandre.github.io/PixelSamurai/Backgrounds/bg1.png">
-        <img id="bg2" src="https://saantonandre.github.io/PixelSamurai/Backgrounds/bg2.png">
-        <img id="bg3" src="https://saantonandre.github.io/PixelSamurai/Backgrounds/bg3.png">
-        <img id="bg4" src="https://saantonandre.github.io/PixelSamurai/Backgrounds/bg4.png">
-        <img id="cloud1" src="https://saantonandre.github.io/PixelSamurai/Backgrounds/clouds1.png">
-        <img id="cloud2" src="https://saantonandre.github.io/PixelSamurai/Backgrounds/clouds2.png">
-        <img id="hp-bar" src="https://saantonandre.github.io/PixelSamurai/hp-bar2.png">
+        <img id="sheet" src="PixelSamurai/sheet11.png">
+        <img src="controls-screen1.png">
+        <img id="bearsheet" src="PixelSamurai/bear-spritesheet.png">
+        <img id="bg1" src="PixelSamurai/backgrounds/bg1.png">
+        <img id="bg2" src="PixelSamurai/backgrounds/bg2.png">
+        <img id="bg3" src="PixelSamurai/backgrounds/bg3.png">
+        <img id="bg4" src="PixelSamurai/backgrounds/bg4.png">
+        <img id="cloud1" src="PixelSamurai/backgrounds/clouds1.png">
+        <img id="cloud2" src="PixelSamurai/backgrounds/clouds2.png">
+        <img id="hp-bar" src="PixelSamurai/hp-bar2.png">
 
     </div>
-    <div id="arrowCont" style="display:none">
-        <img class="arrows" id="left" src="https://saantonandre.github.io/leftArrow.png" alt="arrow" draggable="false" oncontextmenu="return false;">
-        <img class="arrows" id="right" src="https://saantonandre.github.io/rightArrow.png" alt="arrow" draggable="false" oncontextmenu="return false;">
-        <img class="arrows" id="up" src="https://saantonandre.github.io/upArrow.png" alt="arrow" draggable="false" oncontextmenu="return false;">
-        <img class="arrows" id="down" src="https://saantonandre.github.io/atkBtn.png" alt="arrow" draggable="false" oncontextmenu="return false;">
+    <div style="display:none">
+        <audio src="PixelSamurai/soundFxs/bounce1.mp3"></audio>
+        <audio src="PixelSamurai/soundFxs/crystal.mp3"></audio>
+        <audio src="PixelSamurai/soundFxs/bounce2.mp3"></audio>
+        <audio src="PixelSamurai/soundFxs/bounce3.mp3"></audio>
+        <audio src="PixelSamurai/soundFxs/bounce4.mp3"></audio>
+        <audio src="PixelSamurai/soundFxs/dash.mp3"></audio>
+        <audio src="PixelSamurai/soundFxs/death.mp3"></audio>
+        <audio src="PixelSamurai/soundFxs/jump.mp3"></audio>
+        <audio src="PixelSamurai/soundFxs/speed1.mp3"></audio>
+        <audio src="PixelSamurai/soundFxs/speed2.mp3"></audio>
+        <audio src="PixelSamurai/soundFxs/sword-attack.mp3"></audio>
+        <audio src="PixelSamurai/soundFxs/sword-hit.mp3"></audio>
     </div>
     <div style="display:none">
-        <audio src="https://saantonandre.github.io/PixelSamurai/soundFxs/bounce1.mp3"></audio>
-        <audio src="https://saantonandre.github.io/PixelSamurai/soundFxs/crystal.mp3"></audio>
-        <audio src="https://saantonandre.github.io/PixelSamurai/soundFxs/bounce2.mp3"></audio>
-        <audio src="https://saantonandre.github.io/PixelSamurai/soundFxs/bounce3.mp3"></audio>
-        <audio src="https://saantonandre.github.io/PixelSamurai/soundFxs/bounce4.mp3"></audio>
-        <audio src="https://saantonandre.github.io/PixelSamurai/soundFxs/dash.mp3"></audio>
-        <audio src="https://saantonandre.github.io/PixelSamurai/soundFxs/death.mp3"></audio>
-        <audio src="https://saantonandre.github.io/PixelSamurai/soundFxs/jump.mp3"></audio>
-        <audio src="https://saantonandre.github.io/PixelSamurai/soundFxs/speed1.mp3"></audio>
-        <audio src="https://saantonandre.github.io/PixelSamurai/soundFxs/speed2.mp3"></audio>
-        <audio src="https://saantonandre.github.io/PixelSamurai/soundFxs/sword-attack.mp3"></audio>
-        <audio src="https://saantonandre.github.io/PixelSamurai/soundFxs/sword-hit.mp3"></audio>
+        <audio src="PixelSamurai/soundFxs/voices/ghost/1.mp3"></audio>
+        <audio src="PixelSamurai/soundFxs/voices/ghost/2.mp3"></audio>
+        <audio src="PixelSamurai/soundFxs/voices/ghost/3.mp3"></audio>
+        <audio src="PixelSamurai/soundFxs/voices/ghost/4.mp3"></audio>
+        <audio src="PixelSamurai/soundFxs/voices/ghost/5.mp3"></audio>
+        <audio src="PixelSamurai/soundFxs/voices/ghost/6.mp3"></audio>
+        <audio src="PixelSamurai/soundFxs/voices/ghost/7.mp3"></audio>
+        <audio src="PixelSamurai/soundFxs/voices/ghost/8.mp3"></audio>
+        <audio src="PixelSamurai/soundFxs/voices/ghost/9.mp3"></audio>
+        <audio src="PixelSamurai/soundFxs/voices/ghost/10.mp3"></audio>
+        <audio src="PixelSamurai/soundFxs/voices/ghost/11.mp3"></audio>
+        <audio src="PixelSamurai/soundFxs/voices/ghost/12.mp3"></audio>
+        <audio src="PixelSamurai/soundFxs/voices/ghost/13.mp3"></audio>
+        <audio src="PixelSamurai/soundFxs/voices/ghost/14.mp3"></audio>
+        <audio src="PixelSamurai/soundFxs/voices/ghost/15.mp3"></audio>
     </div>
-    <div style="display:none">
-        <audio src="https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/1.mp3"></audio>
-        <audio src="https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/2.mp3"></audio>
-        <audio src="https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/3.mp3"></audio>
-        <audio src="https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/4.mp3"></audio>
-        <audio src="https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/5.mp3"></audio>
-        <audio src="https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/6.mp3"></audio>
-        <audio src="https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/7.mp3"></audio>
-        <audio src="https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/8.mp3"></audio>
-        <audio src="https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/9.mp3"></audio>
-        <audio src="https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/10.mp3"></audio>
-        <audio src="https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/11.mp3"></audio>
-        <audio src="https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/12.mp3"></audio>
-        <audio src="https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/13.mp3"></audio>
-        <audio src="https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/14.mp3"></audio>
-        <audio src="https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/15.mp3"></audio>
-    </div>
+    <script src="levels.js"></script>
     <script src="script.js"></script>
 </body>
 

@@ -2,7 +2,58 @@
 function id(arg) {
     return document.getElementById(arg);
 }
+var canvas = id("canvas");
+var c = canvas.getContext("2d");
+//  The size of the tiles in the spritesheet
+var mapTester = true;
+var tileSize = 16;
+var tilesWidth = 20;
+var tilesHeight = 15;
 
+// Pixel perfection
+var biggestPossible = 1;
+var ratioWidth = Math.floor(window.innerWidth / (tileSize * tilesWidth));
+var ratioHeight = Math.floor(window.innerHeight / (tileSize * tilesHeight))
+if (ratioWidth !== ratioHeight) {
+    biggestPossible = ratioWidth < ratioHeight ? ratioWidth : ratioHeight;
+} else {
+    biggestPossible = ratioHeight;
+}
+if (biggestPossible < 1) {
+    biggestPossible = 1;
+}
+canvas.width = tileSize * tilesWidth * biggestPossible;
+canvas.height = tileSize * tilesHeight * biggestPossible;
+
+//UI
+id("menu").style.width = canvas.width + "px";
+id("menu").style.height = canvas.height + "px";
+
+console.log(canvas.height)
+c.imageSmoothingEnabled = false;
+
+//CAMERA
+var watchDown = false;
+var cameraType = 0;
+var shake = 0;
+var shakeArr = [-2, +5, -5, +2];
+
+
+var visualFxs = [];
+
+var bgTiles = [];
+
+//MONSTERS
+var monsters = [];
+var series = 0; //a unique identificative number for each monster
+
+//TEXTS
+var textsRemoveList = [];
+var texts = [];
+
+//UI
+var gamePaused = mapTester ? false : true;
+var biome = 0;
 var map = [{
     x: 2,
     y: 7,
@@ -30,29 +81,12 @@ Audio.prototype.playy = function () {
         aud.play().catch(function (e) {});
     }
 }
+
+//biomes/background
+var bgColor = "#0099dd";
+var mapHeight = 0;
+var mapWidth = 0;
 //Canvas-related variables
-var canvas = id("canvas");
-var c = canvas.getContext("2d");
-//  The size of the tiles in the spritesheet
-var tileSize = 16;
-var tilesWidth = 20;
-var tilesHeight = 15;
-
-// Pixel perfection
-var biggestPossible = 1;
-var ratioWidth = Math.floor(window.innerWidth / (tileSize * tilesWidth));
-var ratioHeight = Math.floor(window.innerHeight / (tileSize * tilesHeight))
-if (ratioWidth !== ratioHeight) {
-    biggestPossible = ratioWidth < ratioHeight ? ratioWidth : ratioHeight;
-} else {
-    biggestPossible = ratioHeight;
-}
-canvas.width = tileSize * tilesWidth * biggestPossible;
-canvas.height = tileSize * tilesHeight * biggestPossible;
-c.imageSmoothingEnabled = false;
-//var tilesHeight = tilesWidth * (canvas.height / canvas.width);
-
-var camBoxes = [];
 var ratio = canvas.width / (tilesWidth);
 var textSize = Math.round(0.3 * ratio);
 var fontSize = textSize + "px";
@@ -89,6 +123,8 @@ var tiles = [
         [9, 7], // background rock
         [8, 7], [8, 8], // throne
         [13, 12], // crystal
+        [16, 6], // door
+        [7, 14], // book
     ]
 
 setInterval(function () {
@@ -96,29 +132,30 @@ setInterval(function () {
     fps = 0;
 }, 1000);
 var audio = {
-    jump: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/jump.mp3"),
-    bounce1: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/bounce1.mp3"),
-    bounce2: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/bounce2.mp3"),
-    bounce3: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/bounce3.mp3"),
-    bounce4: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/bounce4.mp3"),
-    speed1: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/speed1.mp3"),
-    speed2: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/speed2.mp3"),
-    dash: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/dash.mp3"),
-    death: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/death.mp3"),
-    crystal: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/crystal.mp3"),
-    walking: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/walking.mp3"),
-    attack: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/sword-attack.mp3"),
-    hit: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/sword-hit.mp3"),
-    ambient_1: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/ambient/outside.mp3"),
-    ambient_2: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/ambient/castle.mp3"),
-    haydn_1: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/music/Haydn-1.mp3"),
-    haydn_2: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/music/Haydn-2.mp3"),
-    bach_1: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/music/Bach-1.mp3"),
-    bach_2: new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/music/Bach-2.mp3"),
+    jump: new Audio("PixelSamurai/soundFxs/jump.mp3"),
+    bounce1: new Audio("PixelSamurai/soundFxs/bounce1.mp3"),
+    bounce2: new Audio("PixelSamurai/soundFxs/bounce2.mp3"),
+    bounce3: new Audio("PixelSamurai/soundFxs/bounce3.mp3"),
+    bounce4: new Audio("PixelSamurai/soundFxs/bounce4.mp3"),
+    speed1: new Audio("PixelSamurai/soundFxs/speed1.mp3"),
+    speed2: new Audio("PixelSamurai/soundFxs/speed2.mp3"),
+    dash: new Audio("PixelSamurai/soundFxs/dash.mp3"),
+    death: new Audio("PixelSamurai/soundFxs/death.mp3"),
+    crystal: new Audio("PixelSamurai/soundFxs/crystal.mp3"),
+    walking: new Audio("PixelSamurai/soundFxs/walking.mp3"),
+    attack: new Audio("PixelSamurai/soundFxs/sword-attack.mp3"),
+    hit: new Audio("PixelSamurai/soundFxs/sword-hit.mp3"),
+    ambient_1: new Audio("PixelSamurai/soundFxs/ambient/outside.mp3"),
+    ambient_2: new Audio("PixelSamurai/soundFxs/ambient/castle.mp3"),
+    haydn_1: new Audio("PixelSamurai/soundFxs/music/Haydn-1.mp3"),
+    haydn_2: new Audio("PixelSamurai/soundFxs/music/Haydn-2.mp3"),
+    bach_1: new Audio("PixelSamurai/soundFxs/music/Bach-1.mp3"),
+    bach_2: new Audio("PixelSamurai/soundFxs/music/Bach-2.mp3"),
 }
 
 audio.walking.playbackRate = 1.4;
 audio.speed1.playbackRate = 0.7;
+
 audio.bounce1.volume = 0.4;
 audio.bounce2.volume = 0.4;
 audio.bounce3.volume = 0.4;
@@ -133,36 +170,144 @@ audio.death.volume = 0.5;
 audio.crystal.volume = 1;
 audio.walking.volume = 1;
 audio.ambient_1.volume = 0.1;
-audio.ambient_2.volume = 0.2;
+audio.ambient_2.volume = 0;
+
 audio.ambient_1.loop = true;
 audio.ambient_2.loop = true;
+
 audio.haydn_1.volume = 0.2;
 audio.haydn_2.volume = 0.2;
 audio.bach_1.volume = 0.3;
 audio.bach_2.volume = 0.3;
+
+
+var biomes = [{
+    background: true,
+    ambient: audio.ambient_1,
+    music: [audio.haydn_1, audio.haydn_2],
+    bgColor: "#0099dd",
+    other: function () {
+        for (let j = 0; j < 30; j++) {
+            let ww = (mapWidth < 100) ? 100 : mapWidth;
+            let hh = (mapHeight < 50) ? 50 : mapHeight;
+            var ran1 = parseInt(Math.random() * ww + (player.x / ratio));
+            var ran2 = Math.random() * hh / 4 - hh / 8;
+            var ran3 = parseInt(Math.random() * 20 + 1);
+            visualFxs.push(new Cloud(ran1, ran2, ran3));
+        }
+    }
+}, {
+    background: false,
+    ambient: audio.ambient_2,
+    music: [audio.bach_1, audio.bach_2],
+    bgColor: "#222034",
+    other: function () {}
+}]
+
+// UI
+
+if (mapTester) {
+    id("menu").style.visibility = "hidden";
+    canvas.style.visibility = "visible";
+}
+id("play").onclick = function () {
+    requestAnimationFrame(loop);
+    id("menu").style.visibility = "hidden";
+    id("controls").style.visibility = "visible";
+    canvas.style.visibility = "visible";
+}
+id("ctrlButton").onclick = function () {
+    id("pause-screen").style.display = "none";
+    id("pause-screen").style.visibility = "hidden";
+    id("controls").style.visibility = "visible";
+    canvas.style.visibility = "visible";
+}
+var options = {
+    audio: true,
+    music: true,
+}
+id("music").onclick = function () {
+    if (options.music) {
+        options.music = false;
+        this.src = "ui/music-off.png";
+        audio.haydn_1.volume = 0;
+        audio.haydn_2.volume = 0;
+        audio.bach_1.volume = 0;
+        audio.bach_2.volume = 0;
+    } else {
+        options.music = true;
+        this.src = "ui/music-on.png"
+        audio.haydn_1.volume = 0.2;
+        audio.haydn_2.volume = 0.2;
+        audio.bach_1.volume = 0.3;
+        audio.bach_2.volume = 0.3;
+    }
+}
+id("audio").onclick = function () {
+    if (options.audio) {
+        options.audio = false;
+        this.src = "ui/sound-off.png";
+        for (let i = 0; i < voices.ghost.length; i++) {
+            voices.ghost[i].volume = 0;
+        }
+        audio.bounce1.volume = 0;
+        audio.bounce2.volume = 0;
+        audio.bounce3.volume = 0;
+        audio.bounce4.volume = 0;
+        audio.speed1.volume = 0;
+        audio.speed2.volume = 0;
+        audio.jump.volume = 0;
+        audio.dash.volume = 0;
+        audio.attack.volume = 0;
+        audio.hit.volume = 0;
+        audio.death.volume = 0;
+        audio.crystal.volume = 0;
+        audio.walking.volume = 0;
+        audio.ambient_1.volume = 0;
+        audio.ambient_2.volume = 0;
+
+    } else {
+        options.audio = true;
+        this.src = "ui/sound-on.png";
+        for (let i = 0; i < voices.ghost.length; i++) {
+            voices.ghost[i].volume = 0.4;
+        }
+        audio.bounce1.volume = 0.4;
+        audio.bounce2.volume = 0.4;
+        audio.bounce3.volume = 0.4;
+        audio.bounce4.volume = 0.4;
+        audio.speed1.volume = 0.8;
+        audio.speed2.volume = 0.5;
+        audio.jump.volume = 0.5;
+        audio.dash.volume = 0.3;
+        audio.attack.volume = 0.5;
+        audio.hit.volume = 0.5;
+        audio.death.volume = 0.5;
+        audio.crystal.volume = 1;
+        audio.walking.volume = 1;
+        audio.ambient_1.volume = 0.1;
+        audio.ambient_2.volume = 0.0;
+
+    }
+}
+//UI end
 var voices = {
     ghost: [
-        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/1.mp3"),
-        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/2.mp3"),
-        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/3.mp3"),
-        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/4.mp3"),
-        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/5.mp3"),
-        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/6.mp3"),
-        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/7.mp3"),
-        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/8.mp3"),
-        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/9.mp3"),
-        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/10.mp3"),
-        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/11.mp3"),
-        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/12.mp3"),
-        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/13.mp3"),
-        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/14.mp3"),
-        new Audio("https://saantonandre.github.io/PixelSamurai/soundFxs/voices/ghost/15.mp3"),
+        new Audio("PixelSamurai/soundFxs/voices/ghost/1.mp3"),
+        new Audio("PixelSamurai/soundFxs/voices/ghost/2.mp3"),
+        new Audio("PixelSamurai/soundFxs/voices/ghost/3.mp3"),
+        new Audio("PixelSamurai/soundFxs/voices/ghost/4.mp3"),
            ],
+}
+for (let i = 0; i < voices.ghost.length; i++) {
+    voices.ghost[i].volume = 0.4;
 }
 
 var player = {
     x: 2 * ratio,
     y: 2 * ratio,
+    reading: false,
+    currentBook: "",
     atk: 1,
     xVel: 0,
     yVel: 0,
@@ -179,6 +324,9 @@ var player = {
     stun: false,
     speed: 0.12 * ratio,
     precision: 100,
+    lastTile: spawnPoint,
+    frameCounter: 0,
+    frame: 0,
     hitbox: {
         x: 0,
         y: 0,
@@ -263,17 +411,17 @@ var player = {
         }
     },
     attackEvent: function () {
-        if (player.grounded && !player.attack && !this.dead) {
+        if (this.grounded && !this.attack && !this.dead) {
             audio.attack.playy();
-            player.attack = true;
-            frame = 0;
-        } else if (!player.attack && !player.dashCd && !this.dead) {
-            var dir = player.left ? 4 : 3;
-            visualFxs.push(new JumpFx(player.x / ratio, player.y / ratio, dir));
+            this.attack = true;
+            this.frame = 0;
+        } else if (!this.attack && !this.dashCd && !this.dead) {
+            var dir = this.left ? 4 : 3;
+            visualFxs.push(new JumpFx(this.x / ratio, this.y / ratio, dir));
             audio.dash.playy();
-            player.dashCd = true;
-            player.dash = true;
-            player.dashIn = player.x / ratio;
+            this.dashCd = true;
+            this.dash = true;
+            this.dashIn = this.x / ratio;
         }
 
     },
@@ -301,17 +449,6 @@ var player = {
     }
 };
 
-var bgTiles = [];
-if (typeof spawnPoint !== "undefined") {
-    // player.x=spawnPoint.x*ratio;
-    // player.y=spawnPoint.y*ratio;
-    mapX = -spawnPoint.x * ratio + player.x;
-}
-var shake = 0;
-var shakeArr = [-2, +5, -5, +2];
-
-var monsters = [];
-var series = 0; //a unique identificative number for each monster
 class Monster {
     constructor(x, y) {
         this.serial = series++;
@@ -673,8 +810,6 @@ class Superzombie extends Zombie {
         this.h = 2 * ratio;
     }
 }
-var textsRemoveList = [];
-var texts = [];
 class DmgText {
     constructor(m, text) {
         this.x = m.x + m.w / 2 + Math.floor(Math.random() * 16 - 8);
@@ -756,7 +891,6 @@ class DialogueText {
         }
     }
 }
-var visualFxs = [];
 class DmgFx {
     constructor(m, s) {
         this.x = m.x;
@@ -911,8 +1045,191 @@ class Crystal {
             var thisX = this.x / ratio;
             var thisY = this.y / ratio;
         }
+
     }
 }
+class Door {
+    constructor(x, y, place) {
+        this.x = x * ratio;
+        this.y = y * ratio;
+        this.sprite = 0;
+        this.place = place;
+        this.rotation = 0;
+        this.sheet = id("sheet");
+        this.repeat = true;
+        this.frameCounter = 0;
+        this.slowness = 10;
+        this.frame = 0;
+        this.type = "door";
+        this.hitbox = {
+            x: x + 0.3,
+            y: y + 0.3,
+            w: 0.4,
+            h: 0.4
+        };
+        this.spritePos = {
+            x: [[256], [272, 272], [272, 272, 272, 272, 272]],
+            y: [[96], [80, 112], [144, 160, 176, 192, 208]],
+            w: [16, 32, 32],
+            h: [16, 32, 16],
+        };
+    }
+    action() {
+        if (this.sprite == 0) {
+            if (player.attack) {
+                if (collided(player.atkHitbox, this)) {
+                    this.sprite = 1;
+                    console.log("pushing a portal");
+                    audio.hit.playy();
+                    shake = 4;
+                    visualFxs.push(new Portal(this.x / ratio, this.y / ratio, this.place));
+                    console.log(visualFxs)
+                    this.x -= 0.5 * ratio;
+                    this.y -= 1 * ratio;
+                }
+            }
+        } else if (this.sprite === 1 && this.frame == this.spritePos.x[1].length - 1) {
+            if (this.frameCounter == this.slowness) {
+                this.sprite = 2;
+                this.y += 1 * ratio;
+                this.frame = 0;
+                this.frameCounter = 0;
+            }
+        } else if (this.sprite === 2) {
+            this.repeat = false;
+        }
+    }
+}
+class Portal {
+    constructor(x, y, place) {
+        this.x = x * ratio;
+        this.y = y * ratio;
+        this.active = false;
+        this.sprite = 0;
+        this.place = place;
+        this.rotation = 0;
+        this.sheet = id("sheet");
+        this.repeat = true;
+        this.frameCounter = 0;
+        this.slowness = 5;
+        this.frame = 0;
+        this.type = "portal";
+        this.load = 0;
+        this.hitbox = {
+            x: x + 0.3,
+            y: y + 0.3,
+            w: 0.4,
+            h: 0.4
+        };
+        this.spritePos = {
+            x: [[256, 256, 256, 256]],
+            y: [[112, 128, 144, 160]],
+            w: [16],
+            h: [16],
+        };
+    }
+    action() {
+        if (collided(this, player) && this.place) {
+            var point = {
+                x: this.hitbox.x + this.hitbox.w / 2,
+                y: this.hitbox.y + this.hitbox.h / 2,
+            }
+            if (pointSquareCol(point, player)) {
+                this.load++;
+                blackScreen=this.load+1;
+                if (this.load > 100) {
+                    eval(maps[parseInt(this.place)])
+                    adaptBiome();
+                    initializeMap();
+                    mapX = -player.x + (tilesWidth / 2 - 2) * ratio;
+                    mapY = -player.y + (tilesHeight / 2) * ratio;
+                    blackScreen = 100;
+
+                }
+            } else {
+                if (this.load > 0) {
+                    blackScreen = this.load
+                    this.load = 0;
+                }
+            }
+        }
+    }
+}
+class Book {
+    constructor(x, y, tut) {
+        this.x = x * ratio;
+        this.y = y * ratio;
+        this.sprite = 0;
+        this.rotation = 0;
+        this.sheet = id("sheet");
+        this.repeat = true;
+        this.frameCounter = 0;
+        this.slowness = 6;
+        this.frame = 0;
+        this.type = "door";
+        this.tut = tut;
+        this.hitbox = {
+            x: x + 0.1,
+            y: y + 0.7,
+            w: 0.8,
+            h: 0.3
+        };
+        this.spritePos = {
+            x: [[112], [112, 112, 112, 128], [128, 128, 128, 128], [128, 112, 112, 112]], // grounded -- transition up -- waving -- transition down
+            y: [[224], [240, 256, 272, 224], [240, 256, 272, 256], [224, 272, 256, 240]],
+            w: [16, 16, 16, 16],
+            h: [16, 16, 16, 16],
+        };
+    }
+    action() {
+        switch (this.sprite) {
+            case 0:
+                if (collided(player, this)) {
+                    this.frame = 0;
+                    this.frameCounter = 0;
+                    this.sprite = 1;
+                }
+                break;
+            case 1:
+                if (this.frame == this.spritePos.x[1].length - 1) {
+                    this.frame = 0;
+                    this.frameCounter = 0;
+                    this.sprite = 2;
+                }
+                break;
+            case 2:
+                if (!collided(player, this)) {
+                    this.frame = 0;
+                    this.frameCounter = 0;
+                    this.sprite = 3;
+                } else {
+                    player.reading = true;
+                    if (this.tut != undefined) {
+                        player.currentBook = this.tut;
+                    }
+                    c.drawImage(
+                        id("sheet"),
+                        48,
+                        208,
+                        80,
+                        16,
+                        ((canvas.width / 2) - (5 * ratio / 2)) | 0,
+                        ((canvas.height / 1.2) - (1 * ratio / 2)) | 0,
+                        5 * ratio | 0,
+                        1 * ratio | 0);
+                }
+                break;
+            case 3:
+                if (this.frame == this.spritePos.x[1].length - 1) {
+                    this.frame = 0;
+                    this.frameCounter = 0;
+                    this.sprite = 0;
+                }
+                break;
+        }
+    }
+}
+
 class GhostGirl {
     constructor(x, y) {
         this.x = x * ratio;
@@ -933,15 +1250,74 @@ class GhostGirl {
             w: [16, 16, 16, 16, 16, 16, 16],
             h: [16, 16, 16, 16, 16, 16, 16],
         };
+        this.events = [
+            {
+                fired: false,
+                text: "goin for a walk?",
+                point: {
+                    x: 17.5,
+                    y: 7.5
+                }
+                },
+            {
+                fired: false,
+                text: "guess I'll have to escort you",
+                point: {
+                    x: 50.5,
+                    y: 8.5
+                }
+                },
+            {
+                fired: false,
+                text: "just some magical yoga balls",
+                point: {
+                    x: 23.5,
+                    y: 20.5
+                }
+                },
+            {
+                fired: false,
+                text: "you could dash against this ball... just saying",
+                point: {
+                    x: 10.5,
+                    y: 29.5
+                }
+                },
+            {
+                fired: false,
+                text: "weee!",
+                point: {
+                    x: 34.5,
+                    y: 36.5
+                }
+                },
+            {
+                fired: false,
+                text: "this is a mana crystal, I believe it could reset your dash",
+                point: {
+                    x: 14.5,
+                    y: 34.5
+                }
+                },
+            ];
     }
     action() {
+        for (let i = 0; i < this.events.length; i++) {
+            if (pointSquareCol(this.events[i].point, player.hitbox) && this.events[i].fired === false) {
+                this.events[i].fired = true;
+                this.talk(this.events[i].text);
+            }
+        }
         if (this.x + this.w < player.x - 1) {
             if (player.dead) {
-                if (this.srite == 0 || this.srite == 1) {
+                if (this.sprite == 0 || this.sprite == 1) {
                     this.frameCounter = 0;
                     this.frame = 0;
                 }
                 this.sprite = 2;
+                if (voices.ghost[1].paused) {
+                    voices.ghost[1].play();
+                }
             } else {
                 this.sprite = 0;
             }
@@ -955,6 +1331,9 @@ class GhostGirl {
                     this.frame = 0;
                 }
                 this.sprite = 3;
+                if (voices.ghost[1].paused) {
+                    voices.ghost[1].play();
+                }
             } else {
                 this.sprite = 1;
             }
@@ -977,7 +1356,6 @@ class GhostGirl {
         texts.push(new DialogueText(that, dialogue));
     }
 }
-visualFxs.push(new GhostGirl(0, 4));
 class Cloud {
     constructor(x, y, s) {
         this.x = x * ratio;
@@ -1069,6 +1447,7 @@ function drawFxs(fx) {
             fxW | 0,
             fxH | 0);
     }
+
     //c.translate(-(fxX+fxW/2), -(fxY+fxH/2));
 }
 
@@ -1177,9 +1556,9 @@ class Speeder extends SpecialTile {
             case "b":
                 audio.speed1.playy();
                 if (this.dir === 0) {
-                    collider.xVelExt += 0.06 * ratio;
+                    collider.xVelExt += 0.05 * ratio;
                 } else if (this.dir === 1) {
-                    collider.xVelExt -= 0.06 * ratio;
+                    collider.xVelExt -= 0.05 * ratio;
                 }
                 collider.grounded = true;
                 break;
@@ -1277,13 +1656,13 @@ class MovingPlat extends SpecialTile {
                 }
                 break;
             case "l":
-                collider.xVel = 0;
+                //collider.xVel = 0;
                 if (this.xVel > 0) {
                     collider.xVelExt = this.xVel * ratio;
                 }
                 break;
             case "r":
-                collider.xVel = 0;
+                //collider.xVel = 0;
                 if (this.xVel > 0) {
                     collider.xVelExt = this.xVel * ratio;
                 }
@@ -1397,14 +1776,12 @@ actions:
 */
 
 
-var frameCounter = 0;
-var frame = 0;
-
 ///////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////// MAIN LOOP //////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
+var blackScreen = 0;
+
 function loop() {
-    frameCounter++;
     fps++;
     if (shake) {
         shake--;
@@ -1443,36 +1820,51 @@ function loop() {
         }
         drawMonsters(monsters[i]);
     }
+    player.reading = false;
     for (i = visualFxs.length - 1; i >= 0; i--) {
+        if (isOutOfScreen(visualFxs[i])) {
+            continue;
+        }
         drawFxs(visualFxs[i]);
     }
-
+    //happens when teleporting
+    if (blackScreen) {
+        c.globalAlpha = blackScreen / 100;
+        c.fillStyle = "#000000";
+        c.fillRect(0, 0, canvas.width, canvas.height);
+        c.globalAlpha = 1;
+        blackScreen--;
+    }
     if (!player.dead) {
         drawCharacter(player);
     }
     renderHpBars();
     renderTexts();
-    requestAnimationFrame(loop)
+    if (!gamePaused) {
+        requestAnimationFrame(loop)
+    }
 }
 ///////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////// MAIN LOOP //////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-var watchDown = false;
-var cameraType = 0;
+
+var camBoxes = [];
 
 function moveCamera() {
     //locked camera
-    var camObject=0;
-    for (let i = 0; i < camBoxes.length; i++) {
-        if (collided(player, camBoxes[i])){
-            cameraType=camBoxes[i].type;
-            camObject=camBoxes[i];
+    if (camBoxes.length > 0) {
+        var camObject = 0;
+        for (let i = 0; i < camBoxes.length; i++) {
+            if (collided(player, camBoxes[i])) {
+                cameraType = camBoxes[i].type;
+                camObject = camBoxes[i];
+            }
         }
+
     }
-    if (!cam)
     if (cameraType === 2) {
-        mapX=-camObject.x*ratio;
-        mapY=-camObject.y*ratio;
+        mapX = -camObject.x * ratio;
+        mapY = -camObject.y * ratio;
     }
     if (cameraType === 0) {
         var cameraDir = tilesWidth / 2 - 2;
@@ -1506,7 +1898,7 @@ function moveCamera() {
 }
 
 function isOutOfScreen(Entity) {
-    var entity = (Entity.hitbox !== undefined) ? Entity.hitbox : Entity;
+    var entity = (typeof Entity.hitbox !== "undefined") ? Entity.hitbox : Entity;
     if (entity.x + entity.w > tilesWidth - mapX / ratio &&
         entity.x + entity.w < -tilesWidth - mapX / ratio) {
         return true;
@@ -1542,7 +1934,7 @@ function checkCollisions() {
             continue;
         }
         if (collided(player, map[i])) {
-            colCheck(player, map[i]);
+            let collision = colCheck(player, map[i]);
         }
         for (m = 0; m < monsters.length; m++) {
             if (collided(monsters[m], map[i])) {
@@ -1615,6 +2007,7 @@ function adjustCollided(p) {
 
 function calculateCharacter(p) {
     //controls calculation
+    p.frameCounter++;
     if (p.jumpCounter >= 10) {
         p.jumpMaxReached = true;
     }
@@ -1947,16 +2340,16 @@ function drawCharacter(p) {
         audio.walking.pause();
     }
 
-    if (frameCounter > slowness) {
-        frame++;
-        frameCounter = 0;
+    if (p.frameCounter > slowness) {
+        p.frame++;
+        p.frameCounter = 0;
     }
     //
-    if (p.attack && frame == 3 && frameCounter == 0) {
+    if (p.attack && p.frame == 3 && p.frameCounter == 0) {
         player.attacking(player.atkHitbox);
     }
-    if (frame > p.actionX[p.action].length - 1) {
-        frame = 0;
+    if (p.frame > p.actionX[p.action].length - 1) {
+        p.frame = 0;
         if (p.attack) {
             p.attack = false
         }
@@ -2002,8 +2395,8 @@ function drawCharacter(p) {
     } else {
         c.drawImage(
             p.sheet,
-            p.actionX[p.action][frame] * tileSize,
-            p.actionY[p.action][frame] * tileSize,
+            p.actionX[p.action][p.frame] * tileSize,
+            p.actionY[p.action][p.frame] * tileSize,
             p.sprite.w,
             p.sprite.h,
             (p.x + mapX) | 0,
@@ -2016,8 +2409,8 @@ function drawCharacter(p) {
         if (p.action == 6) {
             c.drawImage(
                 p.sheet,
-                p.actionX[p.action][frame] * tileSize + 16,
-                p.actionY[p.action][frame] * tileSize,
+                p.actionX[p.action][p.frame] * tileSize + 16,
+                p.actionY[p.action][p.frame] * tileSize,
                 p.sprite.w,
                 p.sprite.h,
                 (p.x + mapX + p.w) | 0,
@@ -2027,8 +2420,8 @@ function drawCharacter(p) {
         } else if (p.action == 7) {
             c.drawImage(
                 p.sheet,
-                p.actionX[p.action][frame] * tileSize - 16,
-                p.actionY[p.action][frame] * tileSize,
+                p.actionX[p.action][p.frame] * tileSize - 16,
+                p.actionY[p.action][p.frame] * tileSize,
                 p.sprite.w,
                 p.sprite.h,
                 (p.x + mapX - p.w) | 0,
@@ -2190,7 +2583,11 @@ function collided(a, b) {
     return false;
 }
 
-function pointSquareCol(point, square) {
+function pointSquareCol(point, sq) {
+    var square = sq;
+    if (sq.hitbox !== undefined) {
+        square = sq.hitbox;
+    }
     if (point.x > square.x) {
         if (point.x < square.x + square.w) {
             if (point.y > square.y) {
@@ -2211,7 +2608,7 @@ window.onmousedown = function (e) {
         switch (e.button) {
             case 0:
                 //console.log('Left button clicked.');
-                if (!touchDevice) {
+                if (!gamePaused) {
                     player.attackEvent();
                 }
                 break;
@@ -2220,7 +2617,7 @@ window.onmousedown = function (e) {
                 break;
             case 2:
                 //console.log('Right button clicked.');
-                if (!jmpKeyPressed) {
+                if (!jmpKeyPressed && !gamePaused) {
                     player.jump();
                     jmpKeyPressed = true;
                 }
@@ -2256,61 +2653,97 @@ window.oncontextmenu = function (event) {
 window.addEventListener("keydown", function (event) {
     var key = event.keyCode;
     event.preventDefault();
-    switch (key) {
-        case 65: //left key down (A / left arrow)
-        case 37:
-            player.L = true;
-            break;
-        case 68: //right key down (D / right arrow)
-        case 39:
-            player.R = true;
-            break;
-        case 83: //down key down (S /down arrow)
-        case 40:
-            watchDown = true;
-            break;
-        case 87: //jump key down (W / Z / up arrow)
-        case 90:
-        case 38:
-            if (!jmpKeyPressed) {
-                player.jump();
-                jmpKeyPressed = true;
-            }
-            break;
-        case 70: //attack key down (F / X)
-        case 88:
-            player.attackEvent();
-            break;
-        case 67: //camera key (C)
-            cameraType++;
-            if (cameraType > 1) {
-                cameraType = 0;
-            }
-            break;
-        case 69: //dance key (E)
-            player.dance = true;
-            break;
-        case 71: //g key down
-            console.log(player);
-            break;
-        case 72: //h key down
-            //nothing
-            break;
-        case 49: // 1
-            monsters.push(new Slime(5 - mapX / ratio, -mapY / ratio));
-            break;
-        case 50: // 2
-            monsters.push(new Lizard(5 - mapX / ratio, -mapY / ratio));
-            break;
-        case 51: // 3
-            monsters.push(new Zombie(5 - mapX / ratio, -mapY / ratio));
-            break;
-        case 52: // 4
-            monsters.push(new Superzombie(5 - mapX / ratio, -mapY / ratio));
-            break;
-        case 53: // 5
-            monsters.push(new Bear(5 - mapX / ratio, -mapY / ratio));
-            break;
+    if (!gamePaused) {
+        switch (key) {
+            case 27:
+            case 32: // esc/space key
+                gamePaused = true;
+                //c.globalAlpha=0.6;
+                //UI
+                if (player.reading) {
+                    id(player.currentBook).style.visibility = "visible";
+                } else {
+                    id("pause-screen").style.display = "block";
+                    id("pause-screen").style.visibility = "visible";
+                    id("controls").style.visibility = "hidden";
+                }
+
+                break;
+            case 65: //left key down (A / left arrow)
+            case 37:
+                player.L = true;
+                break;
+            case 68: //right key down (D / right arrow)
+            case 39:
+                player.R = true;
+                break;
+            case 83: //down key down (S /down arrow)
+            case 40:
+                watchDown = true;
+                break;
+            case 87: //jump key down (W / Z / up arrow)
+            case 90:
+            case 38:
+                if (!jmpKeyPressed) {
+                    player.jump();
+                    jmpKeyPressed = true;
+                }
+                break;
+            case 70: //attack key down (F / X)
+            case 88:
+                player.attackEvent();
+                break;
+            case 67: //camera key (C)
+                cameraType++;
+                if (cameraType > 1) {
+                    cameraType = 0;
+                }
+                break;
+            case 69: //dance key (E)
+                player.dance = true;
+                break;
+            case 71: //g key down
+                console.log(player);
+                break;
+            case 72: //h key down
+                //nothing
+                break;
+            case 49: // 1
+                monsters.push(new Slime(5 - mapX / ratio, -mapY / ratio));
+                break;
+            case 50: // 2
+                monsters.push(new Lizard(5 - mapX / ratio, -mapY / ratio));
+                break;
+            case 51: // 3
+                monsters.push(new Zombie(5 - mapX / ratio, -mapY / ratio));
+                break;
+            case 52: // 4
+                monsters.push(new Superzombie(5 - mapX / ratio, -mapY / ratio));
+                break;
+            case 53: // 5
+                monsters.push(new Bear(5 - mapX / ratio, -mapY / ratio));
+                break;
+            case 54: // 6
+                eval(maps[0]);
+                initializeMap();
+                break;
+            case 55: // 7
+                eval(maps[10]);
+                initializeMap();
+                break;
+        }
+    } else if (key === 27 || key === 32) {
+
+        //UI
+        if (player.reading) {
+            id(player.currentBook).style.visibility = "hidden";
+        } else {
+            id("pause-screen").style.display = "none";
+            id("pause-screen").style.visibility = "hidden";
+            id("controls").style.visibility = "hidden";
+        }
+        gamePaused = false;
+        requestAnimationFrame(loop);
     }
 });
 window.addEventListener("keyup", function (event) {
@@ -2336,94 +2769,6 @@ window.addEventListener("keyup", function (event) {
             break;
     }
 });
-
-
-// TOUCH CONTROLS START
-
-function showControls() {
-    id("arrowCont").style.display = "block";
-}
-window.addEventListener("touchstart", function () {
-    touchDevice = true;
-    showControls()
-})
-
-function showcontrols() {
-    id("arrowCont").style.display = "block";
-}
-id("left").addEventListener("touchstart", function () {
-    player.L = true;
-    id("left").style.transform = "scale(1.5)";
-    id("left").style.opacity = "1";
-});
-
-id("right").addEventListener("touchstart", function () {
-    player.R = true;
-    id("right").style.transform = "scale(1.5)";
-    id("right").style.opacity = "1";
-});
-id("left").addEventListener("touchend", function () {
-    player.L = false;
-    id("left").style.transform = "";
-    id("left").style.opacity = "0.5";
-});
-id("right").addEventListener("touchend", function () {
-    player.R = false;
-    id("right").style.transform = "";
-    id("right").style.opacity = "0.5";
-});
-
-id("up").addEventListener("touchstart", function () {
-    if (!jmpKeyPressed) {
-        player.jump();
-        jmpKeyPressed = true;
-    }
-    id("up").style.transform = "scale(1.5)";
-    id("up").style.opacity = "1";
-});
-id("down").addEventListener("touchstart", function () {
-    player.attackEvent();
-    id("down").style.transform = "scale(1.5)";
-    id("down").style.opacity = "1";
-});
-id("up").addEventListener("touchend", function () {
-    player.jumping = false;
-    jmpKeyPressed = false;
-    id("up").style.transform = "";
-    id("up").style.opacity = "0.5";
-});
-id("down").addEventListener("touchend", function () {
-    id("down").style.transform = "";
-    id("down").style.opacity = "0.5";
-});
-// TOUCH CONTROLS END
-var bgColor = "#0099dd";
-var mapHeight = 0;
-var mapWidth = 0;
-var biomes = [{
-    background: true,
-    ambient: audio.ambient_1,
-    music: [audio.haydn_1, audio.haydn_2],
-    bgColor: "#0099dd",
-    other: function () {
-        for (let j = 0; j < 30; j++) {
-            let ww = (mapWidth < 100) ? 100 : mapWidth;
-            let hh = (mapHeight < 50) ? 50 : mapHeight;
-            var ran1 = parseInt(Math.random() * ww + (player.x / ratio));
-            var ran2 = Math.random() * hh / 4 - hh / 8;
-            var ran3 = parseInt(Math.random() * 20 + 1);
-            visualFxs.push(new Cloud(ran1, ran2, ran3));
-        }
-    }
-}, {
-    background: false,
-    ambient: audio.ambient_2,
-    music: [audio.bach_1, audio.bach_2],
-    bgColor: "#222034",
-    other: function () {}
-}]
-var biome = 0;
-
 if (window.opener) {
     //console.log(window.opener.mapCode);
     if (window.opener.mapCode) {
@@ -2433,9 +2778,49 @@ if (window.opener) {
     }
 }
 
+function adaptBiome() {
+    background = biomes[biome].background;
+    bgColor = biomes[biome].bgColor;
+    biomes[biome].other();
+
+    function playMusic() {};
+    audio.walking.removeEventListener("play", playMusic);
+    audio.walking.addEventListener("play", function playMusic() {
+        biomes[biome].ambient.play();
+        biomes[biome].music[Math.floor(Math.random() * biomes[biome].music.length)].play();
+        for (let i = 0; i < biomes[biome].music.length; i++) {
+            var next = ++i;
+            if (next >= biomes[biome].music.length) {
+                next = 0;
+            }
+            biomes[biome].music[i].addEventListener('ended', function () {
+                biomes[biome].music[next].play();
+            })
+
+        }
+    }, {
+        once: true
+    });
+}
+
 function initializeMap() {
     var spTiles = [];
     var removeList = [];
+    specialTiles = [];
+    bgTiles = [];
+    visualFxs = [];
+    visualFxs.push(new GhostGirl(0, 4));
+    monsters = [];
+    for (let j = 0; j < biomes.length; j++) {
+        if (typeof biomes[j].ambient !== undefined) {
+            biomes[j].ambient.pause();
+            biomes[j].ambient.currentTime = 0;
+        }
+        for (let i = 0; i < biomes[j].music.length; i++) {
+            biomes[j].music[i].pause();
+            biomes[j].music[i].currentTime = 0;
+        }
+    }
     for (let i = map.length - 1; i >= 0; i--) {
         switch (map[i].type) {
             case 17:
@@ -2452,6 +2837,8 @@ function initializeMap() {
             case 50:
             case 51:
             case 64:
+            case 65:
+            case 66:
                 spTiles.push(i);
                 removeList.push(i);
                 break;
@@ -2506,8 +2893,14 @@ function initializeMap() {
                     case 51: // speeder L
                         specialTiles.push(new Speeder(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 1));
                         break;
-                    case 64: // speeder L
+                    case 64: // crystal
                         visualFxs.push(new Crystal(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
+                        break;
+                    case 65: // door
+                        visualFxs.push(new Door(map[spTiles[i]].x + k, map[spTiles[i]].y + j, map[spTiles[i]].text));
+                        break;
+                    case 66: // book
+                        visualFxs.push(new Book(map[spTiles[i]].x + k, map[spTiles[i]].y + j, map[spTiles[i]].text));
                         break;
                 }
             }
@@ -2519,39 +2912,26 @@ function initializeMap() {
     player.x = spawnPoint.x * ratio;
     player.y = spawnPoint.y * ratio;
 
-    for (i = map.length - 1; i >= 0; i--) {
+    for (let i = map.length - 1; i >= 0; i--) {
         if (map[i].y + map[i].h > mapHeight) {
             mapHeight = map[i].y + map[i].h;
         }
     }
-    for (i = map.length - 1; i >= 0; i--) {
+    for (let i = map.length - 1; i >= 0; i--) {
         if (map[i].x + map[i].w > mapWidth) {
             mapWidth = map[i].x + map[i].w;
         }
     }
-    background = biomes[biome].background;
-    bgColor = biomes[biome].bgColor;
-    biomes[biome].other();
-    audio.walking.addEventListener("play", function () {
-        biomes[biome].ambient.play();
-        biomes[biome].music[Math.floor(Math.random() * 2)].play();
-        biomes[biome].music[1].addEventListener('ended', function () {
-            if (this.paused)
-                biomes[biome].music[0].play();
-        })
-        biomes[biome].music[0].addEventListener('ended', function () {
-            if (this.paused)
-                biomes[biome].music[1].play();
-        })
-    }, {
-        once: true
-    });
-    requestAnimationFrame(loop);
+
+    //TROLLING
+    //TROLLING END
 }
-
-
-window.onload = function () {
-    initializeMap();
+//UI
+if (!mapTester) {
+    eval(maps[0]);
 }
+adaptBiome();
+initializeMap();
 
+requestAnimationFrame(loop);
 //starts the program
