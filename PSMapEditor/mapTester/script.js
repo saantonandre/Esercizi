@@ -6,6 +6,16 @@ var canvas = id("canvas");
 var c = canvas.getContext("2d");
 //  The size of the tiles in the spritesheet
 var mapTester = true;
+if (window.opener) {
+    //console.log(window.opener.mapCode);
+    if (window.opener.mapCode) {
+        eval(window.opener.mapCode);
+    } else {
+        eval(window.opener.map);
+    }
+}else {
+    mapTester=false;
+}
 var tileSize = 16;
 var tilesWidth = 20;
 var tilesHeight = 15;
@@ -1898,6 +1908,9 @@ function moveCamera() {
 }
 
 function isOutOfScreen(Entity) {
+    if (Entity== null){
+        return true;
+    }
     var entity = (typeof Entity.hitbox !== "undefined") ? Entity.hitbox : Entity;
     if (entity.x + entity.w > tilesWidth - mapX / ratio &&
         entity.x + entity.w < -tilesWidth - mapX / ratio) {
@@ -2776,6 +2789,8 @@ if (window.opener) {
     } else {
         eval(window.opener.map);
     }
+}else {
+    mapTester=false;
 }
 
 function adaptBiome() {
