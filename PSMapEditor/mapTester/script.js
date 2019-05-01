@@ -13,8 +13,8 @@ if (window.opener) {
     } else {
         eval(window.opener.map);
     }
-}else {
-    mapTester=false;
+} else {
+    mapTester = false;
 }
 var tileSize = 16;
 var tilesWidth = 20;
@@ -135,6 +135,7 @@ var tiles = [
         [13, 12], // crystal
         [16, 6], // door
         [7, 14], // book
+        [15, 5], [15, 9], // trap on/off
     ]
 
 setInterval(function () {
@@ -161,6 +162,8 @@ var audio = {
     haydn_2: new Audio("PixelSamurai/soundFxs/music/Haydn-2.mp3"),
     bach_1: new Audio("PixelSamurai/soundFxs/music/Bach-1.mp3"),
     bach_2: new Audio("PixelSamurai/soundFxs/music/Bach-2.mp3"),
+    spikes1: new Audio("PixelSamurai/soundFxs/spikes1.mp3"),
+    spikes2: new Audio("PixelSamurai/soundFxs/spikes2.mp3"),
 }
 
 audio.walking.playbackRate = 1.4;
@@ -181,6 +184,8 @@ audio.crystal.volume = 1;
 audio.walking.volume = 1;
 audio.ambient_1.volume = 0.1;
 audio.ambient_2.volume = 0;
+
+audio.spikes2.playbackRate = 1.8;
 
 audio.ambient_1.loop = true;
 audio.ambient_2.loop = true;
@@ -359,8 +364,8 @@ var player = {
     sprite: {
         x: 0,
         y: 0,
-        w: 16,
-        h: 16,
+        w: 1,
+        h: 1,
     },
     actionX: [[0], [1], [0, 0, 0, 0], [1, 1, 1, 1], [6], [6], [2, 2, 2, 2], [5, 5, 5, 5], [11, 11, 11, 12, 12, 12]],
     actionY: [[0], [0], [0, 1, 2, 3], [0, 1, 2, 3], [1], [3], [0, 1, 2, 3], [0, 1, 2, 3], [12, 13, 14, 12, 13, 14]],
@@ -693,6 +698,7 @@ function leftRightMovement(serial) {
         }
     }
 }
+//CHANGE
 class Slime extends Monster {
     constructor(x, y) {
         super(x, y);
@@ -700,8 +706,8 @@ class Slime extends Monster {
         this.hp = 16;
         this.maxHp = this.hp;
         this.type = "Slime";
-        this.actionX = [[192], [208], [192, 192, 192], [208, 208, 208], [224, 224, 224], [224, 224, 224, 224, 224]];
-        this.actionY = [[0], [0], [0, 16, 32], [0, 16, 32], [0, 0, 0], [0, 16, 32, 48, 64]];
+        this.actionX = [[12], [13], [12, 12, 12], [13, 13, 13], [14, 14, 14], [14, 14, 14, 14, 14]];
+        this.actionY = [[0], [0], [0, 1, 2], [0, 1, 2], [0, 0, 0], [0, 1, 2, 3, 4]];
     }
 }
 class Lizard extends Monster {
@@ -711,8 +717,8 @@ class Lizard extends Monster {
         this.hp = 12;
         this.maxHp = this.hp;
         this.type = "Lizard";
-        this.actionX = [[240], [256], [240, 240, 240], [256, 256, 256], [272, 272, 272], [272, 272, 272, 272, 272]];
-        this.actionY = [[0], [0], [0, 16, 32, 48], [0, 16, 32, 48], [0, 0, 0], [0, 16, 32, 48, 64]];
+        this.actionX = [[15], [16], [15, 15, 15], [16, 16, 16], [17, 17, 17], [17, 17, 17, 17, 17]];
+        this.actionY = [[0], [0], [0, 1, 2, 3], [0, 1, 2, 3], [0, 0, 0], [0, 1, 2, 3, 4]];
     }
 }
 class Bear extends Monster {
@@ -722,8 +728,8 @@ class Bear extends Monster {
         this.hp = 60;
         this.maxHp = this.hp;
         this.type = "Bear";
-        this.actionX = [[0], [32], [0, 0, 0], [32, 32, 32], [160, 160, 160], [160, 160, 160, 160, 160, 160], [64, 64, 64, 64, 64, 64], [128, 128, 128, 128, 128, 128]];
-        this.actionY = [[0], [0], [0, 32, 64], [0, 32, 64], [0, 32, 64], [0, 32, 64, 96, 128, 160], [0, 32, 64, 96, 128, 160], [0, 32, 64, 96, 128, 160]];
+        this.actionX = [[0], [2], [0, 0, 0], [2, 2, 2], [16, 16, 16], [16, 16, 16, 16, 16, 16], [4, 4, 4, 4, 4, 4], [8, 8, 8, 8, 8, 8]];
+        this.actionY = [[0], [0], [0, 2, 4], [0, 2, 4], [0, 2, 4], [0, 2, 4, 6, 8, 10], [0, 2, 4, 6, 8, 10], [0, 2, 4, 6, 8, 10]];
         this.sprite.w = 32;
         this.sprite.h = 32;
         this.sheet = id("bearsheet");
@@ -767,8 +773,8 @@ class Bear extends Monster {
         if (m.action == 6) {
             c.drawImage(
                 m.sheet,
-                m.actionX[m.action][m.frame] + 32,
-                m.actionY[m.action][m.frame],
+                m.actionX[m.action][m.frame] * 16 + 32,
+                m.actionY[m.action][m.frame] * 16,
                 m.sprite.w / 2, m.sprite.h,
                 (m.x + m.w + mapX) | 0,
                 (m.y + mapY) | 0, (m.w / 2) | 0,
@@ -776,8 +782,8 @@ class Bear extends Monster {
         } else if (m.action == 7) {
             c.drawImage(
                 m.sheet,
-                m.actionX[m.action][m.frame] - 16,
-                m.actionY[m.action][m.frame],
+                m.actionX[m.action][m.frame] * 16 - 16,
+                m.actionY[m.action][m.frame] * 16,
                 m.sprite.w / 2,
                 m.sprite.h,
                 (m.x - m.w / 2 + mapX) | 0,
@@ -787,6 +793,7 @@ class Bear extends Monster {
         }
     }
 }
+//CHANGE
 class Dummy extends Monster {
     constructor(x, y) {
         super(x, y);
@@ -794,8 +801,8 @@ class Dummy extends Monster {
         this.hp = 1200;
         this.maxHp = this.hp;
         this.type = "Dummy";
-        this.actionX = [[192], [192], [192], [192], [192, 192, 192], [192]];
-        this.actionY = [[48], [48], [48], [48], [64, 64, 64], [48]];
+        this.actionX = [[12], [12], [12], [12], [12, 12, 12], [12]];
+        this.actionY = [[3], [3], [3], [3], [4, 4, 4], [3]];
     }
     move() {}
 }
@@ -806,8 +813,8 @@ class Zombie extends Monster {
         this.hp = 20;
         this.maxHp = this.hp;
         this.type = "Zombie";
-        this.actionX = [[288], [304], [288, 288, 288], [304, 304, 304], [320, 320, 320], [320, 320, 320, 320, 320]];
-        this.actionY = [[0], [0], [0, 16, 32, 48], [0, 16, 32, 48], [0, 0, 0], [0, 16, 32, 48, 64]];
+        this.actionX = [[18], [19], [18, 18, 18], [19, 19, 19], [20, 20, 20], [20, 20, 20, 20, 20]];
+        this.actionY = [[0], [0], [0, 1, 2, 3], [0, 1, 2, 3], [0, 0, 0], [0, 1, 2, 3, 4]];
     }
 }
 class Superzombie extends Zombie {
@@ -901,6 +908,7 @@ class DialogueText {
         }
     }
 }
+//CHANGE
 class DmgFx {
     constructor(m, s) {
         this.x = m.x;
@@ -919,10 +927,10 @@ class DmgFx {
         this.frame = 0;
         this.type = "dmg";
         this.spritePos = {
-            x: [[0, 0, 0, 0], [16, 16, 16, 16], [32, 32, 32, 32]],
-            y: [[64, 80, 96, 112], [64, 80, 96, 112], [64, 80, 96, 112]],
-            w: [16, 16, 32],
-            h: [16, 16, 16],
+            x: [[0, 0, 0, 0], [1, 1, 1, 1], [2, 2, 2, 2]],
+            y: [[4, 5, 6, 7], [4, 5, 6, 7], [4, 5, 6, 7]],
+            w: [1, 1, 2],
+            h: [1, 1, 1],
         };
     }
 }
@@ -940,10 +948,10 @@ class JumpFx {
         this.frame = 0;
         this.type = "jump";
         this.spritePos = {
-            x: [[0, 0, 0, 0, 0], [16, 16, 16, 16, 16], [32, 32, 32, 32, 32], [48, 48, 48, 48, 48], [64, 64, 64, 64, 64]],
-            y: [[128, 144, 160, 176, 192], [128, 144, 160, 176, 192], [128, 144, 160, 176, 192], [128, 144, 160, 176, 192], [128, 144, 160, 176, 192]],
-            w: [16, 16, 16, 16, 16],
-            h: [16, 16, 16, 16, 16],
+            x: [[0, 0, 0, 0, 0], [1, 1, 1, 1, 1], [2, 2, 2, 2, 2], [3, 3, 3, 3, 3], [4, 4, 4, 4, 4]],
+            y: [[8, 9, 10, 11, 12], [8, 9, 10, 11, 12], [8, 9, 10, 11, 12], [8, 9, 10, 11, 12], [8, 9, 10, 11, 12]],
+            w: [1, 1, 1, 1, 1],
+            h: [1, 1, 1, 1, 1],
         };
     }
 }
@@ -960,10 +968,10 @@ class DeathFx {
         this.frame = 0;
         this.type = "death";
         this.spritePos = {
-            x: [[304, 304, 304, 304, 304, 304]],
-            y: [[80, 112, 144, 176, 208, 240]],
-            w: [32],
-            h: [32],
+            x: [[19, 19, 19, 19, 19, 19]],
+            y: [[5, 7, 9, 11, 13, 15]],
+            w: [2],
+            h: [2],
         };
     }
 }
@@ -980,10 +988,10 @@ class RingFx {
         this.frame = 0;
         this.type = "ring";
         this.spritePos = {
-            x: [[0, 0, 0, 0, 0], [16, 16, 16, 16, 16], [32, 32, 32, 32, 32]],
-            y: [[208, 224, 240, 256, 272], [208, 224, 240, 256, 272], [208, 224, 240, 256, 272]],
-            w: [16, 16, 16],
-            h: [16, 16, 16],
+            x: [[0, 0, 0, 0, 0], [1, 1, 1, 1, 1], [2, 2, 2, 2, 2]],
+            y: [[13, 14, 15, 16, 17], [13, 14, 15, 16, 17], [13, 14, 15, 16, 17]],
+            w: [1, 1, 1],
+            h: [1, 1, 1],
         };
     }
 }
@@ -1000,10 +1008,10 @@ class Grass {
         this.frame = 0;
         this.type = "grass";
         this.spritePos = {
-            x: [[160, 160, 160, 160]],
-            y: [[64, 80, 96, 112]],
-            w: [16],
-            h: [16],
+            x: [[10, 10, 10, 10]],
+            y: [[4, 5, 6, 7]],
+            w: [1],
+            h: [1],
         };
     }
 }
@@ -1026,10 +1034,10 @@ class Crystal {
             h: 0.4
         };
         this.spritePos = {
-            x: [[208, 208, 208, 208], [224, 224, 224, 224, 224, 224], [240]],
-            y: [[192, 208, 224, 240], [192, 208, 224, 240, 256, 272], [192]],
-            w: [16, 16, 16],
-            h: [16, 16, 16],
+            x: [[13, 13, 13, 13], [14, 14, 14, 14, 14, 14], [15]],
+            y: [[12, 13, 14, 15], [12, 13, 14, 15, 16, 17], [12]],
+            w: [1, 1, 1],
+            h: [1, 1, 1],
         };
     }
     action() {
@@ -1078,10 +1086,10 @@ class Door {
             h: 0.4
         };
         this.spritePos = {
-            x: [[256], [272, 272], [272, 272, 272, 272, 272]],
-            y: [[96], [80, 112], [144, 160, 176, 192, 208]],
-            w: [16, 32, 32],
-            h: [16, 32, 16],
+            x: [[16], [17, 17], [17, 17, 17, 17, 17]],
+            y: [[6], [5, 7], [9, 10, 11, 12, 13]],
+            w: [1, 2, 2],
+            h: [1, 2, 1],
         };
     }
     action() {
@@ -1089,11 +1097,9 @@ class Door {
             if (player.attack) {
                 if (collided(player.atkHitbox, this)) {
                     this.sprite = 1;
-                    console.log("pushing a portal");
                     audio.hit.playy();
                     shake = 4;
                     visualFxs.push(new Portal(this.x / ratio, this.y / ratio, this.place));
-                    console.log(visualFxs)
                     this.x -= 0.5 * ratio;
                     this.y -= 1 * ratio;
                 }
@@ -1132,10 +1138,10 @@ class Portal {
             h: 0.4
         };
         this.spritePos = {
-            x: [[256, 256, 256, 256]],
-            y: [[112, 128, 144, 160]],
-            w: [16],
-            h: [16],
+            x: [[16, 16, 16, 16]],
+            y: [[7, 8, 9, 10]],
+            w: [1],
+            h: [1],
         };
     }
     action() {
@@ -1146,7 +1152,7 @@ class Portal {
             }
             if (pointSquareCol(point, player)) {
                 this.load++;
-                blackScreen=this.load+1;
+                blackScreen = this.load + 1;
                 if (this.load > 100) {
                     eval(maps[parseInt(this.place)])
                     adaptBiome();
@@ -1185,10 +1191,10 @@ class Book {
             h: 0.3
         };
         this.spritePos = {
-            x: [[112], [112, 112, 112, 128], [128, 128, 128, 128], [128, 112, 112, 112]], // grounded -- transition up -- waving -- transition down
-            y: [[224], [240, 256, 272, 224], [240, 256, 272, 256], [224, 272, 256, 240]],
-            w: [16, 16, 16, 16],
-            h: [16, 16, 16, 16],
+            x: [[7], [7, 7, 7, 8], [8, 8, 8, 8], [8, 7, 7, 7]], // grounded -- transition up -- waving -- transition down
+            y: [[14], [15, 16, 17, 14], [15, 16, 17, 16], [14, 17, 16, 15]],
+            w: [1, 1, 1, 1],
+            h: [1, 1, 1, 1],
         };
     }
     action() {
@@ -1255,10 +1261,10 @@ class GhostGirl {
         this.frame = 0;
         this.type = "ghostgirl";
         this.spritePos = {
-            x: [[48, 48, 48, 48], [64, 64, 64, 64], [80, 80, 80], [96, 96, 96]],
-            y: [[224, 240, 256, 272], [224, 240, 256, 272], [224, 240, 256, 240, 256, 240, 256], [224, 240, 256, 240, 256, 240, 256]],
-            w: [16, 16, 16, 16, 16, 16, 16],
-            h: [16, 16, 16, 16, 16, 16, 16],
+            x: [[3, 3, 3, 3], [4, 4, 4, 4], [5, 5, 5], [6, 6, 6]],
+            y: [[14, 15, 16, 17], [14, 15, 16, 17], [14, 15, 16, 17, 16, 15, 16], [14, 15, 16, 15, 16, 15, 16]],
+            w: [1, 1, 1, 1, 1, 1, 1],
+            h: [1, 1, 1, 1, 1, 1, 1],
         };
         this.events = [
             {
@@ -1381,10 +1387,10 @@ class Cloud {
         this.movX = -s / 1000 * ratio;
         this.movY = 0;
         this.spritePos = {
-            x: [[112], [112], [112], [112]],
-            y: [[0], [16], [32], [48]],
-            w: [16, 16, 16, 16],
-            h: [16, 16, 16, 16],
+            x: [[7], [7], [7], [7]],
+            y: [[0], [1], [2], [3]],
+            w: [1, 1, 1, 1],
+            h: [1, 1, 1, 1],
         };
     }
     action() {
@@ -1406,8 +1412,8 @@ function drawFxs(fx) {
     }
     var fxX = fx.x + mapX;
     var fxY = fx.y + mapY;
-    var fxW = fx.spritePos.w[fx.sprite] / tileSize * ratio;
-    var fxH = fx.spritePos.h[fx.sprite] / tileSize * ratio;
+    var fxW = fx.spritePos.w[fx.sprite] * ratio;
+    var fxH = fx.spritePos.h[fx.sprite] * ratio;
     if (fx.frameCounter !== undefined) {
         fx.frameCounter++;
         if (fx.frameCounter > fx.slowness) {
@@ -1436,10 +1442,10 @@ function drawFxs(fx) {
         c.rotate(fx.rotation * Math.PI / 180);
         c.drawImage(
             fx.sheet,
-            fx.spritePos.x[fx.sprite][fx.frame],
-            fx.spritePos.y[fx.sprite][fx.frame],
-            fx.spritePos.w[fx.sprite],
-            fx.spritePos.h[fx.sprite],
+            fx.spritePos.x[fx.sprite][fx.frame] * 16,
+            fx.spritePos.y[fx.sprite][fx.frame] * 16,
+            fx.spritePos.w[fx.sprite] * 16,
+            fx.spritePos.h[fx.sprite] * 16,
             (-fxW / 2),
             (-fxH / 2),
             fxW | 0,
@@ -1448,10 +1454,10 @@ function drawFxs(fx) {
     } else {
         c.drawImage(
             fx.sheet,
-            fx.spritePos.x[fx.sprite][fx.frame],
-            fx.spritePos.y[fx.sprite][fx.frame],
-            fx.spritePos.w[fx.sprite],
-            fx.spritePos.h[fx.sprite],
+            fx.spritePos.x[fx.sprite][fx.frame] * 16,
+            fx.spritePos.y[fx.sprite][fx.frame] * 16,
+            fx.spritePos.w[fx.sprite] * 16,
+            fx.spritePos.h[fx.sprite] * 16,
             fxX | 0,
             fxY | 0,
             fxW | 0,
@@ -1470,18 +1476,25 @@ class SpecialTile {
         this.h = 1;
         this.sheet = id("sheet");
         this.sprite = [];
+        this.spritePos = [[]];
         this.repeat = false;
         this.running = false;
         this.frameCounter = 0;
-        this.slowness = 3;
         this.frame = 0;
+        this.slowness = 3;
         this.type = "";
     }
 }
 class Bouncy extends SpecialTile {
     constructor(x, y) {
         super(x, y);
-        this.sprite = biome ? [[11, 8], [11, 9], [11, 10], [11, 11]] : [[11, 4], [11, 5], [11, 6], [11, 7]];
+        this.sprite = biome == 1 ? 1 : 0;
+        this.spritePos = {
+            x: [[11, 11, 11, 11], [11, 11, 11, 11]],
+            y: [[4, 5, 6, 7], [8, 9, 10, 11]],
+            w: [1, 1],
+            h: [1, 1],
+        };
         this.repeat = false;
         this.running = false;
         this.slowness = 3;
@@ -1554,13 +1567,18 @@ class Speeder extends SpecialTile {
         super(x, y);
         this.repeat = true;
         this.running = true;
+        this.sprite = dir;
         this.dir = dir;
         this.slowness = 3;
-        this.sprite = (this.dir === 0) ? [[12, 5], [12, 6], [12, 7]] : [[12, 8], [12, 9], [12, 10]];
+        this.spritePos = {
+            x: [[12, 12, 12], [12, 12, 12]],
+            y: [[5, 6, 7], [8, 9, 10]],
+            w: [1, 1],
+            h: [1, 1],
+        };
         this.type = "speeder";
     }
     action(collider, colDir) {
-        this.running = true;
         var dir = player.left ? 1 : -1;
         switch (colDir) {
             case "b":
@@ -1583,7 +1601,13 @@ class Speeder extends SpecialTile {
 class Spikes extends SpecialTile {
     constructor(x, y, tile) {
         super(x, y);
-        this.sprite = [tiles[tile]];
+        this.sprite = 0;
+        this.spritePos = {
+            x: [[tiles[tile][0]]],
+            y: [[tiles[tile][1]]],
+            w: [1],
+            h: [1]
+        };
         this.repeat = false;
         this.running = false;
         this.slowness = 3;
@@ -1596,7 +1620,6 @@ class Spikes extends SpecialTile {
         };
     }
     action(collider, colDir) {
-        this.running = true;
         var dir = collider.left ? 1 : -1;
         switch (colDir) {
             case "b":
@@ -1618,10 +1641,111 @@ class Spikes extends SpecialTile {
         };
     }
 }
+class TimedSpikes extends SpecialTile {
+    constructor(x, y, active, timing) {
+        super(x, y);
+        this.sprite = active ? 1 : 3;
+        this.spritePos = {
+            x: [[15], [15, 15, 15], [15], [15, 15, 15]],
+            y: [[5], [6, 7, 8], [9], [8, 7, 6]],
+            w: [1, 1, 1, 1],
+            h: [1, 1, 1, 1],
+        };
+        this.repeat = true;
+        this.running = true;
+        this.active = active;
+        this.timing = 100;
+        this.time = timing ? timing : 0;
+        this.slowness = 2;
+        this.type = "spikes";
+        this.hitbox = {
+            x: x,
+            y: y + 0.5,
+            w: 1,
+            h: 0.5
+        };
+        this.dmgHitbox = {
+            x: x + 0.1,
+            y: y,
+            w: 0.8,
+            h: 0.5
+        };
+    }
+    action(collider, colDir) {
+        switch (colDir) {
+            case "b":
+            case "l":
+            case "r":
+            case "t":
+                break;
+        };
+    }
+    move() {
+        this.time++;
+        if (this.time > this.timing) {
+            this.time = 0;
+            this.active = !this.active;
+            this.sprite = this.active ? 1 : 3;
+            this.frameCounter = 0;
+            this.frame = 0;
+            if (options.audio == true&&!isOutOfScreen(this)) {
+                let volume = (15 - Math.abs(player.hitbox.x+player.hitbox.w/2 - this.x+this.w/2)) / 30;
+                if (volume > 0) {
+                    if (this.active) {
+                        audio.spikes1.volume = volume;
+                        audio.spikes1.playy();
+                    } else {
+                        audio.spikes2.volume = volume;
+                        audio.spikes2.playy();
+                    }
+                }
+            }
+        }
+        switch (this.sprite) {
+            case 0:
+                break;
+            case 1:
+                if (this.frame >= this.spritePos.x[1].length - 1) {
+                    this.frame = 0;
+                    this.frameCounter = 0;
+                    this.sprite = 2;
+                }
+                break;
+            case 2:
+                if (collided(player, this.dmgHitbox)) {
+                    if (!player.dead) {
+                        visualFxs.push(new DeathFx(player.x / ratio, player.y / ratio));
+                        audio.death.playy();
+                        player.dead = true;
+                        setTimeout(function () {
+                            player.respawnEvent();
+                        }, 1500);
+                    }
+                    if (player.yVel < 0) {
+                        player.yVel = 0;
+                    }
+                }
+                break;
+            case 3:
+                if (this.frame >= this.spritePos.x[1].length - 1) {
+                    this.frame = 0;
+                    this.frameCounter = 0;
+                    this.sprite = 0;
+                }
+                break;
+        }
+    }
+}
 class MovingPlat extends SpecialTile {
     constructor(x, y, sprite, xVel, yVel, range) {
         super(x, y);
-        this.sprite = sprite;
+        this.sprite = 0;
+        this.spritePos = {
+            x: [sprite[0]],
+            y: [sprite[1]],
+            w: [1],
+            h: [1]
+        };
         this.xVel = xVel / ratio;
         this.yVel = yVel / ratio;
         this.xI = x;
@@ -1685,31 +1809,30 @@ class MovingPlat extends SpecialTile {
         };
     }
 }
-//x, y,sprite, xVel, yVel, range
-//specialTiles.push(new MovingPlat(25, 5, [[7, 6]], 0, 4, 14))
-//specialTiles.push(new MovingPlat(26, 5, [[9, 6]], 0, 4, 14))
 
 function renderSpecialTiles() {
     for (i = 0; i < specialTiles.length; i++) {
-        if (isOutOfScreen(specialTiles[i])) {
+        if (isOutOfScreen(specialTiles[i]) && specialTiles[i].move == null) {
             continue;
         }
         if (specialTiles[i].move !== undefined) {
             specialTiles[i].move();
         }
-        if (specialTiles[i].running) {
+        if (specialTiles[i].frameCounter !== undefined && specialTiles[i].running) {
             specialTiles[i].frameCounter++;
             if (specialTiles[i].frameCounter > specialTiles[i].slowness) {
                 specialTiles[i].frame++;
                 specialTiles[i].frameCounter = 0;
             }
-            if (specialTiles[i].frame > specialTiles[i].sprite.length - 1) {
+            if (specialTiles[i].frame > specialTiles[i].spritePos.x[specialTiles[i].sprite].length - 1) {
                 specialTiles[i].frame = 0;
                 if (!specialTiles[i].repeat) {
                     specialTiles[i].running = false;
                 }
             }
         }
+
+
         var collision = null;
         if (collided(player, specialTiles[i])) {
             collision = colCheck(player, specialTiles[i]);
@@ -1721,10 +1844,10 @@ function renderSpecialTiles() {
         }
         c.drawImage(
             specialTiles[i].sheet,
-            specialTiles[i].sprite[specialTiles[i].frame][0] * 16,
-            specialTiles[i].sprite[specialTiles[i].frame][1] * 16,
-            16,
-            16,
+            specialTiles[i].spritePos.x[specialTiles[i].sprite][specialTiles[i].frame] * 16,
+            specialTiles[i].spritePos.y[specialTiles[i].sprite][specialTiles[i].frame] * 16,
+            specialTiles[i].spritePos.w[specialTiles[i].sprite] * 16,
+            specialTiles[i].spritePos.h[specialTiles[i].sprite] * 16,
             (specialTiles[i].x * ratio + mapX) | 0,
             (specialTiles[i].y * ratio + mapY) | 0,
             (specialTiles[i].w * ratio) | 0,
@@ -1795,7 +1918,7 @@ function loop() {
     fps++;
     if (shake) {
         shake--;
-        mapY += shakeArr[shake];
+        mapY += shakeArr[shake]/20*ratio;
     }
     paused = 0;
     c.clearRect(0, 0, canvas.width, canvas.height);
@@ -1908,7 +2031,7 @@ function moveCamera() {
 }
 
 function isOutOfScreen(Entity) {
-    if (Entity== null){
+    if (Entity == null) {
         return true;
     }
     var entity = (typeof Entity.hitbox !== "undefined") ? Entity.hitbox : Entity;
@@ -2009,7 +2132,7 @@ function adjustCollided(p) {
 
     }
     if (p.col.B) {
-        p.y -= p.col.B * ratio - 1;
+        p.y -= (p.col.B+0.01) * ratio;
         p.grounded = true;
         if (p.dashCd || p.dash) {
             p.dashCd = false;
@@ -2373,10 +2496,10 @@ function drawCharacter(p) {
         c.globalAlpha = 0.4;
         c.drawImage(
             p.sheet,
-            p.actionX[p.action][0] * tileSize,
-            p.actionY[p.action][0] * tileSize,
-            p.sprite.w,
-            p.sprite.h,
+            p.actionX[p.action][0] * 16,
+            p.actionY[p.action][0] * 16,
+            p.sprite.w * 16,
+            p.sprite.h * 16,
             (p.x + mapX - p.xVel * 2) | 0,
             (p.y + mapY) | 0,
             (p.w) | 0,
@@ -2384,10 +2507,10 @@ function drawCharacter(p) {
         c.globalAlpha = 0.6;
         c.drawImage(
             p.sheet,
-            p.actionX[p.action][0] * tileSize,
-            p.actionY[p.action][0] * tileSize,
-            p.sprite.w,
-            p.sprite.h,
+            p.actionX[p.action][0] * 16,
+            p.actionY[p.action][0] * 16,
+            p.sprite.w * 16,
+            p.sprite.h * 16,
             (p.x + mapX - p.xVel) | 0,
             (p.y + mapY) | 0,
             (p.w) | 0,
@@ -2395,10 +2518,10 @@ function drawCharacter(p) {
         c.globalAlpha = 0.8;
         c.drawImage(
             p.sheet,
-            p.actionX[p.action][0] * tileSize,
-            p.actionY[p.action][0] * tileSize,
-            p.sprite.w,
-            p.sprite.h,
+            p.actionX[p.action][0] * 16,
+            p.actionY[p.action][0] * 16,
+            p.sprite.w * 16,
+            p.sprite.h * 16,
             (p.x + mapX) | 0,
             (p.y + mapY) | 0,
             (p.w) | 0,
@@ -2408,10 +2531,10 @@ function drawCharacter(p) {
     } else {
         c.drawImage(
             p.sheet,
-            p.actionX[p.action][p.frame] * tileSize,
-            p.actionY[p.action][p.frame] * tileSize,
-            p.sprite.w,
-            p.sprite.h,
+            p.actionX[p.action][p.frame] * 16,
+            p.actionY[p.action][p.frame] * 16,
+            p.sprite.w * 16,
+            p.sprite.h * 16,
             (p.x + mapX) | 0,
             (p.y + mapY) | 0,
             (p.w) | 0,
@@ -2422,10 +2545,10 @@ function drawCharacter(p) {
         if (p.action == 6) {
             c.drawImage(
                 p.sheet,
-                p.actionX[p.action][p.frame] * tileSize + 16,
-                p.actionY[p.action][p.frame] * tileSize,
-                p.sprite.w,
-                p.sprite.h,
+                p.actionX[p.action][p.frame] * 16 + 16,
+                p.actionY[p.action][p.frame] * 16,
+                p.sprite.w * 16,
+                p.sprite.h * 16,
                 (p.x + mapX + p.w) | 0,
                 (p.y + mapY) | 0,
                 (p.w) | 0,
@@ -2433,10 +2556,10 @@ function drawCharacter(p) {
         } else if (p.action == 7) {
             c.drawImage(
                 p.sheet,
-                p.actionX[p.action][p.frame] * tileSize - 16,
-                p.actionY[p.action][p.frame] * tileSize,
-                p.sprite.w,
-                p.sprite.h,
+                p.actionX[p.action][p.frame] * 16 - 16,
+                p.actionY[p.action][p.frame] * 16,
+                p.sprite.w * 16,
+                p.sprite.h * 16,
                 (p.x + mapX - p.w) | 0,
                 (p.y + mapY) | 0,
                 (p.w) | 0,
@@ -2505,10 +2628,11 @@ function drawMonsters(m) {
     //draw on canvas
     c.drawImage(
         m.sheet,
-        m.actionX[m.action][m.frame],
-        m.actionY[m.action][m.frame],
-        m.sprite.w,
-        m.sprite.h, (m.x + mapX) | 0,
+        m.actionX[m.action][m.frame] * 16,
+        m.actionY[m.action][m.frame] * 16,
+        m.sprite.w * 16,
+        m.sprite.h * 16,
+        (m.x + mapX) | 0,
         (m.y + mapY) | 0,
         (m.w) | 0,
         (m.h) | 0);
@@ -2789,8 +2913,8 @@ if (window.opener) {
     } else {
         eval(window.opener.map);
     }
-}else {
-    mapTester=false;
+} else {
+    mapTester = false;
 }
 
 function adaptBiome() {
@@ -2817,14 +2941,15 @@ function adaptBiome() {
         once: true
     });
 }
-
+var ghost={};
 function initializeMap() {
     var spTiles = [];
     var removeList = [];
     specialTiles = [];
     bgTiles = [];
     visualFxs = [];
-    visualFxs.push(new GhostGirl(0, 4));
+    ghost=new GhostGirl(player.hitbox.x-4, player.hitbox.y-4);
+    visualFxs.push(ghost);
     monsters = [];
     for (let j = 0; j < biomes.length; j++) {
         if (typeof biomes[j].ambient !== undefined) {
@@ -2854,6 +2979,8 @@ function initializeMap() {
             case 64:
             case 65:
             case 66:
+            case 67:
+            case 68:
                 spTiles.push(i);
                 removeList.push(i);
                 break;
@@ -2877,6 +3004,7 @@ function initializeMap() {
     }
     //[13, 5],[13, 6],[13, 7],[13, 8], //traps rock
     //[14, 5],[14, 6],[14, 7],[14, 8], //traps stone
+    //constructor(x, y, active, timing) {
     for (let i = 0; i < spTiles.length; i++) {
         for (let j = 0; j < map[spTiles[i]].h; j++) {
             for (let k = 0; k < map[spTiles[i]].w; k++) {
@@ -2916,6 +3044,12 @@ function initializeMap() {
                         break;
                     case 66: // book
                         visualFxs.push(new Book(map[spTiles[i]].x + k, map[spTiles[i]].y + j, map[spTiles[i]].text));
+                        break;
+                    case 67: // spikes
+                        specialTiles.push(new TimedSpikes(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 0, parseInt(map[spTiles[i]].text)));
+                        break;
+                    case 68: // spikes
+                        specialTiles.push(new TimedSpikes(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 1, parseInt(map[spTiles[i]].text)));
                         break;
                 }
             }

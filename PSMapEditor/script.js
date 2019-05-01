@@ -56,6 +56,7 @@ var tiles = [
         [13, 12], // crystal
         [16, 6], // door
         [7, 14], // book
+        [15, 5], [15, 9], // trap on/off
 
     ]
 var spawnPoint = {
