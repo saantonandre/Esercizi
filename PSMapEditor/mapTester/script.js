@@ -136,6 +136,7 @@ var tiles = [
         [16, 6], // door
         [7, 14], // book
         [15, 5], [15, 9], // trap on/off
+        [8, 13], // stone pile
     ]
 
 setInterval(function () {
@@ -508,8 +509,8 @@ class Monster {
         this.sprite = {
             x: 0,
             y: 0,
-            w: 16,
-            h: 16,
+            w: 1,
+            h: 1,
         };
         this.actionX = [];
         this.actionY = [];
@@ -730,8 +731,8 @@ class Bear extends Monster {
         this.type = "Bear";
         this.actionX = [[0], [2], [0, 0, 0], [2, 2, 2], [16, 16, 16], [16, 16, 16, 16, 16, 16], [4, 4, 4, 4, 4, 4], [8, 8, 8, 8, 8, 8]];
         this.actionY = [[0], [0], [0, 2, 4], [0, 2, 4], [0, 2, 4], [0, 2, 4, 6, 8, 10], [0, 2, 4, 6, 8, 10], [0, 2, 4, 6, 8, 10]];
-        this.sprite.w = 32;
-        this.sprite.h = 32;
+        this.sprite.w = 2;
+        this.sprite.h = 2;
         this.sheet = id("bearsheet");
         this.w = 2 * ratio;
         this.h = 2 * ratio;
@@ -1155,6 +1156,7 @@ class Portal {
                 blackScreen = this.load + 1;
                 if (this.load > 100) {
                     eval(maps[parseInt(this.place)])
+                    window.localStorage['level'] = parseInt(this.place);
                     adaptBiome();
                     initializeMap();
                     mapX = -player.x + (tilesWidth / 2 - 2) * ratio;
@@ -1613,11 +1615,44 @@ class Spikes extends SpecialTile {
         this.slowness = 3;
         this.type = "spikes";
         this.hitbox = {
-            x: x + 0.2,
-            y: y + 0.2,
-            w: 0.6,
-            h: 0.6
+            x: x,
+            y: y,
+            w: 1,
+            h: 1
         };
+        this.dmgHitbox = {
+            x: x,
+            y: y,
+            w: 1,
+            h: 1
+        };
+        switch(tiles[tile][1]){
+            case 5: //up
+                this.dmgHitbox.h=0.5;
+                
+                this.hitbox.h=0.5;
+                this.hitbox.y+=0.5;
+                break;
+            case 6: //right
+                this.dmgHitbox.x+=0.5;
+                this.dmgHitbox.w=0.5;
+                
+                this.hitbox.w=0.5;
+                break;
+            case 7: //down
+                this.dmgHitbox.h=0.5;
+                this.dmgHitbox.y+=0.5;
+                
+                this.hitbox.h=0.5;
+                break;
+            case 8: //left
+                this.dmgHitbox.w=0.5;
+                
+                this.hitbox.w=0.5;
+                this.hitbox.x+=0.5;
+                break;
+                
+        }
     }
     action(collider, colDir) {
         var dir = collider.left ? 1 : -1;
@@ -1626,6 +1661,9 @@ class Spikes extends SpecialTile {
             case "l":
             case "r":
             case "t":
+                break;
+        };
+        if (collided(this.dmgHitbox,collider)){
                 if (!collider.dead) {
                     visualFxs.push(new DeathFx(collider.x / ratio, collider.y / ratio));
                     audio.death.playy();
@@ -1637,8 +1675,7 @@ class Spikes extends SpecialTile {
                 if (collider.yVel < 0) {
                     collider.yVel = 0;
                 }
-                break;
-        };
+        }
     }
 }
 class TimedSpikes extends SpecialTile {
@@ -1657,7 +1694,7 @@ class TimedSpikes extends SpecialTile {
         this.timing = 100;
         this.time = timing ? timing : 0;
         this.slowness = 2;
-        this.type = "spikes";
+        this.type = "timedSpikes";
         this.hitbox = {
             x: x,
             y: y + 0.5,
@@ -3077,7 +3114,7 @@ function initializeMap() {
 }
 //UI
 if (!mapTester) {
-    eval(maps[0]);
+    eval(maps[window.localStorage['level'] || 0]);
 }
 adaptBiome();
 initializeMap();
