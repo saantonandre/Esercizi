@@ -220,115 +220,6 @@ var biomes = [{
     other: function () {}
 }]
 
-// UI
-
-if (mapTester) {
-    id("menu").style.visibility = "hidden";
-    canvas.style.visibility = "visible";
-    adaptBiome();
-    initializeMap();
-    requestAnimationFrame(loop);
-}
-if (!mapTester) {
-    id("newGame").onclick = function () {
-            eval(maps[0]);
-            adaptBiome();
-            initializeMap();
-            requestAnimationFrame(loop);
-        id("menu").style.visibility = "hidden";
-        id("controls").style.visibility = "visible";
-        canvas.style.visibility = "visible";
-    }
-    if (window.localStorage['LvL'] != null) {
-        id("continue").onclick = function () {
-            eval(maps[window.localStorage['LvL'] || 0]);
-            adaptBiome();
-            initializeMap();
-            requestAnimationFrame(loop);
-            id("menu").style.visibility = "hidden";
-            id("controls").style.visibility = "visible";
-            canvas.style.visibility = "visible";
-        }
-        id("continue").style.opacity = "1";
-    } else {
-        id("continue").style.opacity = "0.5";
-    };
-}
-id("ctrlButton").onclick = function () {
-    id("pause-screen").style.display = "none";
-    id("pause-screen").style.visibility = "hidden";
-    id("controls").style.visibility = "visible";
-    canvas.style.visibility = "visible";
-}
-var options = {
-    audio: true,
-    music: true,
-}
-id("music").onclick = function () {
-    if (options.music) {
-        options.music = false;
-        this.src = "ui/music-off.png";
-        audio.haydn_1.volume = 0;
-        audio.haydn_2.volume = 0;
-        audio.bach_1.volume = 0;
-        audio.bach_2.volume = 0;
-    } else {
-        options.music = true;
-        this.src = "ui/music-on.png"
-        audio.haydn_1.volume = 0.2;
-        audio.haydn_2.volume = 0.2;
-        audio.bach_1.volume = 0.3;
-        audio.bach_2.volume = 0.3;
-    }
-}
-id("audio").onclick = function () {
-    if (options.audio) {
-        options.audio = false;
-        this.src = "ui/sound-off.png";
-        for (let i = 0; i < voices.ghost.length; i++) {
-            voices.ghost[i].volume = 0;
-        }
-        audio.bounce1.volume = 0;
-        audio.bounce2.volume = 0;
-        audio.bounce3.volume = 0;
-        audio.bounce4.volume = 0;
-        audio.speed1.volume = 0;
-        audio.speed2.volume = 0;
-        audio.jump.volume = 0;
-        audio.dash.volume = 0;
-        audio.attack.volume = 0;
-        audio.hit.volume = 0;
-        audio.death.volume = 0;
-        audio.crystal.volume = 0;
-        audio.walking.volume = 0;
-        audio.ambient_1.volume = 0;
-        audio.ambient_2.volume = 0;
-
-    } else {
-        options.audio = true;
-        this.src = "ui/sound-on.png";
-        for (let i = 0; i < voices.ghost.length; i++) {
-            voices.ghost[i].volume = 0.4;
-        }
-        audio.bounce1.volume = 0.4;
-        audio.bounce2.volume = 0.4;
-        audio.bounce3.volume = 0.4;
-        audio.bounce4.volume = 0.4;
-        audio.speed1.volume = 0.8;
-        audio.speed2.volume = 0.5;
-        audio.jump.volume = 0.5;
-        audio.dash.volume = 0.3;
-        audio.attack.volume = 0.5;
-        audio.hit.volume = 0.5;
-        audio.death.volume = 0.5;
-        audio.crystal.volume = 1;
-        audio.walking.volume = 1;
-        audio.ambient_1.volume = 0.1;
-        audio.ambient_2.volume = 0.0;
-
-    }
-}
-//UI end
 var voices = {
     ghost: [
         new Audio("PixelSamurai/soundFxs/voices/ghost/1.mp3"),
@@ -3137,4 +3028,111 @@ function initializeMap() {
 }
 //UI
 
+if (mapTester) {
+    id("menu").style.visibility = "hidden";
+    canvas.style.visibility = "visible";
+    adaptBiome();
+    initializeMap();
+    requestAnimationFrame(loop);
+}
+if (!mapTester) {
+    id("newGame").onclick = function () {
+        eval(maps[0]);
+        adaptBiome();
+        initializeMap();
+        requestAnimationFrame(loop);
+        id("menu").style.visibility = "hidden";
+        id("controls").style.visibility = "visible";
+        canvas.style.visibility = "visible";
+    }
+    if (window.localStorage['LvL'] != null) {
+        id("continue").onclick = function () {
+            eval(maps[window.localStorage['LvL'] || 0]);
+            adaptBiome();
+            initializeMap();
+            requestAnimationFrame(loop);
+            id("menu").style.visibility = "hidden";
+            id("controls").style.visibility = "visible";
+            canvas.style.visibility = "visible";
+        }
+        id("continue").style.opacity = "1";
+    } else {
+        id("continue").style.opacity = "0.5";
+    };
+}
+id("ctrlButton").onclick = function () {
+    id("pause-screen").style.display = "none";
+    id("pause-screen").style.visibility = "hidden";
+    id("controls").style.visibility = "visible";
+    canvas.style.visibility = "visible";
+}
+var options = {
+    audio: true,
+    music: true,
+}
+id("music").onclick = function () {
+    if (options.music) {
+        options.music = false;
+        this.src = "ui/music-off.png";
+        audio.haydn_1.volume = 0;
+        audio.haydn_2.volume = 0;
+        audio.bach_1.volume = 0;
+        audio.bach_2.volume = 0;
+    } else {
+        options.music = true;
+        this.src = "ui/music-on.png"
+        audio.haydn_1.volume = 0.2;
+        audio.haydn_2.volume = 0.2;
+        audio.bach_1.volume = 0.3;
+        audio.bach_2.volume = 0.3;
+    }
+}
+id("audio").onclick = function () {
+    if (options.audio) {
+        options.audio = false;
+        this.src = "ui/sound-off.png";
+        for (let i = 0; i < voices.ghost.length; i++) {
+            voices.ghost[i].volume = 0;
+        }
+        audio.bounce1.volume = 0;
+        audio.bounce2.volume = 0;
+        audio.bounce3.volume = 0;
+        audio.bounce4.volume = 0;
+        audio.speed1.volume = 0;
+        audio.speed2.volume = 0;
+        audio.jump.volume = 0;
+        audio.dash.volume = 0;
+        audio.attack.volume = 0;
+        audio.hit.volume = 0;
+        audio.death.volume = 0;
+        audio.crystal.volume = 0;
+        audio.walking.volume = 0;
+        audio.ambient_1.volume = 0;
+        audio.ambient_2.volume = 0;
+
+    } else {
+        options.audio = true;
+        this.src = "ui/sound-on.png";
+        for (let i = 0; i < voices.ghost.length; i++) {
+            voices.ghost[i].volume = 0.4;
+        }
+        audio.bounce1.volume = 0.4;
+        audio.bounce2.volume = 0.4;
+        audio.bounce3.volume = 0.4;
+        audio.bounce4.volume = 0.4;
+        audio.speed1.volume = 0.8;
+        audio.speed2.volume = 0.5;
+        audio.jump.volume = 0.5;
+        audio.dash.volume = 0.3;
+        audio.attack.volume = 0.5;
+        audio.hit.volume = 0.5;
+        audio.death.volume = 0.5;
+        audio.crystal.volume = 1;
+        audio.walking.volume = 1;
+        audio.ambient_1.volume = 0.1;
+        audio.ambient_2.volume = 0.0;
+
+    }
+}
+//UI end
 //starts the program
