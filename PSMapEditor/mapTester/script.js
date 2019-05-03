@@ -225,12 +225,34 @@ var biomes = [{
 if (mapTester) {
     id("menu").style.visibility = "hidden";
     canvas.style.visibility = "visible";
-}
-id("play").onclick = function () {
+    adaptBiome();
+    initializeMap();
     requestAnimationFrame(loop);
-    id("menu").style.visibility = "hidden";
-    id("controls").style.visibility = "visible";
-    canvas.style.visibility = "visible";
+}
+if (!mapTester) {
+    id("newGame").onclick = function () {
+            eval(maps[0]);
+            adaptBiome();
+            initializeMap();
+            requestAnimationFrame(loop);
+        id("menu").style.visibility = "hidden";
+        id("controls").style.visibility = "visible";
+        canvas.style.visibility = "visible";
+    }
+    if (window.localStorage['LvL'] != null) {
+        id("continue").onclick = function () {
+            eval(maps[window.localStorage['LvL'] || 0]);
+            adaptBiome();
+            initializeMap();
+            requestAnimationFrame(loop);
+            id("menu").style.visibility = "hidden";
+            id("controls").style.visibility = "visible";
+            canvas.style.visibility = "visible";
+        }
+        id("continue").style.opacity = "1";
+    } else {
+        id("continue").style.opacity = "0.5";
+    };
 }
 id("ctrlButton").onclick = function () {
     id("pause-screen").style.display = "none";
@@ -1156,7 +1178,7 @@ class Portal {
                 blackScreen = this.load + 1;
                 if (this.load > 100) {
                     eval(maps[parseInt(this.place)])
-                    window.localStorage['level'] = parseInt(this.place);
+                    window.localStorage["LvL"] = parseInt(this.place);
                     adaptBiome();
                     initializeMap();
                     mapX = -player.x + (tilesWidth / 2 - 2) * ratio;
@@ -1626,32 +1648,32 @@ class Spikes extends SpecialTile {
             w: 1,
             h: 1
         };
-        switch(tiles[tile][1]){
+        switch (tiles[tile][1]) {
             case 5: //up
-                this.dmgHitbox.h=0.5;
-                
-                this.hitbox.h=0.5;
-                this.hitbox.y+=0.5;
+                this.dmgHitbox.h = 0.5;
+
+                this.hitbox.h = 0.5;
+                this.hitbox.y += 0.5;
                 break;
             case 6: //right
-                this.dmgHitbox.x+=0.5;
-                this.dmgHitbox.w=0.5;
-                
-                this.hitbox.w=0.5;
+                this.dmgHitbox.x += 0.5;
+                this.dmgHitbox.w = 0.5;
+
+                this.hitbox.w = 0.5;
                 break;
             case 7: //down
-                this.dmgHitbox.h=0.5;
-                this.dmgHitbox.y+=0.5;
-                
-                this.hitbox.h=0.5;
+                this.dmgHitbox.h = 0.5;
+                this.dmgHitbox.y += 0.5;
+
+                this.hitbox.h = 0.5;
                 break;
             case 8: //left
-                this.dmgHitbox.w=0.5;
-                
-                this.hitbox.w=0.5;
-                this.hitbox.x+=0.5;
+                this.dmgHitbox.w = 0.5;
+
+                this.hitbox.w = 0.5;
+                this.hitbox.x += 0.5;
                 break;
-                
+
         }
     }
     action(collider, colDir) {
@@ -1663,18 +1685,18 @@ class Spikes extends SpecialTile {
             case "t":
                 break;
         };
-        if (collided(this.dmgHitbox,collider)){
-                if (!collider.dead) {
-                    visualFxs.push(new DeathFx(collider.x / ratio, collider.y / ratio));
-                    audio.death.playy();
-                    collider.dead = true;
-                    setTimeout(function () {
-                        collider.respawnEvent();
-                    }, 1500);
-                }
-                if (collider.yVel < 0) {
-                    collider.yVel = 0;
-                }
+        if (collided(this.dmgHitbox, collider)) {
+            if (!collider.dead) {
+                visualFxs.push(new DeathFx(collider.x / ratio, collider.y / ratio));
+                audio.death.playy();
+                collider.dead = true;
+                setTimeout(function () {
+                    collider.respawnEvent();
+                }, 1500);
+            }
+            if (collider.yVel < 0) {
+                collider.yVel = 0;
+            }
         }
     }
 }
@@ -1725,8 +1747,8 @@ class TimedSpikes extends SpecialTile {
             this.sprite = this.active ? 1 : 3;
             this.frameCounter = 0;
             this.frame = 0;
-            if (options.audio == true&&!isOutOfScreen(this)) {
-                let volume = (15 - Math.abs(player.hitbox.x+player.hitbox.w/2 - this.x+this.w/2)) / 30;
+            if (options.audio == true && !isOutOfScreen(this)) {
+                let volume = (15 - Math.abs(player.hitbox.x + player.hitbox.w / 2 - this.x + this.w / 2)) / 30;
                 if (volume > 0) {
                     if (this.active) {
                         audio.spikes1.volume = volume;
@@ -1955,7 +1977,7 @@ function loop() {
     fps++;
     if (shake) {
         shake--;
-        mapY += shakeArr[shake]/20*ratio;
+        mapY += shakeArr[shake] / 20 * ratio;
     }
     paused = 0;
     c.clearRect(0, 0, canvas.width, canvas.height);
@@ -2169,7 +2191,7 @@ function adjustCollided(p) {
 
     }
     if (p.col.B) {
-        p.y -= (p.col.B+0.01) * ratio;
+        p.y -= (p.col.B + 0.01) * ratio;
         p.grounded = true;
         if (p.dashCd || p.dash) {
             p.dashCd = false;
@@ -2978,14 +3000,15 @@ function adaptBiome() {
         once: true
     });
 }
-var ghost={};
+var ghost = {};
+
 function initializeMap() {
     var spTiles = [];
     var removeList = [];
     specialTiles = [];
     bgTiles = [];
     visualFxs = [];
-    ghost=new GhostGirl(player.hitbox.x-4, player.hitbox.y-4);
+    ghost = new GhostGirl(player.hitbox.x - 4, player.hitbox.y - 4);
     visualFxs.push(ghost);
     monsters = [];
     for (let j = 0; j < biomes.length; j++) {
@@ -3113,11 +3136,5 @@ function initializeMap() {
     //TROLLING END
 }
 //UI
-if (!mapTester) {
-    eval(maps[window.localStorage['level'] || 0]);
-}
-adaptBiome();
-initializeMap();
 
-requestAnimationFrame(loop);
 //starts the program
