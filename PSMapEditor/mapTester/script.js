@@ -328,7 +328,7 @@ var player = {
                 //    monsters[i].yVel = -0.05 * ratio;
                 //}
                 if (monsters[i].hp <= 0) {
-                //    monsters[i].yVel = -0.15 * ratio;
+                    //    monsters[i].yVel = -0.15 * ratio;
                     monsters[i].frameCounter = 0;
                     monsters[i].frame = 0;
                 }
@@ -1541,28 +1541,60 @@ class Spikes extends SpecialTile {
         };
         switch (tiles[tile][1]) {
             case 5: //up
-                this.dmgHitbox.h = 0.5;
-
-                this.hitbox.h = 0.5;
-                this.hitbox.y += 0.5;
+                this.hitbox = {
+                    x: x,
+                    y: y + 0.6,
+                    w: 1,
+                    h: 0.4
+                };
+                this.dmgHitbox = {
+                    x: x+0.15,
+                    y: y,
+                    w: 0.7,
+                    h: 0.6
+                };
                 break;
             case 6: //right
-                this.dmgHitbox.x += 0.5;
-                this.dmgHitbox.w = 0.5;
-
-                this.hitbox.w = 0.5;
+                this.hitbox = {
+                    x: x,
+                    y: y,
+                    w: 0.4,
+                    h: 1
+                };
+                this.dmgHitbox = {
+                    x: x+0.4,
+                    y: y+0.15,
+                    w: 0.6,
+                    h: 0.7
+                };
                 break;
             case 7: //down
-                this.dmgHitbox.h = 0.5;
-                this.dmgHitbox.y += 0.5;
-
-                this.hitbox.h = 0.5;
+                this.hitbox = {
+                    x: x,
+                    y: y,
+                    w: 1,
+                    h: 0.4
+                };
+                this.dmgHitbox = {
+                    x: x+0.15,
+                    y: y+0.4,
+                    w: 0.7,
+                    h: 0.6
+                };
                 break;
             case 8: //left
-                this.dmgHitbox.w = 0.5;
-
-                this.hitbox.w = 0.5;
-                this.hitbox.x += 0.5;
+                this.hitbox = {
+                    x: x+0.6,
+                    y: y,
+                    w: 0.4,
+                    h: 1
+                };
+                this.dmgHitbox = {
+                    x: x,
+                    y: y+0.15,
+                    w: 0.6,
+                    h: 0.7
+                };
                 break;
 
         }
@@ -1952,7 +1984,7 @@ function moveCamera() {
     if (cameraType === 0) {
         var cameraDir = tilesWidth / 2 - 2;
     } else if (cameraType === 1) {
-        var cameraDir = player.left ? tilesWidth-3 : 2;
+        var cameraDir = player.left ? tilesWidth - 3 : 2;
     }
     //let cameraDir = player.left ? tilesWidth / 2 : tilesWidth / 6;
     if (mapX < -player.x + cameraDir * ratio) {
@@ -2114,7 +2146,7 @@ function calculateCharacter(p) {
         p.xVelExt = 0;
 
         p.attacking(p.hitbox);
-        if (Math.abs((p.dashIn - p.x+p.xVel) / ratio) > 3) {
+        if (Math.abs((p.dashIn - p.x + p.xVel) / ratio) > 3) {
             p.dash = false;
             p.xVel = 0;
         }
