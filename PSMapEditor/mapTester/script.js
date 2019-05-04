@@ -324,11 +324,11 @@ var player = {
                 monsters[i].hit = true;
                 monsters[i].hp -= DMG;
                 monsters[i].grounded = false;
-                if (monsters[i].type != "Dummy") {
-                    monsters[i].yVel = -0.05 * ratio;
-                }
+                //if (monsters[i].type != "Dummy") {
+                //    monsters[i].yVel = -0.05 * ratio;
+                //}
                 if (monsters[i].hp <= 0) {
-                    monsters[i].yVel = -0.15 * ratio;
+                //    monsters[i].yVel = -0.15 * ratio;
                     monsters[i].frameCounter = 0;
                     monsters[i].frame = 0;
                 }
@@ -350,7 +350,7 @@ var player = {
             audio.dash.playy();
             this.dashCd = true;
             this.dash = true;
-            this.dashIn = this.x / ratio;
+            this.dashIn = this.x;
         }
 
     },
@@ -2114,7 +2114,7 @@ function calculateCharacter(p) {
         p.xVelExt = 0;
 
         p.attacking(p.hitbox);
-        if (Math.abs(p.dashIn - p.x / ratio) > 4) {
+        if (Math.abs((p.dashIn - p.x+p.xVel) / ratio) > 3) {
             p.dash = false;
             p.xVel = 0;
         }
