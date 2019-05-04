@@ -85,25 +85,7 @@ body {
     position:absolute;
     width:100%;
     height:100%;
-    opacity:0.8;
     z-index:200;
-}
-#controls{
-    visibility:hidden;
-}
-#bouncy{
-    visibility:hidden;
-    opacity:0.95;
-}
-#crystals{
-    visibility:hidden;
-    opacity:0.95;
-}
-#speeders{
-    visibility:hidden;
-    opacity:0.95;
-}
-#spikes{
     visibility:hidden;
     opacity:0.95;
 }

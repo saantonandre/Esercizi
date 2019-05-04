@@ -1952,7 +1952,7 @@ function moveCamera() {
     if (cameraType === 0) {
         var cameraDir = tilesWidth / 2 - 2;
     } else if (cameraType === 1) {
-        var cameraDir = player.left ? tilesWidth / 2 : tilesWidth / 6;
+        var cameraDir = player.left ? tilesWidth-3 : 2;
     }
     //let cameraDir = player.left ? tilesWidth / 2 : tilesWidth / 6;
     if (mapX < -player.x + cameraDir * ratio) {
