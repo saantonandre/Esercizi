@@ -19,7 +19,7 @@ if (window.opener) {
 var tileSize = 16;
 var tilesWidth = 20;
 var tilesHeight = 15;
-
+var currentLevel = 0;
 // Pixel perfection
 var biggestPossible = 1;
 var ratioWidth = Math.floor(window.innerWidth / (tileSize * tilesWidth));
@@ -159,12 +159,17 @@ var audio = {
     hit: new Audio("PixelSamurai/soundFxs/sword-hit.mp3"),
     ambient_1: new Audio("PixelSamurai/soundFxs/ambient/outside.mp3"),
     ambient_2: new Audio("PixelSamurai/soundFxs/ambient/castle.mp3"),
-    haydn_1: new Audio("PixelSamurai/soundFxs/music/Haydn-1.mp3"),
-    haydn_2: new Audio("PixelSamurai/soundFxs/music/Haydn-2.mp3"),
-    bach_1: new Audio("PixelSamurai/soundFxs/music/Bach-1.mp3"),
-    bach_2: new Audio("PixelSamurai/soundFxs/music/Bach-2.mp3"),
     spikes1: new Audio("PixelSamurai/soundFxs/spikes1.mp3"),
     spikes2: new Audio("PixelSamurai/soundFxs/spikes2.mp3"),
+    haydn_1: new Audio("PixelSamurai/soundFxs/music/Haydn-1.mp3"),
+    haydn_2: new Audio("PixelSamurai/soundFxs/music/Haydn-2.mp3"),
+    bach_3: new Audio("PixelSamurai/soundFxs/music/Bach-1.mp3"),
+    bach_2: new Audio("PixelSamurai/soundFxs/music/Bach-2.mp3"),
+    bach_1: new Audio("PixelSamurai/soundFxs/music/Bach-3.mp3"),
+    bach_4: new Audio("PixelSamurai/soundFxs/music/Bach-4.mp3"),
+    bach_5: new Audio("PixelSamurai/soundFxs/music/Bach-5.mp3"),
+    bach_6: new Audio("PixelSamurai/soundFxs/music/Bach-6.mp3"),
+    bach_7: new Audio("PixelSamurai/soundFxs/music/Bach-7.mp3"),
 }
 
 audio.walking.playbackRate = 1.4;
@@ -195,6 +200,11 @@ audio.haydn_1.volume = 0.2;
 audio.haydn_2.volume = 0.2;
 audio.bach_1.volume = 0.3;
 audio.bach_2.volume = 0.3;
+audio.bach_3.volume = 0.3;
+audio.bach_4.volume = 0.3;
+audio.bach_5.volume = 0.3;
+audio.bach_6.volume = 0.3;
+audio.bach_7.volume = 0.3;
 
 
 var biomes = [{
@@ -215,7 +225,7 @@ var biomes = [{
 }, {
     background: false,
     ambient: audio.ambient_2,
-    music: [audio.bach_1, audio.bach_2],
+    music: [audio.bach_1, audio.bach_2, audio.bach_3, audio.bach_4, audio.bach_5, audio.bach_6, audio.bach_7],
     bgColor: "#222034",
     other: function () {}
 }]
@@ -1070,6 +1080,7 @@ class Portal {
                 if (this.load > 100) {
                     eval(maps[parseInt(this.place)])
                     window.localStorage["LvL"] = parseInt(this.place);
+                    currentLevel++;
                     adaptBiome();
                     initializeMap();
                     mapX = -player.x + (tilesWidth / 2 - 2) * ratio;
@@ -1550,7 +1561,7 @@ class Spikes extends SpecialTile {
                     h: 0.4
                 };
                 this.dmgHitbox = {
-                    x: x+0.15,
+                    x: x + 0.15,
                     y: y,
                     w: 0.7,
                     h: 0.6
@@ -1564,8 +1575,8 @@ class Spikes extends SpecialTile {
                     h: 1
                 };
                 this.dmgHitbox = {
-                    x: x+0.4,
-                    y: y+0.15,
+                    x: x + 0.4,
+                    y: y + 0.15,
                     w: 0.6,
                     h: 0.7
                 };
@@ -1578,22 +1589,22 @@ class Spikes extends SpecialTile {
                     h: 0.4
                 };
                 this.dmgHitbox = {
-                    x: x+0.15,
-                    y: y+0.4,
+                    x: x + 0.15,
+                    y: y + 0.4,
                     w: 0.7,
                     h: 0.6
                 };
                 break;
             case 8: //left
                 this.hitbox = {
-                    x: x+0.6,
+                    x: x + 0.6,
                     y: y,
                     w: 0.4,
                     h: 1
                 };
                 this.dmgHitbox = {
                     x: x,
-                    y: y+0.15,
+                    y: y + 0.15,
                     w: 0.6,
                     h: 0.7
                 };
@@ -2815,7 +2826,7 @@ window.addEventListener("keydown", function (event) {
                 player.attackEvent();
                 break;
             case 67: //camera key (C)
-                    cameraType = 1;
+                cameraType = 1;
                 break;
             case 69: //dance key (E)
                 player.dance = true;
@@ -2871,9 +2882,9 @@ window.addEventListener("keyup", function (event) {
         case 37:
             player.L = false;
             break;
-            case 67: //camera key (C)
-                    cameraType = 0;
-                break;
+        case 67: //camera key (C)
+            cameraType = 0;
+            break;
         case 68: //right key up (D / right arrow)
         case 39:
             player.R = false;
@@ -2909,17 +2920,22 @@ function adaptBiome() {
     function playMusic() {};
     audio.walking.removeEventListener("play", playMusic);
     audio.walking.addEventListener("play", function playMusic() {
-        biomes[biome].ambient.play();
-        biomes[biome].music[Math.floor(Math.random() * biomes[biome].music.length)].play();
-        for (let i = 0; i < biomes[biome].music.length; i++) {
-            var next = ++i;
-            if (next >= biomes[biome].music.length) {
-                next = 0;
+        if (!(currentLevel % 2)) {
+            biomes[biome].ambient.play();
+            pickSong=(currentLevel/2|0)>biomes[biome].music.length?(Math.random()*biomes[biome].music.length)|0 :currentLevel/2|0;
+            biomes[biome].music[pickSong].play();
+            biomes[biome].music[pickSong].loop=true;
+            /*
+            for (let i = 0; i < biomes[biome].music.length; i++) {
+                var next = i + 1;
+                if (next >= biomes[biome].music.length) {
+                    next = 0;
+                }
+                biomes[biome].music[i].addEventListener('ended', function () {
+                    biomes[biome].music[next].play();
+                })
             }
-            biomes[biome].music[i].addEventListener('ended', function () {
-                biomes[biome].music[next].play();
-            })
-
+            */
         }
     }, {
         once: true
@@ -2941,9 +2957,11 @@ function initializeMap() {
             biomes[j].ambient.pause();
             biomes[j].ambient.currentTime = 0;
         }
-        for (let i = 0; i < biomes[j].music.length; i++) {
-            biomes[j].music[i].pause();
-            biomes[j].music[i].currentTime = 0;
+        if (!(currentLevel % 2)) {
+            for (let i = 0; i < biomes[j].music.length; i++) {
+                biomes[j].music[i].pause();
+                biomes[j].music[i].currentTime = 0;
+            }
         }
     }
     for (let i = map.length - 1; i >= 0; i--) {
@@ -3082,6 +3100,7 @@ if (!mapTester) {
     if (window.localStorage['LvL'] != null) {
         id("continue").onclick = function () {
             eval(maps[window.localStorage['LvL'] || 0]);
+            currentLevel=window.localStorage['LvL'];
             adaptBiome();
             initializeMap();
             requestAnimationFrame(loop);
