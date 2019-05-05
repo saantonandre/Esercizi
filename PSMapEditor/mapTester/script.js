@@ -1119,6 +1119,7 @@ class Book {
                     this.frame = 0;
                     this.frameCounter = 0;
                     this.sprite = 1;
+                    this.slowness = 3;
                 }
                 break;
             case 1:
@@ -1126,6 +1127,7 @@ class Book {
                     this.frame = 0;
                     this.frameCounter = 0;
                     this.sprite = 2;
+                    this.slowness = 6;
                 }
                 break;
             case 2:
@@ -2186,7 +2188,7 @@ function calculateCharacter(p) {
     p.x += p.xVelExt;
     p.y += p.yVelExt;
     if (p.xVelExt !== 0 && p.grounded) {
-        p.xVelExt *= 0.8;
+        p.xVelExt *= 0.65;
     } else if (p.xVelExt !== 0) {
         if (p.xVelExt > 0.05) {
             p.xVelExt -= 0.05;
@@ -2813,10 +2815,7 @@ window.addEventListener("keydown", function (event) {
                 player.attackEvent();
                 break;
             case 67: //camera key (C)
-                cameraType++;
-                if (cameraType > 1) {
-                    cameraType = 0;
-                }
+                    cameraType = 1;
                 break;
             case 69: //dance key (E)
                 player.dance = true;
@@ -2872,6 +2871,9 @@ window.addEventListener("keyup", function (event) {
         case 37:
             player.L = false;
             break;
+            case 67: //camera key (C)
+                    cameraType = 0;
+                break;
         case 68: //right key up (D / right arrow)
         case 39:
             player.R = false;

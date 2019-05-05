@@ -41,7 +41,15 @@ body {
     margin-left: 8%;
     color: white;
 }
-
+#version{
+    display: inline-block;
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    position: absolute;
+    right:5px;
+    bottom:5px;
+    color:white
+}
 .button {
     border: 3px solid transparent;
     padding: 3px;
