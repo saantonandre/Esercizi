@@ -58,6 +58,7 @@ var tiles = [
         [7, 14], // book
         [15, 5], [15, 9], // trap on/off
         [8, 13], // stone pile
+        [5, 17], // dialogue
 
     ]
 var spawnPoint = {

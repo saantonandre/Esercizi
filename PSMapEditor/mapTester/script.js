@@ -137,6 +137,7 @@ var tiles = [
         [7, 14], // book
         [15, 5], [15, 9], // trap on/off
         [8, 13], // stone pile
+        [5, 17], // dialogue
     ]
 
 setInterval(function () {
@@ -787,7 +788,7 @@ class DialogueText {
         this.color = "white";
         this.lifeSpan = 0;
         this.color2 = "black";
-        this.wait = 4;
+        this.wait = 3;
         this.waitCounter = 0;
         this.destroy = (destroy !== undefined) ? destroy : true;
         this.kill = false;
@@ -818,7 +819,14 @@ class DialogueText {
         } else {
             if (this.voice.paused) {
                 this.voice = voices.ghost[(Math.random() * voices.ghost.length) | 0];
-                this.voice.playy();
+                let volume = (15 - Math.abs(player.hitbox.x + player.hitbox.w / 2 - (this.x/ratio+0.5))) / 30;
+                
+                if (volume > 0) {
+                    volume = volume.toFixed(3);
+                    console.log(volume)
+                    this.voice.volume = volume;
+                    this.voice.playy();
+                }
             }
             this.waitCounter++;
             if (this.waitCounter >= this.wait) {
@@ -828,6 +836,7 @@ class DialogueText {
             }
         }
         if (this.kill === true) {
+            this.speaker.talking = false;
             textsRemoveList.push(i);
         }
     }
@@ -1185,6 +1194,7 @@ class GhostGirl {
         this.sheet = id("sheet");
         this.repeat = true;
         this.frameCounter = 0;
+        this.talking = false;
         this.slowness = 6;
         this.frame = 0;
         this.type = "ghostgirl";
@@ -1194,62 +1204,15 @@ class GhostGirl {
             w: [1, 1, 1, 1, 1, 1, 1],
             h: [1, 1, 1, 1, 1, 1, 1],
         };
-        this.events = [
-            {
-                fired: false,
-                text: "goin for a walk?",
-                point: {
-                    x: 17.5,
-                    y: 7.5
-                }
-                },
-            {
-                fired: false,
-                text: "guess I'll have to escort you",
-                point: {
-                    x: 50.5,
-                    y: 8.5
-                }
-                },
-            {
-                fired: false,
-                text: "just some magical yoga balls",
-                point: {
-                    x: 23.5,
-                    y: 20.5
-                }
-                },
-            {
-                fired: false,
-                text: "you could dash against this ball... just saying",
-                point: {
-                    x: 10.5,
-                    y: 29.5
-                }
-                },
-            {
-                fired: false,
-                text: "weee!",
-                point: {
-                    x: 34.5,
-                    y: 36.5
-                }
-                },
-            {
-                fired: false,
-                text: "this is a mana crystal, I believe it could reset your dash",
-                point: {
-                    x: 14.5,
-                    y: 34.5
-                }
-                },
-            ];
+        this.events = [];
     }
     action() {
-        for (let i = 0; i < this.events.length; i++) {
-            if (pointSquareCol(this.events[i].point, player.hitbox) && this.events[i].fired === false) {
-                this.events[i].fired = true;
+        for (let i = this.events.length - 1; i >= 0; i--) {
+            if (!this.talking && collided(this.events[i], player.hitbox)) {
+                this.talking = true;
                 this.talk(this.events[i].text);
+                this.events.splice(i, 1);
+                console.log(this.events.length)
             }
         }
         if (this.x + this.w < player.x - 1) {
@@ -1260,7 +1223,10 @@ class GhostGirl {
                 }
                 this.sprite = 2;
                 if (voices.ghost[1].paused) {
-                    voices.ghost[1].play();
+                    let volume = (15 - Math.abs(player.hitbox.x + player.hitbox.w / 2 - this.x + this.w / 2)) / 30;
+                    if (volume > 0) {
+                        voices.ghost[1].play();
+                    }
                 }
             } else {
                 this.sprite = 0;
@@ -1276,7 +1242,10 @@ class GhostGirl {
                 }
                 this.sprite = 3;
                 if (voices.ghost[1].paused) {
-                    voices.ghost[1].play();
+                    let volume = (15 - Math.abs(player.hitbox.x + player.hitbox.w / 2 - this.x + this.w / 2)) / 30;
+                    if (volume > 0) {
+                        voices.ghost[1].play();
+                    }
                 }
             } else {
                 this.sprite = 1;
@@ -2922,9 +2891,9 @@ function adaptBiome() {
     audio.walking.addEventListener("play", function playMusic() {
         if (!(currentLevel % 2)) {
             biomes[biome].ambient.play();
-            pickSong=(currentLevel/2|0)>biomes[biome].music.length?(Math.random()*biomes[biome].music.length)|0 :currentLevel/2|0;
+            pickSong = (currentLevel / 2 | 0) > biomes[biome].music.length ? (Math.random() * biomes[biome].music.length) | 0 : currentLevel / 2 | 0;
             biomes[biome].music[pickSong].play();
-            biomes[biome].music[pickSong].loop=true;
+            biomes[biome].music[pickSong].loop = true;
             /*
             for (let i = 0; i < biomes[biome].music.length; i++) {
                 var next = i + 1;
@@ -2984,6 +2953,7 @@ function initializeMap() {
             case 66:
             case 67:
             case 68:
+            case 70:
                 spTiles.push(i);
                 removeList.push(i);
                 break;
@@ -3048,14 +3018,19 @@ function initializeMap() {
                     case 66: // book
                         visualFxs.push(new Book(map[spTiles[i]].x + k, map[spTiles[i]].y + j, map[spTiles[i]].text));
                         break;
-                    case 67: // spikes
+                    case 67: // timedSpikes
                         specialTiles.push(new TimedSpikes(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 0, parseInt(map[spTiles[i]].text)));
                         break;
-                    case 68: // spikes
+                    case 68: // timedSpikes
                         specialTiles.push(new TimedSpikes(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 1, parseInt(map[spTiles[i]].text)));
                         break;
                 }
             }
+        }
+        switch (map[spTiles[i]].type) {
+            case 70: // dialogue
+                ghost.events.push(map[spTiles[i]]);
+                break;
         }
     }
     for (let i = 0; i < removeList.length; i++) {
@@ -3079,7 +3054,9 @@ function initializeMap() {
     //TROLLING END
 }
 //UI
-
+window.onresize=function(){
+    location.reload();
+}
 if (mapTester) {
     id("menu").style.visibility = "hidden";
     canvas.style.visibility = "visible";
@@ -3100,7 +3077,7 @@ if (!mapTester) {
     if (window.localStorage['LvL'] != null) {
         id("continue").onclick = function () {
             eval(maps[window.localStorage['LvL'] || 0]);
-            currentLevel=window.localStorage['LvL'];
+            currentLevel = window.localStorage['LvL'];
             adaptBiome();
             initializeMap();
             requestAnimationFrame(loop);
