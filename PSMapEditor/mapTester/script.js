@@ -20,6 +20,8 @@ var tileSize = 16;
 var tilesWidth = 20;
 var tilesHeight = 15;
 var currentLevel = 0;
+var ghostBtn = id("ghost");
+var ghostSpeech = false;
 // Pixel perfection
 var biggestPossible = 1;
 var ratioWidth = Math.floor(window.innerWidth / (tileSize * tilesWidth));
@@ -819,8 +821,8 @@ class DialogueText {
         } else {
             if (this.voice.paused) {
                 this.voice = voices.ghost[(Math.random() * voices.ghost.length) | 0];
-                let volume = (15 - Math.abs(player.hitbox.x + player.hitbox.w / 2 - (this.x/ratio+0.5))) / 30;
-                
+                let volume = (15 - Math.abs(player.hitbox.x + player.hitbox.w / 2 - (this.x / ratio + 0.5))) / 30;
+
                 if (volume > 0) {
                     volume = volume.toFixed(3);
                     console.log(volume)
@@ -1207,12 +1209,14 @@ class GhostGirl {
         this.events = [];
     }
     action() {
-        for (let i = this.events.length - 1; i >= 0; i--) {
-            if (!this.talking && collided(this.events[i], player.hitbox)) {
-                this.talking = true;
-                this.talk(this.events[i].text);
-                this.events.splice(i, 1);
-                console.log(this.events.length)
+        if (ghostSpeech) {
+            for (let i = this.events.length - 1; i >= 0; i--) {
+                if (!this.talking && collided(this.events[i], player.hitbox)) {
+                    this.talking = true;
+                    this.talk(this.events[i].text);
+                    this.events.splice(i, 1);
+                    console.log(this.events.length)
+                }
             }
         }
         if (this.x + this.w < player.x - 1) {
@@ -3054,7 +3058,7 @@ function initializeMap() {
     //TROLLING END
 }
 //UI
-window.onresize=function(){
+window.onresize = function () {
     location.reload();
 }
 if (mapTester) {
@@ -3073,6 +3077,14 @@ if (!mapTester) {
         id("menu").style.visibility = "hidden";
         id("controls").style.visibility = "visible";
         canvas.style.visibility = "visible";
+    }
+    id("ghost").onclick = function () {
+        if (ghostSpeech) {
+            id("ghost").innerHTML = "ENABLE ghost's speech";
+        } else {
+            id("ghost").innerHTML = "DISABLE ghost's speech";
+        }
+        ghostSpeech = !ghostSpeech;
     }
     if (window.localStorage['LvL'] != null) {
         id("continue").onclick = function () {
