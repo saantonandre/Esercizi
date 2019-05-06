@@ -1245,7 +1245,7 @@ class GhostGirl {
                 }
                 this.sprite = 3;
                 if (voices.ghost[1].paused) {
-                    let volume = (15 - Math.abs(player.hitbox.x + player.hitbox.w / 2 - this.x + this.w / 2)) / 30;
+                    let volume = (15 - Math.abs(player.hitbox.x + player.hitbox.w / 2 - this.x / ratio + this.w / ratio / 2)) / 30;
                     if (volume > 0) {
                         voices.ghost[1].play();
                     }
