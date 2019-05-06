@@ -3068,6 +3068,7 @@ window.onresize = function () {
 if (mapTester) {
     id("menu").style.visibility = "hidden";
     canvas.style.visibility = "visible";
+    ghostSpeech=true;
     adaptBiome();
     initializeMap();
     requestAnimationFrame(loop);
