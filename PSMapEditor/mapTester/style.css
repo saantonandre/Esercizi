@@ -34,12 +34,15 @@ body {
 #buttons {
     display: inline-block;
     font-family: 'VT323', monospace;
-    font-size: 40px;
+    font-size: 16px;
     position: absolute;
     text-align: left;
     margin-top: 25%;
-    margin-left: 8%;
+    margin-left: 1%;
     color: white;
+}
+#ghost {
+    opacity:0.5;
 }
 #version{
     display: inline-block;

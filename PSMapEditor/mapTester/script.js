@@ -36,7 +36,6 @@ if (biggestPossible < 1) {
 }
 canvas.width = tileSize * tilesWidth * biggestPossible;
 canvas.height = tileSize * tilesHeight * biggestPossible;
-
 //UI
 id("menu").style.width = canvas.width + "px";
 id("menu").style.height = canvas.height + "px";
@@ -1227,7 +1226,7 @@ class GhostGirl {
                 }
                 this.sprite = 2;
                 if (voices.ghost[1].paused) {
-                    let volume = (15 - Math.abs(player.hitbox.x + player.hitbox.w / 2 - this.x + this.w / 2)) / 30;
+                    let volume = (15 - Math.abs(player.hitbox.x + player.hitbox.w / 2 - this.x / ratio + this.w / ratio / 2)) / 30;
                     if (volume > 0) {
                         voices.ghost[1].play();
                     }
@@ -3059,7 +3058,12 @@ function initializeMap() {
 }
 //UI
 window.onresize = function () {
-    location.reload();
+    if (window.innerWidth >= canvas.width * 2 && window.innerHeight >= canvas.height * 2) {
+        location.reload();
+    }
+    if (canvas.width>320 && (window.innerWidth < canvas.width || window.innerHeight < canvas.height)) {
+        location.reload();
+    }
 }
 if (mapTester) {
     id("menu").style.visibility = "hidden";
@@ -3069,6 +3073,10 @@ if (mapTester) {
     requestAnimationFrame(loop);
 }
 if (!mapTester) {
+    let buttons = document.getElementsByClassName("button");
+    for (let i = 0; i < buttons.length; i++) {
+        buttons[i].style.fontSize = (canvas.width / 20 | 0) + "px";
+    }
     id("newGame").onclick = function () {
         eval(maps[0]);
         adaptBiome();
@@ -3080,9 +3088,11 @@ if (!mapTester) {
     }
     id("ghost").onclick = function () {
         if (ghostSpeech) {
-            id("ghost").innerHTML = "ENABLE ghost's speech";
+            id("ghost").innerHTML = "GHOST's speech(OFF)";
+            id("ghost").style.opacity = "0.5";
         } else {
-            id("ghost").innerHTML = "DISABLE ghost's speech";
+            id("ghost").innerHTML = "GHOST's speech(ON)";
+            id("ghost").style.opacity = "1";
         }
         ghostSpeech = !ghostSpeech;
     }
