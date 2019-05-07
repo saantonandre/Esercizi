@@ -36,6 +36,7 @@ if (biggestPossible < 1) {
 }
 canvas.width = tileSize * tilesWidth * biggestPossible;
 canvas.height = tileSize * tilesHeight * biggestPossible;
+var ratio = canvas.width / (tilesWidth);
 //UI
 id("menu").style.width = canvas.width + "px";
 id("menu").style.height = canvas.height + "px";
@@ -98,9 +99,6 @@ var bgColor = "#0099dd";
 var mapHeight = 0;
 var mapWidth = 0;
 //Canvas-related variables
-var ratio = canvas.width / (tilesWidth);
-var textSize = Math.round(0.3 * ratio);
-var fontSize = textSize + "px";
 var paused = 1;
 var fps = false;
 var gForce = 0.016;
@@ -348,7 +346,6 @@ class Player {
                 monsters[i].action = 4;
                 monsters[i].hit = true;
                 monsters[i].hp -= DMG;
-                monsters[i].grounded = false;
                 if (monsters[i].hp <= 0) {
                     monsters[i].frameCounter = 0;
                     monsters[i].frame = 0;
@@ -427,8 +424,8 @@ class Player {
         }
         if (!this.dash) {
             if (this.L && !this.col.L && !this.R) {
-                if (this.xVel>0){
-                    this.xVel=0;
+                if (this.xVel > 0) {
+                    this.xVel = 0;
                 }
                 if (this.xVelExt > 0 && !this.grounded) {
                     this.xVelExt -= this.speed / 10;
@@ -439,8 +436,8 @@ class Player {
                 }
                 this.left = true;
             } else if (this.R && !this.col.R && !this.L) {
-                if (this.xVel<0){
-                    this.xVel=0;
+                if (this.xVel < 0) {
+                    this.xVel = 0;
                 }
                 if (this.xVelExt < 0 && !this.grounded) {
                     this.xVelExt += this.speed / 10;
@@ -1171,8 +1168,8 @@ class Superzombie extends Zombie {
 // Texts & Dialogues
 class DmgText {
     constructor(m, text) {
-        this.x = m.x + m.w / 2 + Math.floor(Math.random() * 16 - 8);
-        this.y = m.y - 5 + Math.floor(Math.random() * 16 - 8);
+        this.x = m.x + m.w / 2 + Math.random() * 0.5 - 0.25;
+        this.y = m.y + Math.random() * 0.5 - 0.25;
         this.text = text;
         this.size = 0.4;
         this.color = "#ac3232";
@@ -1180,13 +1177,13 @@ class DmgText {
         this.color2 = "black"
     }
     draw(i) {
-        c.font = Math.round(this.size) + "px" + " 'Press Start 2P'";
+        c.font = Math.round(this.size * ratio) + "px" + " 'Press Start 2P'";
         this.size /= 1.01;
         c.fillStyle = this.color2;
-        c.fillText(this.text, (this.x + mapX) * ratio + Math.round(textSize / 10), (this.y + 10 + Math.round(this.size / 10) + mapY) * ratio);
+        c.fillText(this.text, (this.x + mapX) * ratio, (this.y + mapY) * ratio);
         c.fillStyle = this.color;
-        c.fillText(this.text, (this.x + mapX) * ratio, (this.y + 10 + mapY) * ratio);
-        this.y -= 0.3;
+        c.fillText(this.text, (this.x + mapX) * ratio, (this.y + mapY) * ratio);
+        this.y -= 0.015;
         this.lifeSpan--;
         if (this.lifeSpan <= 0) {
             textsRemoveList.push(i);
@@ -1215,22 +1212,17 @@ class DialogueText {
     draw(i) {
         this.x = this.speaker.x + (this.speaker.w / 2);
         this.y = this.speaker.y - this.size;
-        c.font = Math.round(this.size) + "px" + " 'VT323'";
-        /*
-        if (this.size > this.sizeI / 1.5) {
-            this.size /= 1.01;
-        }
-        */
+        c.font = Math.round(this.size * ratio) + "px" + " 'VT323'";
         c.fillStyle = this.color2;
         c.fillText(
             this.text,
             (this.x + Math.round(this.size / 10) + mapX) * ratio,
-            (this.y + 10 + Math.round(this.size / 10) + mapY) * ratio);
+            (this.y + Math.round(this.size / 10) + mapY) * ratio);
         c.fillStyle = this.color;
         c.fillText(
             this.text,
             (this.x + mapX) * ratio,
-            (this.y + 10 + mapY) * ratio);
+            (this.y + mapY) * ratio);
         if (this.lifeSpan >= this.wholeText.length) {
             this.ongoing = false;
             if (this.destroy) {
@@ -1760,7 +1752,7 @@ function drawFxs(fx) {
     if (fx.rotation > 0) {
         fxY -= fxH / 2;
         c.save();
-        c.translate(fxX, fxY);
+        c.translate(fxX * ratio, fxY * ratio);
         c.rotate(fx.rotation * Math.PI / 180);
         c.drawImage(
             fx.sheet,
@@ -2278,7 +2270,6 @@ function renderHpBars() {
 function renderTexts() {
     textsRemoveList = [];
     c.textAlign = "center";
-    c.font = fontSize + " 'Press Start 2P'";
     for (let i = 0; i < texts.length; i++) {
         texts[i].draw();
     }
@@ -2706,7 +2697,6 @@ function colCheck(shapeA, shapeB) {
                 }
                 if (shapeB.xVel) {
                     shapeA.xVelExt = shapeB.xVel;
-                    shapeA.yVelExt = shapeB.yVel;
                 }
             }
         } else {

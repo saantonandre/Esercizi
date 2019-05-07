@@ -2,7 +2,7 @@ body {
     text-align: center;
     padding: 0;
     margin: 0;
-    background-color: #45283c;
+    background-color: black;
     touch-action: none;
     user-select: none;
     cursor: url('ui/cursor2.png'), auto;
@@ -22,15 +22,22 @@ body {
 }
 
 #menu {
-    margin:0;
-    padding:0;
-    border:0;
-    position:relative;
-    display: inline-block;
+    margin: 0;
+    padding: 0;
+    border: 0;
     background-image: url(start-screen2.gif);
-    background-size:contain;
+    background-size: contain;
     z-index: 200;
+    top: 50%;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
 }
+
 #buttons {
     display: inline-block;
     font-family: 'VT323', monospace;
@@ -41,18 +48,21 @@ body {
     margin-left: 1%;
     color: white;
 }
+
 #ghost {
-    opacity:0.5;
+    opacity: 0.5;
 }
-#version{
+
+#version {
     display: inline-block;
     font-family: 'VT323', monospace;
     font-size: 20px;
     position: absolute;
-    right:5px;
-    bottom:5px;
-    color:white
+    right: 5px;
+    bottom: 5px;
+    color: white
 }
+
 .button {
     border: 3px solid transparent;
     padding: 3px;
@@ -63,46 +73,54 @@ body {
 }
 
 #canvas {
-    margin:0;
-    padding:0;
-    border:0;
+    margin: 0;
+    padding: 0;
+    border: 0;
     z-index: 100;
-    visibility:hidden;
+    visibility: hidden;
 }
-#pause-screen{
-    position:absolute;
-    width:100%;
-    height:100%;
+
+#pause-screen {
+    position: absolute;
+    width: 100%;
+    height: 100%;
     background-color: black;
-    opacity:0.6;
-    z-index:200;
-    display:none;
+    opacity: 0.6;
+    z-index: 200;
+    display: none;
 }
-#options{
-    margin-top:10%;
+
+#options {
+    margin-top: 10%;
 }
-.icons{
-    width:15%;
-    margin-right:2%
+
+.icons {
+    width: 15%;
+    margin-right: 2%
 }
-.icons:hover,#ctrlButton:hover {
+
+.icons:hover,
+#ctrlButton:hover {
     border: 3px solid white;
 }
-#pause-icon{
-    width:20%;
-    margin-top:5%;
+
+#pause-icon {
+    width: 20%;
+    margin-top: 5%;
 }
-.tutorials{
-    position:absolute;
-    width:100%;
-    height:100%;
-    z-index:200;
-    visibility:hidden;
-    opacity:0.95;
+
+.tutorials {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 200;
+    visibility: hidden;
+    opacity: 0.95;
 }
-#ctrlButton{
-    margin-top:5%;
+
+#ctrlButton {
+    margin-top: 5%;
     font-family: 'VT323', monospace;
     font-size: 50px;
-    color:white;
+    color: white;
 }
