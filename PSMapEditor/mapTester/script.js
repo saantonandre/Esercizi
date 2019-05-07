@@ -267,6 +267,8 @@ var player = {
     precision: 100,
     lastTile: spawnPoint,
     frameCounter: 0,
+    jumpTransition: true,
+    goingDown: false,
     frame: 0,
     hitbox: {
         x: 0,
@@ -275,6 +277,12 @@ var player = {
         h: 0
     },
     atkHitbox: {
+        x: 0,
+        y: 0,
+        w: 0,
+        h: 0
+    },
+    dmgHitbox: {
         x: 0,
         y: 0,
         w: 0,
@@ -293,8 +301,10 @@ var player = {
         w: 1,
         h: 1,
     },
-    actionX: [[0], [1], [0, 0, 0, 0], [1, 1, 1, 1], [6], [6], [2, 2, 2, 2], [5, 5, 5, 5], [11, 11, 11, 12, 12, 12]],
-    actionY: [[0], [0], [0, 1, 2, 3], [0, 1, 2, 3], [1], [3], [0, 1, 2, 3], [0, 1, 2, 3], [12, 13, 14, 12, 13, 14]],
+    actionX: [[0], [1], [0, 0, 0, 0], [1, 1, 1, 1], [6], [6], [2, 2, 2, 2], [5, 5, 5, 5], [11, 11, 11, 12, 12, 12],
+               [9], [12], [9, 10], [11, 12], [9], [12], [9, 10], [11, 12], [10], [10]], //9-jump
+    actionY: [[0], [0], [0, 1, 2, 3], [0, 1, 2, 3], [1], [3], [0, 1, 2, 3], [0, 1, 2, 3], [12, 13, 14, 12, 13, 14],
+              [15, 15, 15], [15], [16, 16], [16, 16], [17, 17, 17], [17], [18, 18], [18, 18], [15], [17]],
     action: 0,
     attack: 0,
     dash: false,
@@ -303,11 +313,12 @@ var player = {
     attackDMG: 7,
     dance: false,
     jumping: false,
-    jumpMaxReached: false,
     jumpCounter: 10,
+    slowness: 6,
     jump: function () {
         if (this.grounded && !this.dead) {
             audio.jump.playy();
+            this.frame = 0;
             this.jumping = true;
             this.grounded = false;
             this.dashCd = false;
@@ -983,7 +994,7 @@ class Crystal {
                     setTimeout(function () {
                         that.sprite = 0;
                         that.slowness = 10;
-                    }, 3000)
+                    }, 1500)
                 }
             }
         }
@@ -1408,8 +1419,8 @@ class Bouncy extends SpecialTile {
     }
     action(collider, colDir) {
         this.running = true;
-        var bouncynessX = 0.3;
-        var bouncynessY = 0.3;
+        var bouncynessX = 0.32;
+        var bouncynessY = 0.32;
         var bounceOrNot = collider.dash ? 0.35 * ratio : 0;
         collider.xVel = 0;
         collider.yVel = 0;
@@ -1593,17 +1604,19 @@ class Spikes extends SpecialTile {
             case "t":
                 break;
         };
-        if (collided(this.dmgHitbox, collider)) {
-            if (!collider.dead) {
-                visualFxs.push(new DeathFx(collider.x / ratio, collider.y / ratio));
+    }
+    move() {
+        if (!isOutOfScreen(this) && collided(this.dmgHitbox, player.dmgHitbox)) {
+            if (!player.dead) {
+                visualFxs.push(new DeathFx(player.x / ratio, player.y / ratio));
                 audio.death.playy();
-                collider.dead = true;
+                player.dead = true;
                 setTimeout(function () {
-                    collider.respawnEvent();
+                    player.respawnEvent();
                 }, 1500);
             }
-            if (collider.yVel < 0) {
-                collider.yVel = 0;
+            if (player.yVel < 0) {
+                player.yVel = 0;
             }
         }
     }
@@ -2115,12 +2128,13 @@ function calculateCharacter(p) {
         p.jumpMaxReached = true;
     }
     if (p.grounded) {
+        p.jumpTransition = true;
         p.jumping = false;
         p.jumpMaxReached = false;
         p.jumpCounter = 0;
     }
     if (!p.jumpMaxReached && p.jumping && p.yVel < 0) {
-        p.yVel -= (0.1 / (p.jumpCounter + 1)) * ratio;
+        p.yVel -= (0.075 / (p.jumpCounter / 2 + 1)) * ratio;
         p.jumpCounter++;
     }
     if (p.dash) {
@@ -2138,6 +2152,9 @@ function calculateCharacter(p) {
     }
     if (!p.dash) {
         if (p.L && !p.col.L && !p.R) {
+            if (p.xVelExt > 0) {
+                p.xVelExt -= p.speed / 10;
+            }
             if (p.xVel > -p.speed) {
                 p.xVel -= p.speed / 10;
             } else {
@@ -2145,6 +2162,9 @@ function calculateCharacter(p) {
             }
             p.left = true;
         } else if (p.R && !p.col.R && !p.L) {
+            if (p.xVelExt < 0) {
+                p.xVelExt += p.speed / 10;
+            }
             if (p.xVel < p.speed) {
                 p.xVel += p.speed / 10;
             } else {
@@ -2171,7 +2191,7 @@ function calculateCharacter(p) {
     p.x += p.xVelExt;
     p.y += p.yVelExt;
     if (p.xVelExt !== 0 && p.grounded) {
-        p.xVelExt *= 0.65;
+        p.xVelExt *= 0.75;
     } else if (p.xVelExt !== 0) {
         if (p.xVelExt > 0.05) {
             p.xVelExt -= 0.05;
@@ -2195,6 +2215,11 @@ function calculateCharacter(p) {
     p.hitbox.y = p.y / ratio;
     p.hitbox.w = (p.w - p.w / 2.5) / ratio;
     p.hitbox.h = p.h / ratio;
+
+    p.dmgHitbox.x = p.hitbox.x + 0.15;
+    p.dmgHitbox.y = p.hitbox.y + 0.3;
+    p.dmgHitbox.w = p.hitbox.w - 0.3;
+    p.dmgHitbox.h = p.hitbox.h - 0.6;
     var dir = (player.left) ? -1 : 1;
     p.atkHitbox.x = p.x / ratio + dir;
     p.atkHitbox.y = p.y / ratio;
@@ -2398,25 +2423,71 @@ function drawEnvironment() {
         }
     }
 }
+//9 10 11 12    13 14 15 16
+player.yVelDirChange = 0;
 
 function drawCharacter(p) {
     //animation computing
-    var slowness = 6;
+
+    if (p.yVel > 0 && p.yVelDirChange < 0) {
+        p.jumpTransition = true;
+        p.frame = 0;
+        console.log("changin dir");
+    }
+    p.yVelDirChange = p.yVel;
     if (p.attack || p.dash) {
         p.dance = false;
-        slowness = 4;
+        p.slowness = 4;
         if (!p.left) {
             p.action = 6; //atk right
         } else {
             p.action = 7; //atk left
         }
     } else {
+        p.slowness = 6;
         if (!p.grounded) {
             p.dance = false;
+            p.slowness = 4
             if (!p.left) {
-                p.action = 4; //jmp right
+                if (p.yVel > 0) { //falling
+                    if (p.jumpTransition) {
+                        p.action = 11;
+                    } else {
+                        p.action = 12;
+                    }
+                    if (p.yVel == p.maxVelocity) {
+                        p.action = 12;
+                    }
+                } else {
+                    if (p.jumpTransition) { //going up
+                        p.action = 9;
+                    } else {
+                        p.action = 10;
+                    }
+                }
+                if (p.xVelExt >= 0.1*ratio || p.xVelExt <= -0.1*ratio) {
+                    p.action = 17;
+                }
             } else {
-                p.action = 5; //jmp left
+                if (p.yVel > 0) { //falling
+                    if (p.jumpTransition) {
+                        p.action = 15;
+                    } else {
+                        p.action = 16;
+                    }
+                    if (p.yVel == p.maxVelocity) {
+                        p.action = 16;
+                    }
+                } else {
+                    if (p.jumpTransition) { //going up
+                        p.action = 13;
+                    } else {
+                        p.action = 14;
+                    }
+                }
+                if (p.xVelExt >= 0.1*ratio || p.xVelExt <= -0.1*ratio) {
+                    p.action = 18;
+                }
             }
         } else if (p.xVel === 0) {
             if (!p.left) {
@@ -2437,13 +2508,7 @@ function drawCharacter(p) {
             }
         }
     }
-    if (p.xVel !== 0 && p.grounded && !(p.attack || p.dash)) {
-        audio.walking.play();
-    } else {
-        audio.walking.pause();
-    }
-
-    if (p.frameCounter > slowness) {
+    if (p.frameCounter > p.slowness) {
         p.frame++;
         p.frameCounter = 0;
     }
@@ -2456,7 +2521,17 @@ function drawCharacter(p) {
         if (p.attack) {
             p.attack = false
         }
+        if (p.action == 9 || p.action == 11 || p.action == 13 || p.action == 15) { //jump transitions
+            p.jumpTransition = false;
+            p.frame = 0;
+        }
     }
+    if (p.xVel !== 0 && p.grounded && !(p.attack || p.dash)) {
+        audio.walking.play();
+    } else {
+        audio.walking.pause();
+    }
+
     //draw on canvas
     if (p.dash) {
         c.globalCompositeOperation = "difference";
@@ -2869,6 +2944,9 @@ window.addEventListener("keyup", function (event) {
         case 90:
         case 38:
             player.jumping = false;
+            if (player.jumping && player.jumpCounter < 9) {
+                p.yVel = 0;
+            }
             jmpKeyPressed = false;
             break;
     }
@@ -2888,7 +2966,13 @@ function adaptBiome() {
     background = biomes[biome].background;
     bgColor = biomes[biome].bgColor;
     biomes[biome].other();
-
+    if (!(currentLevel % 2)) {
+            biomes[biome].ambient.play();
+            pickSong = (currentLevel / 2 | 0) > biomes[biome].music.length ? (Math.random() * biomes[biome].music.length) | 0 : currentLevel / 2 | 0;
+            biomes[biome].music[pickSong].loop = true;
+            biomes[biome].music[pickSong].play();
+        }
+    /*
     function playMusic() {};
     audio.walking.removeEventListener("play", playMusic);
     audio.walking.addEventListener("play", function playMusic() {
@@ -2897,21 +2981,11 @@ function adaptBiome() {
             pickSong = (currentLevel / 2 | 0) > biomes[biome].music.length ? (Math.random() * biomes[biome].music.length) | 0 : currentLevel / 2 | 0;
             biomes[biome].music[pickSong].play();
             biomes[biome].music[pickSong].loop = true;
-            /*
-            for (let i = 0; i < biomes[biome].music.length; i++) {
-                var next = i + 1;
-                if (next >= biomes[biome].music.length) {
-                    next = 0;
-                }
-                biomes[biome].music[i].addEventListener('ended', function () {
-                    biomes[biome].music[next].play();
-                })
-            }
-            */
         }
     }, {
         once: true
     });
+    */
 }
 var ghost = {};
 
@@ -2934,7 +3008,11 @@ function initializeMap() {
                 biomes[j].music[i].pause();
                 biomes[j].music[i].currentTime = 0;
             }
+            pickSong = (currentLevel / 2 | 0) > biomes[biome].music.length ? (Math.random() * biomes[biome].music.length) | 0 : currentLevel / 2 | 0;
+            biomes[biome].music[pickSong].loop = true;
+            biomes[biome].music[pickSong].play();
         }
+            biomes[biome].ambient.play();
     }
     for (let i = map.length - 1; i >= 0; i--) {
         switch (map[i].type) {
@@ -3061,14 +3139,14 @@ window.onresize = function () {
     if (window.innerWidth >= canvas.width * 2 && window.innerHeight >= canvas.height * 2) {
         location.reload();
     }
-    if (canvas.width>320 && (window.innerWidth < canvas.width || window.innerHeight < canvas.height)) {
+    if (canvas.width > 320 && (window.innerWidth < canvas.width || window.innerHeight < canvas.height)) {
         location.reload();
     }
 }
 if (mapTester) {
     id("menu").style.visibility = "hidden";
     canvas.style.visibility = "visible";
-    ghostSpeech=true;
+    ghostSpeech = true;
     adaptBiome();
     initializeMap();
     requestAnimationFrame(loop);
@@ -3131,6 +3209,11 @@ id("music").onclick = function () {
         audio.haydn_2.volume = 0;
         audio.bach_1.volume = 0;
         audio.bach_2.volume = 0;
+        audio.bach_3.volume = 0;
+        audio.bach_4.volume = 0;
+        audio.bach_5.volume = 0;
+        audio.bach_6.volume = 0;
+        audio.bach_7.volume = 0;
     } else {
         options.music = true;
         this.src = "ui/music-on.png"
@@ -3138,6 +3221,11 @@ id("music").onclick = function () {
         audio.haydn_2.volume = 0.2;
         audio.bach_1.volume = 0.3;
         audio.bach_2.volume = 0.3;
+        audio.bach_3.volume = 0.3;
+        audio.bach_4.volume = 0.3;
+        audio.bach_5.volume = 0.3;
+        audio.bach_6.volume = 0.3;
+        audio.bach_7.volume = 0.3;
     }
 }
 id("audio").onclick = function () {
