@@ -103,7 +103,7 @@ var textSize = Math.round(0.3 * ratio);
 var fontSize = textSize + "px";
 var paused = 1;
 var fps = false;
-var gForce = 0.016 * ratio;
+var gForce = 0.016;
 var mapX = 0;
 var mapY = 0;
 var tiles = [
@@ -218,7 +218,7 @@ var biomes = [{
         for (let j = 0; j < 30; j++) {
             let ww = (mapWidth < 100) ? 100 : mapWidth;
             let hh = (mapHeight < 50) ? 50 : mapHeight;
-            var ran1 = parseInt(Math.random() * ww + (player.x / ratio));
+            var ran1 = parseInt(Math.random() * ww + (player.x));
             var ran2 = Math.random() * hh / 4 - hh / 8;
             var ran3 = parseInt(Math.random() * 20 + 1);
             visualFxs.push(new Cloud(ran1, ran2, ran3));
@@ -243,99 +243,101 @@ var voices = {
 for (let i = 0; i < voices.ghost.length; i++) {
     voices.ghost[i].volume = 0.4;
 }
-
-var player = {
-    x: 2 * ratio,
-    y: 2 * ratio,
-    reading: false,
-    currentBook: "",
-    atk: 1,
-    xVel: 0,
-    yVel: 0,
-    xVelExt: 0, // external velocity
-    yVelExt: 0, // external velocity
-    maxVelocity: 0.3 * ratio,
-    w: 1 * ratio,
-    h: 1 * ratio,
-    sheet: id("sheet"),
-    L: 0,
-    R: 0,
-    hp: 100,
-    grounded: false,
-    stun: false,
-    speed: 0.12 * ratio,
-    precision: 100,
-    lastTile: spawnPoint,
-    frameCounter: 0,
-    jumpTransition: true,
-    goingDown: false,
-    frame: 0,
-    hitbox: {
-        x: 0,
-        y: 0,
-        w: 0,
-        h: 0
-    },
-    atkHitbox: {
-        x: 0,
-        y: 0,
-        w: 0,
-        h: 0
-    },
-    dmgHitbox: {
-        x: 0,
-        y: 0,
-        w: 0,
-        h: 0
-    },
-    col: {
-        L: 0,
-        R: 0,
-        T: 0,
-        B: 0
-    },
-    left: false,
-    sprite: {
-        x: 0,
-        y: 0,
-        w: 1,
-        h: 1,
-    },
-    actionX: [[0], [1], [0, 0, 0, 0], [1, 1, 1, 1], [6], [6], [2, 2, 2, 2], [5, 5, 5, 5], [11, 11, 11, 12, 12, 12],
-               [9], [12], [9, 10], [11, 12], [9], [12], [9, 10], [11, 12], [10], [10]], //9-jump
-    actionY: [[0], [0], [0, 1, 2, 3], [0, 1, 2, 3], [1], [3], [0, 1, 2, 3], [0, 1, 2, 3], [12, 13, 14, 12, 13, 14],
-              [15, 15, 15], [15], [16, 16], [16, 16], [17, 17, 17], [17], [18, 18], [18, 18], [15], [17]],
-    action: 0,
-    attack: 0,
-    dash: false,
-    dashIn: 0,
-    dashCd: 0,
-    attackDMG: 7,
-    dance: false,
-    jumping: false,
-    jumpCounter: 10,
-    slowness: 6,
-    jump: function () {
+class Player {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.w = 1;
+        this.h = 1;
+        this.reading = false;
+        this.currentBook = "";
+        this.atk = 1;
+        this.xVel = 0;
+        this.yVel = 0;
+        this.xVelExt = 0; // external velocity
+        this.yVelExt = 0; // external velocity
+        this.maxVelocity = 0.3;
+        this.sheet = id("sheet");
+        this.L = 0;
+        this.R = 0;
+        this.hp = 100;
+        this.grounded = false;
+        this.stun = false;
+        this.speed = 0.12;
+        this.precision = 100;
+        this.lastTile = spawnPoint;
+        this.frameCounter = 0;
+        this.jumpTransition = true;
+        this.goingDown = false;
+        this.frame = 0;
+        this.yVelDirChange = 0;
+        this.hitbox = {
+            x: 0,
+            y: 0,
+            w: 0,
+            h: 0
+        };
+        this.atkHitbox = {
+            x: 0,
+            y: 0,
+            w: 0,
+            h: 0
+        };
+        this.dmgHitbox = {
+            x: 0,
+            y: 0,
+            w: 0,
+            h: 0
+        };
+        this.col = {
+            L: 0,
+            R: 0,
+            T: 0,
+            B: 0
+        };
+        this.left = false;
+        this.sprite = {
+            x: 0,
+            y: 0,
+            w: 1,
+            h: 1,
+        };
+        this.actionX = [[0], [1], [0, 0, 0, 0], [1, 1, 1, 1], [6], [6], [2, 2, 2, 2], [5, 5, 5, 5], [11, 11, 11, 12, 12, 12],
+               [9], [12], [9, 10], [11, 12], [9], [12], [9, 10], [11, 12], [10], [10]]; //9-jump
+        this.actionY = [[0], [0], [0, 1, 2, 3], [0, 1, 2, 3], [1], [3], [0, 1, 2, 3], [0, 1, 2, 3], [12, 13, 14, 12, 13, 14],
+              [15, 15, 15], [15], [16, 16], [16, 16], [17, 17, 17], [17], [18, 18], [18, 18], [15], [17]];
+        this.action = 0;
+        this.attack = 0;
+        this.dash = false;
+        this.dashIn = 0;
+        this.dashCd = 0;
+        this.attackDMG = 7;
+        this.dance = false;
+        this.jumping = false;
+        this.jumpCounter = 10;
+        this.slowness = 6;
+    }
+    jump() {
         if (this.grounded && !this.dead) {
             audio.jump.playy();
             this.frame = 0;
             this.jumping = true;
             this.grounded = false;
             this.dashCd = false;
-            this.yVel = -0.02 * ratio;
+            this.yVel = -0.02;
             var dir = 0;
             if (this.xVel !== 0) {
                 dir = this.left ? 2 : 1;
             }
-            visualFxs.push(new JumpFx(this.x / ratio, this.y / ratio, dir));
+            visualFxs.push(new JumpFx(this.x, this.y, dir));
 
         }
-    },
-    attacking: function (hitbox) {
+    };
+    attacking(hitbox) {
         var hitSomething = 0;
         for (i = 0; i < monsters.length; i++) {
             if (collided(hitbox, monsters[i]) && monsters[i].hp > 0) {
-                var DMG = Math.round(Math.random() * (player.attackDMG / 2) + player.attackDMG / 2);
+                var DMG = Math.round(Math.random() * (this.attackDMG / 2) + this.attackDMG / 2);
                 hitSomething = 1;
                 shake = 4;
                 if (!parseInt(Math.random() * 3)) {
@@ -347,11 +349,7 @@ var player = {
                 monsters[i].hit = true;
                 monsters[i].hp -= DMG;
                 monsters[i].grounded = false;
-                //if (monsters[i].type != "Dummy") {
-                //    monsters[i].yVel = -0.05 * ratio;
-                //}
                 if (monsters[i].hp <= 0) {
-                    //    monsters[i].yVel = -0.15 * ratio;
                     monsters[i].frameCounter = 0;
                     monsters[i].frame = 0;
                 }
@@ -361,25 +359,25 @@ var player = {
         if (hitSomething) {
             audio.hit.playy();
         }
-    },
-    attackEvent: function () {
+    };
+    attackEvent() {
         if (this.grounded && !this.attack && !this.dead) {
             audio.attack.playy();
             this.attack = true;
             this.frame = 0;
         } else if (!this.attack && !this.dashCd && !this.dead) {
             var dir = this.left ? 4 : 3;
-            visualFxs.push(new JumpFx(this.x / ratio, this.y / ratio, dir));
+            visualFxs.push(new JumpFx(this.x, this.y, dir));
             audio.dash.playy();
             this.dashCd = true;
             this.dash = true;
             this.dashIn = this.x;
         }
 
-    },
-    respawnEvent: function () {
+    };
+    respawnEvent() {
         this.dead = false;
-        this.y = 1 * ratio;
+        this.y = 1;
         this.yVel = 0;
         this.xVel = 0;
         this.yVelExt = 0;
@@ -388,32 +386,323 @@ var player = {
         this.dash = false;
         this.dashCd = false;
         if (typeof spawnPoint !== "undefined") {
-            this.x = spawnPoint.x * ratio;
-            this.y = spawnPoint.y * ratio;
-            mapX = -player.x + (tilesWidth / 6) * ratio - 2 * ratio;
-            mapY = -player.y + (tilesHeight / 2) * ratio;
+            this.x = spawnPoint.x;
+            this.y = spawnPoint.y;
+            mapX = -player.x + (tilesWidth / 6) - 2;
+            mapY = -player.y + (tilesHeight / 2);
         } else {
             mapX = 0;
             mapY = 0;
-            this.x = 3 * ratio;
-            this.y = 3 * ratio;
+            this.x = 3;
+            this.y = 3;
         }
     }
-};
+    compute() {
+        this.frameCounter++;
+        if (this.jumpCounter >= 10) {
+            this.jumpMaxReached = true;
+        }
+        if (this.grounded) {
+            this.jumpTransition = true;
+            this.jumping = false;
+            this.jumpMaxReached = false;
+            this.jumpCounter = 0;
+        }
+        if (!this.jumpMaxReached && this.jumping && this.yVel < 0) {
+            this.yVel -= (0.075 / (this.jumpCounter / 2 + 1));
+            this.jumpCounter++;
+        }
+        if (this.dash) {
+            this.jumping = false;
+            this.xVel = this.left ? -this.speed * 5 : this.speed * 5;
+            this.yVel = 0;
+            this.yVelExt = 0;
+            this.xVelExt = 0;
 
+            this.attacking(this.hitbox);
+            if (Math.abs((this.dashIn - this.x + this.xVel)) > 3) {
+                this.dash = false;
+                this.xVel = 0;
+            }
+        }
+        if (!this.dash) {
+            if (this.L && !this.col.L && !this.R) {
+                if (this.xVel>0){
+                    this.xVel=0;
+                }
+                if (this.xVelExt > 0 && !this.grounded) {
+                    this.xVelExt -= this.speed / 10;
+                } else if (this.xVel > -this.speed) {
+                    this.xVel -= this.speed / 10;
+                } else {
+                    this.xVel = -this.speed;
+                }
+                this.left = true;
+            } else if (this.R && !this.col.R && !this.L) {
+                if (this.xVel<0){
+                    this.xVel=0;
+                }
+                if (this.xVelExt < 0 && !this.grounded) {
+                    this.xVelExt += this.speed / 10;
+                } else if (this.xVel < this.speed) {
+                    this.xVel += this.speed / 10;
+                } else {
+                    this.xVel = this.speed;
+                }
+                this.left = false;
+            } else if ((!this.L && !this.R || this.L && this.R)) {
+                this.xVel = 0;
+            }
+            if (!this.grounded) {
+                this.yVel += gForce;
+                if (this.yVel > this.maxVelocity) {
+                    this.yVel = this.maxVelocity;
+                }
+            } else if (this.yVel > 0) {
+                this.yVel = 0;
+                this.yVelExt = 0;
+            }
+        }
+        this.x += this.xVel;
+        this.y += this.yVel;
+
+        // external velocity calculations
+        this.x += this.xVelExt;
+        this.y += this.yVelExt;
+        if (this.xVelExt !== 0 && this.grounded) {
+            this.xVelExt *= 0.75;
+        } else if (this.xVelExt !== 0) {
+            if (this.xVelExt > 0.0001) {
+                this.xVelExt -= 0.0001;
+            } else if (this.xVelExt < -0.0001) {
+                this.xVelExt += 0.0001;
+            }
+        }
+        if (this.xVelExt < 0.0001 && this.xVelExt > -0.0001) {
+            this.xVelExt = 0;
+        }
+        this.yVelExt *= 0.9;
+        if (this.yVelExt < 0.0001 && this.yVelExt > -0.0001) {
+            this.yVelExt = 0;
+        }
+
+        if (this.y > (mapHeight + 2)) {
+            this.respawnEvent();
+        }
+        //physics calculations
+        this.hitbox.x = (this.x + this.w / 5);
+        this.hitbox.y = this.y;
+        this.hitbox.w = (this.w - this.w / 2.5);
+        this.hitbox.h = this.h;
+
+        this.dmgHitbox.x = this.hitbox.x + 0.15;
+        this.dmgHitbox.y = this.hitbox.y + 0.3;
+        this.dmgHitbox.w = this.hitbox.w - 0.3;
+        this.dmgHitbox.h = this.hitbox.h - 0.6;
+        let dir = (this.left) ? -1 : 1;
+        this.atkHitbox.x = this.x + dir;
+        this.atkHitbox.y = this.y;
+        this.atkHitbox.w = this.w;
+        this.atkHitbox.h = this.h;
+
+    }
+    draw() {
+
+        if (this.yVel > 0 && this.yVelDirChange < 0) {
+            this.jumpTransition = true;
+            if (!this.attack) {
+                this.frame = 0;
+            }
+        }
+        this.yVelDirChange = this.yVel;
+        if (this.attack || this.dash) {
+            this.dance = false;
+            this.slowness = 4;
+            if (!this.left) {
+                this.action = 6; //atk right
+            } else {
+                this.action = 7; //atk left
+            }
+        } else {
+            this.slowness = 6;
+            if (!this.grounded) {
+                this.dance = false;
+                this.slowness = 4;
+                if (!this.left) {
+                    if (this.yVel > 0) { //falling
+                        if (this.jumpTransition) {
+                            this.action = 11;
+                        } else {
+                            this.action = 12;
+                        }
+                        if (this.yVel == this.maxVelocity) {
+                            this.action = 12;
+                        }
+                    } else {
+                        if (this.jumpTransition) { //going up
+                            this.action = 9;
+                        } else {
+                            this.action = 10;
+                        }
+                    }
+                    if (this.xVelExt >= 0.1 || this.xVelExt <= -0.1) {
+                        this.action = 17;
+                    }
+                } else {
+                    if (this.yVel > 0) { //falling
+                        if (this.jumpTransition) {
+                            this.action = 15;
+                        } else {
+                            this.action = 16;
+                        }
+                        if (this.yVel == this.maxVelocity) {
+                            this.action = 16;
+                        }
+                    } else {
+                        if (this.jumpTransition) { //going up
+                            this.action = 13;
+                        } else {
+                            this.action = 14;
+                        }
+                    }
+                    if (this.xVelExt >= 0.1 || this.xVelExt <= -0.1) {
+                        this.action = 18;
+                    }
+                }
+            } else if (this.xVel === 0) {
+                if (!this.left) {
+                    this.action = 0; //idle right
+                } else {
+                    this.action = 1; //idle left
+                }
+                if (this.dance) {
+                    this.action = 8; //dance
+                }
+
+            } else if (this.xVel !== 0) {
+                this.dance = false;
+                if (!this.left) {
+                    this.action = 2; //walk right
+                } else {
+                    this.action = 3; //walk left
+                }
+            }
+        }
+        if (this.frameCounter > this.slowness) {
+            this.frame++;
+            this.frameCounter = 0;
+        }
+        //
+        if (this.attack && this.frame == 3 && this.frameCounter === 0) {
+            this.attacking(this.atkHitbox);
+        }
+        if (this.frame > this.actionX[this.action].length - 1) {
+            this.frame = 0;
+            if (this.attack) {
+                this.attack = false;
+            }
+            if (this.action == 9 || this.action == 11 || this.action == 13 || this.action == 15) { //jump transitions
+                this.jumpTransition = false;
+                this.frame = 0;
+            }
+        }
+        if (this.xVel !== 0 && this.grounded && !(this.attack || this.dash)) {
+            audio.walking.play();
+        } else {
+            audio.walking.pause();
+        }
+
+        //draw on canvas
+        if (this.dash) {
+            c.globalCompositeOperation = "difference";
+            c.globalAlpha = 0.4;
+            c.drawImage(
+                this.sheet,
+                this.actionX[this.action][0] * 16,
+                this.actionY[this.action][0] * 16,
+                this.sprite.w * 16,
+                this.sprite.h * 16,
+                (this.x + mapX - this.xVel * 2) * ratio | 0,
+                (this.y + mapY) * ratio | 0,
+                (this.w) * ratio | 0,
+                (this.h) * ratio | 0);
+            c.globalAlpha = 0.6;
+            c.drawImage(
+                this.sheet,
+                this.actionX[this.action][0] * 16,
+                this.actionY[this.action][0] * 16,
+                this.sprite.w * 16,
+                this.sprite.h * 16,
+                (this.x + mapX - this.xVel) * ratio | 0,
+                (this.y + mapY) * ratio | 0,
+                (this.w) * ratio | 0,
+                (this.h) * ratio | 0);
+            c.globalAlpha = 0.8;
+            c.drawImage(
+                this.sheet,
+                this.actionX[this.action][0] * 16,
+                this.actionY[this.action][0] * 16,
+                this.sprite.w * 16,
+                this.sprite.h * 16,
+                (this.x + mapX) * ratio | 0,
+                (this.y + mapY) * ratio | 0,
+                (this.w) * ratio | 0,
+                (this.h) * ratio | 0);
+            c.globalAlpha = 1;
+            c.globalCompositeOperation = "source-over";
+        } else {
+            c.drawImage(
+                this.sheet,
+                this.actionX[this.action][this.frame] * 16,
+                this.actionY[this.action][this.frame] * 16,
+                this.sprite.w * 16,
+                this.sprite.h * 16,
+                (this.x + mapX) * ratio | 0,
+                (this.y + mapY) * ratio | 0,
+                (this.w) * ratio | 0,
+                (this.h) * ratio | 0);
+        }
+        //the attack animation takes up 2 tiles in width, so I decided to print the other map separately
+        if (this.attack) {
+            if (this.action == 6) {
+                c.drawImage(
+                    this.sheet,
+                    this.actionX[this.action][this.frame] * 16 + 16,
+                    this.actionY[this.action][this.frame] * 16,
+                    this.sprite.w * 16,
+                    this.sprite.h * 16,
+                    (this.x + mapX + this.w) * ratio | 0,
+                    (this.y + mapY) * ratio | 0,
+                    (this.w) * ratio | 0,
+                    (this.h) * ratio | 0);
+            } else if (this.action == 7) {
+                c.drawImage(
+                    this.sheet,
+                    this.actionX[this.action][this.frame] * 16 - 16,
+                    this.actionY[this.action][this.frame] * 16,
+                    this.sprite.w * 16,
+                    this.sprite.h * 16,
+                    (this.x + mapX - this.w) * ratio | 0,
+                    (this.y + mapY) * ratio | 0,
+                    (this.w) * ratio | 0,
+                    (this.h) * ratio | 0);
+            }
+        }
+    }
+}
+let player = new Player(0, 0);
 class Monster {
     constructor(x, y) {
-        this.serial = series++;
-        this.x = parseFloat(x * ratio);
-        this.y = parseFloat(y * ratio);
-        this.w = 1 * ratio;
-        this.h = 1 * ratio;
+        this.x = x;
+        this.y = y;
+        this.w = 1;
+        this.h = 1;
         this.sheet = id("sheet");
-        this.jumpForce = 0.22 * ratio;
-        this.maxVelocity = 0.3 * ratio;
+        this.jumpForce = 0.22;
+        this.maxVelocity = 0.3;
         this.xVel = 0;
         this.yVel = 0;
-        this.speed = 0 * ratio;
+        this.speed = 0;
         this.grounded = false;
         this.frameCounter = 0;
         this.frame = 0;
@@ -423,6 +712,7 @@ class Monster {
         this.type = null;
         this.attack = false;
         this.dead = false;
+        this.serial = series++;
         this.hitbox = {
             x: 0,
             y: 0,
@@ -453,7 +743,7 @@ class Monster {
         this.action = 0;
         //setTimeout(randomMovement, 1000, this.serial);
 
-    }
+    };
     move(arg) {
         leftRightMovement(arg);
     };
@@ -465,8 +755,134 @@ class Monster {
             if (this.xVel !== 0) {
                 dir = this.left ? 2 : 1;
             }
-            visualFxs.push(new JumpFx(this.x / ratio, this.y / ratio, dir));
+            visualFxs.push(new JumpFx(this.x, this.y, dir));
 
+        }
+    };
+    compute() {
+        //leftRightMovement(this.serial);
+        if (!(fps % 15) && this.grounded && !this.hit) {
+            //^AI is refreshed every 1/4 seconds
+            this.move(this.serial);
+        }
+        if (this.attack) {
+            this.L = false;
+            this.R = false;
+        }
+        if (this.col.L) {
+            this.x += this.col.L;
+
+        }
+        if (this.col.R) {
+            this.x -= this.col.R;
+
+        }
+        if (this.col.T) {
+            this.y += this.col.T;
+            this.yVel = 0;
+
+        }
+        if (this.col.B) {
+            this.y -= this.col.B - 0.01;
+            this.grounded = true;
+
+        }
+        //controls calculation
+        if (this.L && !this.col.L && !this.R && !this.hit) {
+            this.xVel = -this.speed;
+            this.left = true;
+        } else if (this.R && !this.col.R && !this.L && !this.hit) {
+            this.xVel = this.speed;
+            this.left = false;
+        } else if ((!this.L && !this.R) || (this.L && this.R) || this.hit) {
+            this.xVel = 0;
+        }
+        if (!this.grounded) {
+            this.yVel += gForce;
+            if (this.yVel > this.maxVelocity) {
+                this.yVel = this.maxVelocity;
+            }
+        } else if (this.yVel > 0) {
+            this.yVel = 0;
+        }
+        this.y += this.yVel;
+        this.x += this.xVel;
+        this.hitbox.x = (this.x + this.w / 10);
+        this.hitbox.y = this.y;
+        this.hitbox.w = (this.w - this.w / 5);
+        this.hitbox.h = this.h;
+        if (this.canAttack) {
+            var dir = (this.left) ? -1 : 1;
+            this.atkHitbox.x = this.hitbox.x + dir;
+            this.atkHitbox.y = this.hitbox.y;
+            this.atkHitbox.w = this.hitbox.w;
+            this.atkHitbox.h = this.hitbox.h;
+            this.searchPlayer(this);
+            //console.log("attacking");
+        }
+    };
+    draw() {
+        this.frameCounter++
+        if (!this.hit) {
+            if (!this.grounded) {
+                if (!this.left) {
+                    this.action = 4; //idle right
+                } else {
+                    this.action = 4; //idle left
+                }
+            } else if (this.xVel === 0) {
+                if (!this.left) {
+                    this.action = 0; //idle right
+                } else {
+                    this.action = 1; //idle left
+                }
+            } else if (this.xVel !== 0) {
+                if (!this.left) {
+                    this.action = 2; //walk right
+                } else {
+                    this.action = 3; //walk left
+                }
+            }
+        } else {
+            this.action = 4;
+            if (this.hp <= 0) {
+                this.action = 5;
+            }
+        }
+        if (this.attack && this.hp > 0) {
+            !this.left ? this.action = 6 : this.action = 7;
+        }
+        if (this.frameCounter > 10) {
+            this.frame++;
+            this.frameCounter = 0;
+        }
+        if (this.frame > this.actionX[this.action].length - 1) {
+            this.frame = 0;
+            if (this.attack && this.hp > 0) {
+                this.attackEvent(this);
+                this.attack = false;
+            }
+            if (this.action == 4) {
+                this.hit = false;
+            }
+            if (this.action == 5) {
+                monsters.splice(i, 1);
+                return 0;
+            }
+        }
+        //draw on canvas
+        c.drawImage(
+            this.sheet,
+            this.actionX[this.action][this.frame] * 16,
+            this.actionY[this.action][this.frame] * 16,
+            this.sprite.w * 16,
+            this.sprite.h * 16,
+            (this.x + mapX) * ratio | 0,
+            (this.y + mapY) * ratio | 0,
+            (this.w) * ratio | 0,
+            (this.h) * ratio | 0);
+        if (this.attack) {
+            this.attackSprite(this);
         }
     }
 }
@@ -492,36 +908,36 @@ function leftRightMovement(serial) {
         let monst = monsters[targetMonster];
         let points = {
             upLeft: {
-                x: monst.x / ratio - 0.5,
-                y: monst.y / ratio + monst.h / ratio - 1 - 0.5
+                x: monst.x - 0.5,
+                y: monst.y + monst.h - 1 - 0.5
             },
             upRight: {
-                x: monst.x / ratio + monst.w / ratio + 0.5,
-                y: monst.y / ratio + monst.h / ratio - 1 - 0.5
+                x: monst.x + monst.w + 0.5,
+                y: monst.y + monst.h - 1 - 0.5
             },
             btLeft: {
-                x: monst.x / ratio + 0.2,
-                y: monst.y / ratio + monst.h / ratio + 1.5
+                x: monst.x + 0.2,
+                y: monst.y + monst.h + 1.5
             },
             btLeft2: {
-                x: monst.x / ratio + 0.2,
-                y: monst.y / ratio + 1 + monst.h / ratio / 2
+                x: monst.x + 0.2,
+                y: monst.y + 1 + monst.h / 2
             },
             btRight: {
-                x: monst.x / ratio + monst.w / ratio - 0.2,
-                y: monst.y / ratio + monst.h / ratio + 1.5
+                x: monst.x + monst.w - 0.2,
+                y: monst.y + monst.h + 1.5
             },
             btRight2: {
-                x: monst.x / ratio + monst.w / ratio - 0.2,
-                y: monst.y / ratio + 1 + monst.h / ratio / 2
+                x: monst.x + monst.w - 0.2,
+                y: monst.y + 1 + monst.h / 2
             },
             left: {
-                x: monst.x / ratio - 0.2,
-                y: monst.y / ratio + monst.h / ratio / 1.1
+                x: monst.x - 0.2,
+                y: monst.y + monst.h / 1.1
             }, // provisional
             right: {
-                x: monst.x / ratio + monst.w / ratio + 0.5,
-                y: monst.y / ratio + monst.h / ratio / 1.1
+                x: monst.x + monst.w + 0.5,
+                y: monst.y + monst.h / 1.1
             } // provisional
         }
         let cols = {
@@ -639,7 +1055,7 @@ function leftRightMovement(serial) {
 class Slime extends Monster {
     constructor(x, y) {
         super(x, y);
-        this.speed = 0.02 * ratio;
+        this.speed = 0.02;
         this.hp = 16;
         this.maxHp = this.hp;
         this.type = "Slime";
@@ -650,7 +1066,7 @@ class Slime extends Monster {
 class Lizard extends Monster {
     constructor(x, y) {
         super(x, y);
-        this.speed = 0.04 * ratio;
+        this.speed = 0.04;
         this.hp = 12;
         this.maxHp = this.hp;
         this.type = "Lizard";
@@ -661,7 +1077,7 @@ class Lizard extends Monster {
 class Bear extends Monster {
     constructor(x, y) {
         super(x, y);
-        this.speed = 0.04 * ratio;
+        this.speed = 0.04;
         this.hp = 60;
         this.maxHp = this.hp;
         this.type = "Bear";
@@ -670,35 +1086,21 @@ class Bear extends Monster {
         this.sprite.w = 2;
         this.sprite.h = 2;
         this.sheet = id("bearsheet");
-        this.w = 2 * ratio;
-        this.h = 2 * ratio;
+        this.w = 2;
+        this.h = 2;
         this.canAttack = true;
-        this.attackDMG = 20;
-        this.precision = 5;
     }
     attackEvent(bear) {
         if (collided(player, bear.atkHitbox)) {
-            player.yVelExt += -0.3 * ratio;
-            player.xVelExt += bear.left ? -0.3 * ratio : 0.3 * ratio;
+            player.yVelExt += -0.3;
+            player.xVelExt += bear.left ? -0.3 : 0.3;
             player.left = bear.left;
             player.dashCd = true;
-            var playerHB = player.hitbox;
-            playerHB.x *= ratio;
-            playerHB.w *= ratio;
-            playerHB.h *= ratio;
-            playerHB.y *= ratio;
-            var DMG = Math.round(Math.random() * (bear.attackDMG / 2) + bear.attackDMG / 2);
-            var missChance = Math.round(Math.random() * (bear.precision));
-            if (missChance === 1) {
-                DMG = "miss";
-            } else {
-                if (!parseInt(Math.random() * 3)) {
-                    visualFxs.push(new DmgFx(playerHB, 0));
-                }
-                var randomFx = parseInt(Math.random() * 2 + 1);
-                visualFxs.push(new DmgFx(playerHB, randomFx));
+            if (!parseInt(Math.random() * 3)) {
+                visualFxs.push(new DmgFx(player, 0));
             }
-            texts.push(new DmgText(playerHB, DMG));
+            var randomFx = parseInt(Math.random() * 2 + 1);
+            visualFxs.push(new DmgFx(player, randomFx));
         }
     }
     searchPlayer(bear) {
@@ -713,9 +1115,10 @@ class Bear extends Monster {
                 m.actionX[m.action][m.frame] * 16 + 32,
                 m.actionY[m.action][m.frame] * 16,
                 m.sprite.w / 2, m.sprite.h,
-                (m.x + m.w + mapX) | 0,
-                (m.y + mapY) | 0, (m.w / 2) | 0,
-                (m.h) | 0);
+                (m.x + m.w + mapX) * ratio | 0,
+                (m.y + mapY) * ratio | 0,
+                (m.w / 2) * ratio | 0,
+                (m.h) * ratio | 0);
         } else if (m.action == 7) {
             c.drawImage(
                 m.sheet,
@@ -723,10 +1126,10 @@ class Bear extends Monster {
                 m.actionY[m.action][m.frame] * 16,
                 m.sprite.w / 2,
                 m.sprite.h,
-                (m.x - m.w / 2 + mapX) | 0,
-                (m.y + mapY) | 0,
-                (m.w / 2) | 0,
-                (m.h) | 0);
+                (m.x - m.w / 2 + mapX) * ratio | 0,
+                (m.y + mapY) * ratio | 0,
+                (m.w / 2) * ratio | 0,
+                (m.h) * ratio | 0);
         }
     }
 }
@@ -746,7 +1149,7 @@ class Dummy extends Monster {
 class Zombie extends Monster {
     constructor(x, y) {
         super(x, y);
-        this.speed = 0.02 * ratio;
+        this.speed = 0.02;
         this.hp = 20;
         this.maxHp = this.hp;
         this.type = "Zombie";
@@ -757,19 +1160,21 @@ class Zombie extends Monster {
 class Superzombie extends Zombie {
     constructor(x, y) {
         super(x, y);
-        this.speed = 0.04 * ratio;
+        this.speed = 0.04;
         this.hp = 60;
         this.maxHp = this.hp;
-        this.w = 2 * ratio;
-        this.h = 2 * ratio;
+        this.w = 2;
+        this.h = 2;
     }
 }
+
+// Texts & Dialogues
 class DmgText {
     constructor(m, text) {
         this.x = m.x + m.w / 2 + Math.floor(Math.random() * 16 - 8);
         this.y = m.y - 5 + Math.floor(Math.random() * 16 - 8);
         this.text = text;
-        this.size = Math.round(0.4 * ratio);
+        this.size = 0.4;
         this.color = "#ac3232";
         this.lifeSpan = 40; //duration (in frames) of the text appearence
         this.color2 = "black"
@@ -778,9 +1183,9 @@ class DmgText {
         c.font = Math.round(this.size) + "px" + " 'Press Start 2P'";
         this.size /= 1.01;
         c.fillStyle = this.color2;
-        c.fillText(this.text, this.x + mapX + Math.round(textSize / 10), this.y + 10 + Math.round(this.size / 10) + mapY);
+        c.fillText(this.text, (this.x + mapX) * ratio + Math.round(textSize / 10), (this.y + 10 + Math.round(this.size / 10) + mapY) * ratio);
         c.fillStyle = this.color;
-        c.fillText(this.text, this.x + mapX, this.y + 10 + mapY);
+        c.fillText(this.text, (this.x + mapX) * ratio, (this.y + 10 + mapY) * ratio);
         this.y -= 0.3;
         this.lifeSpan--;
         if (this.lifeSpan <= 0) {
@@ -795,7 +1200,7 @@ class DialogueText {
         this.y = this.speaker.y;
         this.wholeText = text;
         this.text = "";
-        this.size = Math.round(0.4 * ratio);
+        this.size = 0.4;
         this.sizeI = this.size;
         this.color = "white";
         this.lifeSpan = 0;
@@ -817,9 +1222,15 @@ class DialogueText {
         }
         */
         c.fillStyle = this.color2;
-        c.fillText(this.text, this.x + mapX + Math.round(textSize / 10), this.y + 10 + Math.round(this.size / 10) + mapY);
+        c.fillText(
+            this.text,
+            (this.x + Math.round(this.size / 10) + mapX) * ratio,
+            (this.y + 10 + Math.round(this.size / 10) + mapY) * ratio);
         c.fillStyle = this.color;
-        c.fillText(this.text, this.x + mapX, this.y + 10 + mapY);
+        c.fillText(
+            this.text,
+            (this.x + mapX) * ratio,
+            (this.y + 10 + mapY) * ratio);
         if (this.lifeSpan >= this.wholeText.length) {
             this.ongoing = false;
             if (this.destroy) {
@@ -831,7 +1242,7 @@ class DialogueText {
         } else {
             if (this.voice.paused) {
                 this.voice = voices.ghost[(Math.random() * voices.ghost.length) | 0];
-                let volume = (15 - Math.abs(player.hitbox.x + player.hitbox.w / 2 - (this.x / ratio + 0.5))) / 30;
+                let volume = (15 - Math.abs(player.hitbox.x + player.hitbox.w / 2 - (this.x + 0.5))) / 30;
 
                 if (volume > 0) {
                     volume = volume.toFixed(3);
@@ -881,8 +1292,8 @@ class DmgFx {
 }
 class JumpFx {
     constructor(x, y, dir) {
-        this.x = x * ratio;
-        this.y = y * ratio;
+        this.x = x;
+        this.y = y;
         // dir 0 = jump straight, dir 1 = jump right, dir 2 = jump left
         this.sprite = dir;
         this.rotation = 0;
@@ -902,8 +1313,8 @@ class JumpFx {
 }
 class DeathFx {
     constructor(x, y) {
-        this.x = (x - 0.5) * ratio;
-        this.y = (y - 0.5) * ratio;
+        this.x = x - 0.5;
+        this.y = y - 0.5;
         this.sprite = 0;
         this.rotation = 0;
         this.sheet = id("sheet");
@@ -922,8 +1333,8 @@ class DeathFx {
 }
 class RingFx {
     constructor(x, y, dir) {
-        this.x = x * ratio;
-        this.y = y * ratio;
+        this.x = x;
+        this.y = y;
         this.sprite = dir;
         this.rotation = 0;
         this.sheet = id("sheet");
@@ -942,8 +1353,8 @@ class RingFx {
 }
 class Grass {
     constructor(x, y) {
-        this.x = x * ratio;
-        this.y = y * ratio;
+        this.x = x;
+        this.y = y;
         this.sprite = 0;
         this.rotation = 0;
         this.sheet = id("sheet");
@@ -962,8 +1373,8 @@ class Grass {
 }
 class Crystal {
     constructor(x, y) {
-        this.x = x * ratio;
-        this.y = y * ratio;
+        this.x = x;
+        this.y = y;
         this.sprite = 0;
         this.rotation = 0;
         this.sheet = id("sheet");
@@ -1005,16 +1416,16 @@ class Crystal {
             this.frameCounter = 0;
             this.frame = 0;
             this.slowness = 6;
-            var thisX = this.x / ratio;
-            var thisY = this.y / ratio;
+            var thisX = this.x;
+            var thisY = this.y;
         }
 
     }
 }
 class Door {
     constructor(x, y, place) {
-        this.x = x * ratio;
-        this.y = y * ratio;
+        this.x = x;
+        this.y = y;
         this.sprite = 0;
         this.place = place;
         this.rotation = 0;
@@ -1044,15 +1455,15 @@ class Door {
                     this.sprite = 1;
                     audio.hit.playy();
                     shake = 4;
-                    visualFxs.push(new Portal(this.x / ratio, this.y / ratio, this.place));
-                    this.x -= 0.5 * ratio;
-                    this.y -= 1 * ratio;
+                    visualFxs.push(new Portal(this.x, this.y, this.place));
+                    this.x -= 0.5;
+                    this.y -= 1;
                 }
             }
         } else if (this.sprite === 1 && this.frame == this.spritePos.x[1].length - 1) {
             if (this.frameCounter == this.slowness) {
                 this.sprite = 2;
-                this.y += 1 * ratio;
+                this.y += 1;
                 this.frame = 0;
                 this.frameCounter = 0;
             }
@@ -1063,8 +1474,8 @@ class Door {
 }
 class Portal {
     constructor(x, y, place) {
-        this.x = x * ratio;
-        this.y = y * ratio;
+        this.x = x;
+        this.y = y;
         this.active = false;
         this.sprite = 0;
         this.place = place;
@@ -1104,8 +1515,8 @@ class Portal {
                     currentLevel++;
                     adaptBiome();
                     initializeMap();
-                    mapX = -player.x + (tilesWidth / 2 - 2) * ratio;
-                    mapY = -player.y + (tilesHeight / 2) * ratio;
+                    mapX = -player.x + (tilesWidth / 2 - 2);
+                    mapY = -player.y + (tilesHeight / 2);
                     blackScreen = 100;
 
                 }
@@ -1120,8 +1531,8 @@ class Portal {
 }
 class Book {
     constructor(x, y, tut) {
-        this.x = x * ratio;
-        this.y = y * ratio;
+        this.x = x;
+        this.y = y;
         this.sprite = 0;
         this.rotation = 0;
         this.sheet = id("sheet");
@@ -1197,10 +1608,10 @@ class Book {
 
 class GhostGirl {
     constructor(x, y) {
-        this.x = x * ratio;
-        this.y = y * ratio;
-        this.w = 1 * ratio;
-        this.h = 1 * ratio;
+        this.x = x;
+        this.y = y;
+        this.w = 1;
+        this.h = 1;
         this.sprite = 0;
         this.rotation = 0;
         this.sheet = id("sheet");
@@ -1237,7 +1648,7 @@ class GhostGirl {
                 }
                 this.sprite = 2;
                 if (voices.ghost[1].paused) {
-                    let volume = (15 - Math.abs(player.hitbox.x + player.hitbox.w / 2 - this.x / ratio + this.w / ratio / 2)) / 30;
+                    let volume = (15 - Math.abs(player.hitbox.x + player.hitbox.w / 2 - this.x + this.w / 2)) / 30;
                     if (volume > 0) {
                         voices.ghost[1].play();
                     }
@@ -1245,7 +1656,7 @@ class GhostGirl {
             } else {
                 this.sprite = 0;
             }
-            if (Math.abs(this.x - player.x) / 6 > 1 / 100 * ratio) {
+            if (Math.abs(this.x - player.x) / 6 > 1 / 100) {
                 this.x += Math.abs(this.x - player.x) / 50;
             }
         } else if (this.x > player.x + player.w + 1) {
@@ -1256,7 +1667,7 @@ class GhostGirl {
                 }
                 this.sprite = 3;
                 if (voices.ghost[1].paused) {
-                    let volume = (15 - Math.abs(player.hitbox.x + player.hitbox.w / 2 - this.x / ratio + this.w / ratio / 2)) / 30;
+                    let volume = (15 - Math.abs(player.hitbox.x + player.hitbox.w / 2 - this.x + this.w / 2)) / 30;
                     if (volume > 0) {
                         voices.ghost[1].play();
                     }
@@ -1264,16 +1675,16 @@ class GhostGirl {
             } else {
                 this.sprite = 1;
             }
-            if (Math.abs(this.x - player.x) / 6 > 1 / 100 * ratio) {
+            if (Math.abs(this.x - player.x) / 6 > 1 / 100) {
                 this.x -= Math.abs(this.x - player.x) / 50;
             }
         }
         if (this.y + this.h < player.y - 1) {
-            if (Math.abs(this.y - player.y) / 6 > 1 / 100 * ratio) {
+            if (Math.abs(this.y - player.y) / 6 > 1 / 100) {
                 this.y += Math.abs(this.y - player.y) / 50;
             }
         } else if (this.y > player.y + player.h + 1) {
-            if (Math.abs(this.y - player.y) / 6 > 1 / 100 * ratio) {
+            if (Math.abs(this.y - player.y) / 6 > 1 / 100) {
                 this.y -= Math.abs(this.y - player.y) / 50;
             }
         }
@@ -1285,8 +1696,8 @@ class GhostGirl {
 }
 class Cloud {
     constructor(x, y, s) {
-        this.x = x * ratio;
-        this.y = y * ratio;
+        this.x = x;
+        this.y = y;
         this.sprite = Math.floor(Math.random() * 4);
         this.rotation = 0;
         this.sheet = id("sheet");
@@ -1295,7 +1706,7 @@ class Cloud {
         this.slowness = 5;
         this.frame = 0;
         this.type = "cloud";
-        this.movX = -s / 1000 * ratio;
+        this.movX = -s / 1000;
         this.movY = 0;
         this.spritePos = {
             x: [[7], [7], [7], [7]],
@@ -1305,9 +1716,9 @@ class Cloud {
         };
     }
     action() {
-        if (this.x < -20 * ratio) {
+        if (this.x < -20) {
             let ww = (mapWidth < 100) ? 100 : mapWidth;
-            this.x = (ww + 20) * ratio;
+            this.x = (ww + 20);
         }
     }
 }
@@ -1323,8 +1734,8 @@ function drawFxs(fx) {
     }
     var fxX = fx.x + mapX;
     var fxY = fx.y + mapY;
-    var fxW = fx.spritePos.w[fx.sprite] * ratio;
-    var fxH = fx.spritePos.h[fx.sprite] * ratio;
+    var fxW = fx.spritePos.w[fx.sprite];
+    var fxH = fx.spritePos.h[fx.sprite];
     if (fx.frameCounter !== undefined) {
         fx.frameCounter++;
         if (fx.frameCounter > fx.slowness) {
@@ -1357,10 +1768,10 @@ function drawFxs(fx) {
             fx.spritePos.y[fx.sprite][fx.frame] * 16,
             fx.spritePos.w[fx.sprite] * 16,
             fx.spritePos.h[fx.sprite] * 16,
-            (-fxW / 2),
-            (-fxH / 2),
-            fxW | 0,
-            fxH | 0);
+            (-fxW / 2) * ratio | 0,
+            (-fxH / 2) * ratio | 0,
+            fxW * ratio | 0,
+            fxH * ratio | 0);
         c.restore();
     } else {
         c.drawImage(
@@ -1369,10 +1780,10 @@ function drawFxs(fx) {
             fx.spritePos.y[fx.sprite][fx.frame] * 16,
             fx.spritePos.w[fx.sprite] * 16,
             fx.spritePos.h[fx.sprite] * 16,
-            fxX | 0,
-            fxY | 0,
-            fxW | 0,
-            fxH | 0);
+            fxX * ratio | 0,
+            fxY * ratio | 0,
+            fxW * ratio | 0,
+            fxH * ratio | 0);
     }
 
     //c.translate(-(fxX+fxW/2), -(fxY+fxH/2));
@@ -1421,7 +1832,7 @@ class Bouncy extends SpecialTile {
         this.running = true;
         var bouncynessX = 0.32;
         var bouncynessY = 0.32;
-        var bounceOrNot = collider.dash ? 0.35 * ratio : 0;
+        var bounceOrNot = collider.dash ? 0.35 : 0;
         collider.xVel = 0;
         collider.yVel = 0;
         collider.grounded = false;
@@ -1430,38 +1841,38 @@ class Bouncy extends SpecialTile {
         switch (colDir) {
             case "b":
                 collider.grounded = false;
-                collider.yVel = -bouncynessY * ratio;
+                collider.yVel = -bouncynessY;
                 collider.dash = false;
                 collider.dashCd = false;
-                visualFxs.push(new RingFx(collider.x / ratio, collider.y / ratio, 2));
+                visualFxs.push(new RingFx(collider.x, collider.y, 2));
                 audio.bounce1.playy()
                 break;
             case "l":
                 //ring VFX
                 if (bounceOrNot !== 0) {
-                    visualFxs.push(new RingFx(collider.x / ratio, collider.y / ratio, 0));
+                    visualFxs.push(new RingFx(collider.x, collider.y, 0));
                 } else {
-                    visualFxs.push(new RingFx(collider.x / ratio, collider.y / ratio, 2));
+                    visualFxs.push(new RingFx(collider.x, collider.y, 2));
                 }
                 audio.bounce2.playy()
                 collider.grounded = false;
                 collider.dash = false;
                 collider.dashCd = false;
                 collider.xVelExt = bounceOrNot;
-                collider.yVel = -bouncynessY * ratio;
+                collider.yVel = -bouncynessY;
                 break;
             case "r":
                 if (bounceOrNot !== 0) {
-                    visualFxs.push(new RingFx(collider.x / ratio, collider.y / ratio, 1));
+                    visualFxs.push(new RingFx(collider.x, collider.y, 1));
                 } else {
-                    visualFxs.push(new RingFx(collider.x / ratio, collider.y / ratio, 2));
+                    visualFxs.push(new RingFx(collider.x, collider.y, 2));
                 }
                 audio.bounce3.playy()
                 collider.grounded = false;
                 collider.dash = false;
                 collider.dashCd = false;
                 collider.xVelExt = -bounceOrNot;
-                collider.yVel = -bouncynessY * ratio;
+                collider.yVel = -bouncynessY;
                 break;
                 break;
             case "t":
@@ -1495,9 +1906,9 @@ class Speeder extends SpecialTile {
             case "b":
                 audio.speed1.playy();
                 if (this.dir === 0) {
-                    collider.xVelExt += 0.05 * ratio;
+                    collider.xVelExt += 0.05;
                 } else if (this.dir === 1) {
-                    collider.xVelExt -= 0.05 * ratio;
+                    collider.xVelExt -= 0.05;
                 }
                 collider.grounded = true;
                 break;
@@ -1608,7 +2019,7 @@ class Spikes extends SpecialTile {
     move() {
         if (!isOutOfScreen(this) && collided(this.dmgHitbox, player.dmgHitbox)) {
             if (!player.dead) {
-                visualFxs.push(new DeathFx(player.x / ratio, player.y / ratio));
+                visualFxs.push(new DeathFx(player.x, player.y));
                 audio.death.playy();
                 player.dead = true;
                 setTimeout(function () {
@@ -1694,7 +2105,7 @@ class TimedSpikes extends SpecialTile {
             case 2:
                 if (collided(player, this.dmgHitbox)) {
                     if (!player.dead) {
-                        visualFxs.push(new DeathFx(player.x / ratio, player.y / ratio));
+                        visualFxs.push(new DeathFx(player.x, player.y));
                         audio.death.playy();
                         player.dead = true;
                         setTimeout(function () {
@@ -1726,8 +2137,8 @@ class MovingPlat extends SpecialTile {
             w: [1],
             h: [1]
         };
-        this.xVel = xVel / ratio;
-        this.yVel = yVel / ratio;
+        this.xVel = xVel;
+        this.yVel = yVel;
         this.xI = x;
         this.yI = y;
         this.dir = 1;
@@ -1761,24 +2172,24 @@ class MovingPlat extends SpecialTile {
         var dir = player.left ? 1 : -1;
         switch (colDir) {
             case "b":
-                collider.xVelExt = this.xVel * ratio;
+                collider.xVelExt = this.xVel;
                 if (this.yVel < 0) {
-                    collider.yVelExt = this.yVel * ratio;
-                } else if (this.yVel * ratio < collider.maxVelocity) {
+                    collider.yVelExt = this.yVel;
+                } else if (this.yVel < collider.maxVelocity) {
                     collider.grounded = true;
-                    collider.yVelExt = this.yVel * ratio;
+                    collider.yVelExt = this.yVel;
                 }
                 break;
             case "l":
                 //collider.xVel = 0;
                 if (this.xVel > 0) {
-                    collider.xVelExt = this.xVel * ratio;
+                    collider.xVelExt = this.xVel;
                 }
                 break;
             case "r":
                 //collider.xVel = 0;
                 if (this.xVel > 0) {
-                    collider.xVelExt = this.xVel * ratio;
+                    collider.xVelExt = this.xVel;
                 }
                 break;
             case "t":
@@ -1828,10 +2239,10 @@ function renderSpecialTiles() {
             specialTiles[i].spritePos.y[specialTiles[i].sprite][specialTiles[i].frame] * 16,
             specialTiles[i].spritePos.w[specialTiles[i].sprite] * 16,
             specialTiles[i].spritePos.h[specialTiles[i].sprite] * 16,
-            (specialTiles[i].x * ratio + mapX) | 0,
-            (specialTiles[i].y * ratio + mapY) | 0,
-            (specialTiles[i].w * ratio) | 0,
-            (specialTiles[i].h * ratio) | 0);
+            (specialTiles[i].x + mapX) * ratio | 0,
+            (specialTiles[i].y + mapY) * ratio | 0,
+            (specialTiles[i].w) * ratio | 0,
+            (specialTiles[i].h) * ratio | 0);
     }
 }
 
@@ -1845,8 +2256,8 @@ function renderHpBars() {
             0,
             16,
             2,
-            (monsters[i].x + mapX + monsters[i].w / 2 - (ratio / 2)) | 0,
-            (monsters[i].y + mapY - 2 / 16 * ratio - (ratio / tileSize)) | 0,
+            (monsters[i].x + mapX + monsters[i].w / 2) * ratio - (ratio / 2) | 0,
+            (monsters[i].y + mapY - 2 / 16) * ratio - (ratio / tileSize) | 0,
             (ratio) | 0,
             (2 / 16 * ratio) | 0
         )
@@ -1856,8 +2267,8 @@ function renderHpBars() {
             2,
             barW,
             2,
-            (monsters[i].x + mapX + monsters[i].w / 2 - (ratio / 2)) | 0,
-            (monsters[i].y + mapY - 2 / 16 * ratio - (ratio / tileSize)) | 0,
+            (monsters[i].x + mapX + monsters[i].w / 2) * ratio - (ratio / 2) | 0,
+            (monsters[i].y + mapY - 2 / 16) * ratio - (ratio / tileSize) | 0,
             (ratio * hpRatio) | 0,
             (2 / 16 * ratio) | 0
         )
@@ -1898,7 +2309,7 @@ function loop() {
     fps++;
     if (shake) {
         shake--;
-        mapY += shakeArr[shake] / 20 * ratio;
+        mapY += shakeArr[shake] / 20;
     }
     paused = 0;
     c.clearRect(0, 0, canvas.width, canvas.height);
@@ -1908,7 +2319,7 @@ function loop() {
     //draw environment
     moveCamera();
     if (!player.dead) {
-        calculateCharacter(player);
+        player.compute();
     } else if (!audio.walking.paused) {
         audio.walking.pause();
     }
@@ -1918,7 +2329,7 @@ function loop() {
             continue;
         }
         monsters[i].frameCounter++;
-        calculateMonsters(monsters[i]);
+        monsters[i].compute();
     }
 
     drawEnvironment();
@@ -1931,7 +2342,7 @@ function loop() {
         if (isOutOfScreen(monsters[i])) {
             continue;
         }
-        drawMonsters(monsters[i]);
+        monsters[i].draw();
     }
     player.reading = false;
     for (i = visualFxs.length - 1; i >= 0; i--) {
@@ -1949,7 +2360,7 @@ function loop() {
         blackScreen--;
     }
     if (!player.dead) {
-        drawCharacter(player);
+        player.draw();
     }
     renderHpBars();
     renderTexts();
@@ -1976,8 +2387,8 @@ function moveCamera() {
 
     }
     if (cameraType === 2) {
-        mapX = -camObject.x * ratio;
-        mapY = -camObject.y * ratio;
+        mapX = -camObject.x;
+        mapY = -camObject.y;
     }
     if (cameraType === 0) {
         var cameraDir = tilesWidth / 2 - 2;
@@ -1985,27 +2396,27 @@ function moveCamera() {
         var cameraDir = player.left ? tilesWidth - 3 : 2;
     }
     //let cameraDir = player.left ? tilesWidth / 2 : tilesWidth / 6;
-    if (mapX < -player.x + cameraDir * ratio) {
+    if (mapX < -player.x + cameraDir) {
         // means camera moves forward
-        if (Math.abs((-player.x + cameraDir * ratio - mapX) / 6) > 1 / 100 * ratio) {
-            mapX += (-player.x + cameraDir * ratio - mapX) / 6;
+        if (Math.abs((-player.x + cameraDir - mapX) / 6) > 1 / 100) {
+            mapX += (-player.x + cameraDir - mapX) / 6;
         }
-    } else if (mapX > -player.x + cameraDir * ratio) {
+    } else if (mapX > -player.x + cameraDir) {
         // means camera moves backward
-        if (Math.abs((-player.x + cameraDir * ratio - mapX) / 6) > 1 / 100 * ratio) {
-            mapX += (-player.x + cameraDir * ratio - mapX) / 6;
+        if (Math.abs((-player.x + cameraDir - mapX) / 6) > 1 / 100) {
+            mapX += (-player.x + cameraDir - mapX) / 6;
         }
     }
-    let lookDown = watchDown ? tilesHeight / 4 * ratio : 0;
-    if (mapY < -(player.y + lookDown) + tilesHeight / 2 * ratio) {
+    let lookDown = watchDown ? tilesHeight / 4 : 0;
+    if (mapY < -(player.y + lookDown) + tilesHeight / 2) {
         // means camera moves downward
-        if (Math.abs((-(player.y + lookDown) + tilesHeight / 2 * ratio - mapY) / 6) > 1 / 100 * ratio) {
-            mapY += (-(player.y + lookDown) + tilesHeight / 2 * ratio - mapY) / 6;
+        if (Math.abs((-(player.y + lookDown) + tilesHeight / 2 - mapY) / 6) > 1 / 100) {
+            mapY += (-(player.y + lookDown) + tilesHeight / 2 - mapY) / 6;
         }
-    } else if (mapY > -(player.y + lookDown) + tilesHeight / 2 * ratio) {
+    } else if (mapY > -(player.y + lookDown) + tilesHeight / 2) {
         // means camera moves upward
-        if (Math.abs((-(player.y + lookDown) + tilesHeight / 2 * ratio - mapY) / 6) > 1 / 100 * ratio) {
-            mapY += (-(player.y + lookDown) + tilesHeight / 2 * ratio - mapY) / 6;
+        if (Math.abs((-(player.y + lookDown) + tilesHeight / 2 - mapY) / 6) > 1 / 100) {
+            mapY += (-(player.y + lookDown) + tilesHeight / 2 - mapY) / 6;
         }
     }
 }
@@ -2015,12 +2426,12 @@ function isOutOfScreen(Entity) {
         return true;
     }
     var entity = (typeof Entity.hitbox !== "undefined") ? Entity.hitbox : Entity;
-    if (entity.x + entity.w > tilesWidth - mapX / ratio &&
-        entity.x + entity.w < -tilesWidth - mapX / ratio) {
+    if (entity.x + entity.w > tilesWidth - mapX &&
+        entity.x + entity.w < -tilesWidth - mapX) {
         return true;
     }
-    if (entity.y + entity.h > tilesHeight - mapY / ratio &&
-        entity.y + entity.h < -tilesHeight - mapY / ratio) {
+    if (entity.y + entity.h > tilesHeight - mapY &&
+        entity.y + entity.h < -tilesHeight - mapY) {
         return true;
     }
     return false;
@@ -2073,7 +2484,7 @@ function checkCollisions() {
 
 function adjustCollided(p) {
     if (p.col.L) {
-        p.x += p.col.L * ratio;
+        p.x += p.col.L;
         if (p.dash) {
             p.dash = false;
             p.dashCd = true;
@@ -2082,12 +2493,12 @@ function adjustCollided(p) {
             p.xVelExt = 0;
         }
         if (p.xVel < 0) {
-            p.xVel = 0;
+            //p.xVel = 0;
         }
 
     }
     if (p.col.R) {
-        p.x -= p.col.R * ratio // - (0.02 * tileSize);
+        p.x -= p.col.R;
         if (p.dash) {
             p.dash = false;
             p.dashCd = true;
@@ -2096,12 +2507,12 @@ function adjustCollided(p) {
             p.xVelExt = 0;
         }
         if (p.xVel > 0) {
-            p.xVel = 0;
+            //p.xVel = 0;
         }
 
     }
     if (p.col.T) {
-        p.y += p.col.T * ratio // + (0.02 * tileSize);
+        p.y += p.col.T;
         if (p.yVel < 0) {
             p.yVel = 0;
         }
@@ -2112,7 +2523,7 @@ function adjustCollided(p) {
 
     }
     if (p.col.B) {
-        p.y -= (p.col.B + 0.01) * ratio;
+        p.y -= (p.col.B + 0.01);
         p.grounded = true;
         if (p.dashCd || p.dash) {
             p.dashCd = false;
@@ -2121,176 +2532,7 @@ function adjustCollided(p) {
     }
 }
 
-function calculateCharacter(p) {
-    //controls calculation
-    p.frameCounter++;
-    if (p.jumpCounter >= 10) {
-        p.jumpMaxReached = true;
-    }
-    if (p.grounded) {
-        p.jumpTransition = true;
-        p.jumping = false;
-        p.jumpMaxReached = false;
-        p.jumpCounter = 0;
-    }
-    if (!p.jumpMaxReached && p.jumping && p.yVel < 0) {
-        p.yVel -= (0.075 / (p.jumpCounter / 2 + 1)) * ratio;
-        p.jumpCounter++;
-    }
-    if (p.dash) {
-        p.jumping = false;
-        p.xVel = p.left ? -p.speed * 5 : p.speed * 5;
-        p.yVel = 0;
-        p.yVelExt = 0;
-        p.xVelExt = 0;
 
-        p.attacking(p.hitbox);
-        if (Math.abs((p.dashIn - p.x + p.xVel) / ratio) > 3) {
-            p.dash = false;
-            p.xVel = 0;
-        }
-    }
-    if (!p.dash) {
-        if (p.L && !p.col.L && !p.R) {
-            if (p.xVelExt > 0) {
-                p.xVelExt -= p.speed / 10;
-            }
-            if (p.xVel > -p.speed) {
-                p.xVel -= p.speed / 10;
-            } else {
-                p.xVel = -p.speed;
-            }
-            p.left = true;
-        } else if (p.R && !p.col.R && !p.L) {
-            if (p.xVelExt < 0) {
-                p.xVelExt += p.speed / 10;
-            }
-            if (p.xVel < p.speed) {
-                p.xVel += p.speed / 10;
-            } else {
-                p.xVel = p.speed;
-            }
-            p.left = false;
-        } else if ((!p.L && !p.R || p.L && p.R)) {
-            p.xVel = 0;
-        }
-        if (!p.grounded) {
-            p.yVel += gForce;
-            if (p.yVel > p.maxVelocity) {
-                p.yVel = p.maxVelocity;
-            }
-        } else if (p.yVel > 0) {
-            p.yVel = 0;
-            p.yVelExt = 0;
-        }
-    }
-    p.x += p.xVel;
-    p.y += p.yVel;
-
-    // external velocity calculations
-    p.x += p.xVelExt;
-    p.y += p.yVelExt;
-    if (p.xVelExt !== 0 && p.grounded) {
-        p.xVelExt *= 0.75;
-    } else if (p.xVelExt !== 0) {
-        if (p.xVelExt > 0.05) {
-            p.xVelExt -= 0.05;
-        } else if (p.xVelExt < -0.05) {
-            p.xVelExt += 0.05;
-        }
-    }
-    if (p.xVelExt < 0.001 * ratio && p.xVelExt > -0.001 * ratio) {
-        p.xVelExt = 0;
-    }
-    p.yVelExt *= 0.9;
-    if (p.yVelExt < 0.001 * ratio && p.yVelExt > -0.001 * ratio) {
-        p.yVelExt = 0;
-    }
-
-    if (p.y > (mapHeight + 2) * ratio) {
-        p.respawnEvent();
-    }
-    //physics calculations
-    p.hitbox.x = (p.x + p.w / 5) / ratio;
-    p.hitbox.y = p.y / ratio;
-    p.hitbox.w = (p.w - p.w / 2.5) / ratio;
-    p.hitbox.h = p.h / ratio;
-
-    p.dmgHitbox.x = p.hitbox.x + 0.15;
-    p.dmgHitbox.y = p.hitbox.y + 0.3;
-    p.dmgHitbox.w = p.hitbox.w - 0.3;
-    p.dmgHitbox.h = p.hitbox.h - 0.6;
-    var dir = (player.left) ? -1 : 1;
-    p.atkHitbox.x = p.x / ratio + dir;
-    p.atkHitbox.y = p.y / ratio;
-    p.atkHitbox.w = p.w / ratio;
-    p.atkHitbox.h = p.h / ratio;
-
-    //draw on canvas
-}
-
-function calculateMonsters(m) {
-    //leftRightMovement(m.serial);
-    if (!(fps % 15) && m.grounded && !m.hit) {
-        //^AI is refreshed every 1/4 seconds
-        m.move(m.serial);
-    }
-    if (m.attack) {
-        m.L = false;
-        m.R = false;
-    }
-    if (m.col.L) {
-        m.x += m.col.L * ratio;
-
-    }
-    if (m.col.R) {
-        m.x -= m.col.R * ratio;
-
-    }
-    if (m.col.T) {
-        m.y += m.col.T * ratio;
-        m.yVel = 0;
-
-    }
-    if (m.col.B) {
-        m.y -= m.col.B * ratio - 1;
-        m.grounded = true;
-
-    }
-    //controls calculation
-    if (m.L && !m.col.L && !m.R && !m.hit) {
-        m.xVel = -m.speed;
-        m.left = true;
-    } else if (m.R && !m.col.R && !m.L && !m.hit) {
-        m.xVel = m.speed;
-        m.left = false;
-    } else if ((!m.L && !m.R) || (m.L && m.R) || m.hit) {
-        m.xVel = 0;
-    }
-    if (!m.grounded) {
-        m.yVel += gForce;
-        if (m.yVel > m.maxVelocity) {
-            m.yVel = m.maxVelocity;
-        }
-    } else if (m.yVel > 0) {
-        m.yVel = 0;
-    }
-    m.y += m.yVel;
-    m.x += m.xVel;
-    m.hitbox.x = (m.x + m.w / 10) / ratio;
-    m.hitbox.y = m.y / ratio;
-    m.hitbox.w = (m.w - m.w / 5) / ratio;
-    m.hitbox.h = m.h / ratio;
-    if (m.canAttack) {
-        var dir = (m.left) ? -1 : 1;
-        m.atkHitbox.x = m.hitbox.x + dir;
-        m.atkHitbox.y = m.hitbox.y;
-        m.atkHitbox.w = m.hitbox.w;
-        m.atkHitbox.h = m.hitbox.h;
-        m.searchPlayer(m);
-        //console.log("attacking");
-    }
-}
 var backgrounds = [id("bg1"), id("cloud1"), id("cloud2"), id("bg2"), id("bg3"), id("bg4")]
 var background = false;
 var cloudsX = [0, 0];
@@ -2299,35 +2541,35 @@ function drawBackground() {
     for (let j = 0; j < 5; j++) {
         c.drawImage(
             backgrounds[1],
-            (-tilesWidth * 2 * ratio + (backgrounds[1].width / tileSize * ratio * j) + mapX / 20 - cloudsX[0]) | 0,
-            (mapY / 20) | 0,
-            (backgrounds[1].width / tileSize * ratio) | 0,
-            (backgrounds[1].height / tileSize * ratio) | 0
+            (-tilesWidth * 2 + (backgrounds[1].width / tileSize * j) + mapX / 20 - cloudsX[0]) * ratio | 0,
+            (mapY / 20) * ratio | 0,
+            (backgrounds[1].width / tileSize) * ratio | 0,
+            (backgrounds[1].height / tileSize) * ratio | 0
         );
     }
-    cloudsX[0] += (backgrounds[1].width / tileSize * ratio) / 4000;
-    if (cloudsX[0] >= backgrounds[1].width / tileSize * ratio) {
+    cloudsX[0] += (backgrounds[1].width / tileSize) / 4000;
+    if (cloudsX[0] >= backgrounds[1].width / tileSize) {
         cloudsX[0] = 0;
     }
-
+    //clouds
     for (let j = 0; j < 5; j++) {
         c.drawImage(
             backgrounds[2],
-            (-tilesWidth * 2 * ratio + (backgrounds[2].width / tileSize * ratio * j) + mapX / 18 - cloudsX[1]) | 0,
-            (mapY / 18) | 0,
-            (backgrounds[2].width / tileSize * ratio) | 0,
-            (backgrounds[2].height / tileSize * ratio) | 0
+            (-tilesWidth * 2 + (backgrounds[2].width / tileSize * j) + mapX / 18 - cloudsX[1]) * ratio | 0,
+            (mapY / 18) * ratio | 0,
+            (backgrounds[2].width / tileSize) * ratio | 0,
+            (backgrounds[2].height / tileSize) * ratio | 0
         );
     }
-    cloudsX[1] += (backgrounds[2].width / tileSize * ratio) / 6000;
-    if (cloudsX[1] >= backgrounds[1].width / tileSize * ratio) {
+    cloudsX[1] += (backgrounds[2].width / tileSize) / 6000;
+    if (cloudsX[1] >= backgrounds[1].width / tileSize) {
         cloudsX[1] = 0;
     }
     for (let j = 0; j < 5; j++) {
         c.drawImage(
             backgrounds[3],
-            (-tilesWidth * 2 * ratio + (backgrounds[3].width / tileSize * ratio * j) + mapX / 10) | 0,
-            (mapY / 10) | 0,
+            (-tilesWidth * 2 + (backgrounds[3].width / tileSize * j) + mapX / 10) * ratio | 0,
+            (mapY / 10) * ratio | 0,
             (backgrounds[3].width / tileSize * ratio) | 0,
             (backgrounds[3].height / tileSize * ratio) | 0
         );
@@ -2336,17 +2578,17 @@ function drawBackground() {
     for (let j = 0; j < 5; j++) {
         c.drawImage(
             backgrounds[4],
-            (-tilesWidth * 2 * ratio + (backgrounds[4].width / tileSize * ratio * j) + mapX / 8) | 0,
-            (mapY / 8) | 0,
-            (backgrounds[4].width / tileSize * ratio) | 0,
-            (backgrounds[4].height / tileSize * ratio) | 0
+            (-tilesWidth * 2 + (backgrounds[4].width / tileSize * j) + mapX / 8) * ratio | 0,
+            (mapY / 8) * ratio | 0,
+            (backgrounds[4].width / tileSize) * ratio | 0,
+            (backgrounds[4].height / tileSize) * ratio | 0
         );
     }
     for (let j = 0; j < 5; j++) {
         c.drawImage(
             backgrounds[5],
-            (-tilesWidth * 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + mapX / 6) | 0,
-            (mapY / 6) | 0,
+            (-tilesWidth * 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + (mapX * ratio) / 6) | 0,
+            ((mapY * ratio) / 6) | 0,
             (backgrounds[5].width / tileSize * ratio) | 0,
             (backgrounds[5].height / tileSize * ratio) | 0
         );
@@ -2354,8 +2596,8 @@ function drawBackground() {
     for (let j = 0; j < 5; j++) {
         c.drawImage(
             backgrounds[5],
-            (-tilesWidth * 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + mapX / 5) | 0,
-            ((backgrounds[5].height / tileSize * ratio) / 5 + mapY / 5) | 0,
+            (-tilesWidth * 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + (mapX * ratio) / 5) | 0,
+            ((backgrounds[5].height / tileSize * ratio) / 5 + (mapY * ratio) / 5) | 0,
             (backgrounds[5].width / tileSize * ratio) | 0,
             (backgrounds[5].height / tileSize * ratio) | 0
         );
@@ -2363,8 +2605,8 @@ function drawBackground() {
     for (let j = 0; j < 5; j++) {
         c.fillStyle = "#323c39";
         c.fillRect(
-            (-tilesWidth * 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + mapX / 5) | 0,
-            (mapY / 5 + backgrounds[5].height / tileSize * ratio) | 0,
+            (-tilesWidth * 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + (mapX * ratio) / 5) | 0,
+            ((mapY * ratio) / 5 + backgrounds[5].height / tileSize * ratio) | 0,
             (backgrounds[5].width / tileSize * ratio) | 0,
             (backgrounds[5].height / tileSize * ratio) | 0
         );
@@ -2382,25 +2624,24 @@ function drawEnvironment() {
         for (let j = 0; j < bgTiles[i].h; j++) {
             for (let k = 0; k < bgTiles[i].w; k++) {
                 //skips out of bounds tiles
-                if (bgTiles[i].x + k > tilesWidth - mapX / ratio &&
-                    bgTiles[i].x + k < -tilesWidth - mapX / ratio) {
+                if (bgTiles[i].x + k > tilesWidth - mapX &&
+                    bgTiles[i].x + k < -tilesWidth - mapX) {
                     continue;
                 }
-                if (bgTiles[i].y + j > tilesHeight - mapY / ratio &&
-                    bgTiles[i].y + j < -tilesHeight - mapY / ratio) {
+                if (bgTiles[i].y + j > tilesHeight - mapY &&
+                    bgTiles[i].y + j < -tilesHeight - mapY) {
                     continue;
                 }
-                //c.fillRect((map[i].x + k) * (ratio)+mapX, (map[i].y + j) * (ratio), ratio, ratio);
                 c.drawImage(
                     player.sheet,
                     tiles[bgTiles[i].type][0] * 16,
                     tiles[bgTiles[i].type][1] * 16,
-                    16,
-                    16,
-                    ((bgTiles[i].x + k) * ratio + mapX) | 0,
-                    ((bgTiles[i].y + j) * ratio + mapY) | 0,
-                    (ratio) | 0,
-                    (ratio) | 0);
+                    tileSize,
+                    tileSize,
+                    (bgTiles[i].x + k + mapX) * ratio | 0,
+                    (bgTiles[i].y + j + mapY) * ratio | 0,
+                    ratio | 0,
+                    ratio | 0);
             }
         }
     }
@@ -2413,273 +2654,14 @@ function drawEnvironment() {
                 c.drawImage(
                     player.sheet, tiles[map[i].type][0] * 16,
                     tiles[map[i].type][1] * 16,
-                    16,
-                    16,
-                    ((map[i].x + k) * ratio + mapX) | 0,
-                    ((map[i].y + j) * ratio + mapY) | 0,
-                    (ratio) | 0,
-                    (ratio) | 0);
+                    tileSize,
+                    tileSize,
+                    (map[i].x + k + mapX) * ratio | 0,
+                    (map[i].y + j + mapY) * ratio | 0,
+                    ratio | 0,
+                    ratio | 0);
             }
         }
-    }
-}
-//9 10 11 12    13 14 15 16
-player.yVelDirChange = 0;
-
-function drawCharacter(p) {
-    //animation computing
-
-    if (p.yVel > 0 && p.yVelDirChange < 0) {
-        p.jumpTransition = true;
-        p.frame = 0;
-        console.log("changin dir");
-    }
-    p.yVelDirChange = p.yVel;
-    if (p.attack || p.dash) {
-        p.dance = false;
-        p.slowness = 4;
-        if (!p.left) {
-            p.action = 6; //atk right
-        } else {
-            p.action = 7; //atk left
-        }
-    } else {
-        p.slowness = 6;
-        if (!p.grounded) {
-            p.dance = false;
-            p.slowness = 4
-            if (!p.left) {
-                if (p.yVel > 0) { //falling
-                    if (p.jumpTransition) {
-                        p.action = 11;
-                    } else {
-                        p.action = 12;
-                    }
-                    if (p.yVel == p.maxVelocity) {
-                        p.action = 12;
-                    }
-                } else {
-                    if (p.jumpTransition) { //going up
-                        p.action = 9;
-                    } else {
-                        p.action = 10;
-                    }
-                }
-                if (p.xVelExt >= 0.1*ratio || p.xVelExt <= -0.1*ratio) {
-                    p.action = 17;
-                }
-            } else {
-                if (p.yVel > 0) { //falling
-                    if (p.jumpTransition) {
-                        p.action = 15;
-                    } else {
-                        p.action = 16;
-                    }
-                    if (p.yVel == p.maxVelocity) {
-                        p.action = 16;
-                    }
-                } else {
-                    if (p.jumpTransition) { //going up
-                        p.action = 13;
-                    } else {
-                        p.action = 14;
-                    }
-                }
-                if (p.xVelExt >= 0.1*ratio || p.xVelExt <= -0.1*ratio) {
-                    p.action = 18;
-                }
-            }
-        } else if (p.xVel === 0) {
-            if (!p.left) {
-                p.action = 0; //idle right
-            } else {
-                p.action = 1; //idle left
-            }
-            if (p.dance) {
-                p.action = 8; //dance
-            }
-
-        } else if (p.xVel !== 0) {
-            p.dance = false;
-            if (!p.left) {
-                p.action = 2; //walk right
-            } else {
-                p.action = 3; //walk left
-            }
-        }
-    }
-    if (p.frameCounter > p.slowness) {
-        p.frame++;
-        p.frameCounter = 0;
-    }
-    //
-    if (p.attack && p.frame == 3 && p.frameCounter == 0) {
-        player.attacking(player.atkHitbox);
-    }
-    if (p.frame > p.actionX[p.action].length - 1) {
-        p.frame = 0;
-        if (p.attack) {
-            p.attack = false
-        }
-        if (p.action == 9 || p.action == 11 || p.action == 13 || p.action == 15) { //jump transitions
-            p.jumpTransition = false;
-            p.frame = 0;
-        }
-    }
-    if (p.xVel !== 0 && p.grounded && !(p.attack || p.dash)) {
-        audio.walking.play();
-    } else {
-        audio.walking.pause();
-    }
-
-    //draw on canvas
-    if (p.dash) {
-        c.globalCompositeOperation = "difference";
-        c.globalAlpha = 0.4;
-        c.drawImage(
-            p.sheet,
-            p.actionX[p.action][0] * 16,
-            p.actionY[p.action][0] * 16,
-            p.sprite.w * 16,
-            p.sprite.h * 16,
-            (p.x + mapX - p.xVel * 2) | 0,
-            (p.y + mapY) | 0,
-            (p.w) | 0,
-            (p.h) | 0);
-        c.globalAlpha = 0.6;
-        c.drawImage(
-            p.sheet,
-            p.actionX[p.action][0] * 16,
-            p.actionY[p.action][0] * 16,
-            p.sprite.w * 16,
-            p.sprite.h * 16,
-            (p.x + mapX - p.xVel) | 0,
-            (p.y + mapY) | 0,
-            (p.w) | 0,
-            (p.h) | 0);
-        c.globalAlpha = 0.8;
-        c.drawImage(
-            p.sheet,
-            p.actionX[p.action][0] * 16,
-            p.actionY[p.action][0] * 16,
-            p.sprite.w * 16,
-            p.sprite.h * 16,
-            (p.x + mapX) | 0,
-            (p.y + mapY) | 0,
-            (p.w) | 0,
-            (p.h) | 0);
-        c.globalAlpha = 1;
-        c.globalCompositeOperation = "source-over";
-    } else {
-        c.drawImage(
-            p.sheet,
-            p.actionX[p.action][p.frame] * 16,
-            p.actionY[p.action][p.frame] * 16,
-            p.sprite.w * 16,
-            p.sprite.h * 16,
-            (p.x + mapX) | 0,
-            (p.y + mapY) | 0,
-            (p.w) | 0,
-            (p.h) | 0);
-    }
-    //the attack animation takes up 2 tiles in width, so I decided to print the other map separately
-    if (p.attack) {
-        if (p.action == 6) {
-            c.drawImage(
-                p.sheet,
-                p.actionX[p.action][p.frame] * 16 + 16,
-                p.actionY[p.action][p.frame] * 16,
-                p.sprite.w * 16,
-                p.sprite.h * 16,
-                (p.x + mapX + p.w) | 0,
-                (p.y + mapY) | 0,
-                (p.w) | 0,
-                (p.h) | 0);
-        } else if (p.action == 7) {
-            c.drawImage(
-                p.sheet,
-                p.actionX[p.action][p.frame] * 16 - 16,
-                p.actionY[p.action][p.frame] * 16,
-                p.sprite.w * 16,
-                p.sprite.h * 16,
-                (p.x + mapX - p.w) | 0,
-                (p.y + mapY) | 0,
-                (p.w) | 0,
-                (p.h) | 0);
-        }
-    }
-}
-/*
-0:idle right
-1:idle left
-2:walk right
-3:walk left
-4:hit
-5:death
-*/
-function drawMonsters(m) {
-    //animation computing
-    m.frameCounter++
-    if (!m.hit) {
-        if (!m.grounded) {
-            if (!m.left) {
-                m.action = 4; //idle right
-            } else {
-                m.action = 4; //idle left
-            }
-        } else if (m.xVel === 0) {
-            if (!m.left) {
-                m.action = 0; //idle right
-            } else {
-                m.action = 1; //idle left
-            }
-        } else if (m.xVel !== 0) {
-            if (!m.left) {
-                m.action = 2; //walk right
-            } else {
-                m.action = 3; //walk left
-            }
-        }
-    } else {
-        m.action = 4;
-        if (m.hp <= 0) {
-            m.action = 5;
-        }
-    }
-    if (m.attack && m.hp > 0) {
-        !m.left ? m.action = 6 : m.action = 7;
-    }
-    if (m.frameCounter > 10) {
-        m.frame++;
-        m.frameCounter = 0;
-    }
-    if (m.frame > m.actionX[m.action].length - 1) {
-        m.frame = 0;
-        if (m.attack && m.hp > 0) {
-            m.attackEvent(m);
-            m.attack = false;
-        }
-        if (m.action == 4) {
-            m.hit = false;
-        }
-        if (m.action == 5) {
-            monsters.splice(i, 1);
-            return 0;
-        }
-    }
-    //draw on canvas
-    c.drawImage(
-        m.sheet,
-        m.actionX[m.action][m.frame] * 16,
-        m.actionY[m.action][m.frame] * 16,
-        m.sprite.w * 16,
-        m.sprite.h * 16,
-        (m.x + mapX) | 0,
-        (m.y + mapY) | 0,
-        (m.w) | 0,
-        (m.h) | 0);
-    if (m.attack) {
-        m.attackSprite(m);
     }
 }
 
@@ -2688,18 +2670,17 @@ function drawMonsters(m) {
 // COLLISION DETECTORS
 function colCheck(shapeA, shapeB) {
     // get the vectors to check against
-    if (typeof shapeA.hitbox !== "undefined") {
+    if (shapeA.hitbox != null) {
         var shapeAA = shapeA.hitbox;
     } else {
         var shapeAA = shapeA;
     }
-    if (typeof shapeB.hitbox !== "undefined") {
+    if (shapeB.hitbox != null) {
         var shapeBB = shapeB.hitbox;
     } else {
         var shapeBB = shapeB;
     }
-    var offFocus = mapX / ratio;
-    var vX = (shapeAA.x + offFocus + (shapeAA.w / 2)) - (shapeBB.x + (mapX / ratio) + (shapeBB.w / 2)),
+    var vX = (shapeAA.x + (shapeAA.w / 2)) - (shapeBB.x + (shapeBB.w / 2)),
         vY = (shapeAA.y + (shapeAA.h / 2)) - (shapeBB.y + (shapeBB.h / 2)),
         // add the half widths and half heights of the objects
         hWidths = (shapeA.hitbox.w / 2) + (shapeBB.w / 2),
@@ -2714,28 +2695,29 @@ function colCheck(shapeA, shapeB) {
         if (oX >= oY) {
             if (vY > 0) {
                 colDir = "t";
-                if (shapeA.col.T < oY && oY > 1 / ratio && !shapeB.xVel) {
+                if (shapeA.col.T < oY && oY > 0.01 && !shapeB.xVel) {
                     shapeA.col.T = oY;
                 }
             } else {
                 colDir = "b";
                 shapeA.grounded = true;
-                if (shapeA.col.B < oY && oY > 1 / ratio && oY < 0.02 * ratio) {
+                if (shapeA.col.B < oY && oY > 0.01) {
                     shapeA.col.B = oY;
                 }
                 if (shapeB.xVel) {
                     shapeA.xVelExt = shapeB.xVel;
+                    shapeA.yVelExt = shapeB.yVel;
                 }
             }
         } else {
             if (vX > 0) {
                 colDir = "l";
-                if (shapeA.col.L < oX && oX > 1 / ratio && !shapeB.xVel) {
+                if (shapeA.col.L < oX && oX > 0.01 && !shapeB.xVel) {
                     shapeA.col.L = oX;
                 }
             } else {
                 colDir = "r";
-                if (shapeA.col.R < oX && oX > 1 / ratio && !shapeB.xVel) {
+                if (shapeA.col.R < oX && oX > 0.01 && !shapeB.xVel) {
                     shapeA.col.R = oX;
                 }
             }
@@ -2885,19 +2867,19 @@ window.addEventListener("keydown", function (event) {
                 //nothing
                 break;
             case 49: // 1
-                monsters.push(new Slime(5 - mapX / ratio, -mapY / ratio));
+                monsters.push(new Slime(5 - mapX, -mapY));
                 break;
             case 50: // 2
-                monsters.push(new Lizard(5 - mapX / ratio, -mapY / ratio));
+                monsters.push(new Lizard(5 - mapX, -mapY));
                 break;
             case 51: // 3
-                monsters.push(new Zombie(5 - mapX / ratio, -mapY / ratio));
+                monsters.push(new Zombie(5 - mapX, -mapY));
                 break;
             case 52: // 4
-                monsters.push(new Superzombie(5 - mapX / ratio, -mapY / ratio));
+                monsters.push(new Superzombie(5 - mapX, -mapY));
                 break;
             case 53: // 5
-                monsters.push(new Bear(5 - mapX / ratio, -mapY / ratio));
+                monsters.push(new Bear(5 - mapX, -mapY));
                 break;
             case 54: // 6
                 eval(maps[0]);
@@ -2966,26 +2948,6 @@ function adaptBiome() {
     background = biomes[biome].background;
     bgColor = biomes[biome].bgColor;
     biomes[biome].other();
-    if (!(currentLevel % 2)) {
-            biomes[biome].ambient.play();
-            pickSong = (currentLevel / 2 | 0) > biomes[biome].music.length ? (Math.random() * biomes[biome].music.length) | 0 : currentLevel / 2 | 0;
-            biomes[biome].music[pickSong].loop = true;
-            biomes[biome].music[pickSong].play();
-        }
-    /*
-    function playMusic() {};
-    audio.walking.removeEventListener("play", playMusic);
-    audio.walking.addEventListener("play", function playMusic() {
-        if (!(currentLevel % 2)) {
-            biomes[biome].ambient.play();
-            pickSong = (currentLevel / 2 | 0) > biomes[biome].music.length ? (Math.random() * biomes[biome].music.length) | 0 : currentLevel / 2 | 0;
-            biomes[biome].music[pickSong].play();
-            biomes[biome].music[pickSong].loop = true;
-        }
-    }, {
-        once: true
-    });
-    */
 }
 var ghost = {};
 
@@ -3003,17 +2965,18 @@ function initializeMap() {
             biomes[j].ambient.pause();
             biomes[j].ambient.currentTime = 0;
         }
+
         if (!(currentLevel % 2)) {
             for (let i = 0; i < biomes[j].music.length; i++) {
                 biomes[j].music[i].pause();
                 biomes[j].music[i].currentTime = 0;
             }
-            pickSong = (currentLevel / 2 | 0) > biomes[biome].music.length ? (Math.random() * biomes[biome].music.length) | 0 : currentLevel / 2 | 0;
-            biomes[biome].music[pickSong].loop = true;
-            biomes[biome].music[pickSong].play();
         }
-            biomes[biome].ambient.play();
     }
+    pickSong = (currentLevel / 2 | 0) > biomes[biome].music.length ? (Math.random() * biomes[biome].music.length) | 0 : currentLevel / 2 | 0;
+    biomes[biome].music[pickSong].loop = true;
+    biomes[biome].music[pickSong].play();
+    biomes[biome].ambient.play();
     for (let i = map.length - 1; i >= 0; i--) {
         switch (map[i].type) {
             case 17:
@@ -3117,8 +3080,8 @@ function initializeMap() {
     for (let i = 0; i < removeList.length; i++) {
         map.splice(removeList[i], 1);
     }
-    player.x = spawnPoint.x * ratio;
-    player.y = spawnPoint.y * ratio;
+    player.x = spawnPoint.x;
+    player.y = spawnPoint.y;
 
     for (let i = map.length - 1; i >= 0; i--) {
         if (map[i].y + map[i].h > mapHeight) {
@@ -3131,8 +3094,6 @@ function initializeMap() {
         }
     }
 
-    //TROLLING
-    //TROLLING END
 }
 //UI
 window.onresize = function () {
