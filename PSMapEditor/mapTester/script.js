@@ -2807,8 +2807,8 @@ var touchDevice = false;
 id("newGame").addEventListener("touchstart", function () {
     touchDevice = true;
 
-    tilesWidth = window.innerWidth / 32 | 0;
-    tilesHeight = window.innerHeight / 32 | 0;
+    tilesWidth = window.innerWidth / 16 | 0;
+    tilesHeight = window.innerHeight / 16 | 0;
     // Pixel perfection
     biggestPossible = 1;
     ratioWidth = Math.floor(window.innerWidth / (tileSize * tilesWidth));
@@ -2823,9 +2823,11 @@ id("newGame").addEventListener("touchstart", function () {
     }
     canvas.width = tileSize * tilesWidth * biggestPossible | 0;
     canvas.height = tileSize * tilesHeight * biggestPossible | 0;
-    canvas.width-=canvas.width%64;
-    canvas.heigth-=canvas.heigth%64;
-    ratio = canvas.width / (tilesWidth);
+    canvas.width-=canvas.width%16;
+    canvas.heigth-=canvas.heigth%16;
+    c=canvas.getContext("2d");
+    c.imageSmoothingEnabled="false";
+    ratio = canvas.width / (tilesWidth) | 0 ;
     //UI
     id("menu").style.width = canvas.width + "px";
     id("menu").style.height = canvas.height + "px";

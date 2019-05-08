@@ -40,6 +40,7 @@ a {
     -ms-transform: translate(-50%, -50%);
     -moz-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
+    overflow: hidden;
 }
 
 #buttons {
@@ -82,6 +83,7 @@ a {
     border: 0;
     z-index: 100;
     visibility: hidden;
+    image-rendering: optimizeSpeed;
 }
 
 #pause-screen {
