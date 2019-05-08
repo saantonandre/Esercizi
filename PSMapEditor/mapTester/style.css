@@ -21,6 +21,11 @@ body {
     -ms-interpolation-mode: nearest-neighbor;
 }
 
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
 #menu {
     margin: 0;
     padding: 0;
@@ -116,6 +121,21 @@ body {
     z-index: 200;
     visibility: hidden;
     opacity: 0.95;
+}
+
+#twitter {
+    display: inline-block;
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    position: absolute;
+    left: 10px;
+    bottom: 5px;
+    color: white;
+    opacity: 0.5;
+}
+
+#twitter:hover {
+    opacity: 1;
 }
 
 #ctrlButton {

@@ -2803,7 +2803,8 @@ window.oncontextmenu = function (event) {
 // Keyboard controls
 window.addEventListener("keydown", function (event) {
     var key = event.keyCode;
-    event.preventDefault();
+    if (key !== 122)
+        event.preventDefault();
     if (!gamePaused) {
         switch (key) {
             case 27:
@@ -3107,6 +3108,8 @@ if (!mapTester) {
     for (let i = 0; i < buttons.length; i++) {
         buttons[i].style.fontSize = (canvas.width / 20 | 0) + "px";
     }
+    id("twitter").style.fontSize = (canvas.width / 20 | 0) + "px";
+    id("twitter-logo").style.height = (canvas.width / 20 | 0) + "px";
     id("newGame").onclick = function () {
         eval(maps[0]);
         adaptBiome();
