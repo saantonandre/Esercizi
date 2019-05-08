@@ -826,7 +826,7 @@ class Monster {
             //console.log("attacking");
         }
     };
-    draw() {
+    draw(i) {
         this.frameCounter++
         if (!this.hit) {
             if (!this.grounded) {
@@ -1722,7 +1722,7 @@ if (typeof imported !== "undefined") {
     imported();
 }
 
-function drawFxs(fx) {
+function drawFxs(fx, i) {
     //animation computing
     if (fx.action !== undefined) {
         fx.action();
@@ -2219,9 +2219,6 @@ function renderSpecialTiles() {
             }
         }
 
-        if(isOutOfScreen(specialTiles[i])){
-            continue;
-        }
         var collision = null;
         if (collided(player, specialTiles[i])) {
             collision = colCheck(player, specialTiles[i]);
@@ -2323,9 +2320,6 @@ function loop() {
     }
     checkCollisions();
     for (i = 0; i < monsters.length; i++) {
-        if (isOutOfScreen(monsters[i])) {
-            continue;
-        }
         monsters[i].frameCounter++;
         monsters[i].compute();
     }
@@ -2336,18 +2330,18 @@ function loop() {
         adjustCollided(player);
     }
     //draw character
-    for (i = monsters.length - 1; i >= 0; i--) {
+    for (let i = monsters.length - 1; i >= 0; i--) {
         if (isOutOfScreen(monsters[i])) {
             continue;
         }
-        monsters[i].draw();
+        monsters[i].draw(i);
     }
     player.reading = false;
-    for (i = visualFxs.length - 1; i >= 0; i--) {
+    for (let i = visualFxs.length - 1; i >= 0; i--) {
         if (isOutOfScreen(visualFxs[i])) {
             continue;
         }
-        drawFxs(visualFxs[i]);
+        drawFxs(visualFxs[i], i);
     }
     //happens when teleporting
     if (blackScreen) {
@@ -2424,17 +2418,16 @@ function isOutOfScreen(Entity) {
     if (Entity == null) {
         return true;
     }
-    var entity = (typeof Entity.hitbox !== "undefined") ? Entity.hitbox : Entity;
-    if (entity.x > tilesWidth - mapX) {
+    if (Entity.x > tilesWidth - mapX) {
         return true;
     }
-    if (entity.x + entity.w < - mapX) {
+    if (Entity.x + Entity.w < -mapX) {
         return true;
     }
-    if (entity.y > tilesHeight - mapY) {
+    if (Entity.y > tilesHeight - mapY + 1) {
         return true;
     }
-    if (entity.y + entity.h < - mapY) {
+    if (Entity.y + Entity.h < -mapY) {
         return true;
     }
     return false;
@@ -2447,9 +2440,6 @@ function checkCollisions() {
     player.col.T = false;
     player.col.B = false;
     for (let i = 0; i < monsters.length; i++) {
-        if (isOutOfScreen(monsters[i])) {
-            continue;
-        }
         monsters[i].grounded = false;
         monsters[i].col.L = false;
         monsters[i].col.R = false;
@@ -2460,16 +2450,16 @@ function checkCollisions() {
         }
     }
     for (let i = 0; i < map.length; i++) {
+        for (m = 0; m < monsters.length; m++) {
+            if (collided(monsters[m], map[i])) {
+                colCheck(monsters[m], map[i]);
+            }
+        }
         if (isOutOfScreen(map[i])) {
             continue;
         }
         if (collided(player, map[i])) {
             let collision = colCheck(player, map[i]);
-        }
-        for (m = 0; m < monsters.length; m++) {
-            if (collided(monsters[m], map[i])) {
-                colCheck(monsters[m], map[i]);
-            }
         }
     };
 
@@ -2544,7 +2534,7 @@ function drawBackground() {
     for (let j = 0; j < 5; j++) {
         c.drawImage(
             backgrounds[1],
-            (-tilesWidth * 2 + (backgrounds[1].width / tileSize * j) + mapX / 20 - cloudsX[0]) * ratio | 0,
+            (-tilesWidth/2 + (backgrounds[1].width / tileSize * j) + mapX / 20 - cloudsX[0]) * ratio | 0,
             (mapY / 20) * ratio | 0,
             (backgrounds[1].width / tileSize) * ratio | 0,
             (backgrounds[1].height / tileSize) * ratio | 0
@@ -2558,7 +2548,7 @@ function drawBackground() {
     for (let j = 0; j < 5; j++) {
         c.drawImage(
             backgrounds[2],
-            (-tilesWidth * 2 + (backgrounds[2].width / tileSize * j) + mapX / 18 - cloudsX[1]) * ratio | 0,
+            (-tilesWidth/2 + (backgrounds[2].width / tileSize) + mapX / 18 - cloudsX[1]) * ratio * j | 0,
             (mapY / 18) * ratio | 0,
             (backgrounds[2].width / tileSize) * ratio | 0,
             (backgrounds[2].height / tileSize) * ratio | 0
@@ -2571,8 +2561,8 @@ function drawBackground() {
     for (let j = 0; j < 5; j++) {
         c.drawImage(
             backgrounds[3],
-            (-tilesWidth * 2 + (backgrounds[3].width / tileSize * j) + mapX / 10) * ratio | 0,
-            (mapY / 10) * ratio | 0,
+            (-tilesWidth/2 + (backgrounds[3].width / tileSize) * j + mapX / 10) * ratio | 0,
+            (5+mapY / 10) * ratio | 0,
             (backgrounds[3].width / tileSize * ratio) | 0,
             (backgrounds[3].height / tileSize * ratio) | 0
         );
@@ -2581,8 +2571,8 @@ function drawBackground() {
     for (let j = 0; j < 5; j++) {
         c.drawImage(
             backgrounds[4],
-            (-tilesWidth * 2 + (backgrounds[4].width / tileSize * j) + mapX / 8) * ratio | 0,
-            (mapY / 8) * ratio | 0,
+            (-tilesWidth/2 + (backgrounds[4].width / tileSize * j) + mapX / 8) * ratio | 0,
+            (5+mapY / 8) * ratio | 0,
             (backgrounds[4].width / tileSize) * ratio | 0,
             (backgrounds[4].height / tileSize) * ratio | 0
         );
@@ -2590,8 +2580,8 @@ function drawBackground() {
     for (let j = 0; j < 5; j++) {
         c.drawImage(
             backgrounds[5],
-            (-tilesWidth * 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + (mapX * ratio) / 6) | 0,
-            ((mapY * ratio) / 6) | 0,
+            (-tilesWidth/2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + (mapX * ratio) / 6) | 0,
+            (5+mapY / 8) * ratio | 0,
             (backgrounds[5].width / tileSize * ratio) | 0,
             (backgrounds[5].height / tileSize * ratio) | 0
         );
@@ -2599,8 +2589,8 @@ function drawBackground() {
     for (let j = 0; j < 5; j++) {
         c.drawImage(
             backgrounds[5],
-            (-tilesWidth * 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + (mapX * ratio) / 5) | 0,
-            ((backgrounds[5].height / tileSize * ratio) / 5 + (mapY * ratio) / 5) | 0,
+            (-tilesWidth/2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + (mapX * ratio) / 6) | 0,
+            (5+mapY / 7) * ratio | 0,
             (backgrounds[5].width / tileSize * ratio) | 0,
             (backgrounds[5].height / tileSize * ratio) | 0
         );
@@ -2608,8 +2598,8 @@ function drawBackground() {
     for (let j = 0; j < 5; j++) {
         c.fillStyle = "#323c39";
         c.fillRect(
-            (-tilesWidth * 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + (mapX * ratio) / 5) | 0,
-            ((mapY * ratio) / 5 + backgrounds[5].height / tileSize * ratio) | 0,
+            (-tilesWidth/2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + (mapX * ratio) / 6) | 0,
+            (5+mapY / 7) * ratio+(backgrounds[5].height / tileSize * ratio) | 0,
             (backgrounds[5].width / tileSize * ratio) | 0,
             (backgrounds[5].height / tileSize * ratio) | 0
         );
@@ -2617,10 +2607,10 @@ function drawBackground() {
 }
 
 var checkBlock = {
-    x:0,
-    y:0,
-    w:0,
-    h:0
+    x: 0,
+    y: 0,
+    w: 0,
+    h: 0
 }
 
 function drawEnvironment() {
@@ -2634,11 +2624,11 @@ function drawEnvironment() {
         for (let j = 0; j < bgTiles[i].h; j++) {
             for (let k = 0; k < bgTiles[i].w; k++) {
                 //skips out of bounds tiles
-                checkBlock.x=bgTiles[i].x + k;
-                checkBlock.y=bgTiles[i].y + j;
-                checkBlock.w=1;
-                checkBlock.h=1;
-                if (isOutOfScreen(checkBlock)){
+                checkBlock.x = bgTiles[i].x + k;
+                checkBlock.y = bgTiles[i].y + j;
+                checkBlock.w = 1;
+                checkBlock.h = 1;
+                if (isOutOfScreen(checkBlock)) {
                     continue;
                 }
                 stats.blocks++;
@@ -2661,11 +2651,11 @@ function drawEnvironment() {
         }
         for (let j = 0; j < map[i].h; j++) {
             for (let k = 0; k < map[i].w; k++) {
-                checkBlock.x=map[i].x + k;
-                checkBlock.y=map[i].y + j;
-                checkBlock.w=1;
-                checkBlock.h=1;
-                if (isOutOfScreen(checkBlock)){
+                checkBlock.x = map[i].x + k;
+                checkBlock.y = map[i].y + j;
+                checkBlock.w = 1;
+                checkBlock.h = 1;
+                if (isOutOfScreen(checkBlock)) {
                     continue;
                 }
                 stats.blocks++;
@@ -2857,7 +2847,7 @@ window.oncontextmenu = function (event) {
 
 var touchDevice = false;
 
-function mobileInit() {
+function mobileInit(isContinue) {
     touchDevice = true;
 
     tilesWidth = window.innerWidth / 16 | 0;
@@ -2884,7 +2874,12 @@ function mobileInit() {
     //UI
     id("menu").style.width = canvas.width + "px";
     id("menu").style.height = canvas.height + "px";
-    eval(maps[0]);
+    if (isContinue) {
+        eval(maps[window.localStorage['LvL'] || 0]);
+        currentLevel = window.localStorage['LvL'];
+    } else {
+        eval(maps[0]);
+    }
     adaptBiome();
     initializeMap();
     requestAnimationFrame(loop);
@@ -2982,6 +2977,8 @@ function mobileInit() {
         id("spacebar").style.transform = "scale(1.2)";
         id("spacebar").style.opacity = "1";
         if (gamePaused) {
+            id("arrowCont").style.visibility = "visible";
+            id("othersCont").style.visibility = "visible";
             if (player.reading) {
                 id(player.currentBook).style.visibility = "hidden";
             } else {
@@ -2992,6 +2989,8 @@ function mobileInit() {
             gamePaused = false;
             requestAnimationFrame(loop);
         } else {
+            id("arrowCont").style.visibility = "hidden";
+            id("othersCont").style.visibility = "hidden";
             gamePaused = true;
             //c.globalAlpha=0.6;
             //UI
@@ -3010,93 +3009,12 @@ function mobileInit() {
     }
 
 }
-id("newGame").addEventListener("touchstart", mobileInit, {
+id("newGame").addEventListener("touchstart", function () {
+    mobileInit(false);
+}, {
     once: true
 })
-id("continue").addEventListener("touchstart", mobileInit, {
-    once: true
-})
 
-id("ctrlButton").ontouchstart = function () {
-    id("pause-screen").style.display = "none";
-    id("pause-screen").style.visibility = "hidden";
-    id("controls").style.visibility = "visible";
-    canvas.style.visibility = "visible";
-}
-id("music").ontouchstart = function () {
-    if (options.music) {
-        options.music = false;
-        this.src = "ui/music-off.png";
-        audio.haydn_1.volume = 0;
-        audio.haydn_2.volume = 0;
-        audio.bach_1.volume = 0;
-        audio.bach_2.volume = 0;
-        audio.bach_3.volume = 0;
-        audio.bach_4.volume = 0;
-        audio.bach_5.volume = 0;
-        audio.bach_6.volume = 0;
-        audio.bach_7.volume = 0;
-    } else {
-        options.music = true;
-        this.src = "ui/music-on.png"
-        audio.haydn_1.volume = 0.2;
-        audio.haydn_2.volume = 0.2;
-        audio.bach_1.volume = 0.3;
-        audio.bach_2.volume = 0.3;
-        audio.bach_3.volume = 0.3;
-        audio.bach_4.volume = 0.3;
-        audio.bach_5.volume = 0.3;
-        audio.bach_6.volume = 0.3;
-        audio.bach_7.volume = 0.3;
-    }
-}
-id("audio").ontouchstart = function () {
-    if (options.audio) {
-        options.audio = false;
-        this.src = "ui/sound-off.png";
-        for (let i = 0; i < voices.ghost.length; i++) {
-            voices.ghost[i].volume = 0;
-        }
-        audio.bounce1.volume = 0;
-        audio.bounce2.volume = 0;
-        audio.bounce3.volume = 0;
-        audio.bounce4.volume = 0;
-        audio.speed1.volume = 0;
-        audio.speed2.volume = 0;
-        audio.jump.volume = 0;
-        audio.dash.volume = 0;
-        audio.attack.volume = 0;
-        audio.hit.volume = 0;
-        audio.death.volume = 0;
-        audio.crystal.volume = 0;
-        audio.walking.volume = 0;
-        audio.ambient_1.volume = 0;
-        audio.ambient_2.volume = 0;
-
-    } else {
-        options.audio = true;
-        this.src = "ui/sound-on.png";
-        for (let i = 0; i < voices.ghost.length; i++) {
-            voices.ghost[i].volume = 0.4;
-        }
-        audio.bounce1.volume = 0.4;
-        audio.bounce2.volume = 0.4;
-        audio.bounce3.volume = 0.4;
-        audio.bounce4.volume = 0.4;
-        audio.speed1.volume = 0.8;
-        audio.speed2.volume = 0.5;
-        audio.jump.volume = 0.5;
-        audio.dash.volume = 0.3;
-        audio.attack.volume = 0.5;
-        audio.hit.volume = 0.5;
-        audio.death.volume = 0.5;
-        audio.crystal.volume = 1;
-        audio.walking.volume = 1;
-        audio.ambient_1.volume = 0.1;
-        audio.ambient_2.volume = 0.0;
-
-    }
-}
 // Keyboard controls
 window.addEventListener("keydown", function (event) {
     var key = event.keyCode;
@@ -3431,6 +3349,11 @@ if (!mapTester) {
         ghostSpeech = !ghostSpeech;
     }
     if (window.localStorage['LvL'] != null) {
+        id("continue").addEventListener("touchstart", function () {
+            mobileInit(true);
+        }, {
+            once: true
+        })
         id("continue").onclick = function () {
             eval(maps[window.localStorage['LvL'] || 0]);
             currentLevel = window.localStorage['LvL'];
