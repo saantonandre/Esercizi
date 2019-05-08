@@ -2751,11 +2751,10 @@ function pointSquareCol(point, sq) {
     }
     return false;
 }
-var touchDevice = false;
 //Mouse controls
 var jmpKeyPressed = 0;
 window.onmousedown = function (e) {
-    if (typeof e === 'object') {
+    if (typeof e === 'object' && !touchDevice) {
         switch (e.button) {
             case 0:
                 //console.log('Left button clicked.');
@@ -2779,7 +2778,7 @@ window.onmousedown = function (e) {
     }
 }
 window.onmouseup = function (e) {
-    if (typeof e === 'object') {
+    if (typeof e === 'object' && !touchDevice) {
         switch (e.button) {
             case 0:
                 //console.log('Left button clicked.');
@@ -2800,6 +2799,129 @@ window.onmouseup = function (e) {
 window.oncontextmenu = function (event) {
     event.preventDefault();
 }
+// Mobile controls
+
+
+var touchDevice = false;
+window.ontouchstart = function () {
+    touchDevice = true;
+    id("arrowCont").style.display = "block";
+    id("spacebarCont").style.display = "block";
+    id("othersCont").style.display = "block";
+    id("up").ontouchstart = function () {
+        id("up").style.transform = "scale(1.2)";
+        id("up").style.opacity = "1";
+
+        if (!jmpKeyPressed) {
+            player.jump();
+            jmpKeyPressed = true;
+        }
+    }
+    id("up").ontouchend = function () {
+        id("up").style.transform = "";
+        id("up").style.opacity = "0.4";
+
+        player.jumping = false;
+        if (player.jumping && player.jumpCounter < 9) {
+            p.yVel = 0;
+        }
+        jmpKeyPressed = false;
+    }
+
+    id("left").ontouchstart = function () {
+        id("left").style.transform = "scale(1.2)";
+        id("left").style.opacity = "1";
+
+        player.L = true;
+    }
+    id("left").ontouchend = function () {
+        id("left").style.transform = "";
+        id("left").style.opacity = "0.4";
+
+        player.L = false;
+    }
+
+    id("right").ontouchstart = function () {
+        id("right").style.transform = "scale(1.2)";
+        id("right").style.opacity = "1";
+
+        player.R = true;
+    }
+    id("right").ontouchend = function () {
+        id("right").style.transform = "";
+        id("right").style.opacity = "0.4";
+
+        player.R = false;
+    }
+    id("atk").ontouchstart = function () {
+        id("atk").style.transform = "scale(1.2)";
+        id("atk").style.opacity = "1";
+
+        player.attackEvent();
+    }
+    id("atk").ontouchend = function () {
+        id("atk").style.transform = "";
+        id("atk").style.opacity = "0.4";
+    }
+    id("lookDown").ontouchstart = function () {
+        id("lookDown").style.transform = "scale(1.2)";
+        id("lookDown").style.opacity = "1";
+
+        watchDown = true;
+    }
+    id("lookDown").ontouchend = function () {
+        id("lookDown").style.transform = "";
+        id("lookDown").style.opacity = "0.4";
+
+        watchDown = false;
+    }
+    id("lookFurther").ontouchstart = function () {
+        id("lookFurther").style.transform = "scale(1.2)";
+        id("lookFurther").style.opacity = "1";
+
+        cameraType = 1;
+    }
+    id("lookFurther").ontouchend = function () {
+        id("lookFurther").style.transform = "";
+        id("lookFurther").style.opacity = "0.4";
+
+        cameraType = 0;
+    }
+
+    id("spacebar").ontouchstart = function () {
+        id("spacebar").style.transform = "scale(1.2)";
+        id("spacebar").style.opacity = "1";
+        if (gamePaused) {
+            if (player.reading) {
+                id(player.currentBook).style.visibility = "hidden";
+            } else {
+                id("pause-screen").style.display = "none";
+                id("pause-screen").style.visibility = "hidden";
+                id("controls").style.visibility = "hidden";
+            }
+            gamePaused = false;
+            requestAnimationFrame(loop);
+        } else {
+            gamePaused = true;
+            //c.globalAlpha=0.6;
+            //UI
+            if (player.reading) {
+                id(player.currentBook).style.visibility = "visible";
+            } else {
+                id("pause-screen").style.display = "block";
+                id("pause-screen").style.visibility = "visible";
+                id("controls").style.visibility = "hidden";
+            }
+        }
+    }
+    id("spacebar").ontouchend = function () {
+        id("spacebar").style.transform = "";
+        id("spacebar").style.opacity = "0.4";
+    }
+
+}
+
+
 // Keyboard controls
 window.addEventListener("keydown", function (event) {
     var key = event.keyCode;
