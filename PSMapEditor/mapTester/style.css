@@ -138,8 +138,17 @@ a {
     bottom: 5px;
     color: white;
     opacity: 0.5;
+    z-index: 2000;
 }
-
+.stat{
+    font-family: 'VT323', monospace;
+    font-size:20px; 
+    color:white;
+    text-align: left;
+    position:absolute;
+    display:block;
+    width:100%;
+}
 #twitter:hover {
     opacity: 1;
 }

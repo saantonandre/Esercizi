@@ -20,6 +20,12 @@ var ghostBtn = id("ghost");
 var ghostSpeech = false;
 var currentLevel = 0;
 
+var stats = {
+    blocks: 0,
+    col1: 0,
+    col2: 0,
+    col3: 0,
+}
 var tileSize = 16;
 var tilesWidth = 20;
 var tilesHeight = 15;
@@ -140,10 +146,6 @@ var tiles = [
         [5, 17], // dialogue
     ]
 
-setInterval(function () {
-    id("FPS").innerHTML = fps + " FPS";
-    fps = 0;
-}, 1000);
 var audio = {
     jump: new Audio("PixelSamurai/soundFxs/jump.mp3"),
     bounce1: new Audio("PixelSamurai/soundFxs/bounce1.mp3"),
@@ -172,6 +174,11 @@ var audio = {
     bach_6: new Audio("PixelSamurai/soundFxs/music/Bach-6.mp3"),
     bach_7: new Audio("PixelSamurai/soundFxs/music/Bach-7.mp3"),
 }
+
+setInterval(function () {
+    id("FPS").innerHTML = fps + " FPS";
+    fps = 0;
+}, 1000);
 
 audio.walking.playbackRate = 1.4;
 audio.speed1.playbackRate = 0.7;
@@ -884,11 +891,6 @@ class Monster {
         }
     }
 }
-
-//shows the number of monsters
-setInterval(function () {
-    id("monsternumber").innerHTML = monsters.length;
-}, 500);
 
 function leftRightMovement(serial) {
 
@@ -1750,6 +1752,7 @@ function drawFxs(fx) {
     }
 
     //c.translate(fxX+fxW/2, fxY+fxH/2);
+    stats.blocks++;
     if (fx.rotation > 0) {
         fxY -= fxH / 2;
         c.save();
@@ -2216,7 +2219,9 @@ function renderSpecialTiles() {
             }
         }
 
-
+        if(isOutOfScreen(specialTiles[i])){
+            continue;
+        }
         var collision = null;
         if (collided(player, specialTiles[i])) {
             collision = colCheck(player, specialTiles[i]);
@@ -2226,6 +2231,7 @@ function renderSpecialTiles() {
                 specialTiles[i].action(player, collision);
             }
         }
+        stats.blocks++;
         c.drawImage(
             specialTiles[i].sheet,
             specialTiles[i].spritePos.x[specialTiles[i].sprite][specialTiles[i].frame] * 16,
@@ -2356,6 +2362,7 @@ function loop() {
     }
     renderHpBars();
     renderTexts();
+    displayStats();
     if (!gamePaused) {
         requestAnimationFrame(loop)
     }
@@ -2418,12 +2425,16 @@ function isOutOfScreen(Entity) {
         return true;
     }
     var entity = (typeof Entity.hitbox !== "undefined") ? Entity.hitbox : Entity;
-    if (entity.x + entity.w > tilesWidth - mapX &&
-        entity.x + entity.w < -tilesWidth - mapX) {
+    if (entity.x > tilesWidth - mapX) {
         return true;
     }
-    if (entity.y + entity.h > tilesHeight - mapY &&
-        entity.y + entity.h < -tilesHeight - mapY) {
+    if (entity.x + entity.w < - mapX) {
+        return true;
+    }
+    if (entity.y > tilesHeight - mapY) {
+        return true;
+    }
+    if (entity.y + entity.h < - mapY) {
         return true;
     }
     return false;
@@ -2605,6 +2616,13 @@ function drawBackground() {
     }
 }
 
+var checkBlock = {
+    x:0,
+    y:0,
+    w:0,
+    h:0
+}
+
 function drawEnvironment() {
     if (background) {
         drawBackground();
@@ -2616,14 +2634,14 @@ function drawEnvironment() {
         for (let j = 0; j < bgTiles[i].h; j++) {
             for (let k = 0; k < bgTiles[i].w; k++) {
                 //skips out of bounds tiles
-                if (bgTiles[i].x + k > tilesWidth - mapX &&
-                    bgTiles[i].x + k < -tilesWidth - mapX) {
+                checkBlock.x=bgTiles[i].x + k;
+                checkBlock.y=bgTiles[i].y + j;
+                checkBlock.w=1;
+                checkBlock.h=1;
+                if (isOutOfScreen(checkBlock)){
                     continue;
                 }
-                if (bgTiles[i].y + j > tilesHeight - mapY &&
-                    bgTiles[i].y + j < -tilesHeight - mapY) {
-                    continue;
-                }
+                stats.blocks++;
                 c.drawImage(
                     player.sheet,
                     tiles[bgTiles[i].type][0] * 16,
@@ -2643,6 +2661,14 @@ function drawEnvironment() {
         }
         for (let j = 0; j < map[i].h; j++) {
             for (let k = 0; k < map[i].w; k++) {
+                checkBlock.x=map[i].x + k;
+                checkBlock.y=map[i].y + j;
+                checkBlock.w=1;
+                checkBlock.h=1;
+                if (isOutOfScreen(checkBlock)){
+                    continue;
+                }
+                stats.blocks++;
                 c.drawImage(
                     player.sheet, tiles[map[i].type][0] * 16,
                     tiles[map[i].type][1] * 16,
@@ -2661,6 +2687,7 @@ function drawEnvironment() {
 
 // COLLISION DETECTORS
 function colCheck(shapeA, shapeB) {
+    stats.col3++;
     // get the vectors to check against
     if (shapeA.hitbox != null) {
         var shapeAA = shapeA.hitbox;
@@ -2721,6 +2748,7 @@ function colCheck(shapeA, shapeB) {
 }
 
 function collided(a, b) {
+    stats.col2++;
     var square1 = a.hitbox ? a.hitbox : a;
     var square2 = b.hitbox ? b.hitbox : b;
     if (square1.x < square2.x + square2.w) {
@@ -2736,6 +2764,7 @@ function collided(a, b) {
 }
 
 function pointSquareCol(point, sq) {
+    stats.col1++;
     var square = sq;
     if (sq.hitbox !== undefined) {
         square = sq.hitbox;
@@ -2752,6 +2781,29 @@ function pointSquareCol(point, sq) {
     }
     return false;
 }
+// STATS
+
+
+
+
+
+function displayStats() {
+    id("BLOCKS").innerHTML = "blocks: " + stats.blocks;
+    id("COL-1").innerHTML = "PointSquareColCheck: " + stats.col1;
+    id("COL-2").innerHTML = "SquareSquareColCheck: " + stats.col2;
+    id("COL-3").innerHTML = "DirSquarescolCheck: " + stats.col3;
+    stats.blocks = 0;
+    stats.col1 = 0;
+    stats.col2 = 0;
+    stats.col3 = 0;
+}
+
+
+
+
+
+
+
 //Mouse controls
 var jmpKeyPressed = 0;
 window.onmousedown = function (e) {
@@ -2804,7 +2856,8 @@ window.oncontextmenu = function (event) {
 
 
 var touchDevice = false;
-id("newGame").addEventListener("touchstart", function () {
+
+function mobileInit() {
     touchDevice = true;
 
     tilesWidth = window.innerWidth / 16 | 0;
@@ -2823,11 +2876,11 @@ id("newGame").addEventListener("touchstart", function () {
     }
     canvas.width = tileSize * tilesWidth * biggestPossible | 0;
     canvas.height = tileSize * tilesHeight * biggestPossible | 0;
-    canvas.width-=canvas.width%16;
-    canvas.heigth-=canvas.heigth%16;
-    c=canvas.getContext("2d");
-    c.imageSmoothingEnabled="false";
-    ratio = canvas.width / (tilesWidth) | 0 ;
+    canvas.width -= canvas.width % 16;
+    canvas.heigth -= canvas.heigth % 16;
+    c = canvas.getContext("2d");
+    c.imageSmoothingEnabled = "false";
+    ratio = canvas.width / (tilesWidth) | 0;
     //UI
     id("menu").style.width = canvas.width + "px";
     id("menu").style.height = canvas.height + "px";
@@ -2836,8 +2889,8 @@ id("newGame").addEventListener("touchstart", function () {
     initializeMap();
     requestAnimationFrame(loop);
     id("menu").style.visibility = "hidden";
-    id("controls").style.visibility = "visible";
     canvas.style.visibility = "visible";
+    gamePaused = false;
 
 
 
@@ -2956,16 +3009,103 @@ id("newGame").addEventListener("touchstart", function () {
         id("spacebar").style.opacity = "0.4";
     }
 
-}, {
+}
+id("newGame").addEventListener("touchstart", mobileInit, {
+    once: true
+})
+id("continue").addEventListener("touchstart", mobileInit, {
     once: true
 })
 
+id("ctrlButton").ontouchstart = function () {
+    id("pause-screen").style.display = "none";
+    id("pause-screen").style.visibility = "hidden";
+    id("controls").style.visibility = "visible";
+    canvas.style.visibility = "visible";
+}
+id("music").ontouchstart = function () {
+    if (options.music) {
+        options.music = false;
+        this.src = "ui/music-off.png";
+        audio.haydn_1.volume = 0;
+        audio.haydn_2.volume = 0;
+        audio.bach_1.volume = 0;
+        audio.bach_2.volume = 0;
+        audio.bach_3.volume = 0;
+        audio.bach_4.volume = 0;
+        audio.bach_5.volume = 0;
+        audio.bach_6.volume = 0;
+        audio.bach_7.volume = 0;
+    } else {
+        options.music = true;
+        this.src = "ui/music-on.png"
+        audio.haydn_1.volume = 0.2;
+        audio.haydn_2.volume = 0.2;
+        audio.bach_1.volume = 0.3;
+        audio.bach_2.volume = 0.3;
+        audio.bach_3.volume = 0.3;
+        audio.bach_4.volume = 0.3;
+        audio.bach_5.volume = 0.3;
+        audio.bach_6.volume = 0.3;
+        audio.bach_7.volume = 0.3;
+    }
+}
+id("audio").ontouchstart = function () {
+    if (options.audio) {
+        options.audio = false;
+        this.src = "ui/sound-off.png";
+        for (let i = 0; i < voices.ghost.length; i++) {
+            voices.ghost[i].volume = 0;
+        }
+        audio.bounce1.volume = 0;
+        audio.bounce2.volume = 0;
+        audio.bounce3.volume = 0;
+        audio.bounce4.volume = 0;
+        audio.speed1.volume = 0;
+        audio.speed2.volume = 0;
+        audio.jump.volume = 0;
+        audio.dash.volume = 0;
+        audio.attack.volume = 0;
+        audio.hit.volume = 0;
+        audio.death.volume = 0;
+        audio.crystal.volume = 0;
+        audio.walking.volume = 0;
+        audio.ambient_1.volume = 0;
+        audio.ambient_2.volume = 0;
 
+    } else {
+        options.audio = true;
+        this.src = "ui/sound-on.png";
+        for (let i = 0; i < voices.ghost.length; i++) {
+            voices.ghost[i].volume = 0.4;
+        }
+        audio.bounce1.volume = 0.4;
+        audio.bounce2.volume = 0.4;
+        audio.bounce3.volume = 0.4;
+        audio.bounce4.volume = 0.4;
+        audio.speed1.volume = 0.8;
+        audio.speed2.volume = 0.5;
+        audio.jump.volume = 0.5;
+        audio.dash.volume = 0.3;
+        audio.attack.volume = 0.5;
+        audio.hit.volume = 0.5;
+        audio.death.volume = 0.5;
+        audio.crystal.volume = 1;
+        audio.walking.volume = 1;
+        audio.ambient_1.volume = 0.1;
+        audio.ambient_2.volume = 0.0;
+
+    }
+}
 // Keyboard controls
 window.addEventListener("keydown", function (event) {
     var key = event.keyCode;
-    if (key !== 122)
+    if (key !== 122) {
         event.preventDefault();
+    }
+    if (key === 112) {
+        id("stats").style.visibility = "visible";
+    }
     if (!gamePaused) {
         switch (key) {
             case 27:
@@ -3306,15 +3446,15 @@ if (!mapTester) {
         id("continue").style.opacity = "0.5";
     };
 }
+var options = {
+    audio: true,
+    music: true,
+}
 id("ctrlButton").onclick = function () {
     id("pause-screen").style.display = "none";
     id("pause-screen").style.visibility = "hidden";
     id("controls").style.visibility = "visible";
     canvas.style.visibility = "visible";
-}
-var options = {
-    audio: true,
-    music: true,
 }
 id("music").onclick = function () {
     if (options.music) {

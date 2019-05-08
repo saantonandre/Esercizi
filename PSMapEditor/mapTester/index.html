@@ -12,12 +12,12 @@
 </head>
 
 <body>
-    <div style="display:none;position:absolute;width:100%;text-align:right;">
-        <span id="FPS"></span><br>
-        <span id="stat"></span><br>
-        <span id="playery"></span><br>
-        <span id="monsternumber"></span><br>
-        <span id="ctrl-span" style="position:absolute"></span>
+    <div id="stats" style="display:block;visibility: hidden; position:absolute;width:100%;z-index:2000;">
+        <span id="FPS" class="stat"></span><br>
+        <span id="BLOCKS" class="stat"></span><br>
+        <span id="COL-1" class="stat"></span><br>
+        <span id="COL-2" class="stat"></span><br>
+        <span id="COL-3" class="stat"></span><br>
         <br>
     </div>
     <div style="display:none;position:absolute;text-align:left;">
@@ -130,6 +130,4 @@
     </div>
     <script src="levels-new.js"></script>
     <script src="script.js"></script>
-</body>
-
-</html>
+</body></html>
