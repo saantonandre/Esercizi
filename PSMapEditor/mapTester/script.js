@@ -16,12 +16,13 @@ if (window.opener) {
 } else {
     mapTester = false;
 }
+var ghostBtn = id("ghost");
+var ghostSpeech = false;
+var currentLevel = 0;
+
 var tileSize = 16;
 var tilesWidth = 20;
 var tilesHeight = 15;
-var currentLevel = 0;
-var ghostBtn = id("ghost");
-var ghostSpeech = false;
 // Pixel perfection
 var biggestPossible = 1;
 var ratioWidth = Math.floor(window.innerWidth / (tileSize * tilesWidth));
@@ -2803,8 +2804,42 @@ window.oncontextmenu = function (event) {
 
 
 var touchDevice = false;
-window.ontouchstart = function () {
+id("newGame").addEventListener("touchstart", function () {
     touchDevice = true;
+
+    tilesWidth = window.innerWidth / 32 | 0;
+    tilesHeight = window.innerHeight / 32 | 0;
+    // Pixel perfection
+    biggestPossible = 1;
+    ratioWidth = Math.floor(window.innerWidth / (tileSize * tilesWidth));
+    ratioHeight = Math.floor(window.innerHeight / (tileSize * tilesHeight));
+    if (ratioWidth !== ratioHeight) {
+        biggestPossible = ratioWidth < ratioHeight ? ratioWidth : ratioHeight;
+    } else {
+        biggestPossible = ratioHeight;
+    }
+    if (biggestPossible < 1) {
+        biggestPossible = 1;
+    }
+    canvas.width = tileSize * tilesWidth * biggestPossible | 0;
+    canvas.height = tileSize * tilesHeight * biggestPossible | 0;
+    canvas.width-=canvas.width%64;
+    canvas.heigth-=canvas.heigth%64;
+    ratio = canvas.width / (tilesWidth);
+    //UI
+    id("menu").style.width = canvas.width + "px";
+    id("menu").style.height = canvas.height + "px";
+    eval(maps[0]);
+    adaptBiome();
+    initializeMap();
+    requestAnimationFrame(loop);
+    id("menu").style.visibility = "hidden";
+    id("controls").style.visibility = "visible";
+    canvas.style.visibility = "visible";
+
+
+
+
     id("arrowCont").style.display = "block";
     id("spacebarCont").style.display = "block";
     id("othersCont").style.display = "block";
@@ -2863,27 +2898,27 @@ window.ontouchstart = function () {
         id("atk").style.transform = "";
         id("atk").style.opacity = "0.4";
     }
-    id("lookDown").ontouchstart = function () {
-        id("lookDown").style.transform = "scale(1.2)";
-        id("lookDown").style.opacity = "1";
+    id("lookDownBtn").ontouchstart = function () {
+        id("lookDownBtn").style.transform = "scale(1.2)";
+        id("lookDownBtn").style.opacity = "1";
 
         watchDown = true;
     }
-    id("lookDown").ontouchend = function () {
-        id("lookDown").style.transform = "";
-        id("lookDown").style.opacity = "0.4";
+    id("lookDownBtn").ontouchend = function () {
+        id("lookDownBtn").style.transform = "";
+        id("lookDownBtn").style.opacity = "0.4";
 
         watchDown = false;
     }
-    id("lookFurther").ontouchstart = function () {
-        id("lookFurther").style.transform = "scale(1.2)";
-        id("lookFurther").style.opacity = "1";
+    id("lookFurtherBtn").ontouchstart = function () {
+        id("lookFurtherBtn").style.transform = "scale(1.2)";
+        id("lookFurtherBtn").style.opacity = "1";
 
         cameraType = 1;
     }
-    id("lookFurther").ontouchend = function () {
-        id("lookFurther").style.transform = "";
-        id("lookFurther").style.opacity = "0.4";
+    id("lookFurtherBtn").ontouchend = function () {
+        id("lookFurtherBtn").style.transform = "";
+        id("lookFurtherBtn").style.opacity = "0.4";
 
         cameraType = 0;
     }
@@ -2919,7 +2954,9 @@ window.ontouchstart = function () {
         id("spacebar").style.opacity = "0.4";
     }
 
-}
+}, {
+    once: true
+})
 
 
 // Keyboard controls
@@ -3088,8 +3125,8 @@ function initializeMap() {
     }
     pickSong = (currentLevel / 2 | 0) > biomes[biome].music.length ? (Math.random() * biomes[biome].music.length) | 0 : currentLevel / 2 | 0;
     biomes[biome].music[pickSong].loop = true;
-    biomes[biome].music[pickSong].play();
-    biomes[biome].ambient.play();
+    biomes[biome].music[pickSong].playy();
+    biomes[biome].ambient.playy();
     for (let i = map.length - 1; i >= 0; i--) {
         switch (map[i].type) {
             case 17:
