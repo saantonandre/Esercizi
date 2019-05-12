@@ -1,4 +1,4 @@
-// simplify the document.getElementById() to just id()
+// simplifies the document.getElementById() to just id()
 function id(arg) {
     return document.getElementById(arg);
 }
@@ -27,29 +27,53 @@ var stats = {
     col3: 0,
 }
 var tileSize = 16;
-var tilesWidth = 20;
-var tilesHeight = 15;
-// Pixel perfection
-var biggestPossible = 1;
-var ratioWidth = Math.floor(window.innerWidth / (tileSize * tilesWidth));
-var ratioHeight = Math.floor(window.innerHeight / (tileSize * tilesHeight))
-if (ratioWidth !== ratioHeight) {
-    biggestPossible = ratioWidth < ratioHeight ? ratioWidth : ratioHeight;
-} else {
-    biggestPossible = ratioHeight;
-}
-if (biggestPossible < 1) {
-    biggestPossible = 1;
-}
-canvas.width = tileSize * tilesWidth * biggestPossible;
-canvas.height = tileSize * tilesHeight * biggestPossible;
-var ratio = canvas.width / (tilesWidth);
-//UI
-id("menu").style.width = canvas.width + "px";
-id("menu").style.height = canvas.height + "px";
+var tilesWidth, tilesHeight, ratioWidth, ratioHeight, biggestPossible, ratio;
 
-console.log(canvas.height)
-c.imageSmoothingEnabled = false;
+var rWidth = Math.floor(window.innerWidth / (tileSize * 20));
+var rHeight = Math.floor(window.innerHeight / (tileSize * 15));
+if (rWidth !== rHeight) {
+    biggestPossible = rWidth < rHeight ? rWidth : rHeight;
+} else {
+    biggestPossible = rHeight;
+}
+id("menu").style.width = (tileSize * 20 * biggestPossible) + "px";
+id("menu").style.height = (tileSize * 15 * biggestPossible) + "px";
+
+function adjustScreen(device) {
+    switch (device) {
+        case "mobile":
+            tilesWidth = window.innerWidth / 32 | 0;
+            tilesHeight = window.innerHeight / 32 | 0;
+            break;
+        case "pc":
+            tilesWidth = 20;
+            tilesHeight = 15;
+            break;
+    }
+    biggestPossible = 1;
+    ratioWidth = Math.floor(window.innerWidth / (tileSize * tilesWidth));
+    ratioHeight = Math.floor(window.innerHeight / (tileSize * tilesHeight))
+    if (ratioWidth !== ratioHeight) {
+        biggestPossible = ratioWidth < ratioHeight ? ratioWidth : ratioHeight;
+    } else {
+        biggestPossible = ratioHeight;
+    }
+    if (biggestPossible < 1) {
+        biggestPossible = 1;
+    }
+    canvas.width = tileSize * tilesWidth * biggestPossible | 0;
+    canvas.height = tileSize * tilesHeight * biggestPossible | 0;
+    canvas.width -= canvas.width % 16;
+    canvas.heigth -= canvas.heigth % 16;
+    ratio = canvas.width / (tilesWidth) | 0;
+    ratio = canvas.width / (tilesWidth);
+    //UI
+    id("menu").style.width = canvas.width + "px";
+    id("menu").style.height = canvas.height + "px";
+
+    c.imageSmoothingEnabled = false;
+}
+// Pixel perfection
 
 //CAMERA
 var watchDown = false;
@@ -144,6 +168,7 @@ var tiles = [
         [15, 5], [15, 9], // trap on/off
         [8, 13], // stone pile
         [5, 17], // dialogue
+        [1, 18], // falling stone
     ]
 
 var audio = {
@@ -164,6 +189,8 @@ var audio = {
     ambient_2: new Audio("PixelSamurai/soundFxs/ambient/castle.mp3"),
     spikes1: new Audio("PixelSamurai/soundFxs/spikes1.mp3"),
     spikes2: new Audio("PixelSamurai/soundFxs/spikes2.mp3"),
+    tremble: new Audio("PixelSamurai/soundFxs/tremble.mp3"),
+    fall: new Audio("PixelSamurai/soundFxs/fall.mp3"),
     haydn_1: new Audio("PixelSamurai/soundFxs/music/Haydn-1.mp3"),
     haydn_2: new Audio("PixelSamurai/soundFxs/music/Haydn-2.mp3"),
     bach_3: new Audio("PixelSamurai/soundFxs/music/Bach-1.mp3"),
@@ -196,6 +223,8 @@ audio.hit.volume = 0.5;
 audio.death.volume = 0.5;
 audio.crystal.volume = 1;
 audio.walking.volume = 1;
+audio.tremble.volume = 0.1;
+audio.fall.volume = 0.1;
 audio.ambient_1.volume = 0.1;
 audio.ambient_2.volume = 0;
 
@@ -277,6 +306,7 @@ class Player {
         this.goingDown = false;
         this.frame = 0;
         this.yVelDirChange = 0;
+        this.prevPos = [];
         this.hitbox = {
             x: 0,
             y: 0,
@@ -418,6 +448,10 @@ class Player {
             this.jumpCounter++;
         }
         if (this.dash) {
+            this.prevPos.push({
+                x: this.x,
+                y: this.y
+            });
             this.jumping = false;
             this.xVel = this.left ? -this.speed * 5 : this.speed * 5;
             this.yVel = 0;
@@ -431,6 +465,7 @@ class Player {
             }
         }
         if (!this.dash) {
+            this.prevPos.length = 0;
             if (this.L && !this.col.L && !this.R) {
                 if (this.xVel > 0) {
                     this.xVel = 0;
@@ -512,7 +547,6 @@ class Player {
 
     }
     draw() {
-
         if (this.yVel > 0 && this.yVelDirChange < 0) {
             this.jumpTransition = true;
             if (!this.attack) {
@@ -529,6 +563,8 @@ class Player {
                 this.action = 7; //atk left
             }
         } else {
+
+
             this.slowness = 6;
             if (!this.grounded) {
                 this.dance = false;
@@ -620,39 +656,20 @@ class Player {
         //draw on canvas
         if (this.dash) {
             c.globalCompositeOperation = "difference";
-            c.globalAlpha = 0.4;
-            c.drawImage(
-                this.sheet,
-                this.actionX[this.action][0] * 16,
-                this.actionY[this.action][0] * 16,
-                this.sprite.w * 16,
-                this.sprite.h * 16,
-                (this.x + mapX - this.xVel * 2) * ratio | 0,
-                (this.y + mapY) * ratio | 0,
-                (this.w) * ratio | 0,
-                (this.h) * ratio | 0);
-            c.globalAlpha = 0.6;
-            c.drawImage(
-                this.sheet,
-                this.actionX[this.action][0] * 16,
-                this.actionY[this.action][0] * 16,
-                this.sprite.w * 16,
-                this.sprite.h * 16,
-                (this.x + mapX - this.xVel) * ratio | 0,
-                (this.y + mapY) * ratio | 0,
-                (this.w) * ratio | 0,
-                (this.h) * ratio | 0);
-            c.globalAlpha = 0.8;
-            c.drawImage(
-                this.sheet,
-                this.actionX[this.action][0] * 16,
-                this.actionY[this.action][0] * 16,
-                this.sprite.w * 16,
-                this.sprite.h * 16,
-                (this.x + mapX) * ratio | 0,
-                (this.y + mapY) * ratio | 0,
-                (this.w) * ratio | 0,
-                (this.h) * ratio | 0);
+            for (let i = 0; i < this.prevPos.length; i++) {
+                c.globalAlpha = 1 - i / 10;
+                c.drawImage(
+                    this.sheet,
+                    this.actionX[this.action][0] * 16,
+                    this.actionY[this.action][0] * 16,
+                    this.sprite.w * 16,
+                    this.sprite.h * 16,
+                    (this.prevPos[i].x + mapX) * ratio | 0,
+                    (this.prevPos[i].y + mapY) * ratio | 0,
+                    (this.w) * ratio | 0,
+                    (this.h) * ratio | 0);
+
+            }
             c.globalAlpha = 1;
             c.globalCompositeOperation = "source-over";
         } else {
@@ -1671,16 +1688,16 @@ class GhostGirl {
                 this.sprite = 1;
             }
             if (Math.abs(this.x - player.x) / 6 > 1 / 100) {
-                this.x -= Math.abs(this.x - player.x) / 50;
+                this.x -= Math.abs(this.x - player.x) / 100;
             }
         }
         if (this.y + this.h < player.y - 1) {
             if (Math.abs(this.y - player.y) / 6 > 1 / 100) {
-                this.y += Math.abs(this.y - player.y) / 50;
+                this.y += Math.abs(this.y - player.y) / 100;
             }
         } else if (this.y > player.y + player.h + 1) {
             if (Math.abs(this.y - player.y) / 6 > 1 / 100) {
-                this.y -= Math.abs(this.y - player.y) / 50;
+                this.y -= Math.abs(this.y - player.y) / 100;
             }
         }
     }
@@ -1724,14 +1741,14 @@ if (typeof imported !== "undefined") {
 
 function drawFxs(fx, i) {
     //animation computing
-    if (fx.action !== undefined) {
+    if (fx.action != null) {
         fx.action();
     }
     var fxX = fx.x + mapX;
     var fxY = fx.y + mapY;
     var fxW = fx.spritePos.w[fx.sprite];
     var fxH = fx.spritePos.h[fx.sprite];
-    if (fx.frameCounter !== undefined) {
+    if (fx.frameCounter != null) {
         fx.frameCounter++;
         if (fx.frameCounter > fx.slowness) {
             fx.frame++;
@@ -1878,6 +1895,118 @@ class Bouncy extends SpecialTile {
                 audio.bounce1.playy()
                 break;
         };
+    }
+}
+class FallingStone extends SpecialTile {
+    constructor(x, y) {
+        super(x, y);
+        this.sprite = 0;
+        this.spritePos = {
+            x: [[1], [1, 1], [2, 3, 4, 5, 6, 7, 8], [10]], //0
+            y: [[18], [18, 19], [18, 18, 18, 18, 18, 18, 18], [0]], //18
+            w: [1, 1, 1, 1],
+            h: [1, 1, 2, 1],
+        };
+        this.repeat = true;
+        this.running = false;
+        this.slowness = 3;
+        this.type = "falling";
+        this.touched = 0;
+        this.timer = 0;
+        this.w = 1;
+        this.h = 1;
+        this.hitbox = {
+            x: x,
+            y: y,
+            w: 1,
+            h: 0.5
+        };
+    }
+    action(collider, colDir) {
+        switch (colDir) {
+            case "b":
+                collider.grounded = true;
+                if (!this.touched) {
+                    this.sprite = 1;
+                    this.touched = true;
+                    this.running = true;
+                    audio.tremble.playy();
+                }
+                break;
+            case "t":
+                if (collider.yVel < 0) {
+                    collider.yVel = 0;
+                }
+                break;
+        };
+    }
+    move() {
+        if (this.touched) {
+            c.drawImage(
+                id("sheet"),
+                0,
+                288,
+                16,
+                16,
+                (this.x + mapX) * ratio | 0,
+                (this.y + mapY) * ratio | 0,
+                ratio,
+                ratio
+            );
+            if (this.sprite == 1) {
+                this.timer++;
+                if (this.timer >= 30) {
+                    audio.fall.playy();
+                    this.frame = 0;
+                    this.frameCounter = 0;
+                    this.sprite = 2;
+                    this.counter = 0;
+                    this.slowness = 4;
+                    this.running = true;
+                    this.hitbox = {
+                        x: 0,
+                        y: 0,
+                        w: 0,
+                        h: 0
+                    };
+                    this.h = 2;
+                }
+                //sleep or delete
+            }
+            if (this.sprite == 2) {
+                //sleep or delete
+                if (this.frame >= this.spritePos.x[2].length - 1) {
+                    this.frame = 0;
+                    this.frameCounter = 0;
+                    this.slowness = 3;
+                    this.sprite = 3;
+                    this.timer = 0;
+                    this.h = 1;
+                }
+                this.running = true;
+            }
+            if (this.sprite == 3) {
+                //sleep or delete
+                this.timer++;
+                let testHitbox = {
+                    x: this.x,
+                    y: this.y,
+                    w: 1,
+                    h: 0.5
+                }
+                if (this.timer >= 120 && !collided(testHitbox, player)) {
+                    this.touched = false;
+                    this.sprite = 0;
+                    this.timer = 0;
+                    this.hitbox = {
+                        x: this.x,
+                        y: this.y,
+                        w: 1,
+                        h: 0.5
+                    };
+                }
+            }
+        }
     }
 }
 class Speeder extends SpecialTile {
@@ -2338,7 +2467,10 @@ function loop() {
     }
     player.reading = false;
     for (let i = visualFxs.length - 1; i >= 0; i--) {
-        if (isOutOfScreen(visualFxs[i])) {
+        if (visualFxs[i] == null) {
+            continue
+        }
+        if (visualFxs[i].type !== "ghostgirl" && isOutOfScreen(visualFxs[i])) {
             continue;
         }
         drawFxs(visualFxs[i], i);
@@ -2400,7 +2532,7 @@ function moveCamera() {
             mapX += (-player.x + cameraDir - mapX) / 6;
         }
     }
-    let lookDown = watchDown ? tilesHeight / 4 : 0;
+    let lookDown = watchDown ? 15 / 4 : 0; //15 is tilesHeight standard
     if (mapY < -(player.y + lookDown) + tilesHeight / 2) {
         // means camera moves downward
         if (Math.abs((-(player.y + lookDown) + tilesHeight / 2 - mapY) / 6) > 1 / 100) {
@@ -2534,7 +2666,7 @@ function drawBackground() {
     for (let j = 0; j < 5; j++) {
         c.drawImage(
             backgrounds[1],
-            (-tilesWidth/2 + (backgrounds[1].width / tileSize * j) + mapX / 20 - cloudsX[0]) * ratio | 0,
+            (-tilesWidth / 2 + (backgrounds[1].width / tileSize) * j + mapX / 20 - cloudsX[0]) * ratio | 0,
             (mapY / 20) * ratio | 0,
             (backgrounds[1].width / tileSize) * ratio | 0,
             (backgrounds[1].height / tileSize) * ratio | 0
@@ -2548,7 +2680,7 @@ function drawBackground() {
     for (let j = 0; j < 5; j++) {
         c.drawImage(
             backgrounds[2],
-            (-tilesWidth/2 + (backgrounds[2].width / tileSize) + mapX / 18 - cloudsX[1]) * ratio * j | 0,
+            (-tilesWidth / 2 + (backgrounds[2].width / tileSize) * j + mapX / 18 - cloudsX[1]) * ratio | 0,
             (mapY / 18) * ratio | 0,
             (backgrounds[2].width / tileSize) * ratio | 0,
             (backgrounds[2].height / tileSize) * ratio | 0
@@ -2561,8 +2693,8 @@ function drawBackground() {
     for (let j = 0; j < 5; j++) {
         c.drawImage(
             backgrounds[3],
-            (-tilesWidth/2 + (backgrounds[3].width / tileSize) * j + mapX / 10) * ratio | 0,
-            (5+mapY / 10) * ratio | 0,
+            (-tilesWidth / 2 + (backgrounds[3].width / tileSize) * j + mapX / 10) * ratio | 0,
+            (5 + mapY / 10) * ratio | 0,
             (backgrounds[3].width / tileSize * ratio) | 0,
             (backgrounds[3].height / tileSize * ratio) | 0
         );
@@ -2571,8 +2703,8 @@ function drawBackground() {
     for (let j = 0; j < 5; j++) {
         c.drawImage(
             backgrounds[4],
-            (-tilesWidth/2 + (backgrounds[4].width / tileSize * j) + mapX / 8) * ratio | 0,
-            (5+mapY / 8) * ratio | 0,
+            (-tilesWidth / 2 + (backgrounds[4].width / tileSize * j) + mapX / 8) * ratio | 0,
+            (5 + mapY / 8) * ratio | 0,
             (backgrounds[4].width / tileSize) * ratio | 0,
             (backgrounds[4].height / tileSize) * ratio | 0
         );
@@ -2580,8 +2712,8 @@ function drawBackground() {
     for (let j = 0; j < 5; j++) {
         c.drawImage(
             backgrounds[5],
-            (-tilesWidth/2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + (mapX * ratio) / 6) | 0,
-            (5+mapY / 8) * ratio | 0,
+            (-tilesWidth / 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + (mapX * ratio) / 6) | 0,
+            (5 + mapY / 8) * ratio | 0,
             (backgrounds[5].width / tileSize * ratio) | 0,
             (backgrounds[5].height / tileSize * ratio) | 0
         );
@@ -2589,8 +2721,8 @@ function drawBackground() {
     for (let j = 0; j < 5; j++) {
         c.drawImage(
             backgrounds[5],
-            (-tilesWidth/2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + (mapX * ratio) / 6) | 0,
-            (5+mapY / 7) * ratio | 0,
+            (-tilesWidth / 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + (mapX * ratio) / 6) | 0,
+            (5 + mapY / 7) * ratio | 0,
             (backgrounds[5].width / tileSize * ratio) | 0,
             (backgrounds[5].height / tileSize * ratio) | 0
         );
@@ -2598,8 +2730,8 @@ function drawBackground() {
     for (let j = 0; j < 5; j++) {
         c.fillStyle = "#323c39";
         c.fillRect(
-            (-tilesWidth/2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + (mapX * ratio) / 6) | 0,
-            (5+mapY / 7) * ratio+(backgrounds[5].height / tileSize * ratio) | 0,
+            (-tilesWidth / 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + (mapX * ratio) / 6) | 0,
+            (5 + mapY / 7) * ratio + (backgrounds[5].height / tileSize * ratio) | 0,
             (backgrounds[5].width / tileSize * ratio) | 0,
             (backgrounds[5].height / tileSize * ratio) | 0
         );
@@ -2849,31 +2981,8 @@ var touchDevice = false;
 
 function mobileInit(isContinue) {
     touchDevice = true;
-
-    tilesWidth = window.innerWidth / 16 | 0;
-    tilesHeight = window.innerHeight / 16 | 0;
-    // Pixel perfection
-    biggestPossible = 1;
-    ratioWidth = Math.floor(window.innerWidth / (tileSize * tilesWidth));
-    ratioHeight = Math.floor(window.innerHeight / (tileSize * tilesHeight));
-    if (ratioWidth !== ratioHeight) {
-        biggestPossible = ratioWidth < ratioHeight ? ratioWidth : ratioHeight;
-    } else {
-        biggestPossible = ratioHeight;
-    }
-    if (biggestPossible < 1) {
-        biggestPossible = 1;
-    }
-    canvas.width = tileSize * tilesWidth * biggestPossible | 0;
-    canvas.height = tileSize * tilesHeight * biggestPossible | 0;
-    canvas.width -= canvas.width % 16;
-    canvas.heigth -= canvas.heigth % 16;
-    c = canvas.getContext("2d");
-    c.imageSmoothingEnabled = "false";
-    ratio = canvas.width / (tilesWidth) | 0;
-    //UI
-    id("menu").style.width = canvas.width + "px";
-    id("menu").style.height = canvas.height + "px";
+    console.log("mobile");
+    adjustScreen("mobile");
     if (isContinue) {
         eval(maps[window.localStorage['LvL'] || 0]);
         currentLevel = window.localStorage['LvL'];
@@ -3009,6 +3118,9 @@ function mobileInit(isContinue) {
     }
 
 }
+id("menu").addEventListener('touchstart', function (e) {
+    e.preventDefault();
+})
 id("newGame").addEventListener("touchstart", function () {
     mobileInit(false);
 }, {
@@ -3161,32 +3273,35 @@ function adaptBiome() {
 }
 var ghost = {};
 
-function initializeMap() {
-    var spTiles = [];
-    var removeList = [];
-    specialTiles = [];
-    bgTiles = [];
-    visualFxs = [];
-    ghost = new GhostGirl(player.hitbox.x - 4, player.hitbox.y - 4);
-    visualFxs.push(ghost);
-    monsters = [];
-    for (let j = 0; j < biomes.length; j++) {
-        if (typeof biomes[j].ambient !== undefined) {
-            biomes[j].ambient.pause();
-            biomes[j].ambient.currentTime = 0;
-        }
-
-        if (!(currentLevel % 2)) {
+function songPlayer() {
+    pickSong = (currentLevel / 2 | 0) > biomes[biome].music.length ? (Math.random() * biomes[biome].music.length) | 0 : currentLevel / 2 | 0;
+    if (biomes[biome].music[pickSong].paused) {
+        for (let j = 0; j < biomes.length; j++) {
+            if (typeof biomes[j].ambient !== undefined) {
+                biomes[j].ambient.pause();
+                biomes[j].ambient.currentTime = 0;
+            }
             for (let i = 0; i < biomes[j].music.length; i++) {
                 biomes[j].music[i].pause();
                 biomes[j].music[i].currentTime = 0;
             }
         }
+        biomes[biome].music[pickSong].loop = true;
+        biomes[biome].music[pickSong].playy();
+        biomes[biome].ambient.playy();
     }
-    pickSong = (currentLevel / 2 | 0) > biomes[biome].music.length ? (Math.random() * biomes[biome].music.length) | 0 : currentLevel / 2 | 0;
-    biomes[biome].music[pickSong].loop = true;
-    biomes[biome].music[pickSong].playy();
-    biomes[biome].ambient.playy();
+}
+
+function initializeMap() {
+    songPlayer();
+    var spTiles = [];
+    var removeList = [];
+    specialTiles = [];
+    bgTiles = [];
+    visualFxs = [];
+    ghost = new GhostGirl(player.x - 4, player.y - 4);
+    visualFxs.push(ghost);
+    monsters = [];
     for (let i = map.length - 1; i >= 0; i--) {
         switch (map[i].type) {
             case 17:
@@ -3208,6 +3323,7 @@ function initializeMap() {
             case 67:
             case 68:
             case 70:
+            case 71:
                 spTiles.push(i);
                 removeList.push(i);
                 break;
@@ -3278,6 +3394,9 @@ function initializeMap() {
                     case 68: // timedSpikes
                         specialTiles.push(new TimedSpikes(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 1, parseInt(map[spTiles[i]].text)));
                         break;
+                    case 71: // falling Stone
+                        specialTiles.push(new FallingStone(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 1));
+                        break;
                 }
             }
         }
@@ -3315,6 +3434,7 @@ window.onresize = function () {
     }
 }
 if (mapTester) {
+    adjustScreen("pc");
     id("menu").style.visibility = "hidden";
     canvas.style.visibility = "visible";
     ghostSpeech = true;
@@ -3325,11 +3445,13 @@ if (mapTester) {
 if (!mapTester) {
     let buttons = document.getElementsByClassName("button");
     for (let i = 0; i < buttons.length; i++) {
-        buttons[i].style.fontSize = (canvas.width / 20 | 0) + "px";
+        buttons[i].style.fontSize = (parseInt(id("menu").style.width) / 20 | 0) + "px";
     }
-    id("twitter").style.fontSize = (canvas.width / 20 | 0) + "px";
-    id("twitter-logo").style.height = (canvas.width / 20 | 0) + "px";
-    id("newGame").onclick = function () {
+    id("twitter").style.fontSize = (parseInt(id("menu").style.width) / 20 | 0) + "px";
+    id("twitter-logo").style.height = (parseInt(id("menu").style.width) / 20 | 0) + "px";
+    id("newGame").onmousedown = function () {
+        adjustScreen("pc");
+        console.log("pc");
         eval(maps[0]);
         adaptBiome();
         initializeMap();
@@ -3354,7 +3476,8 @@ if (!mapTester) {
         }, {
             once: true
         })
-        id("continue").onclick = function () {
+        id("continue").onmousedown = function () {
+            adjustScreen("pc");
             eval(maps[window.localStorage['LvL'] || 0]);
             currentLevel = window.localStorage['LvL'];
             adaptBiome();
@@ -3379,7 +3502,10 @@ id("ctrlButton").onclick = function () {
     id("controls").style.visibility = "visible";
     canvas.style.visibility = "visible";
 }
-id("music").onclick = function () {
+id("music").onclick = musicBtn;
+id("music").ontouchstart = musicBtn;
+
+function musicBtn() {
     if (options.music) {
         options.music = false;
         this.src = "ui/music-off.png";
@@ -3406,7 +3532,10 @@ id("music").onclick = function () {
         audio.bach_7.volume = 0.3;
     }
 }
-id("audio").onclick = function () {
+id("audio").onclick = audioBtn;
+id("audio").ontouchstart = audioBtn;
+
+function audioBtn() {
     if (options.audio) {
         options.audio = false;
         this.src = "ui/sound-off.png";
@@ -3428,6 +3557,8 @@ id("audio").onclick = function () {
         audio.walking.volume = 0;
         audio.ambient_1.volume = 0;
         audio.ambient_2.volume = 0;
+        audio.tremble.volume = 0;
+        audio.fall.volume = 0;
 
     } else {
         options.audio = true;
@@ -3450,6 +3581,8 @@ id("audio").onclick = function () {
         audio.walking.volume = 1;
         audio.ambient_1.volume = 0.1;
         audio.ambient_2.volume = 0.0;
+        audio.tremble.volume = 0.1;
+        audio.fall.volume = 0.1;
 
     }
 }
