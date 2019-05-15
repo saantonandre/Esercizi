@@ -25,6 +25,7 @@ var stats = {
     col1: 0,
     col2: 0,
     col3: 0,
+    colPoints: 0
 }
 var tileSize = 16;
 var tilesWidth, tilesHeight, ratioWidth, ratioHeight, biggestPossible, ratio;
@@ -207,7 +208,7 @@ setInterval(function () {
     fps = 0;
 }, 1000);
 
-audio.walking.playbackRate = 1.4;
+audio.walking.playbackRate = 1.3;
 audio.speed1.playbackRate = 0.7;
 
 audio.bounce1.volume = 0.4;
@@ -331,6 +332,11 @@ class Player {
             T: 0,
             B: 0
         };
+        this.colPoint = {
+            L: 0,
+            R: 0,
+            B: 0
+        }
         this.left = false;
         this.sprite = {
             x: 0,
@@ -338,10 +344,11 @@ class Player {
             w: 1,
             h: 1,
         };
-        this.actionX = [[0], [1], [0, 0, 0, 0], [1, 1, 1, 1], [6], [6], [2, 2, 2, 2], [5, 5, 5, 5], [11, 11, 11, 12, 12, 12],
-               [9], [12], [9, 10], [11, 12], [9], [12], [9, 10], [11, 12], [10], [10]]; //9-jump
-        this.actionY = [[0], [0], [0, 1, 2, 3], [0, 1, 2, 3], [1], [3], [0, 1, 2, 3], [0, 1, 2, 3], [12, 13, 14, 12, 13, 14],
-              [15, 15, 15], [15], [16, 16], [16, 16], [17, 17, 17], [17], [18, 18], [18, 18], [15], [17]];
+        // 19/20 = dash right-left
+        this.actionX = [[0], [1], [15, 15, 15, 15, 15, 15, 15, 15], [16, 16, 16, 16, 16, 16, 16, 16], [6], [6], [2, 2, 2, 2], [5, 5, 5, 5], [11, 11, 11, 12, 12, 12],
+               [9], [12], [9, 10], [11, 12], [9], [12], [9, 10], [11, 12], [10], [10], [6], [6], [17, 17, 17, 17, 17, 17]]; //9-jump
+        this.actionY = [[0], [0], [13, 14, 15, 16, 17, 18, 19, 20], [13, 14, 15, 16, 17, 18, 19, 20], [1], [3], [0, 1, 2, 3], [0, 1, 2, 3], [12, 13, 14, 12, 13, 14],
+              [15, 15, 15], [15], [16, 16], [16, 16], [17, 17, 17], [17], [18, 18], [18, 18], [15], [17], [0], [2], [15, 16, 17, 18, 19, 20]];
         this.action = 0;
         this.attack = 0;
         this.dash = false;
@@ -352,6 +359,7 @@ class Player {
         this.jumping = false;
         this.jumpCounter = 10;
         this.slowness = 6;
+        this.windup = false;
     }
     jump() {
         if (this.grounded && !this.dead) {
@@ -400,13 +408,10 @@ class Player {
             audio.attack.playy();
             this.attack = true;
             this.frame = 0;
-        } else if (!this.attack && !this.dashCd && !this.dead) {
-            var dir = this.left ? 4 : 3;
-            visualFxs.push(new JumpFx(this.x, this.y, dir));
-            audio.dash.playy();
-            this.dashCd = true;
-            this.dash = true;
-            this.dashIn = this.x;
+        } else if (!this.attack && !this.windup && !this.dashCd && !this.dead) {
+            this.windup = true;
+            this.frameCounter = 0;
+            this.frame = 0;
         }
 
     };
@@ -447,11 +452,25 @@ class Player {
             this.yVel -= (0.075 / (this.jumpCounter / 2 + 1));
             this.jumpCounter++;
         }
-        if (this.dash) {
+        if ((this.xVelExt + this.xVel > this.maxVelocity || this.xVelExt + this.xVel < -this.maxVelocity ||
+                this.yVelExt + this.yVel > this.maxVelocity || this.yVelExt + this.yVel < -this.maxVelocity * 2) && fps % 2) {
             this.prevPos.push({
                 x: this.x,
-                y: this.y
+                y: this.y,
+                action: this.action,
+                frame: this.frame,
+                opacity: 0.4
             });
+        }
+        if (this.dash) {
+            if (fps % 2)
+                this.prevPos.push({
+                    x: this.x,
+                    y: this.y,
+                    action: this.action,
+                    frame: this.frame,
+                    opacity: 0.4
+                });
             this.jumping = false;
             this.xVel = this.left ? -this.speed * 5 : this.speed * 5;
             this.yVel = 0;
@@ -465,7 +484,6 @@ class Player {
             }
         }
         if (!this.dash) {
-            this.prevPos.length = 0;
             if (this.L && !this.col.L && !this.R) {
                 if (this.xVel > 0) {
                     this.xVel = 0;
@@ -530,14 +548,14 @@ class Player {
             this.respawnEvent();
         }
         //physics calculations
-        this.hitbox.x = (this.x + this.w / 5);
+        this.hitbox.x = (this.x + this.w / 3.5);
         this.hitbox.y = this.y;
-        this.hitbox.w = (this.w - this.w / 2.5);
+        this.hitbox.w = (this.w - this.w / 1.75);
         this.hitbox.h = this.h;
 
-        this.dmgHitbox.x = this.hitbox.x + 0.15;
+        this.dmgHitbox.x = this.hitbox.x;
         this.dmgHitbox.y = this.hitbox.y + 0.3;
-        this.dmgHitbox.w = this.hitbox.w - 0.3;
+        this.dmgHitbox.w = this.hitbox.w;
         this.dmgHitbox.h = this.hitbox.h - 0.6;
         let dir = (this.left) ? -1 : 1;
         this.atkHitbox.x = this.x + dir;
@@ -557,15 +575,25 @@ class Player {
         if (this.attack || this.dash) {
             this.dance = false;
             this.slowness = 4;
-            if (!this.left) {
-                this.action = 6; //atk right
+            if (this.dash) {
+                this.frameCounter = 0;
+                this.frame = 0;
+                if (!this.left) {
+                    this.action = 19; //atk right
+                } else {
+                    this.action = 20; //atk left
+                }
             } else {
-                this.action = 7; //atk left
+                if (!this.left) {
+                    this.action = 6; //atk right
+                } else {
+                    this.action = 7; //atk left
+                }
             }
         } else {
 
 
-            this.slowness = 6;
+            this.slowness = 3;
             if (!this.grounded) {
                 this.dance = false;
                 this.slowness = 4;
@@ -618,6 +646,7 @@ class Player {
                 }
                 if (this.dance) {
                     this.action = 8; //dance
+                    this.slowness = 6;
                 }
 
             } else if (this.xVel !== 0) {
@@ -629,6 +658,9 @@ class Player {
                 }
             }
         }
+        if (this.windup) {
+            this.slowness = 1;
+        }
         if (this.frameCounter > this.slowness) {
             this.frame++;
             this.frameCounter = 0;
@@ -636,6 +668,34 @@ class Player {
         //
         if (this.attack && this.frame == 3 && this.frameCounter === 0) {
             this.attacking(this.atkHitbox);
+        }
+        if (this.windup) {
+            this.slowness = 3;
+            if (this.frame >= 6) {
+                this.windup = false;
+                let dir = this.left ? 4 : 3;
+                visualFxs.push(new JumpFx(this.x, this.y, dir));
+                audio.dash.playy();
+                this.dashCd = true;
+                this.dash = true;
+                shake = 3;
+                this.dashIn = this.x;
+
+                this.frameCounter = 0;
+                this.frame = 0;
+                if (!this.left) {
+                    this.action = 19; //atk right
+                } else {
+                    this.action = 20; //atk left
+                }
+            } else {
+                this.action = 21;
+                this.xVel *= 0.5;
+                this.xVelExt *= 0.5;
+                this.yVel *= 0.5;
+                this.yVel -= gForce;
+                this.yVelExt *= 0.5;
+            }
         }
         if (this.frame > this.actionX[this.action].length - 1) {
             this.frame = 0;
@@ -654,14 +714,18 @@ class Player {
         }
 
         //draw on canvas
-        if (this.dash) {
-            c.globalCompositeOperation = "difference";
-            for (let i = 0; i < this.prevPos.length; i++) {
-                c.globalAlpha = 1 - i / 10;
+        if (this.prevPos.length > 0) {
+            for (let i = this.prevPos.length - 1; i >= 0; i--) {
+                this.prevPos[i].opacity -= 0.02;
+                if (this.prevPos[i].opacity <= 0) {
+                    this.prevPos.splice(i, 1);
+                    continue;
+                }
+                c.globalAlpha = this.prevPos[i].opacity;
                 c.drawImage(
                     this.sheet,
-                    this.actionX[this.action][0] * 16,
-                    this.actionY[this.action][0] * 16,
+                    this.actionX[this.prevPos[i].action][this.prevPos[i].frame] * 16,
+                    this.actionY[this.prevPos[i].action][this.prevPos[i].frame] * 16,
                     this.sprite.w * 16,
                     this.sprite.h * 16,
                     (this.prevPos[i].x + mapX) * ratio | 0,
@@ -671,19 +735,17 @@ class Player {
 
             }
             c.globalAlpha = 1;
-            c.globalCompositeOperation = "source-over";
-        } else {
-            c.drawImage(
-                this.sheet,
-                this.actionX[this.action][this.frame] * 16,
-                this.actionY[this.action][this.frame] * 16,
-                this.sprite.w * 16,
-                this.sprite.h * 16,
-                (this.x + mapX) * ratio | 0,
-                (this.y + mapY) * ratio | 0,
-                (this.w) * ratio | 0,
-                (this.h) * ratio | 0);
         }
+        c.drawImage(
+            this.sheet,
+            this.actionX[this.action][this.frame] * 16,
+            this.actionY[this.action][this.frame] * 16,
+            this.sprite.w * 16,
+            this.sprite.h * 16,
+            (this.x + mapX) * ratio | 0,
+            (this.y + mapY) * ratio | 0,
+            (this.w) * ratio | 0,
+            (this.h) * ratio | 0);
         //the attack animation takes up 2 tiles in width, so I decided to print the other map separately
         if (this.attack) {
             if (this.action == 6) {
@@ -766,9 +828,210 @@ class Monster {
         //setTimeout(randomMovement, 1000, this.serial);
 
     };
-    move(arg) {
-        leftRightMovement(arg);
-    };
+    move() {
+
+        let points = {
+            upLeft: {
+                x: this.x - 0.5,
+                y: this.y + this.h - 1 - 0.5
+            },
+            upRight: {
+                x: this.x + this.w + 0.5,
+                y: this.y + this.h - 1 - 0.5
+            },
+            btLeft: {
+                x: this.x + 0.2,
+                y: this.y + this.h + 1.5
+            },
+            btLeft2: {
+                x: this.x + 0.2,
+                y: this.y + 1 + this.h / 2
+            },
+            btRight: {
+                x: this.x + this.w - 0.2,
+                y: this.y + this.h + 1.5
+            },
+            btRight2: {
+                x: this.x + this.w - 0.2,
+                y: this.y + 1 + this.h / 2
+            },
+            left: {
+                x: this.x - 0.2,
+                y: this.y + this.h / 1.1
+            }, // provisional
+            right: {
+                x: this.x + this.w + 0.5,
+                y: this.y + this.h / 1.1
+            } // provisional
+        }
+        let cols = {
+            upLeft: false,
+            upRight: false,
+            btLeft: false,
+            btRight: false,
+            btLeft2: false,
+            btRight2: false,
+            left: false,
+            right: false
+        }
+        var bottomLeftCol = this.x;
+        var bottomRightColX = this.x;
+
+        for (let j = 0; j < map.length; j++) {
+            if (this.left) {
+                if (pointSquareCol(points.upLeft, map[j])) {
+                    cols.upLeft = true;
+                }
+                if (pointSquareCol(points.left, map[j])) {
+                    cols.left = true;
+                }
+                if (pointSquareCol(points.btLeft, map[j])) {
+                    cols.btLeft = true;
+                }
+                if (pointSquareCol(points.btLeft2, map[j])) {
+                    cols.btLeft2 = true;
+                }
+            } else {
+                if (pointSquareCol(points.btRight, map[j])) {
+                    cols.btRight = true;
+                }
+                if (pointSquareCol(points.right, map[j])) {
+                    cols.right = true;
+                }
+                if (pointSquareCol(points.upRight, map[j])) {
+                    cols.upRight = true;
+                }
+                if (pointSquareCol(points.btRight2, map[j])) {
+                    cols.btRight2 = true;
+                }
+
+            }
+        }
+        for (let j = 0; j < specialTiles.length; j++) {
+            if (this.left) {
+                if (pointSquareCol(points.upLeft, specialTiles[j])) {
+                    cols.upLeft = true;
+                }
+                if (pointSquareCol(points.left, specialTiles[j])) {
+                    cols.left = true;
+                }
+                if (pointSquareCol(points.btLeft, specialTiles[j])) {
+                    cols.btLeft = true;
+                }
+                if (pointSquareCol(points.btLeft2, specialTiles[j])) {
+                    cols.btLeft2 = true;
+                }
+            } else {
+                if (pointSquareCol(points.btRight, specialTiles[j])) {
+                    cols.btRight = true;
+                }
+                if (pointSquareCol(points.right, specialTiles[j])) {
+                    cols.right = true;
+                }
+                if (pointSquareCol(points.upRight, specialTiles[j])) {
+                    cols.upRight = true;
+                }
+                if (pointSquareCol(points.btRight2, specialTiles[j])) {
+                    cols.btRight2 = true;
+                }
+
+            }
+        }
+        if (stats.colPoints) {
+            cols.upLeft ? c.fillStyle = "red" : c.fillStyle = "white";
+            c.fillRect(
+                (points.upLeft.x + mapX) * ratio | 0,
+                (points.upLeft.y + mapY) * ratio | 0,
+                (0.1) * ratio | 0,
+                (0.1) * ratio | 0
+            );
+            cols.upRight ? c.fillStyle = "red" : c.fillStyle = "white";
+            c.fillRect(
+                (points.upRight.x + mapX) * ratio | 0,
+                (points.upRight.y + mapY) * ratio | 0,
+                (0.1) * ratio | 0,
+                (0.1) * ratio | 0
+            );
+            cols.btLeft ? c.fillStyle = "red" : c.fillStyle = "white";
+            c.fillRect(
+                (points.btLeft.x + mapX) * ratio | 0,
+                (points.btLeft.y + mapY) * ratio | 0,
+                (0.1) * ratio | 0,
+                (0.1) * ratio | 0
+            );
+            cols.btRight ? c.fillStyle = "red" : c.fillStyle = "white";
+            c.fillRect(
+                (points.btRight.x + mapX) * ratio | 0,
+                (points.btRight.y + mapY) * ratio | 0,
+                (0.1) * ratio | 0,
+                (0.1) * ratio | 0
+            );
+            cols.btLeft2 ? c.fillStyle = "red" : c.fillStyle = "white";
+            c.fillRect(
+                (points.btLeft2.x + mapX) * ratio | 0,
+                (points.btLeft2.y + mapY) * ratio | 0,
+                (0.1) * ratio | 0,
+                (0.1) * ratio | 0
+            );
+            cols.btRight2 ? c.fillStyle = "red" : c.fillStyle = "white";
+            c.fillRect(
+                (points.btRight2.x + mapX) * ratio | 0,
+                (points.btRight2.y + mapY) * ratio | 0,
+                (0.1) * ratio | 0,
+                (0.1) * ratio | 0
+            );
+            cols.left ? c.fillStyle = "red" : c.fillStyle = "white";
+            c.fillRect(
+                (points.left.x + mapX) * ratio | 0,
+                (points.left.y + mapY) * ratio | 0,
+                (0.1) * ratio | 0,
+                (0.1) * ratio | 0
+            );
+            cols.right ? c.fillStyle = "red" : c.fillStyle = "white";
+            c.fillRect(
+                (points.right.x + mapX) * ratio | 0,
+                (points.right.y + mapY) * ratio | 0,
+                (0.1) * ratio | 0,
+                (0.1) * ratio | 0
+            );
+        }
+        let dir = this.left ? 0 : 1;
+        if (this.left) {
+            if (cols.left && !cols.upLeft) {
+                this.jump();
+            } else if ((cols.left && cols.upLeft) || (!cols.btLeft && !cols.btLeft2)) {
+                if (this.grounded) {
+                    dir = 1;
+                }
+
+            }
+
+        } else {
+            if (cols.right && !cols.upRight) {
+                this.jump();
+            } else if ((cols.right && cols.upRight) || (!cols.btRight && !cols.btRight2)) {
+                if (this.grounded) {
+                    dir = 0;
+                }
+            }
+        }
+        switch (dir) {
+            case 0:
+                this.left = true;
+                this.L = true;
+                this.R = false;
+                break;
+            case 1:
+                this.left = false;
+                this.L = false;
+                this.R = true;
+                break;
+            case 2:
+                this.L = false;
+                this.R = false;
+                break;
+        }
+    }
     jump() {
         if (this.grounded) {
             this.grounded = false;
@@ -785,7 +1048,7 @@ class Monster {
         //leftRightMovement(this.serial);
         if (!(fps % 15) && this.grounded && !this.hit) {
             //^AI is refreshed every 1/4 seconds
-            this.move(this.serial);
+            this.move();
         }
         if (this.attack) {
             this.L = false;
@@ -913,166 +1176,12 @@ function leftRightMovement(serial) {
 
     //console.log(monsters[i].serial+" "+ serial);
 
-    let ser = serial;
-    let targetMonster = null;
-    for (j = 0; j < monsters.length; j++) {
-        if (monsters[j].serial === ser) {
-            targetMonster = j;
-            break;
-        }
-    }
-    if (targetMonster !== null) {
-        let monst = monsters[targetMonster];
-        let points = {
-            upLeft: {
-                x: monst.x - 0.5,
-                y: monst.y + monst.h - 1 - 0.5
-            },
-            upRight: {
-                x: monst.x + monst.w + 0.5,
-                y: monst.y + monst.h - 1 - 0.5
-            },
-            btLeft: {
-                x: monst.x + 0.2,
-                y: monst.y + monst.h + 1.5
-            },
-            btLeft2: {
-                x: monst.x + 0.2,
-                y: monst.y + 1 + monst.h / 2
-            },
-            btRight: {
-                x: monst.x + monst.w - 0.2,
-                y: monst.y + monst.h + 1.5
-            },
-            btRight2: {
-                x: monst.x + monst.w - 0.2,
-                y: monst.y + 1 + monst.h / 2
-            },
-            left: {
-                x: monst.x - 0.2,
-                y: monst.y + monst.h / 1.1
-            }, // provisional
-            right: {
-                x: monst.x + monst.w + 0.5,
-                y: monst.y + monst.h / 1.1
-            } // provisional
-        }
-        let cols = {
-            upLeft: false,
-            upRight: false,
-            btLeft: false,
-            btRight: false,
-            btLeft2: false,
-            btRight2: false,
-            left: false,
-            right: false
-        }
-        var bottomLeftCol = monst.x;
-        var bottomRightColX = monst.x;
-
-        for (let j = 0; j < map.length; j++) {
-            if (monst.left) {
-                if (pointSquareCol(points.upLeft, map[j])) {
-                    cols.upLeft = true;
-                }
-                if (pointSquareCol(points.left, map[j])) {
-                    cols.left = true;
-                }
-                if (pointSquareCol(points.btLeft, map[j])) {
-                    cols.btLeft = true;
-                }
-                if (pointSquareCol(points.btLeft2, map[j])) {
-                    cols.btLeft2 = true;
-                }
-            } else {
-                if (pointSquareCol(points.btRight, map[j])) {
-                    cols.btRight = true;
-                }
-                if (pointSquareCol(points.right, map[j])) {
-                    cols.right = true;
-                }
-                if (pointSquareCol(points.upRight, map[j])) {
-                    cols.upRight = true;
-                }
-                if (pointSquareCol(points.btRight2, map[j])) {
-                    cols.btRight2 = true;
-                }
-
-            }
-        };
-        for (let j = 0; j < specialTiles.length; j++) {
-            if (monst.left) {
-                if (pointSquareCol(points.upLeft, specialTiles[j])) {
-                    cols.upLeft = true;
-                }
-                if (pointSquareCol(points.left, specialTiles[j])) {
-                    cols.left = true;
-                }
-                if (pointSquareCol(points.btLeft, specialTiles[j])) {
-                    cols.btLeft = true;
-                }
-                if (pointSquareCol(points.btLeft2, specialTiles[j])) {
-                    cols.btLeft2 = true;
-                }
-            } else {
-                if (pointSquareCol(points.btRight, specialTiles[j])) {
-                    cols.btRight = true;
-                }
-                if (pointSquareCol(points.right, specialTiles[j])) {
-                    cols.right = true;
-                }
-                if (pointSquareCol(points.upRight, specialTiles[j])) {
-                    cols.upRight = true;
-                }
-                if (pointSquareCol(points.btRight2, specialTiles[j])) {
-                    cols.btRight2 = true;
-                }
-
-            }
-        };
-        let dir = monst.left ? 0 : 1;
-        if (monst.left) {
-            if (cols.left && !cols.upLeft) {
-                monsters[targetMonster].jump();
-            } else if ((cols.left && cols.upLeft) || (!cols.btLeft && !cols.btLeft2)) {
-                if (monst.grounded) {
-                    dir = 1;
-                }
-
-            }
-
-        } else {
-            if (cols.right && !cols.upRight) {
-                monsters[targetMonster].jump();
-            } else if ((cols.right && cols.upRight) || (!cols.btRight && !cols.btRight2)) {
-                if (monst.grounded) {
-                    dir = 0;
-                }
-            }
-        }
-        switch (dir) {
-            case 0:
-                monsters[targetMonster].left = true;
-                monsters[targetMonster].L = true;
-                monsters[targetMonster].R = false;
-                break;
-            case 1:
-                monsters[targetMonster].left = false;
-                monsters[targetMonster].L = false;
-                monsters[targetMonster].R = true;
-                break;
-            case 2:
-                monsters[targetMonster].L = false;
-                monsters[targetMonster].R = false;
-                break;
-        }
-    }
 }
 //CHANGE
 class Slime extends Monster {
     constructor(x, y) {
         super(x, y);
-        this.speed = 0.02;
+        this.speed = 0.03;
         this.hp = 16;
         this.maxHp = this.hp;
         this.type = "Slime";
@@ -1448,10 +1557,10 @@ class Door {
         this.frame = 0;
         this.type = "door";
         this.hitbox = {
-            x: x + 0.3,
-            y: y + 0.3,
-            w: 0.4,
-            h: 0.4
+            x: x,
+            y: y,
+            w: 1,
+            h: 1
         };
         this.spritePos = {
             x: [[16], [17, 17], [17, 17, 17, 17, 17]],
@@ -1520,8 +1629,8 @@ class Portal {
             }
             if (pointSquareCol(point, player)) {
                 this.load++;
-                blackScreen = this.load + 1;
-                if (this.load > 100) {
+                blackScreen = this.load * 2 + 1;
+                if (this.load > 50) {
                     eval(maps[parseInt(this.place)])
                     window.localStorage["LvL"] = parseInt(this.place);
                     currentLevel++;
@@ -2608,31 +2717,117 @@ function checkCollisions() {
 }
 
 function adjustCollided(p) {
-    if (p.col.L) {
+    p.colPoint.L = false;
+    p.colPoint.R = false;
+    p.colPoint.B = false;
+    for (let j = 0; j < map.length; j++) {
+        if (isOutOfScreen(map[j])) {
+            continue;
+        }
+        //checks for blocks to the right
+        if (pointSquareCol({
+                x: p.x + p.w / 2 + 0.7,
+                y: p.y + p.h / 2
+            }, map[j])) {
+            p.colPoint.R = true;
+        }
+        //checks for blocks to the left
+        if (pointSquareCol({
+                x: p.x + p.w / 2 - 0.7,
+                y: p.y + p.h / 2
+            }, map[j])) {
+            p.colPoint.L = true;
+        }
+        //checks for blocks to the bottom
+        if (pointSquareCol({
+                x: p.x + p.w / 2,
+                y: p.y + p.h / 2 + 0.7
+            }, map[j])) {
+            p.colPoint.B = true;
+        }
+
+    }
+    for (let j = 0; j < specialTiles.length; j++) {
+        if (isOutOfScreen(specialTiles[j])) {
+            continue;
+        }
+        //checks for blocks to the right
+        if (pointSquareCol({
+                x: p.x + p.w / 2 + 0.7,
+                y: p.y + p.h / 2
+            }, specialTiles[j])) {
+            p.colPoint.R = true;
+        }
+        //checks for blocks to the left
+        if (pointSquareCol({
+                x: p.x + p.w / 2 - 0.7,
+                y: p.y + p.h / 2
+            }, specialTiles[j])) {
+            p.colPoint.L = true;
+        }
+        //checks for blocks to the bottom
+        if (pointSquareCol({
+                x: p.x + p.w / 2,
+                y: p.y + p.h / 2 + 0.7
+            }, specialTiles[j])) {
+            p.colPoint.B = true;
+        }
+
+    }
+    if (stats.colPoints) {
+        p.colPoint.R ? c.fillStyle = "red" : c.fillStyle = "white";
+        c.fillRect(
+            (p.x + p.w / 2 + 0.7 + mapX) * ratio | 0,
+            (p.y + p.h / 2 + mapY) * ratio | 0,
+            (0.1) * ratio | 0,
+            (0.1) * ratio | 0
+        );
+        p.colPoint.L ? c.fillStyle = "red" : c.fillStyle = "white";
+        c.fillRect(
+            (p.x + p.w / 2 - 0.7 + mapX) * ratio | 0,
+            (p.y + p.h / 2 + mapY) * ratio | 0,
+            (0.1) * ratio | 0,
+            (0.1) * ratio | 0
+        );
+        p.colPoint.B ? c.fillStyle = "red" : c.fillStyle = "white";
+        c.fillRect(
+            (p.x + p.w / 2 + mapX) * ratio | 0,
+            (p.y + p.h / 2 + 0.7 + mapY) * ratio | 0,
+            (0.1) * ratio | 0,
+            (0.1) * ratio | 0
+        );
+    }
+    if (p.col.L && (!p.colPoint.B || p.colPoint.L)) {
+        if(p.col.R){
+            p.grounded=true;
+        }
         p.x += p.col.L;
         if (p.dash) {
             p.dash = false;
             p.dashCd = true;
         }
-        if (p.xVelExt < 0) {
+        if (p.xVelExt < 0 && p.colPoint.L) {
             p.xVelExt = 0;
         }
-        if (p.xVel < 0) {
-            //p.xVel = 0;
+        if (p.xVel < 0 && p.colPoint.L) {
+            p.xVel = 0;
         }
 
     }
-    if (p.col.R) {
+    if (p.col.R && (!p.colPoint.B || p.colPoint.R)) {
+        if(p.col.L){
+            p.grounded=true;
+        }
         p.x -= p.col.R;
         if (p.dash) {
             p.dash = false;
             p.dashCd = true;
         }
-        if (p.xVelExt > 0) {
+        if (p.xVelExt > 0 && p.colPoint.R) {
             p.xVelExt = 0;
         }
-        if (p.xVel > 0) {
-            //p.xVel = 0;
+        if (p.xVel > 0 && p.colPoint.R) {
+            p.xVel = 0;
         }
 
     }
@@ -2641,6 +2836,9 @@ function adjustCollided(p) {
         if (p.yVel < 0) {
             p.yVel = 0;
         }
+        if (p.yVelExt < 0) {
+            p.yVelExt = 0;
+        }
         if (p.dash) {
             p.dash = false;
             p.dashCd = true;
@@ -2648,8 +2846,14 @@ function adjustCollided(p) {
 
     }
     if (p.col.B) {
-        p.y -= (p.col.B + 0.01);
+        p.y -= (p.col.B - 0.01);
         p.grounded = true;
+        if (p.yVelExt > 0) {
+            p.yVelExt = 0;
+        }
+        if (p.yVel > 0) {
+            p.yVel = 0;
+        }
         if (p.dashCd || p.dash) {
             p.dashCd = false;
             p.dash = false;
@@ -2836,13 +3040,13 @@ function colCheck(shapeA, shapeB) {
         if (oX >= oY) {
             if (vY > 0) {
                 colDir = "t";
-                if (shapeA.col.T < oY && oY > 0.01 && !shapeB.xVel) {
+                if (shapeA.col.T < oY && !shapeB.xVel) {
                     shapeA.col.T = oY;
                 }
             } else {
                 colDir = "b";
                 shapeA.grounded = true;
-                if (shapeA.col.B < oY && oY > 0.01) {
+                if (shapeA.col.B < oY) {
                     shapeA.col.B = oY;
                 }
                 if (shapeB.xVel) {
@@ -2852,12 +3056,12 @@ function colCheck(shapeA, shapeB) {
         } else {
             if (vX > 0) {
                 colDir = "l";
-                if (shapeA.col.L < oX && oX > 0.01 && !shapeB.xVel) {
+                if (shapeA.col.L < oX && !shapeB.xVel) {
                     shapeA.col.L = oX;
                 }
             } else {
                 colDir = "r";
-                if (shapeA.col.R < oX && oX > 0.01 && !shapeB.xVel) {
+                if (shapeA.col.R < oX && !shapeB.xVel) {
                     shapeA.col.R = oX;
                 }
             }
@@ -3135,6 +3339,7 @@ window.addEventListener("keydown", function (event) {
     }
     if (key === 112) {
         id("stats").style.visibility = "visible";
+        stats.colPoints = true;
     }
     if (!gamePaused) {
         switch (key) {
@@ -3460,7 +3665,10 @@ if (!mapTester) {
         id("controls").style.visibility = "visible";
         canvas.style.visibility = "visible";
     }
-    id("ghost").onclick = function () {
+    id("ghost").onclick = ghostVoiceOnOff;
+    id("ghost").ontouchstart = ghostVoiceOnOff;
+
+    function ghostVoiceOnOff() {
         if (ghostSpeech) {
             id("ghost").innerHTML = "GHOST's speech(OFF)";
             id("ghost").style.opacity = "0.5";
