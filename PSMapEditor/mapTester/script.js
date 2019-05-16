@@ -170,6 +170,8 @@ var tiles = [
         [8, 13], // stone pile
         [5, 17], // dialogue
         [1, 18], // falling stone
+        [0, 20], // breakable stone
+        [8, 0], // clock
     ]
 
 var audio = {
@@ -308,6 +310,7 @@ class Player {
         this.frame = 0;
         this.yVelDirChange = 0;
         this.prevPos = [];
+        this.respawning = 0;
         this.hitbox = {
             x: 0,
             y: 0,
@@ -416,6 +419,7 @@ class Player {
 
     };
     respawnEvent() {
+        this.respawning = true;
         this.dead = false;
         this.y = 1;
         this.yVel = 0;
@@ -549,9 +553,9 @@ class Player {
         }
         //physics calculations
         this.hitbox.x = (this.x + this.w / 3.5);
-        this.hitbox.y = this.y;
+        this.hitbox.y = this.y + 0.1;
         this.hitbox.w = (this.w - this.w / 1.75);
-        this.hitbox.h = this.h;
+        this.hitbox.h = this.h - 0.1;
 
         this.dmgHitbox.x = this.hitbox.x;
         this.dmgHitbox.y = this.hitbox.y + 0.3;
@@ -772,6 +776,7 @@ class Player {
                     (this.h) * ratio | 0);
             }
         }
+        this.respawning = false;
     }
 }
 let player = new Player(0, 0);
@@ -1761,8 +1766,8 @@ class GhostGirl {
                 }
             }
         }
-        if (this.x + this.w < player.x - 1) {
-            if (player.dead) {
+        if (this.x + this.w <= player.x - 1) {
+            if (player.respawning || player.dead) {
                 if (this.sprite == 0 || this.sprite == 1) {
                     this.frameCounter = 0;
                     this.frame = 0;
@@ -1781,7 +1786,7 @@ class GhostGirl {
                 this.x += Math.abs(this.x - player.x) / 50;
             }
         } else if (this.x > player.x + player.w + 1) {
-            if (player.dead) {
+            if (player.respawning || player.dead) {
                 if (this.srite == 0 || this.srite == 1) {
                     this.frameCounter = 0;
                     this.frame = 0;
@@ -2118,6 +2123,275 @@ class FallingStone extends SpecialTile {
         }
     }
 }
+class Clock extends SpecialTile {
+    constructor(x, y) {
+        super(x, y);
+        this.sprite = 0;
+        this.spritePos = {
+            x: [[8, 9, 10, 11], [8, 9, 10, 11]], //0
+            y: [[0, 0, 0, 0], [1, 1, 1, 1]], //18
+            w: [1, 1],
+            h: [1, 1],
+        };
+        this.repeat = true;
+        this.running = true;
+        this.slowness = 60;
+        this.type = "clock";
+        this.touched = false;
+        this.xVel = 0;
+        this.yVel = 0;
+        this.speed = 0.15;
+        this.w = 1;
+        this.h = 1;
+        this.stop = false;
+        this.initialPos = {
+            x: x,
+            y: y
+        }
+        this.hitbox = {
+            x: x,
+            y: y,
+            w: 1,
+            h: 1
+        };
+    }
+    action(collider, colDir) {
+        switch (colDir) {
+            case "b":
+                this.touched = true;
+                collider.grounded = true;
+                if(!this.stop){
+                switch (this.frame) {
+                    case 0:
+                        collider.yVelExt = this.speed;
+                        break;
+                    case 1:
+                        collider.xVelExt = this.speed;
+                        break;
+                    case 2:
+                        collider.yVelExt = -this.speed;
+                        break;
+                    case 3:
+                        collider.xVelExt = -this.speed;
+                        break;
+                }
+                }
+                break;
+            case "t":
+                if (collider.yVel < 0) {
+                    collider.yVel = 0;
+                }
+                break;
+        };
+    }
+    canMove() {
+        let nextMovX = 0,
+            nextMovY = 0;
+        switch (this.frame) {
+            case 0:
+                nextMovY = this.speed;
+                break;
+            case 1:
+                nextMovX = this.speed;
+                break;
+            case 2:
+                nextMovY = -this.speed;
+                break;
+            case 3:
+                nextMovX = -this.speed;
+                break;
+        }
+        let nextHitbox = {
+            x: this.x + nextMovX,
+            y: this.y + nextMovY,
+            w: 1,
+            h: 1
+        }
+        for (let j = 0; j < map.length; j++) {
+            if (collided(nextHitbox, map[j])) {
+                return false;
+            }
+        }
+        return true;
+
+    }
+    move() {
+        if (player.respawning) {
+            this.x = this.initialPos.x;
+            this.y = this.initialPos.y;
+            this.hitbox.x = this.initialPos.x;
+            this.hitbox.y = this.initialPos.y;
+            this.frameCounter = 0;
+            this.frame = 0;
+        }
+        this.xVel = 0;
+        this.yVel = 0;
+        if (this.touched) {
+            this.frameCounter--;
+            this.sprite = 1;
+            if (this.canMove()) {
+                this.stop = false;
+                switch (this.frame) {
+                    case 0:
+                        this.yVel = this.speed;
+                        break;
+                    case 1:
+                        this.xVel = this.speed;
+                        break;
+                    case 2:
+                        this.yVel = -this.speed;
+                        break;
+                    case 3:
+                        this.xVel = -this.speed;
+                        break;
+                }
+                this.x += this.xVel;
+                this.y += this.yVel;
+                this.hitbox.x += this.xVel;
+                this.hitbox.y += this.yVel;
+            } else {
+                this.stop = true;
+            }
+        } else {
+            this.sprite = 0;
+        }
+        this.touched = false;
+    }
+}
+class BreakableStone extends SpecialTile {
+    constructor(x, y) {
+        super(x, y);
+        this.sprite = 0;
+        this.spritePos = {
+            x: [[0], [1, 3, 5, 7, 9, 11], [11, 9, 7, 5, 3, 1]], //0
+            y: [[20], [20, 20, 20, 20, 20, 20], [22, 22, 22, 22, 22, 22]],
+            w: [1, 2, 2],
+            h: [1, 2, 2],
+        };
+        this.repeat = true;
+        this.running = false;
+        this.slowness = 4;
+        this.initialPos = {
+            x: x,
+            y: y
+        };
+        this.type = "breakable";
+        this.w = 1;
+        this.h = 1;
+        this.hitbox = {
+            x: x,
+            y: y,
+            w: 1,
+            h: 1
+        };
+    }
+    action(collider, colDir) {
+        switch (colDir) {
+            case "b":
+                if (collider.dash) {
+                    if (collider.left) {
+                        this.x -= 1;
+                        this.sprite = 2;
+                    } else {
+                        this.sprite = 1;
+                    }
+                    this.running = true;
+                    this.y -= 0.5;
+                    this.w = 2;
+                    this.h = 2;
+                    this.hitbox.w = 0;
+                    this.hitbox.h = 0;
+                    this.hitbox.x = 0;
+                    this.hitbox.y = 0;
+                    collider.col.B = 0;
+                    audio.fall.playy();
+                    shake = 4;
+                } else {
+                    collider.grounded = true;
+                }
+                break;
+            case "t":
+                if (collider.dash) {
+                    if (collider.left) {
+                        this.x -= 1;
+                        this.sprite = 2;
+                    } else {
+                        this.sprite = 1;
+                    }
+                    this.running = true;
+                    collider.col.T = 0;
+                    this.y -= 0.5;
+                    this.w = 2;
+                    this.h = 2;
+                    this.hitbox.w = 0;
+                    this.hitbox.h = 0;
+                    this.hitbox.x = 0;
+                    this.hitbox.y = 0;
+                    audio.fall.playy();
+                    shake = 4;
+                } else if (collider.yVel < 0) {
+                    collider.yVel = 0;
+                }
+                break;
+            case "l":
+                if (collider.dash) {
+                    this.sprite = 2;
+                    this.running = true;
+                    collider.col.L = 0;
+                    this.y -= 0.5;
+                    this.x -= 1;
+                    this.w = 2;
+                    this.h = 2;
+                    this.hitbox.w = 0;
+                    this.hitbox.h = 0;
+                    this.hitbox.x = 0;
+                    this.hitbox.y = 0;
+                    audio.fall.playy();
+                    shake = 4;
+                }
+                break;
+            case "r":
+                if (collider.dash) {
+                    this.sprite = 1;
+                    this.running = true;
+                    collider.col.R = 0;
+                    this.y -= 0.5;
+                    this.w = 2;
+                    this.h = 2;
+                    this.hitbox.w = 0;
+                    this.hitbox.h = 0;
+                    this.hitbox.x = 0;
+                    this.hitbox.y = 0;
+                    audio.fall.playy();
+                    shake = 4;
+                }
+                break;
+        };
+    }
+    move() {
+        if (player.respawning) {
+            this.x = this.initialPos.x;
+            this.y = this.initialPos.y;
+            this.w = 1;
+            this.h = 1;
+            this.hitbox = {
+                x: this.x,
+                y: this.y,
+                w: 1,
+                h: 1
+            }
+            this.sprite = 0;
+        }
+        if (this.sprite == 1 || this.sprite == 2) {
+            if (this.frame >= this.spritePos.x[this.sprite].length - 1) {
+                this.x = 0;
+                this.y = 0;
+                this.w = 0;
+                this.h = 0;
+            }
+        }
+    }
+}
 class Speeder extends SpecialTile {
     constructor(x, y, dir) {
         super(x, y);
@@ -2270,6 +2544,7 @@ class TimedSpikes extends SpecialTile {
     constructor(x, y, active, timing) {
         super(x, y);
         this.sprite = active ? 1 : 3;
+        this.initialSprite = active ? 1 : 3;
         this.spritePos = {
             x: [[15], [15, 15, 15], [15], [15, 15, 15]],
             y: [[5], [6, 7, 8], [9], [8, 7, 6]],
@@ -2279,8 +2554,10 @@ class TimedSpikes extends SpecialTile {
         this.repeat = true;
         this.running = true;
         this.active = active;
+        this.initialActive = active;
         this.timing = 100;
         this.time = timing ? timing : 0;
+        this.initialTime = timing ? timing : 0;
         this.slowness = 2;
         this.type = "timedSpikes";
         this.hitbox = {
@@ -2306,6 +2583,13 @@ class TimedSpikes extends SpecialTile {
         };
     }
     move() {
+        if (player.respawning) {
+            this.time = this.initialTime;
+            this.sprite = this.initialSprite;
+            this.active = this.initialActive;
+            this.frameCounter = 0;
+            this.frame = 0;
+        }
         this.time++;
         if (this.time > this.timing) {
             this.time = 0;
@@ -2798,8 +3082,8 @@ function adjustCollided(p) {
         );
     }
     if (p.col.L && (!p.colPoint.B || p.colPoint.L)) {
-        if(p.col.R){
-            p.grounded=true;
+        if (p.col.R) {
+            p.grounded = true;
         }
         p.x += p.col.L;
         if (p.dash) {
@@ -2815,8 +3099,8 @@ function adjustCollided(p) {
 
     }
     if (p.col.R && (!p.colPoint.B || p.colPoint.R)) {
-        if(p.col.L){
-            p.grounded=true;
+        if (p.col.L) {
+            p.grounded = true;
         }
         p.x -= p.col.R;
         if (p.dash) {
@@ -2848,9 +3132,6 @@ function adjustCollided(p) {
     if (p.col.B) {
         p.y -= (p.col.B - 0.01);
         p.grounded = true;
-        if (p.yVelExt > 0) {
-            p.yVelExt = 0;
-        }
         if (p.yVel > 0) {
             p.yVel = 0;
         }
@@ -3052,16 +3333,24 @@ function colCheck(shapeA, shapeB) {
                 if (shapeB.xVel) {
                     shapeA.xVelExt = shapeB.xVel;
                 }
+                if (shapeB.xVel) {
+                    if (shapeB.yVel < 0) {
+                        shapeA.yVelExt = shapeB.yVel;
+                    }
+                    if (shapeB.yVel > 0) {
+                        shapeA.yVelExt = shapeB.yVel;
+                    }
+                }
             }
         } else {
             if (vX > 0) {
                 colDir = "l";
-                if (shapeA.col.L < oX && !shapeB.xVel) {
+                if (shapeA.col.L < oX) {
                     shapeA.col.L = oX;
                 }
             } else {
                 colDir = "r";
-                if (shapeA.col.R < oX && !shapeB.xVel) {
+                if (shapeA.col.R < oX) {
                     shapeA.col.R = oX;
                 }
             }
@@ -3529,6 +3818,8 @@ function initializeMap() {
             case 68:
             case 70:
             case 71:
+            case 72:
+            case 73:
                 spTiles.push(i);
                 removeList.push(i);
                 break;
@@ -3600,7 +3891,13 @@ function initializeMap() {
                         specialTiles.push(new TimedSpikes(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 1, parseInt(map[spTiles[i]].text)));
                         break;
                     case 71: // falling Stone
-                        specialTiles.push(new FallingStone(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 1));
+                        specialTiles.push(new FallingStone(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
+                        break;
+                    case 72: // breakable Stone
+                        specialTiles.push(new BreakableStone(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
+                        break;
+                    case 73: // clock
+                        specialTiles.push(new Clock(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
                         break;
                 }
             }
