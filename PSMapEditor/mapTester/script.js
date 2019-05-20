@@ -16,8 +16,7 @@ if (window.opener) {
 } else {
     mapTester = false;
 }
-var ghostBtn = id("ghost");
-var ghostSpeech = false;
+var dialogueOn = true;
 var currentLevel = 0;
 
 var stats = {
@@ -172,6 +171,10 @@ var tiles = [
         [1, 18], // falling stone
         [0, 20], // breakable stone
         [8, 0], // clock
+        [5, 17], // dialogue
+        [19, 17], // 0.01
+        [20, 17], // 0.05
+        [21, 17], // 0.10
     ]
 
 var audio = {
@@ -194,6 +197,9 @@ var audio = {
     spikes2: new Audio("PixelSamurai/soundFxs/spikes2.mp3"),
     tremble: new Audio("PixelSamurai/soundFxs/tremble.mp3"),
     fall: new Audio("PixelSamurai/soundFxs/fall.mp3"),
+    money_1: new Audio("PixelSamurai/soundFxs/money-1.mp3"),
+    money_2: new Audio("PixelSamurai/soundFxs/money-2.mp3"),
+    money_3: new Audio("PixelSamurai/soundFxs/money-3.mp3"),
     haydn_1: new Audio("PixelSamurai/soundFxs/music/Haydn-1.mp3"),
     haydn_2: new Audio("PixelSamurai/soundFxs/music/Haydn-2.mp3"),
     bach_3: new Audio("PixelSamurai/soundFxs/music/Bach-1.mp3"),
@@ -228,6 +234,9 @@ audio.crystal.volume = 1;
 audio.walking.volume = 1;
 audio.tremble.volume = 0.1;
 audio.fall.volume = 0.1;
+audio.money_1.volume = 0.3;
+audio.money_2.volume = 0.3;
+audio.money_3.volume = 0.3;
 audio.ambient_1.volume = 0.1;
 audio.ambient_2.volume = 0;
 
@@ -277,9 +286,20 @@ var voices = {
         new Audio("PixelSamurai/soundFxs/voices/ghost/3.mp3"),
         new Audio("PixelSamurai/soundFxs/voices/ghost/4.mp3"),
            ],
+    player: [
+        new Audio("PixelSamurai/soundFxs/voices/player/1.mp3"),
+        new Audio("PixelSamurai/soundFxs/voices/player/2.mp3"),
+        new Audio("PixelSamurai/soundFxs/voices/player/3.mp3"),
+        new Audio("PixelSamurai/soundFxs/voices/player/4.mp3"),
+        new Audio("PixelSamurai/soundFxs/voices/player/5.mp3"),
+        new Audio("PixelSamurai/soundFxs/voices/player/6.mp3"),
+           ],
 }
 for (let i = 0; i < voices.ghost.length; i++) {
     voices.ghost[i].volume = 0.4;
+}
+for (let i = 0; i < voices.player.length; i++) {
+    voices.player[i].volume = 0.75;
 }
 class Player {
     constructor(x, y) {
@@ -288,6 +308,7 @@ class Player {
         this.w = 1;
         this.h = 1;
         this.reading = false;
+        this.uncontrollable = false;
         this.currentBook = "";
         this.atk = 1;
         this.xVel = 0;
@@ -308,9 +329,17 @@ class Player {
         this.jumpTransition = true;
         this.goingDown = false;
         this.frame = 0;
+        this.money = 0;
+        this.levelMoney = 0;
         this.yVelDirChange = 0;
         this.prevPos = [];
         this.respawning = 0;
+        this.nextHitbox = {
+            x: 0,
+            y: 0,
+            w: 0,
+            h: 0
+        }
         this.hitbox = {
             x: 0,
             y: 0,
@@ -339,7 +368,8 @@ class Player {
             L: 0,
             R: 0,
             B: 0
-        }
+        };
+        this.events = [];
         this.left = false;
         this.sprite = {
             x: 0,
@@ -363,15 +393,19 @@ class Player {
         this.jumpCounter = 10;
         this.slowness = 6;
         this.windup = false;
+        this.type = "player";
     }
     jump() {
         if (this.grounded && !this.dead) {
+            this.attack = false;
             audio.jump.playy();
             this.frame = 0;
             this.jumping = true;
             this.grounded = false;
             this.dashCd = false;
             this.yVel = -0.02;
+            this.yVelExt /= 2;
+            this.xVelExt /= 2;
             var dir = 0;
             if (this.xVel !== 0) {
                 dir = this.left ? 2 : 1;
@@ -419,6 +453,7 @@ class Player {
 
     };
     respawnEvent() {
+        this.levelMoney = 0;
         this.respawning = true;
         this.dead = false;
         this.y = 1;
@@ -440,8 +475,21 @@ class Player {
             this.x = 3;
             this.y = 3;
         }
+        camera.focus = 0;
+    }
+    talk(dialogue, speaker) {
+        dialogueEngine.newText(dialogue, speaker);
     }
     compute() {
+        if (dialogueOn) {
+            for (let i = this.events.length - 1; i >= 0; i--) {
+                if (collided(this.events[i], player.hitbox)) {
+                    this.talk(this.events[i].text, this.events[i].speaker);
+                    console.log(this.events[i].text)
+                    this.events.splice(i, 1);
+                }
+            }
+        }
         this.frameCounter++;
         if (this.jumpCounter >= 10) {
             this.jumpMaxReached = true;
@@ -481,11 +529,24 @@ class Player {
             this.yVelExt = 0;
             this.xVelExt = 0;
 
+            //if the player could collide in the next frame, stop his dash
+
             this.attacking(this.hitbox);
+            this.nextHitbox.x = this.hitbox.x + this.xVel + this.xVelExt;
+            this.nextHitbox.y = this.hitbox.y + this.yVel + this.yVelExt;
+            this.nextHitbox.w = this.hitbox.w;
+            this.nextHitbox.h = this.hitbox.h;
+            for (let i = 0; i < map.length; i++) {
+                if (collided(this.nextHitbox, map[i])) {
+                    this.dash = false;
+                    this.xVel = 0;
+                }
+            }
             if (Math.abs((this.dashIn - this.x + this.xVel)) > 3) {
                 this.dash = false;
                 this.xVel = 0;
             }
+
         }
         if (!this.dash) {
             if (this.L && !this.col.L && !this.R) {
@@ -558,7 +619,7 @@ class Player {
         this.hitbox.h = this.h - 0.1;
 
         this.dmgHitbox.x = this.hitbox.x;
-        this.dmgHitbox.y = this.hitbox.y + 0.3;
+        this.dmgHitbox.y = this.hitbox.y + 0.2;
         this.dmgHitbox.w = this.hitbox.w;
         this.dmgHitbox.h = this.hitbox.h - 0.6;
         let dir = (this.left) ? -1 : 1;
@@ -1302,8 +1363,8 @@ class Superzombie extends Zombie {
 // Texts & Dialogues
 class DmgText {
     constructor(m, text) {
-        this.x = m.x + m.w / 2 + Math.random() * 0.5 - 0.25;
-        this.y = m.y + Math.random() * 0.5 - 0.25;
+        this.x = m.x + m.w / 2 + Math.random() * 0.5 - 0.4;
+        this.y = m.y + Math.random() * 0.5 - 0.4;
         this.text = text;
         this.size = 0.4;
         this.color = "#ac3232";
@@ -1320,72 +1381,6 @@ class DmgText {
         this.y -= 0.015;
         this.lifeSpan--;
         if (this.lifeSpan <= 0) {
-            textsRemoveList.push(i);
-        }
-    }
-}
-class DialogueText {
-    constructor(speaker, text, destroy) {
-        this.speaker = speaker;
-        this.x = this.speaker.x;
-        this.y = this.speaker.y;
-        this.wholeText = text;
-        this.text = "";
-        this.size = 0.4;
-        this.sizeI = this.size;
-        this.color = "white";
-        this.lifeSpan = 0;
-        this.color2 = "black";
-        this.wait = 3;
-        this.waitCounter = 0;
-        this.destroy = (destroy !== undefined) ? destroy : true;
-        this.kill = false;
-        this.ongoing = true;
-        this.voice = voices.ghost[0];
-    }
-    draw(i) {
-        this.x = this.speaker.x + (this.speaker.w / 2);
-        this.y = this.speaker.y - this.size;
-        c.font = Math.round(this.size * ratio) + "px" + " 'VT323'";
-        c.fillStyle = this.color2;
-        c.fillText(
-            this.text,
-            (this.x + Math.round(this.size / 10) + mapX) * ratio,
-            (this.y + Math.round(this.size / 10) + mapY) * ratio);
-        c.fillStyle = this.color;
-        c.fillText(
-            this.text,
-            (this.x + mapX) * ratio,
-            (this.y + mapY) * ratio);
-        if (this.lifeSpan >= this.wholeText.length) {
-            this.ongoing = false;
-            if (this.destroy) {
-                var that = this;
-                setTimeout(function () {
-                    that.kill = true
-                }, 2000);
-            }
-        } else {
-            if (this.voice.paused) {
-                this.voice = voices.ghost[(Math.random() * voices.ghost.length) | 0];
-                let volume = (15 - Math.abs(player.hitbox.x + player.hitbox.w / 2 - (this.x + 0.5))) / 30;
-
-                if (volume > 0) {
-                    volume = volume.toFixed(3);
-                    console.log(volume)
-                    this.voice.volume = volume;
-                    this.voice.playy();
-                }
-            }
-            this.waitCounter++;
-            if (this.waitCounter >= this.wait) {
-                this.lifeSpan++;
-                this.text += this.wholeText[this.lifeSpan - 1];
-                this.waitCounter = 0;
-            }
-        }
-        if (this.kill === true) {
-            this.speaker.talking = false;
             textsRemoveList.push(i);
         }
     }
@@ -1548,6 +1543,79 @@ class Crystal {
 
     }
 }
+class Coin {
+    constructor(x, y, value) {
+        this.x = x;
+        this.y = y;
+        this.value = value;
+        this.sprite = value;
+        this.rotation = 0;
+        this.sheet = id("sheet");
+        this.repeat = true;
+        this.frameCounter = 0;
+        this.slowness = 6;
+        this.frame = 0;
+        this.type = "crystal";
+        this.hitbox = {
+            x: x + 0.3,
+            y: y + 0.3,
+            w: 0.4,
+            h: 0.4
+        };
+        this.spritePos = {
+            x: [[18, 18, 18, 18, 18, 18, 18, 18], [19, 19, 19, 19, 19, 19, 19, 19], [20, 20, 20, 20, 20, 20, 20, 20], [21, 21, 21, 21, 21, 21, 21, 21], [9]],
+            y: [[17, 18, 19, 20, 21, 22, 23, 24], [17, 18, 19, 20, 21, 22, 23, 24], [17, 18, 19, 20, 21, 22, 23, 24], [17, 18, 19, 20, 21, 22, 23, 24], [5]],
+            w: [1, 1, 1, 1, 1],
+            h: [1, 1, 1, 1, 1],
+        };
+    }
+    action() {
+        if (player.respawning) {
+            //audio.crystal.playy();
+            this.sprite = this.value;
+            this.frameCounter = 0;
+            this.frame = 0;
+            this.slowness = 6;
+            this.hitbox.x = this.x + 0.3;
+            this.hitbox.y = this.y + 0.3;
+            this.hitbox.w = 0.4;
+            this.hitbox.h = 0.4;
+        }
+        if (this.sprite === 0) {
+            if (this.frame >= this.spritePos.x[0].length - 1) {
+                this.sprite = 4;
+                this.frame = 0;
+                this.frameCounter = 0;
+            }
+        }
+        if ((this.sprite !== 0 && this.sprite !== 4) && collided(player, this.hitbox)) {
+            //audio.crystal.playy();
+            this.slowness = 3;
+            this.sprite = 0;
+            this.frameCounter = 0;
+            this.frame = 0;
+            this.hitbox.x = 0;
+            this.hitbox.y = 0;
+            this.hitbox.w = 0;
+            this.hitbox.h = 0;
+            switch (this.value) {
+                case 1:
+                    player.levelMoney += 10;
+                    audio.money_1.playy();
+                    break;
+                case 2:
+                    player.levelMoney += 20;
+                    audio.money_2.playy();
+                    break;
+                case 3:
+                    player.levelMoney += 30;
+                    audio.money_3.playy();
+                    break;
+            }
+        }
+
+    }
+}
 class Door {
     constructor(x, y, place) {
         this.x = x;
@@ -1636,8 +1704,12 @@ class Portal {
                 this.load++;
                 blackScreen = this.load * 2 + 1;
                 if (this.load > 50) {
+                    player.money += player.levelMoney;
+                    player.levelMoney = 0;
                     eval(maps[parseInt(this.place)])
                     window.localStorage["LvL"] = parseInt(this.place);
+                    window.localStorage["money"] = player.money;
+                    console.log("money: " + window.localStorage["money"]);
                     currentLevel++;
                     adaptBiome();
                     initializeMap();
@@ -1743,7 +1815,6 @@ class GhostGirl {
         this.sheet = id("sheet");
         this.repeat = true;
         this.frameCounter = 0;
-        this.talking = false;
         this.slowness = 6;
         this.frame = 0;
         this.type = "ghostgirl";
@@ -1756,18 +1827,8 @@ class GhostGirl {
         this.events = [];
     }
     action() {
-        if (ghostSpeech) {
-            for (let i = this.events.length - 1; i >= 0; i--) {
-                if (!this.talking && collided(this.events[i], player.hitbox)) {
-                    this.talking = true;
-                    this.talk(this.events[i].text);
-                    this.events.splice(i, 1);
-                    console.log(this.events.length)
-                }
-            }
-        }
         if (this.x + this.w <= player.x - 1) {
-            if (player.respawning || player.dead) {
+            if ((player.respawning || player.dead) && !player.uncontrollable) {
                 if (this.sprite == 0 || this.sprite == 1) {
                     this.frameCounter = 0;
                     this.frame = 0;
@@ -1786,7 +1847,7 @@ class GhostGirl {
                 this.x += Math.abs(this.x - player.x) / 50;
             }
         } else if (this.x > player.x + player.w + 1) {
-            if (player.respawning || player.dead) {
+            if ((player.respawning || player.dead) && !player.uncontrollable) {
                 if (this.srite == 0 || this.srite == 1) {
                     this.frameCounter = 0;
                     this.frame = 0;
@@ -1814,10 +1875,6 @@ class GhostGirl {
                 this.y -= Math.abs(this.y - player.y) / 100;
             }
         }
-    }
-    talk(dialogue) {
-        var that = this;
-        texts.push(new DialogueText(that, dialogue));
     }
 }
 class Cloud {
@@ -1875,6 +1932,9 @@ function drawFxs(fx, i) {
                 visualFxs.splice(i, 1);
             }
         }
+    }
+    if (isOutOfScreen(visualFxs[i])) {
+        return;
     }
     //draw on canvascontext.translate(x, y);
     if (fx.movX || fx.movY) {
@@ -2016,8 +2076,8 @@ class FallingStone extends SpecialTile {
         super(x, y);
         this.sprite = 0;
         this.spritePos = {
-            x: [[1], [1, 1], [2, 3, 4, 5, 6, 7, 8], [10]], //0
-            y: [[18], [18, 19], [18, 18, 18, 18, 18, 18, 18], [0]], //18
+            x: [[1], [1, 1], [2, 3, 4, 5, 6, 7, 8], [9]], //0
+            y: [[18], [18, 19], [18, 18, 18, 18, 18, 18, 18], [5]], //18
             w: [1, 1, 1, 1],
             h: [1, 1, 2, 1],
         };
@@ -2140,7 +2200,7 @@ class Clock extends SpecialTile {
         this.touched = false;
         this.xVel = 0;
         this.yVel = 0;
-        this.speed = 0.15;
+        this.speed = 0.1;
         this.w = 1;
         this.h = 1;
         this.stop = false;
@@ -2160,21 +2220,21 @@ class Clock extends SpecialTile {
             case "b":
                 this.touched = true;
                 collider.grounded = true;
-                if(!this.stop){
-                switch (this.frame) {
-                    case 0:
-                        collider.yVelExt = this.speed;
-                        break;
-                    case 1:
-                        collider.xVelExt = this.speed;
-                        break;
-                    case 2:
-                        collider.yVelExt = -this.speed;
-                        break;
-                    case 3:
-                        collider.xVelExt = -this.speed;
-                        break;
-                }
+                if (!this.stop) {
+                    switch (this.frame) {
+                        case 0:
+                            collider.yVelExt = this.speed;
+                            break;
+                        case 1:
+                            collider.xVelExt = this.speed;
+                            break;
+                        case 2:
+                            collider.yVelExt = -this.speed;
+                            break;
+                        case 3:
+                            collider.xVelExt = -this.speed;
+                            break;
+                    }
                 }
                 break;
             case "t":
@@ -2224,6 +2284,8 @@ class Clock extends SpecialTile {
             this.frameCounter = 0;
             this.frame = 0;
         }
+
+
         this.xVel = 0;
         this.yVel = 0;
         if (this.touched) {
@@ -2369,6 +2431,38 @@ class BreakableStone extends SpecialTile {
         };
     }
     move() {
+        if (this.sprite == 0 && player.attack) {
+            if (collided(player.atkHitbox, this)) {
+                if (player.left) {
+                    this.sprite = 2;
+                    this.running = true;
+                    player.col.L = 0;
+                    this.y -= 0.5;
+                    this.x -= 1;
+                    this.w = 2;
+                    this.h = 2;
+                    this.hitbox.w = 0;
+                    this.hitbox.h = 0;
+                    this.hitbox.x = 0;
+                    this.hitbox.y = 0;
+                    audio.fall.playy();
+                    shake = 4;
+                } else {
+                    this.sprite = 1;
+                    this.running = true;
+                    player.col.R = 0;
+                    this.y -= 0.5;
+                    this.w = 2;
+                    this.h = 2;
+                    this.hitbox.w = 0;
+                    this.hitbox.h = 0;
+                    this.hitbox.x = 0;
+                    this.hitbox.y = 0;
+                    audio.fall.playy();
+                    shake = 4;
+                }
+            }
+        }
         if (player.respawning) {
             this.x = this.initialPos.x;
             this.y = this.initialPos.y;
@@ -2765,7 +2859,7 @@ function renderSpecialTiles() {
 }
 
 function renderHpBars() {
-    for (i = 0; i < monsters.length; i++) {
+    for (let i = 0; i < monsters.length; i++) {
         let hpRatio = monsters[i].hp / monsters[i].maxHp;
         let barW = Math.round(16 * hpRatio);
         c.drawImage(
@@ -2840,14 +2934,14 @@ function loop() {
     } else if (!audio.walking.paused) {
         audio.walking.pause();
     }
+    drawEnvironment();
     checkCollisions();
+    renderSpecialTiles();
     for (i = 0; i < monsters.length; i++) {
         monsters[i].frameCounter++;
         monsters[i].compute();
     }
 
-    drawEnvironment();
-    renderSpecialTiles();
     if (!player.dead) {
         adjustCollided(player);
     }
@@ -2862,9 +2956,6 @@ function loop() {
     for (let i = visualFxs.length - 1; i >= 0; i--) {
         if (visualFxs[i] == null) {
             continue
-        }
-        if (visualFxs[i].type !== "ghostgirl" && isOutOfScreen(visualFxs[i])) {
-            continue;
         }
         drawFxs(visualFxs[i], i);
     }
@@ -2882,6 +2973,8 @@ function loop() {
     renderHpBars();
     renderTexts();
     displayStats();
+    dialogueEngine.compute();
+    moneyCounter.compute();
     if (!gamePaused) {
         requestAnimationFrame(loop)
     }
@@ -2889,15 +2982,306 @@ function loop() {
 ///////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////// MAIN LOOP //////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
+function financial(x) {
+    return Number.parseFloat(x).toFixed(2);
+}
+class MoneyCounter {
+    constructor() {
+        this.currentMoney = 0;
+        this.totalMoney = 0;
+        this.size = 1;
+        this.color = "white";
+        this.color2 = "#696a6a";
+    }
+    compute() {
+        this.totalMoney = player.money + player.levelMoney;
+        if (this.totalMoney > 0 || this.currentMoney > 0) {
+            if (this.currentMoney < this.totalMoney) {
+                this.currentMoney += ((this.totalMoney - this.currentMoney) / 5);
+                if (this.currentMoney > this.totalMoney) {
+                    this.currentMoney = this.totalMoney;
+                }
+            }
+            if (this.currentMoney > this.totalMoney) {
+                this.currentMoney += ((this.totalMoney - this.currentMoney) / 5);
+                if (this.currentMoney < this.totalMoney) {
+                    this.currentMoney = this.totalMoney;
+                }
+            }
+            this.draw(financial(this.currentMoney * 5 / 1000))
+        }
+    }
+    draw(moneyFixed) {
+        moneyFixed += " C"
+        c.textAlign = "right";
+        c.font = Math.round(this.size * ratio) + "px" + " 'VT323'";
+        c.fillStyle = this.color2;
+        c.fillText(
+            moneyFixed,
+            canvas.width - ratio,
+            ratio * 1.1)
+        c.fillStyle = this.color;
+        c.fillText(
+            moneyFixed,
+            canvas.width - ratio,
+            ratio)
+
+    }
+}
+var moneyCounter = new MoneyCounter();
+
+///////////////////////////////////////////////////////////////////////////////
+////////////////////////////// DIALOGUE ENGINE  ///////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+/*
+ */
+
+class DialogueEngine {
+    constructor() {
+        this.layout = id("d-layout");
+        this.portraits = [[id("ghost-0"), id("ghost-1"), id("ghost-2")], [id("player-0"), id("player-1"), id("player-2")]];
+        this.portrait = 0;
+        this.emotion = 0;
+        this.wholeText = "";
+        this.text = "";
+        this.textIterator = 0;
+        this.slowness = 4;
+        this.slowness2 = 8;
+        this.counter = 0;
+        this.size = 0.8;
+        this.input = 0;
+        this.frame = 0;
+        this.frameLength = 0;
+        this.frameCounter = 0;
+        this.color = "white";
+        this.textBox = {
+            x: (this.layout.width / tileSize / 3),
+            y: (this.layout.height / tileSize / 1.8),
+            w: (this.layout.width / tileSize) / 2,
+            h: (this.layout.height / tileSize) / 2,
+        };
+        this.texts = [];
+        this.voices = [voices.ghost, voices.player];
+        this.voice = this.voices[this.portrait][0];
+    }
+    newText(text, speaker) {
+        let newTextObj = {
+            text: text,
+            type: speaker,
+
+        }
+        this.texts.push(newTextObj);
+        player.uncontrollable = true;
+        player.L = false;
+        player.R = false;
+        watchDown = false;
+    }
+    compute() {
+        if (this.texts.length > 0) {
+            switch (this.texts[0].type) {
+                case "ghostgirl":
+                    this.portrait = 0;
+                    this.frameLength = 3;
+                    if (!isOutOfScreen(ghost)) {
+                        camera.focus = 1;
+                    }
+                    break;
+                case "player":
+                    this.portrait = 1;
+                    this.frameLength = 0;
+                    camera.focus = 0;
+                    break;
+            }
+        }
+        if (this.input) {
+            for (let j = 0; j < this.voices.length; j++) {
+                for (let k = 0; k < this.voices[j].length; k++) {
+                    if (!this.voices[j][k].paused) {
+                        this.voices[j][k].pause();
+                        this.voices[j][k].currentTime = 0;
+                    }
+                }
+            }
+            if (this.text.length <= this.wholeText.length - 1) {
+                this.text = this.wholeText;
+                this.draw();
+                this.input = false;
+            } else {
+                this.texts.splice(0, 1);
+                this.text = "";
+                this.textIterator = 0;
+                this.input = false;
+                if (this.texts.length > 0) {
+                    this.draw();
+                } else {
+                    player.uncontrollable = false;
+                    camera.focus = 0;
+                }
+            }
+        } else if (this.texts.length > 0) {
+            this.draw();
+        }
+    }
+    speak() {
+        if (this.voice.paused) {
+            this.voice = this.voices[this.portrait][(Math.random() * this.voices[this.portrait].length) | 0];
+            /*let volume = (15 - Math.abs(player.hitbox.x + player.hitbox.w / 2 - (this.x + 0.5))) / 30;
+            if (volume > 0) {
+                volume = volume.toFixed(3);
+                console.log(volume)
+                this.voice.volume = volume;
+                this.voice.playy();
+            }
+            */
+            this.voice.playbackRate = 1;
+            this.voice.playy();
+        }
+    }
+    draw() {
+        if (this.wholeText !== this.texts[0].text) {
+            this.wholeText = this.texts[0].text;
+            this.texts[0].text[0]
+            if (this.texts[0].text[0] == "#") {
+                switch (this.texts[0].text[1]) {
+                    case "0": //normal/thinking
+                        if (this.emotion !== 0) {
+                            this.emotion = 0;
+                        }
+                        break;
+                    case "1": //concerned/serious
+                        if (this.emotion !== 1) {
+                            this.emotion = 1;
+                        }
+                        break;
+                    case "2": //laughing/sad
+                        if (this.emotion !== 2) {
+                            this.emotion = 2;
+                        }
+                        break;
+                }
+            }
+        }
+        c.textAlign = "left";
+        c.font = Math.round(this.size * ratio) + "px" + " 'VT323'";
+        c.fillStyle = this.color;
+        let lines = this.text.split('/n');
+        for (let i = 0; i < lines.length; i++) {
+            for (let j = lines[i].length - 1; j >= 0; j--) {
+                if (lines[i][j] == "#") {
+                    switch (lines[i][j + 1]) {
+                        case "0": //happy
+                            if (this.emotion !== 0) {
+                                this.emotion = 0;
+                            }
+                            break;
+                        case "1": //sad
+                            if (this.emotion !== 1) {
+                                this.emotion = 1;
+                            }
+                            break;
+                        case "2": //sad
+                            if (this.emotion !== 2) {
+                                this.emotion = 2;
+                            }
+                            break;
+                    }
+                }
+            }
+            lines[i] = lines[i].replace("#0", "");
+            lines[i] = lines[i].replace("#1", "");
+            lines[i] = lines[i].replace("#2", "");
+            lines[i] = lines[i].replace("#", "");
+            lines[i] = lines[i].replace("/", "");
+        }
+
+        // draw layout
+        c.drawImage(
+            this.layout,
+            canvas.width / 2 - this.layout.width / tileSize * ratio / 2 | 0,
+            canvas.height - this.layout.height / tileSize * ratio | 0,
+            this.layout.width / tileSize * ratio | 0,
+            this.layout.height / tileSize * ratio | 0
+        );
+
+        //draw portrait
+        if (this.textIterator > 0) {
+            this.frameCounter++;
+            if (this.frameCounter >= this.slowness2) {
+                this.frameCounter = 0;
+                this.frame++;
+            }
+        }
+        if (this.frame > this.frameLength) {
+            this.frame = 0;
+        }
+        c.drawImage(
+            this.portraits[this.portrait][this.emotion],
+            0,
+            82 * this.frame,
+            this.layout.width,
+            82,
+            canvas.width / 2 - this.layout.width / tileSize * ratio / 2 | 0,
+            canvas.height - this.layout.height / tileSize * ratio | 0,
+            this.layout.width / tileSize * ratio | 0,
+            this.layout.height / tileSize * ratio | 0
+        );
+
+
+        for (let i = 0; i < lines.length; i++) {
+            c.fillText(
+                lines[i],
+                (this.textBox.x * ratio),
+                (-this.textBox.y * ratio + canvas.height + (this.size * ratio * i))
+            );
+        }
+        if (this.text.length <= this.wholeText.length - 1) {
+            this.counter++;
+            if (this.counter >= this.slowness) {
+                this.counter = 0;
+                this.text += this.wholeText[this.textIterator];
+                this.textIterator++;
+                if (this.text[this.textIterator - 1] != " " && this.text[this.textIterator - 1] != ".") {
+                    this.speak();
+                } else {
+                    this.frame = 1;
+                    this.frameCounter = 0;
+                }
+            }
+        } else {
+            this.textIterator = 0;
+            if (this.frameLength > 0) {
+                this.frame = 1;
+            }
+        }
+    }
+}
+var dialogueEngine = new DialogueEngine();
+
+///////////////////////////////////////////////////////////////////////////////
+////////////////////////////// DIALOGUE ENGINE  ///////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 var camBoxes = [];
+var camera = {
+    focus: 0,
+    subject: player
+}
 
 function moveCamera() {
     //locked camera
+    camera.subject = player;
+    switch (camera.focus) {
+        case 0:
+            camera.subject = player;
+            break;
+        case 1:
+            camera.subject = ghost;
+            break;
+    }
     if (camBoxes.length > 0) {
         var camObject = 0;
         for (let i = 0; i < camBoxes.length; i++) {
-            if (collided(player, camBoxes[i])) {
+            if (collided(camera.subject, camBoxes[i])) {
                 cameraType = camBoxes[i].type;
                 camObject = camBoxes[i];
             }
@@ -2911,30 +3295,30 @@ function moveCamera() {
     if (cameraType === 0) {
         var cameraDir = tilesWidth / 2 - 2;
     } else if (cameraType === 1) {
-        var cameraDir = player.left ? tilesWidth - 3 : 2;
+        var cameraDir = camera.subject.left ? tilesWidth - 3 : 2;
     }
     //let cameraDir = player.left ? tilesWidth / 2 : tilesWidth / 6;
-    if (mapX < -player.x + cameraDir) {
+    if (mapX < -camera.subject.x + cameraDir) {
         // means camera moves forward
-        if (Math.abs((-player.x + cameraDir - mapX) / 6) > 1 / 100) {
-            mapX += (-player.x + cameraDir - mapX) / 6;
+        if (Math.abs((-camera.subject.x + cameraDir - mapX) / 6) > 1 / 100) {
+            mapX += (-camera.subject.x + cameraDir - mapX) / 6;
         }
-    } else if (mapX > -player.x + cameraDir) {
+    } else if (mapX > -camera.subject.x + cameraDir) {
         // means camera moves backward
-        if (Math.abs((-player.x + cameraDir - mapX) / 6) > 1 / 100) {
-            mapX += (-player.x + cameraDir - mapX) / 6;
+        if (Math.abs((-camera.subject.x + cameraDir - mapX) / 6) > 1 / 100) {
+            mapX += (-camera.subject.x + cameraDir - mapX) / 6;
         }
     }
     let lookDown = watchDown ? 15 / 4 : 0; //15 is tilesHeight standard
-    if (mapY < -(player.y + lookDown) + tilesHeight / 2) {
+    if (mapY < -(camera.subject.y + lookDown) + tilesHeight / 2) {
         // means camera moves downward
-        if (Math.abs((-(player.y + lookDown) + tilesHeight / 2 - mapY) / 6) > 1 / 100) {
-            mapY += (-(player.y + lookDown) + tilesHeight / 2 - mapY) / 6;
+        if (Math.abs((-(camera.subject.y + lookDown) + tilesHeight / 2 - mapY) / 6) > 1 / 100) {
+            mapY += (-(camera.subject.y + lookDown) + tilesHeight / 2 - mapY) / 6;
         }
-    } else if (mapY > -(player.y + lookDown) + tilesHeight / 2) {
+    } else if (mapY > -(camera.subject.y + lookDown) + tilesHeight / 2) {
         // means camera moves upward
-        if (Math.abs((-(player.y + lookDown) + tilesHeight / 2 - mapY) / 6) > 1 / 100) {
-            mapY += (-(player.y + lookDown) + tilesHeight / 2 - mapY) / 6;
+        if (Math.abs((-(camera.subject.y + lookDown) + tilesHeight / 2 - mapY) / 6) > 1 / 100) {
+            mapY += (-(camera.subject.y + lookDown) + tilesHeight / 2 - mapY) / 6;
         }
     }
 }
@@ -3001,9 +3385,13 @@ function checkCollisions() {
 }
 
 function adjustCollided(p) {
+
+    //COLLISION POINTS
     p.colPoint.L = false;
     p.colPoint.R = false;
     p.colPoint.B = false;
+
+
     for (let j = 0; j < map.length; j++) {
         if (isOutOfScreen(map[j])) {
             continue;
@@ -3081,6 +3469,10 @@ function adjustCollided(p) {
             (0.1) * ratio | 0
         );
     }
+
+
+
+
     if (p.col.L && (!p.colPoint.B || p.colPoint.L)) {
         if (p.col.R) {
             p.grounded = true;
@@ -3130,7 +3522,7 @@ function adjustCollided(p) {
 
     }
     if (p.col.B) {
-        p.y -= (p.col.B - 0.01);
+        p.y -= (p.col.B - 0.03);
         p.grounded = true;
         if (p.yVel > 0) {
             p.yVel = 0;
@@ -3322,13 +3714,13 @@ function colCheck(shapeA, shapeB) {
             if (vY > 0) {
                 colDir = "t";
                 if (shapeA.col.T < oY && !shapeB.xVel) {
-                    shapeA.col.T = oY;
+                    shapeA.col.T += oY;
                 }
             } else {
                 colDir = "b";
                 shapeA.grounded = true;
                 if (shapeA.col.B < oY) {
-                    shapeA.col.B = oY;
+                    shapeA.col.B += oY;
                 }
                 if (shapeB.xVel) {
                     shapeA.xVelExt = shapeB.xVel;
@@ -3346,12 +3738,12 @@ function colCheck(shapeA, shapeB) {
             if (vX > 0) {
                 colDir = "l";
                 if (shapeA.col.L < oX) {
-                    shapeA.col.L = oX;
+                    shapeA.col.L += oX;
                 }
             } else {
                 colDir = "r";
                 if (shapeA.col.R < oX) {
-                    shapeA.col.R = oX;
+                    shapeA.col.R += oX;
                 }
             }
         }
@@ -3422,7 +3814,7 @@ function displayStats() {
 //Mouse controls
 var jmpKeyPressed = 0;
 window.onmousedown = function (e) {
-    if (typeof e === 'object' && !touchDevice) {
+    if (typeof e === 'object' && !touchDevice && !player.uncontrollable) {
         switch (e.button) {
             case 0:
                 //console.log('Left button clicked.');
@@ -3446,7 +3838,7 @@ window.onmousedown = function (e) {
     }
 }
 window.onmouseup = function (e) {
-    if (typeof e === 'object' && !touchDevice) {
+    if (typeof e === 'object' && !touchDevice && !player.uncontrollable) {
         switch (e.button) {
             case 0:
                 //console.log('Left button clicked.');
@@ -3479,6 +3871,8 @@ function mobileInit(isContinue) {
     if (isContinue) {
         eval(maps[window.localStorage['LvL'] || 0]);
         currentLevel = window.localStorage['LvL'];
+        console.log("money: " + window.localStorage["money"]);
+        player.money = parseInt(window.localStorage["money"]);
     } else {
         eval(maps[0]);
     }
@@ -3630,7 +4024,7 @@ window.addEventListener("keydown", function (event) {
         id("stats").style.visibility = "visible";
         stats.colPoints = true;
     }
-    if (!gamePaused) {
+    if (!gamePaused && !player.uncontrollable) {
         switch (key) {
             case 27:
             case 32: // esc/space key
@@ -3664,6 +4058,16 @@ window.addEventListener("keydown", function (event) {
                 if (!jmpKeyPressed) {
                     player.jump();
                     jmpKeyPressed = true;
+                }
+                break;
+            case 82:
+                if (!player.dead) {
+                    visualFxs.push(new DeathFx(player.x, player.y));
+                    audio.death.playy();
+                    player.dead = true;
+                    setTimeout(function () {
+                        player.respawnEvent();
+                    }, 1500);
                 }
                 break;
             case 70: //attack key down (F / X)
@@ -3711,13 +4115,17 @@ window.addEventListener("keydown", function (event) {
         //UI
         if (player.reading) {
             id(player.currentBook).style.visibility = "hidden";
+            gamePaused = false;
+            requestAnimationFrame(loop);
+        } else if (player.uncontrollable) {
+            dialogueEngine.input = 1;
         } else {
             id("pause-screen").style.display = "none";
             id("pause-screen").style.visibility = "hidden";
             id("controls").style.visibility = "hidden";
+            gamePaused = false;
+            requestAnimationFrame(loop);
         }
-        gamePaused = false;
-        requestAnimationFrame(loop);
     }
 });
 window.addEventListener("keyup", function (event) {
@@ -3793,7 +4201,10 @@ function initializeMap() {
     specialTiles = [];
     bgTiles = [];
     visualFxs = [];
-    ghost = new GhostGirl(player.x - 4, player.y - 4);
+    player.x = spawnPoint.x;
+    player.y = spawnPoint.y;
+    ghost = new GhostGirl(player.x - 3, player.y - 3);
+    player.events.length = 0;
     visualFxs.push(ghost);
     monsters = [];
     for (let i = map.length - 1; i >= 0; i--) {
@@ -3820,6 +4231,10 @@ function initializeMap() {
             case 71:
             case 72:
             case 73:
+            case 74:
+            case 75:
+            case 76:
+            case 77:
                 spTiles.push(i);
                 removeList.push(i);
                 break;
@@ -3899,20 +4314,32 @@ function initializeMap() {
                     case 73: // clock
                         specialTiles.push(new Clock(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
                         break;
+                    case 75: // 0.01
+                        visualFxs.push(new Coin(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 1));
+                        break;
+                    case 76: // 0.05
+                        visualFxs.push(new Coin(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 2));
+                        break;
+                    case 77: // 0.10
+                        visualFxs.push(new Coin(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 3));
+                        break;
                 }
             }
         }
         switch (map[spTiles[i]].type) {
             case 70: // dialogue
-                ghost.events.push(map[spTiles[i]]);
+                map[spTiles[i]].speaker = "ghostgirl";
+                player.events.push(map[spTiles[i]]);
+                break;
+            case 74: // dialogue2
+                map[spTiles[i]].speaker = "player";
+                player.events.push(map[spTiles[i]]);
                 break;
         }
     }
     for (let i = 0; i < removeList.length; i++) {
         map.splice(removeList[i], 1);
     }
-    player.x = spawnPoint.x;
-    player.y = spawnPoint.y;
 
     for (let i = map.length - 1; i >= 0; i--) {
         if (map[i].y + map[i].h > mapHeight) {
@@ -3939,7 +4366,7 @@ if (mapTester) {
     adjustScreen("pc");
     id("menu").style.visibility = "hidden";
     canvas.style.visibility = "visible";
-    ghostSpeech = true;
+    dialogueOn = true;
     adaptBiome();
     initializeMap();
     requestAnimationFrame(loop);
@@ -3962,18 +4389,18 @@ if (!mapTester) {
         id("controls").style.visibility = "visible";
         canvas.style.visibility = "visible";
     }
-    id("ghost").onclick = ghostVoiceOnOff;
-    id("ghost").ontouchstart = ghostVoiceOnOff;
+    id("dialogueBtn").onclick = dialoguesOnOff;
+    id("dialogueBtn").ontouchstart = dialoguesOnOff;
 
-    function ghostVoiceOnOff() {
-        if (ghostSpeech) {
-            id("ghost").innerHTML = "GHOST's speech(OFF)";
-            id("ghost").style.opacity = "0.5";
+    function dialoguesOnOff() {
+        if (dialogueOn) {
+            id("dialogueBtn").innerHTML = "Dialogues(OFF)";
+            id("dialogueBtn").style.opacity = "0.5";
         } else {
-            id("ghost").innerHTML = "GHOST's speech(ON)";
-            id("ghost").style.opacity = "1";
+            id("dialogueBtn").innerHTML = "Dialogues(ON)";
+            id("dialogueBtn").style.opacity = "1";
         }
-        ghostSpeech = !ghostSpeech;
+        dialogueOn = !dialogueOn;
     }
     if (window.localStorage['LvL'] != null) {
         id("continue").addEventListener("touchstart", function () {
@@ -3985,6 +4412,8 @@ if (!mapTester) {
             adjustScreen("pc");
             eval(maps[window.localStorage['LvL'] || 0]);
             currentLevel = window.localStorage['LvL'];
+            console.log("money: " + window.localStorage["money"]);
+            player.money = parseInt(window.localStorage["money"]);
             adaptBiome();
             initializeMap();
             requestAnimationFrame(loop);
@@ -4047,6 +4476,9 @@ function audioBtn() {
         for (let i = 0; i < voices.ghost.length; i++) {
             voices.ghost[i].volume = 0;
         }
+        for (let i = 0; i < voices.player.length; i++) {
+            voices.player[i].volume = 0;
+        }
         audio.bounce1.volume = 0;
         audio.bounce2.volume = 0;
         audio.bounce3.volume = 0;
@@ -4064,12 +4496,18 @@ function audioBtn() {
         audio.ambient_2.volume = 0;
         audio.tremble.volume = 0;
         audio.fall.volume = 0;
+        audio.money_1.volume = 0;
+        audio.money_2.volume = 0;
+        audio.money_3.volume = 0;
 
     } else {
         options.audio = true;
         this.src = "ui/sound-on.png";
         for (let i = 0; i < voices.ghost.length; i++) {
             voices.ghost[i].volume = 0.4;
+        }
+        for (let i = 0; i < voices.player.length; i++) {
+            voices.player[i].volume = 0.75;
         }
         audio.bounce1.volume = 0.4;
         audio.bounce2.volume = 0.4;
@@ -4088,6 +4526,9 @@ function audioBtn() {
         audio.ambient_2.volume = 0.0;
         audio.tremble.volume = 0.1;
         audio.fall.volume = 0.1;
+        audio.money_1.volume = 0.3;
+        audio.money_2.volume = 0.3;
+        audio.money_3.volume = 0.3;
 
     }
 }

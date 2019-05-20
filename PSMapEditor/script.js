@@ -62,6 +62,10 @@ var tiles = [
         [1, 18], // falling stone
         [0, 20], // breakable stone
         [8, 0], // clock
+        [5, 17], // dialogue
+        [19, 17], // 0.01
+        [20, 17], // 0.05
+        [21, 17], // 0.10
 
     ]
 var spawnPoint = {
