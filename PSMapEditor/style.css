@@ -2,6 +2,7 @@ body {
     margin: 0;
     padding: 0;
     user-select: none;
+    background-color: #222034;
 }
 
 * {
@@ -46,14 +47,17 @@ body {
     border-width: 2px !important;
 }
 
-
+.tile{
+    background-color: #222034;
+    margin-right:5px
+}
 #cont,
 #cont2 {
+    background-color: #45283c;
     position: fixed;
     z-index: 100;
     right: 0;
     top: 0;
-    background-color: white;
     font-size: 20px;
     border: 2px solid black;
     padding: 3px;

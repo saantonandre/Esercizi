@@ -487,6 +487,7 @@ window.onload = function () {
             this.left = false;
             this.dash = false;
             this.dashCd = false;
+            this.windup = false;
             if (typeof spawnPoint !== "undefined") {
                 this.x = spawnPoint.x;
                 this.y = spawnPoint.y;
@@ -649,10 +650,10 @@ window.onload = function () {
             this.dmgHitbox.w = this.hitbox.w;
             this.dmgHitbox.h = this.hitbox.h - 0.6;
             let dir = (this.left) ? -1 : 1;
-            this.atkHitbox.x = this.x + dir;
-            this.atkHitbox.y = this.y;
-            this.atkHitbox.w = this.w;
-            this.atkHitbox.h = this.h;
+            this.atkHitbox.x = this.dmgHitbox.x + dir;
+            this.atkHitbox.y = this.dmgHitbox.y;
+            this.atkHitbox.w = this.dmgHitbox.w;
+            this.atkHitbox.h = this.dmgHitbox.h;
 
         }
         draw() {
@@ -1147,11 +1148,19 @@ window.onload = function () {
                 this.R = false;
             }
             if (this.col.L) {
-                this.x += this.col.L;
+                if (this.col.R) {
+                    this.col.B += this.col.L
+                } else {
+                    this.x += this.col.L;
+                }
 
             }
             if (this.col.R) {
-                this.x -= this.col.R;
+                if (this.col.L) {
+                    this.col.B += this.col.R
+                } else {
+                    this.x -= this.col.R;
+                }
 
             }
             if (this.col.T) {
@@ -3498,7 +3507,7 @@ window.onload = function () {
 
 
 
-        if (p.col.L && (p.colPoint.L)) {
+        if (p.col.L && p.colPoint.L) {
             if (p.col.R) {
                 p.grounded = true;
             }
@@ -3515,7 +3524,7 @@ window.onload = function () {
             }
 
         }
-        if (p.col.R && (p.colPoint.R)) {
+        if (p.col.R && p.colPoint.R) {
             if (p.col.L) {
                 p.grounded = true;
             }

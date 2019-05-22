@@ -73,7 +73,7 @@ var spawnPoint = {
     y: 2
 };
 window.onload = function () {
-    for (i = 0; i < tiles.length; i++) {
+    for (let i = 0; i < tiles.length; i++) {
         var canv = document.createElement('canvas');
         canv.id = "canvas" + i;
         canv.width = 32;
@@ -83,6 +83,7 @@ window.onload = function () {
         if (i === 0) {
             canv.className += " selected";
         }
+        canv.className += " tile";
         //canvas.style.position = "absolute";
         canv.getContext("2d").drawImage(
             sheet,
@@ -172,7 +173,7 @@ function renderSquare() {
     if (hitBoxToggle == 1)
         c.strokeStyle = "#ff0000";
     else {
-        c.strokeStyle = "#000000";
+        c.strokeStyle = "#ffffff";
     }
     c.beginPath()
     c.rect(square.x, square.y, square.w, square.h);
@@ -384,12 +385,13 @@ function renderMap() {
     }
 
     //draws spawnpoint
-    c.fillStyle = "#0000cc";
+    c.fillStyle = "#5b6ee1";
     c.fillRect(spawnPoint.x * cellSize, spawnPoint.y * cellSize, 1 * cellSize, 1 * cellSize);
 }
 
 function renderGrid() {
-    c.strokeStyle = "#888888";
+    c.lineWidth = 0.1;
+    c.strokeStyle = "#ffffff";
     for (var i = 0; i < canvas.width; i += cellSize) {
         c.beginPath()
         c.moveTo(i, 0);
@@ -404,6 +406,7 @@ function renderGrid() {
         c.closePath();
         c.stroke();
     }
+    c.lineWidth = 1;
 }
 
 
@@ -560,6 +563,16 @@ function round(arg) {
     }
 }
 
+function enableBeforeUnload() {
+    window.onbeforeunload = function (e) {
+        return "Discard changes?";
+    };
+}
+
+function disableBeforeUnload() {
+    window.onbeforeunload = null;
+}
+enableBeforeUnload();
 document.addEventListener("contextmenu", function (event) {
 
     var xx = window.pageXOffset - canvas.offsetLeft;
