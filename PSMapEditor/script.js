@@ -68,6 +68,7 @@ var tiles = [
         [20, 17], // 0.05
         [21, 17], // 0.10
         [16, 21], // pizza guy
+        [5, 17], // dialogue
 
     ]
 var spawnPoint = {

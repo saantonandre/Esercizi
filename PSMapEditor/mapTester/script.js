@@ -22,10 +22,10 @@ window.onload = function () {
         deaths: [],
         retention: 0,
         date: time,
-        dialogues:"ON"
+        dialogues: "ON"
     }
 
-
+    var pizzaGuy;
 
     id("loading").style.display = "none";
     // simplifies the document.getElementById() to just id()
@@ -47,7 +47,6 @@ window.onload = function () {
     }
     var dialogueOn = true;
     var currentLevel = 0;
-
     var stats = {
         blocks: 0,
         col1: 0,
@@ -200,10 +199,12 @@ window.onload = function () {
         [0, 20], // breakable stone
         [8, 0], // clock
         [5, 17], // dialogue
+        [5, 17], // dialogue
         [19, 17], // 0.01
         [20, 17], // 0.05
         [21, 17], // 0.10
         [16, 21], // pizza guy
+        [5, 17], // dialogue
     ]
 
     var audio = {
@@ -1404,9 +1405,9 @@ window.onload = function () {
             this.y += this.yVel;
             this.x += this.xVel;
             this.hitbox.x = (this.x + this.w / 10);
-            this.hitbox.y = this.y+0.2;
+            this.hitbox.y = this.y + 0.2;
             this.hitbox.w = (this.w - this.w / 5);
-            this.hitbox.h = this.h-0.2;
+            this.hitbox.h = this.h - 0.2;
             if (this.canAttack) {
                 var dir = (this.left) ? -1 : 1;
                 this.atkHitbox.x = this.hitbox.x + dir;
@@ -1948,6 +1949,7 @@ window.onload = function () {
                         safeEval(maps[parseInt(this.place)])
                         window.localStorage["LvL"] = parseInt(this.place);
                         window.localStorage["money"] = player.money;
+                        window.localStorage["time"] = session.time;
                         currentLevel++;
                         adaptBiome();
                         initializeMap();
@@ -2911,6 +2913,7 @@ window.onload = function () {
             this.running = true;
             this.sprite = 1;
             this.slowness = 6;
+            this.load = 0;
             this.spritePos = {
                 x: [[16, 16, 16, 16], [14, 14, 14, 14], [22, 22], [22]],
                 y: [[21, 22, 23, 24], [21, 22, 23, 24], [21, 23], [21]],
@@ -2939,13 +2942,22 @@ window.onload = function () {
                     break;
                 case 2:
                     this.hitbox.x = this.initX;
-                    this.x = this.initX - 1;
+                    this.x = this.initX - 0.5;
+                    this.y = this.initY - 1;
                     this.w = 2;
+                    this.h = 2;
                     break;
                 case 3:
                     this.hitbox.x = this.initX;
-                    this.x = this.initX - 1;
+                    this.x = this.initX - 0.5;
+                    this.y = this.initY - 1;
                     this.w = 2;
+                    this.h = 2;
+                    this.initX += 0.3;
+                    if (isOutOfScreen(pizzaGuy)) {
+                        this.load++;
+                        blackScreen = this.load + 1;
+                    }
                     break;
             }
         }
@@ -3418,6 +3430,13 @@ window.onload = function () {
                         this.frameLength = 0;
                         camera.focus = 0;
                         break;
+                    case "pizzaguy":
+                        this.portrait = 2;
+                        this.frameLength = 0;
+                        if (!isOutOfScreen(pizzaGuy)) {
+                            camera.focus = 2;
+                        }
+                        break;
                 }
             }
             if (this.input) {
@@ -3457,6 +3476,7 @@ window.onload = function () {
             }
         }
         draw() {
+            //pizza guy: 0 serious - 1 angry - 2 sad - 3 happy
             if (this.wholeText !== this.texts[0].text) {
                 this.wholeText = this.texts[0].text;
                 this.texts[0].text[0]
@@ -3475,6 +3495,11 @@ window.onload = function () {
                         case "2": //laughing/sad
                             if (this.emotion !== 2) {
                                 this.emotion = 2;
+                            }
+                            break;
+                        case "3": //laughing/sad
+                            if (this.emotion !== 3 && this.portrait == 2) {
+                                this.emotion = 3;
                             }
                             break;
                     }
@@ -3503,12 +3528,41 @@ window.onload = function () {
                                     this.emotion = 2;
                                 }
                                 break;
+                            case "3": //laughing/sad
+                                if (this.emotion !== 3 && this.portrait == 2) {
+                                    this.emotion = 3;
+                                }
+                                break;
+                            case "a": //laughing/sad
+                                pizzaGuy.sprite = 0;
+                                break;
+                            case "s": //laughing/sad
+                                pizzaGuy.sprite = 1;
+                                break;
+                            case "d": //laughing/sad
+                                pizzaGuy.sprite = 2;
+                                break;
+                            case "f": //laughing/sad
+                                pizzaGuy.sprite = 3;
+                            console.log(2)
+                                break;
                         }
                     }
                 }
+                // emotions
                 lines[i] = lines[i].replace("#0", "");
                 lines[i] = lines[i].replace("#1", "");
                 lines[i] = lines[i].replace("#2", "");
+                lines[i] = lines[i].replace("#3", "");
+                // pizzaGuy sprites
+                lines[i] = lines[i].replace("#a", "");
+                lines[i] = lines[i].replace("#s", "");
+                lines[i] = lines[i].replace("#d", "");
+                lines[i] = lines[i].replace("#f", "");
+                // coins/time
+                lines[i] = lines[i].replace("#c", "" + player.money);
+                lines[i] = lines[i].replace("#t", "" + session.time / 60 | 0);
+
                 lines[i] = lines[i].replace("#", "");
                 lines[i] = lines[i].replace("/", "");
             }
@@ -3551,693 +3605,652 @@ window.onload = function () {
                     lines[i],
                     (this.layout.width / tileSize / 3 * ratio | 0) + (canvas.width / 2 - this.layout.width / tileSize * ratio / 2 | 0),
                     (this.layout.height / tileSize / 2.2 * ratio | 0) + (canvas.height - this.layout.height / tileSize * ratio | 0) + (this.size * ratio * i)
+                );
+            }
+            if (this.text.length <= this.wholeText.length - 1) {
+                this.counter++;
+                if (this.counter >= this.slowness) {
+                    this.counter = 0;
+                    this.text += this.wholeText[this.textIterator];
+                    this.textIterator++;
+                    if (this.text[this.textIterator - 1] != " " && this.text[this.textIterator - 1] != ".") {
+                        this.speak();
+                    } else {
+                        this.frame = 1;
+                        this.frameCounter = 0;
+                    }
+                }
+            } else {
+                this.textIterator = 0;
+                if (this.frameLength > 0) {
+                    this.frame = 1;
+                }
+            }
+        }
+    }
+    var dialogueEngine = new DialogueEngine();
+
+    ///////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////// DIALOGUE ENGINE  ///////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////
+
+    var camBoxes = [];
+    var camera = {
+        focus: 0,
+        subject: player
+    }
+
+    function moveCamera() {
+        //locked camera
+        camera.subject = player;
+        switch (camera.focus) {
+            case 0:
+                camera.subject = player;
+                break;
+            case 1:
+                camera.subject = ghost;
+                break;
+            case 2:
+                camera.subject = pizzaGuy;
+                break;
+        }
+        if (camBoxes.length > 0) {
+            var camObject = 0;
+            for (let i = 0; i < camBoxes.length; i++) {
+                if (collided(camera.subject, camBoxes[i])) {
+                    cameraType = camBoxes[i].type;
+                    camObject = camBoxes[i];
+                }
+            }
+
+        }
+        if (cameraType === 2) {
+            mapX = -camObject.x;
+            mapY = -camObject.y;
+        }
+        if (cameraType === 0) {
+            var cameraDir = tilesWidth / 2 - 2;
+        } else if (cameraType === 1) {
+            var cameraDir = camera.subject.left ? tilesWidth - 3 : 2;
+        }
+        //let cameraDir = player.left ? tilesWidth / 2 : tilesWidth / 6;
+        if (mapX < -camera.subject.x + cameraDir) {
+            // means camera moves forward
+            if (Math.abs((-camera.subject.x + cameraDir - mapX) / 6) > 1 / 100) {
+                mapX += (-camera.subject.x + cameraDir - mapX) / 6;
+            }
+        } else if (mapX > -camera.subject.x + cameraDir) {
+            // means camera moves backward
+            if (Math.abs((-camera.subject.x + cameraDir - mapX) / 6) > 1 / 100) {
+                mapX += (-camera.subject.x + cameraDir - mapX) / 6;
+            }
+        }
+        let lookDown = watchDown ? 15 / 4 : 0; //15 is tilesHeight standard
+        if (mapY < -(camera.subject.y + lookDown) + tilesHeight / 2) {
+            // means camera moves downward
+            if (Math.abs((-(camera.subject.y + lookDown) + tilesHeight / 2 - mapY) / 6) > 1 / 100) {
+                mapY += (-(camera.subject.y + lookDown) + tilesHeight / 2 - mapY) / 6;
+            }
+        } else if (mapY > -(camera.subject.y + lookDown) + tilesHeight / 2) {
+            // means camera moves upward
+            if (Math.abs((-(camera.subject.y + lookDown) + tilesHeight / 2 - mapY) / 6) > 1 / 100) {
+                mapY += (-(camera.subject.y + lookDown) + tilesHeight / 2 - mapY) / 6;
+            }
+        }
+    }
+
+    function isOutOfScreen(Entity) {
+        if (Entity == null) {
+            return true;
+        }
+        if (Entity.x > tilesWidth - mapX) {
+            return true;
+        }
+        if (Entity.x + Entity.w < -mapX) {
+            return true;
+        }
+        if (Entity.y > tilesHeight - mapY + 1) {
+            return true;
+        }
+        if (Entity.y + Entity.h < -mapY) {
+            return true;
+        }
+        return false;
+    }
+
+    function checkCollisions() {
+        player.grounded = false;
+        player.col.L = false;
+        player.col.R = false;
+        player.col.T = false;
+        player.col.B = false;
+        for (let i = 0; i < monsters.length; i++) {
+            monsters[i].grounded = false;
+            monsters[i].col.L = false;
+            monsters[i].col.R = false;
+            monsters[i].col.T = false;
+            monsters[i].col.B = false;
+            if (collided(player, monsters[i])) {
+                colCheck(player, monsters[i]);
+            }
+        }
+        for (let i = 0; i < map.length; i++) {
+            for (let m = 0; m < monsters.length; m++) {
+                if (collided(monsters[m], map[i])) {
+                    colCheck(monsters[m], map[i]);
+                }
+            }
+            if (isOutOfScreen(map[i])) {
+                continue;
+            }
+            if (collided(player, map[i])) {
+                let collision = colCheck(player, map[i]);
+            }
+        };
+
+        for (let i = 0; i < specialTiles.length; i++) {
+            if (isOutOfScreen(specialTiles[i])) {
+                continue;
+            }
+            for (let m = 0; m < monsters.length; m++) {
+                if (collided(monsters[m], specialTiles[i])) {
+                    colCheck(monsters[m], specialTiles[i]);
+                }
+            }
+        }
+    }
+
+
+
+    var backgrounds = [id("bg1"), id("cloud1"), id("cloud2"), id("bg2"), id("bg3"), id("bg4")]
+    var background = false;
+    var cloudsX = [0, 0];
+
+    function drawBackground() {
+        for (let j = 0; j < 5; j++) {
+            c.drawImage(
+                backgrounds[1],
+                (-tilesWidth / 2 + (backgrounds[1].width / tileSize) * j + mapX / 20 - cloudsX[0]) * ratio | 0,
+                (mapY / 20) * ratio | 0,
+                (backgrounds[1].width / tileSize) * ratio | 0,
+                (backgrounds[1].height / tileSize) * ratio | 0
             );
         }
-        if (this.text.length <= this.wholeText.length - 1) {
-            this.counter++;
-            if (this.counter >= this.slowness) {
-                this.counter = 0;
-                this.text += this.wholeText[this.textIterator];
-                this.textIterator++;
-                if (this.text[this.textIterator - 1] != " " && this.text[this.textIterator - 1] != ".") {
-                    this.speak();
+        cloudsX[0] += (backgrounds[1].width / tileSize) / 4000;
+        if (cloudsX[0] >= backgrounds[1].width / tileSize) {
+            cloudsX[0] = 0;
+        }
+        //clouds
+        for (let j = 0; j < 5; j++) {
+            c.drawImage(
+                backgrounds[2],
+                (-tilesWidth / 2 + (backgrounds[2].width / tileSize) * j + mapX / 18 - cloudsX[1]) * ratio | 0,
+                (mapY / 18) * ratio | 0,
+                (backgrounds[2].width / tileSize) * ratio | 0,
+                (backgrounds[2].height / tileSize) * ratio | 0
+            );
+        }
+        cloudsX[1] += (backgrounds[2].width / tileSize) / 6000;
+        if (cloudsX[1] >= backgrounds[1].width / tileSize) {
+            cloudsX[1] = 0;
+        }
+        for (let j = 0; j < 5; j++) {
+            c.drawImage(
+                backgrounds[3],
+                (-tilesWidth / 2 + (backgrounds[3].width / tileSize) * j + mapX / 10) * ratio | 0,
+                (5 + mapY / 10) * ratio | 0,
+                (backgrounds[3].width / tileSize * ratio) | 0,
+                (backgrounds[3].height / tileSize * ratio) | 0
+            );
+        }
+
+        for (let j = 0; j < 5; j++) {
+            c.drawImage(
+                backgrounds[4],
+                (-tilesWidth / 2 + (backgrounds[4].width / tileSize * j) + mapX / 8) * ratio | 0,
+                (5 + mapY / 8) * ratio | 0,
+                (backgrounds[4].width / tileSize) * ratio | 0,
+                (backgrounds[4].height / tileSize) * ratio | 0
+            );
+        }
+        for (let j = 0; j < 5; j++) {
+            c.drawImage(
+                backgrounds[5],
+                (-tilesWidth / 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + (mapX * ratio) / 6) | 0,
+                (5 + mapY / 8) * ratio | 0,
+                (backgrounds[5].width / tileSize * ratio) | 0,
+                (backgrounds[5].height / tileSize * ratio) | 0
+            );
+        }
+        for (let j = 0; j < 5; j++) {
+            c.drawImage(
+                backgrounds[5],
+                (-tilesWidth / 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + (mapX * ratio) / 6) | 0,
+                (5 + mapY / 7) * ratio | 0,
+                (backgrounds[5].width / tileSize * ratio) | 0,
+                (backgrounds[5].height / tileSize * ratio) | 0
+            );
+        }
+        for (let j = 0; j < 5; j++) {
+            c.fillStyle = "#323c39";
+            c.fillRect(
+                (-tilesWidth / 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + (mapX * ratio) / 6) | 0,
+                (5 + mapY / 7) * ratio + (backgrounds[5].height / tileSize * ratio) | 0,
+                (backgrounds[5].width / tileSize * ratio) | 0,
+                (backgrounds[5].height / tileSize * ratio) | 0
+            );
+        }
+    }
+
+    var checkBlock = {
+        x: 0,
+        y: 0,
+        w: 0,
+        h: 0
+    }
+
+    function drawEnvironment() {
+        if (background) {
+            drawBackground();
+        }
+        for (let i = bgTiles.length - 1; i >= 0; i--) {
+            if (isOutOfScreen(bgTiles[i])) {
+                continue;
+            }
+            for (let j = 0; j < bgTiles[i].h; j++) {
+                for (let k = 0; k < bgTiles[i].w; k++) {
+                    //skips out of bounds tiles
+                    checkBlock.x = bgTiles[i].x + k;
+                    checkBlock.y = bgTiles[i].y + j;
+                    checkBlock.w = 1;
+                    checkBlock.h = 1;
+                    if (isOutOfScreen(checkBlock)) {
+                        continue;
+                    }
+                    stats.blocks++;
+                    c.drawImage(
+                        player.sheet,
+                        tiles[bgTiles[i].type][0] * 16,
+                        tiles[bgTiles[i].type][1] * 16,
+                        tileSize,
+                        tileSize,
+                        (bgTiles[i].x + k + mapX) * ratio | 0,
+                        (bgTiles[i].y + j + mapY) * ratio | 0,
+                        ratio | 0,
+                        ratio | 0);
+                }
+            }
+        }
+        for (let i = 0; i < map.length; i++) {
+            if (isOutOfScreen(map[i])) {
+                continue;
+            }
+            for (let j = 0; j < map[i].h; j++) {
+                for (let k = 0; k < map[i].w; k++) {
+                    checkBlock.x = map[i].x + k;
+                    checkBlock.y = map[i].y + j;
+                    checkBlock.w = 1;
+                    checkBlock.h = 1;
+                    if (isOutOfScreen(checkBlock)) {
+                        continue;
+                    }
+                    stats.blocks++;
+                    c.drawImage(
+                        player.sheet, tiles[map[i].type][0] * 16,
+                        tiles[map[i].type][1] * 16,
+                        tileSize,
+                        tileSize,
+                        (map[i].x + k + mapX) * ratio | 0,
+                        (map[i].y + j + mapY) * ratio | 0,
+                        ratio | 0,
+                        ratio | 0);
+                }
+            }
+        }
+    }
+
+
+
+    // COLLISION DETECTORS
+    function colCheck(shapeA, shapeB) {
+        stats.col3++;
+        // get the vectors to check against
+        if (shapeA.hitbox != null) {
+            var shapeAA = shapeA.hitbox;
+        } else {
+            var shapeAA = shapeA;
+        }
+        if (shapeB.hitbox != null) {
+            var shapeBB = shapeB.hitbox;
+        } else {
+            var shapeBB = shapeB;
+        }
+        var vX = (shapeAA.x + (shapeAA.w / 2)) - (shapeBB.x + (shapeBB.w / 2)),
+            vY = (shapeAA.y + (shapeAA.h / 2)) - (shapeBB.y + (shapeBB.h / 2)),
+            // add the half widths and half heights of the objects
+            hWidths = (shapeA.hitbox.w / 2) + (shapeBB.w / 2),
+            hHeights = (shapeA.hitbox.h / 2) + (shapeBB.h / 2),
+            colDir = null;
+
+        // if the x and y vector are less than the half width or half height, they we must be inside the object, causing a collision
+        if (Math.abs(vX) < hWidths && Math.abs(vY) < hHeights) {
+            // figures out on which side we are colliding (top, bottom, left, or right)
+            var oX = hWidths - Math.abs(vX),
+                oY = hHeights - Math.abs(vY);
+            if (oX >= oY) {
+                if (vY > 0) {
+                    colDir = "t";
+                    if (shapeA.col.T < oY && !shapeB.xVel) {
+                        shapeA.col.T += oY;
+                        if (shapeA.type = "player") {
+                            if (shapeB.type != null) {
+                                shapeA.lastCollided = shapeB.type;
+                            }
+                        }
+                    }
                 } else {
-                    this.frame = 1;
-                    this.frameCounter = 0;
-                }
-            }
-        } else {
-            this.textIterator = 0;
-            if (this.frameLength > 0) {
-                this.frame = 1;
-            }
-        }
-    }
-}
-var dialogueEngine = new DialogueEngine();
-
-///////////////////////////////////////////////////////////////////////////////
-////////////////////////////// DIALOGUE ENGINE  ///////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-var camBoxes = [];
-var camera = {
-    focus: 0,
-    subject: player
-}
-
-function moveCamera() {
-    //locked camera
-    camera.subject = player;
-    switch (camera.focus) {
-        case 0:
-            camera.subject = player;
-            break;
-        case 1:
-            camera.subject = ghost;
-            break;
-    }
-    if (camBoxes.length > 0) {
-        var camObject = 0;
-        for (let i = 0; i < camBoxes.length; i++) {
-            if (collided(camera.subject, camBoxes[i])) {
-                cameraType = camBoxes[i].type;
-                camObject = camBoxes[i];
-            }
-        }
-
-    }
-    if (cameraType === 2) {
-        mapX = -camObject.x;
-        mapY = -camObject.y;
-    }
-    if (cameraType === 0) {
-        var cameraDir = tilesWidth / 2 - 2;
-    } else if (cameraType === 1) {
-        var cameraDir = camera.subject.left ? tilesWidth - 3 : 2;
-    }
-    //let cameraDir = player.left ? tilesWidth / 2 : tilesWidth / 6;
-    if (mapX < -camera.subject.x + cameraDir) {
-        // means camera moves forward
-        if (Math.abs((-camera.subject.x + cameraDir - mapX) / 6) > 1 / 100) {
-            mapX += (-camera.subject.x + cameraDir - mapX) / 6;
-        }
-    } else if (mapX > -camera.subject.x + cameraDir) {
-        // means camera moves backward
-        if (Math.abs((-camera.subject.x + cameraDir - mapX) / 6) > 1 / 100) {
-            mapX += (-camera.subject.x + cameraDir - mapX) / 6;
-        }
-    }
-    let lookDown = watchDown ? 15 / 4 : 0; //15 is tilesHeight standard
-    if (mapY < -(camera.subject.y + lookDown) + tilesHeight / 2) {
-        // means camera moves downward
-        if (Math.abs((-(camera.subject.y + lookDown) + tilesHeight / 2 - mapY) / 6) > 1 / 100) {
-            mapY += (-(camera.subject.y + lookDown) + tilesHeight / 2 - mapY) / 6;
-        }
-    } else if (mapY > -(camera.subject.y + lookDown) + tilesHeight / 2) {
-        // means camera moves upward
-        if (Math.abs((-(camera.subject.y + lookDown) + tilesHeight / 2 - mapY) / 6) > 1 / 100) {
-            mapY += (-(camera.subject.y + lookDown) + tilesHeight / 2 - mapY) / 6;
-        }
-    }
-}
-
-function isOutOfScreen(Entity) {
-    if (Entity == null) {
-        return true;
-    }
-    if (Entity.x > tilesWidth - mapX) {
-        return true;
-    }
-    if (Entity.x + Entity.w < -mapX) {
-        return true;
-    }
-    if (Entity.y > tilesHeight - mapY + 1) {
-        return true;
-    }
-    if (Entity.y + Entity.h < -mapY) {
-        return true;
-    }
-    return false;
-}
-
-function checkCollisions() {
-    player.grounded = false;
-    player.col.L = false;
-    player.col.R = false;
-    player.col.T = false;
-    player.col.B = false;
-    for (let i = 0; i < monsters.length; i++) {
-        monsters[i].grounded = false;
-        monsters[i].col.L = false;
-        monsters[i].col.R = false;
-        monsters[i].col.T = false;
-        monsters[i].col.B = false;
-        if (collided(player, monsters[i])) {
-            colCheck(player, monsters[i]);
-        }
-    }
-    for (let i = 0; i < map.length; i++) {
-        for (let m = 0; m < monsters.length; m++) {
-            if (collided(monsters[m], map[i])) {
-                colCheck(monsters[m], map[i]);
-            }
-        }
-        if (isOutOfScreen(map[i])) {
-            continue;
-        }
-        if (collided(player, map[i])) {
-            let collision = colCheck(player, map[i]);
-        }
-    };
-
-    for (let i = 0; i < specialTiles.length; i++) {
-        if (isOutOfScreen(specialTiles[i])) {
-            continue;
-        }
-        for (let m = 0; m < monsters.length; m++) {
-            if (collided(monsters[m], specialTiles[i])) {
-                colCheck(monsters[m], specialTiles[i]);
-            }
-        }
-    }
-}
-
-
-
-var backgrounds = [id("bg1"), id("cloud1"), id("cloud2"), id("bg2"), id("bg3"), id("bg4")]
-var background = false;
-var cloudsX = [0, 0];
-
-function drawBackground() {
-    for (let j = 0; j < 5; j++) {
-        c.drawImage(
-            backgrounds[1],
-            (-tilesWidth / 2 + (backgrounds[1].width / tileSize) * j + mapX / 20 - cloudsX[0]) * ratio | 0,
-            (mapY / 20) * ratio | 0,
-            (backgrounds[1].width / tileSize) * ratio | 0,
-            (backgrounds[1].height / tileSize) * ratio | 0
-        );
-    }
-    cloudsX[0] += (backgrounds[1].width / tileSize) / 4000;
-    if (cloudsX[0] >= backgrounds[1].width / tileSize) {
-        cloudsX[0] = 0;
-    }
-    //clouds
-    for (let j = 0; j < 5; j++) {
-        c.drawImage(
-            backgrounds[2],
-            (-tilesWidth / 2 + (backgrounds[2].width / tileSize) * j + mapX / 18 - cloudsX[1]) * ratio | 0,
-            (mapY / 18) * ratio | 0,
-            (backgrounds[2].width / tileSize) * ratio | 0,
-            (backgrounds[2].height / tileSize) * ratio | 0
-        );
-    }
-    cloudsX[1] += (backgrounds[2].width / tileSize) / 6000;
-    if (cloudsX[1] >= backgrounds[1].width / tileSize) {
-        cloudsX[1] = 0;
-    }
-    for (let j = 0; j < 5; j++) {
-        c.drawImage(
-            backgrounds[3],
-            (-tilesWidth / 2 + (backgrounds[3].width / tileSize) * j + mapX / 10) * ratio | 0,
-            (5 + mapY / 10) * ratio | 0,
-            (backgrounds[3].width / tileSize * ratio) | 0,
-            (backgrounds[3].height / tileSize * ratio) | 0
-        );
-    }
-
-    for (let j = 0; j < 5; j++) {
-        c.drawImage(
-            backgrounds[4],
-            (-tilesWidth / 2 + (backgrounds[4].width / tileSize * j) + mapX / 8) * ratio | 0,
-            (5 + mapY / 8) * ratio | 0,
-            (backgrounds[4].width / tileSize) * ratio | 0,
-            (backgrounds[4].height / tileSize) * ratio | 0
-        );
-    }
-    for (let j = 0; j < 5; j++) {
-        c.drawImage(
-            backgrounds[5],
-            (-tilesWidth / 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + (mapX * ratio) / 6) | 0,
-            (5 + mapY / 8) * ratio | 0,
-            (backgrounds[5].width / tileSize * ratio) | 0,
-            (backgrounds[5].height / tileSize * ratio) | 0
-        );
-    }
-    for (let j = 0; j < 5; j++) {
-        c.drawImage(
-            backgrounds[5],
-            (-tilesWidth / 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + (mapX * ratio) / 6) | 0,
-            (5 + mapY / 7) * ratio | 0,
-            (backgrounds[5].width / tileSize * ratio) | 0,
-            (backgrounds[5].height / tileSize * ratio) | 0
-        );
-    }
-    for (let j = 0; j < 5; j++) {
-        c.fillStyle = "#323c39";
-        c.fillRect(
-            (-tilesWidth / 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + (mapX * ratio) / 6) | 0,
-            (5 + mapY / 7) * ratio + (backgrounds[5].height / tileSize * ratio) | 0,
-            (backgrounds[5].width / tileSize * ratio) | 0,
-            (backgrounds[5].height / tileSize * ratio) | 0
-        );
-    }
-}
-
-var checkBlock = {
-    x: 0,
-    y: 0,
-    w: 0,
-    h: 0
-}
-
-function drawEnvironment() {
-    if (background) {
-        drawBackground();
-    }
-    for (let i = bgTiles.length - 1; i >= 0; i--) {
-        if (isOutOfScreen(bgTiles[i])) {
-            continue;
-        }
-        for (let j = 0; j < bgTiles[i].h; j++) {
-            for (let k = 0; k < bgTiles[i].w; k++) {
-                //skips out of bounds tiles
-                checkBlock.x = bgTiles[i].x + k;
-                checkBlock.y = bgTiles[i].y + j;
-                checkBlock.w = 1;
-                checkBlock.h = 1;
-                if (isOutOfScreen(checkBlock)) {
-                    continue;
-                }
-                stats.blocks++;
-                c.drawImage(
-                    player.sheet,
-                    tiles[bgTiles[i].type][0] * 16,
-                    tiles[bgTiles[i].type][1] * 16,
-                    tileSize,
-                    tileSize,
-                    (bgTiles[i].x + k + mapX) * ratio | 0,
-                    (bgTiles[i].y + j + mapY) * ratio | 0,
-                    ratio | 0,
-                    ratio | 0);
-            }
-        }
-    }
-    for (let i = 0; i < map.length; i++) {
-        if (isOutOfScreen(map[i])) {
-            continue;
-        }
-        for (let j = 0; j < map[i].h; j++) {
-            for (let k = 0; k < map[i].w; k++) {
-                checkBlock.x = map[i].x + k;
-                checkBlock.y = map[i].y + j;
-                checkBlock.w = 1;
-                checkBlock.h = 1;
-                if (isOutOfScreen(checkBlock)) {
-                    continue;
-                }
-                stats.blocks++;
-                c.drawImage(
-                    player.sheet, tiles[map[i].type][0] * 16,
-                    tiles[map[i].type][1] * 16,
-                    tileSize,
-                    tileSize,
-                    (map[i].x + k + mapX) * ratio | 0,
-                    (map[i].y + j + mapY) * ratio | 0,
-                    ratio | 0,
-                    ratio | 0);
-            }
-        }
-    }
-}
-
-
-
-// COLLISION DETECTORS
-function colCheck(shapeA, shapeB) {
-    stats.col3++;
-    // get the vectors to check against
-    if (shapeA.hitbox != null) {
-        var shapeAA = shapeA.hitbox;
-    } else {
-        var shapeAA = shapeA;
-    }
-    if (shapeB.hitbox != null) {
-        var shapeBB = shapeB.hitbox;
-    } else {
-        var shapeBB = shapeB;
-    }
-    var vX = (shapeAA.x + (shapeAA.w / 2)) - (shapeBB.x + (shapeBB.w / 2)),
-        vY = (shapeAA.y + (shapeAA.h / 2)) - (shapeBB.y + (shapeBB.h / 2)),
-        // add the half widths and half heights of the objects
-        hWidths = (shapeA.hitbox.w / 2) + (shapeBB.w / 2),
-        hHeights = (shapeA.hitbox.h / 2) + (shapeBB.h / 2),
-        colDir = null;
-
-    // if the x and y vector are less than the half width or half height, they we must be inside the object, causing a collision
-    if (Math.abs(vX) < hWidths && Math.abs(vY) < hHeights) {
-        // figures out on which side we are colliding (top, bottom, left, or right)
-        var oX = hWidths - Math.abs(vX),
-            oY = hHeights - Math.abs(vY);
-        if (oX >= oY) {
-            if (vY > 0) {
-                colDir = "t";
-                if (shapeA.col.T < oY && !shapeB.xVel) {
-                    shapeA.col.T += oY;
-                    if (shapeA.type = "player") {
-                        if (shapeB.type != null) {
-                            shapeA.lastCollided = shapeB.type;
+                    colDir = "b";
+                    if (shapeA.col.B < oY) {
+                        shapeA.col.B = oY;
+                        if (shapeA.type = "player") {
+                            if (shapeB.type != null) {
+                                shapeA.lastCollided = shapeB.type;
+                            }
+                        }
+                    }
+                    if (shapeB.xVel) {
+                        shapeA.xVelExt = shapeB.xVel;
+                    }
+                    if (shapeB.xVel) {
+                        if (shapeB.yVel < 0) {
+                            shapeA.yVelExt = shapeB.yVel;
+                        }
+                        if (shapeB.yVel > 0) {
+                            shapeA.yVelExt = shapeB.yVel;
                         }
                     }
                 }
             } else {
-                colDir = "b";
-                if (shapeA.col.B < oY) {
-                    shapeA.col.B = oY;
-                    if (shapeA.type = "player") {
-                        if (shapeB.type != null) {
-                            shapeA.lastCollided = shapeB.type;
+                if (vX > 0) {
+                    colDir = "l";
+                    if (shapeA.col.L < oX) {
+                        if (oX > 0.01)
+                            shapeA.col.L += oX;
+                        if (shapeA.type = "player") {
+                            if (shapeB.type != null) {
+                                shapeA.lastCollided = shapeB.type;
+                            }
                         }
                     }
-                }
-                if (shapeB.xVel) {
-                    shapeA.xVelExt = shapeB.xVel;
-                }
-                if (shapeB.xVel) {
-                    if (shapeB.yVel < 0) {
-                        shapeA.yVelExt = shapeB.yVel;
-                    }
-                    if (shapeB.yVel > 0) {
-                        shapeA.yVelExt = shapeB.yVel;
-                    }
-                }
-            }
-        } else {
-            if (vX > 0) {
-                colDir = "l";
-                if (shapeA.col.L < oX) {
-                    if (oX > 0.01)
-                        shapeA.col.L += oX;
-                    if (shapeA.type = "player") {
-                        if (shapeB.type != null) {
-                            shapeA.lastCollided = shapeB.type;
-                        }
-                    }
-                }
-            } else {
-                colDir = "r";
-                if (shapeA.col.R < oX) {
-                    if (oX > 0.01)
-                        shapeA.col.R += oX;
-                    if (shapeA.type = "player") {
-                        if (shapeB.type != null) {
-                            shapeA.lastCollided = shapeB.type;
+                } else {
+                    colDir = "r";
+                    if (shapeA.col.R < oX) {
+                        if (oX > 0.01)
+                            shapeA.col.R += oX;
+                        if (shapeA.type = "player") {
+                            if (shapeB.type != null) {
+                                shapeA.lastCollided = shapeB.type;
+                            }
                         }
                     }
                 }
             }
+
         }
+
+        return colDir;
 
     }
 
-    return colDir;
-
-}
-
-function collided(a, b) {
-    stats.col2++;
-    var square1 = a.hitbox ? a.hitbox : a;
-    var square2 = b.hitbox ? b.hitbox : b;
-    if (square1.x < square2.x + square2.w) {
-        if (square1.x + square1.w > square2.x) {
-            if (square1.y < square2.y + square2.h) {
-                if (square1.y + square1.h > square2.y) {
-                    return true;
+    function collided(a, b) {
+        stats.col2++;
+        var square1 = a.hitbox ? a.hitbox : a;
+        var square2 = b.hitbox ? b.hitbox : b;
+        if (square1.x < square2.x + square2.w) {
+            if (square1.x + square1.w > square2.x) {
+                if (square1.y < square2.y + square2.h) {
+                    if (square1.y + square1.h > square2.y) {
+                        return true;
+                    }
                 }
             }
         }
+        return false;
     }
-    return false;
-}
 
-function pointSquareCol(point, sq) {
-    stats.col1++;
-    var square = sq;
-    if (sq.hitbox !== undefined) {
-        square = sq.hitbox;
-    }
-    if (point.x > square.x) {
-        if (point.x < square.x + square.w) {
-            if (point.y > square.y) {
-                if (point.y < square.y + square.h) {
-                    return true;
+    function pointSquareCol(point, sq) {
+        stats.col1++;
+        var square = sq;
+        if (sq.hitbox !== undefined) {
+            square = sq.hitbox;
+        }
+        if (point.x > square.x) {
+            if (point.x < square.x + square.w) {
+                if (point.y > square.y) {
+                    if (point.y < square.y + square.h) {
+                        return true;
+                    }
                 }
+
             }
-
         }
+        return false;
     }
-    return false;
-}
-// STATS
+    // STATS
 
 
 
 
 
-function displayStats() {
-    id("BLOCKS").innerHTML = "blocks: " + stats.blocks;
-    id("COL-1").innerHTML = "PointSquareColCheck: " + stats.col1;
-    id("COL-2").innerHTML = "SquareSquareColCheck: " + stats.col2;
-    id("COL-3").innerHTML = "DirSquarescolCheck: " + stats.col3;
-    id("COL-L").innerHTML = "player.col.L: " + player.col.L;
-    id("COL-R").innerHTML = "player.col.R: " + player.col.R;
-    id("COL-T").innerHTML = "player.col.T: " + player.col.T;
-    id("COL-B").innerHTML = "player.col.B: " + player.col.B;
-    stats.blocks = 0;
-    stats.col1 = 0;
-    stats.col2 = 0;
-    stats.col3 = 0;
-}
-
-
-
-
-
-
-
-//Mouse controls
-var jmpKeyPressed = 0;
-window.onmousedown = function (e) {
-    if (typeof e === 'object' && !touchDevice && !player.uncontrollable) {
-        switch (e.button) {
-            case 0:
-                //console.log('Left button clicked.');
-                if (!gamePaused) {
-                    player.attackEvent();
-                }
-                break;
-            case 1:
-                //console.log('Middle button clicked.');
-                break;
-            case 2:
-                //console.log('Right button clicked.');
-                if (!jmpKeyPressed && !gamePaused) {
-                    player.jump();
-                    jmpKeyPressed = true;
-                }
-                break;
-            default:
-                console.log(`Unknown button code`);
-        }
-    }
-}
-window.onmouseup = function (e) {
-    if (typeof e === 'object' && !touchDevice) {
-        switch (e.button) {
-            case 0:
-                //console.log('Left button clicked.');
-                break;
-            case 1:
-                //console.log('Middle button clicked.');
-                break;
-            case 2:
-                //console.log('Right button clicked.');
-                player.jumping = false;
-                jmpKeyPressed = false;
-                break;
-            default:
-                console.log(`Unknown button code`);
-        }
-    }
-}
-window.oncontextmenu = function (event) {
-    event.preventDefault();
-}
-
-function safeEval(instructions) {
-    eval(instructions);
-}
-
-
-
-// Mobile controls
-
-
-var touchDevice = false;
-
-function mobileInit(isContinue) {
-    touchDevice = true;
-    console.log("mobile");
-    adjustScreen("mobile");
-    if (isContinue) {
-        safeEval(maps[window.localStorage['LvL'] || 0]);
-        currentLevel = window.localStorage['LvL'];
-        player.money = parseInt(window.localStorage["money"]);
-    } else {
-        safeEval(maps[0]);
-    }
-    adaptBiome();
-    initializeMap();
-    requestAnimationFrame(loop);
-    id("menu").style.visibility = "hidden";
-    canvas.style.visibility = "visible";
-    gamePaused = false;
-
-
-
-
-    id("arrowCont").style.display = "block";
-    id("spacebarCont").style.display = "block";
-    id("othersCont").style.display = "block";
-    id("up").ontouchstart = function () {
-        id("up").style.transform = "scale(1.2)";
-        id("up").style.opacity = "1";
-
-        if (!jmpKeyPressed) {
-            player.jump();
-            jmpKeyPressed = true;
-        }
-    }
-    id("canvas").ontouchstart = function () {
-        if (player.uncontrollable) {
-            dialogueEngine.input = 1;
-        }
-    }
-    id("up").ontouchend = function () {
-        id("up").style.transform = "";
-        id("up").style.opacity = "0.4";
-
-        player.jumping = false;
-        if (player.jumping && player.jumpCounter < 9) {
-            p.yVel = 0;
-        }
-        jmpKeyPressed = false;
+    function displayStats() {
+        id("BLOCKS").innerHTML = "blocks: " + stats.blocks;
+        id("COL-1").innerHTML = "PointSquareColCheck: " + stats.col1;
+        id("COL-2").innerHTML = "SquareSquareColCheck: " + stats.col2;
+        id("COL-3").innerHTML = "DirSquarescolCheck: " + stats.col3;
+        id("COL-L").innerHTML = "player.col.L: " + player.col.L;
+        id("COL-R").innerHTML = "player.col.R: " + player.col.R;
+        id("COL-T").innerHTML = "player.col.T: " + player.col.T;
+        id("COL-B").innerHTML = "player.col.B: " + player.col.B;
+        stats.blocks = 0;
+        stats.col1 = 0;
+        stats.col2 = 0;
+        stats.col3 = 0;
     }
 
-    id("left").ontouchstart = function () {
-        id("left").style.transform = "scale(1.2)";
-        id("left").style.opacity = "1";
 
-        player.L = true;
-    }
-    id("left").ontouchend = function () {
-        id("left").style.transform = "";
-        id("left").style.opacity = "0.4";
 
-        player.L = false;
-    }
 
-    id("right").ontouchstart = function () {
-        id("right").style.transform = "scale(1.2)";
-        id("right").style.opacity = "1";
 
-        player.R = true;
-    }
-    id("right").ontouchend = function () {
-        id("right").style.transform = "";
-        id("right").style.opacity = "0.4";
 
-        player.R = false;
-    }
-    id("atk").ontouchstart = function () {
-        id("atk").style.transform = "scale(1.2)";
-        id("atk").style.opacity = "1";
 
-        player.attackEvent();
-    }
-    id("atk").ontouchend = function () {
-        id("atk").style.transform = "";
-        id("atk").style.opacity = "0.4";
-    }
-    id("lookDownBtn").ontouchstart = function () {
-        id("lookDownBtn").style.transform = "scale(1.2)";
-        id("lookDownBtn").style.opacity = "1";
-
-        watchDown = true;
-    }
-    id("lookDownBtn").ontouchend = function () {
-        id("lookDownBtn").style.transform = "";
-        id("lookDownBtn").style.opacity = "0.4";
-
-        watchDown = false;
-    }
-    id("lookFurtherBtn").ontouchstart = function () {
-        id("lookFurtherBtn").style.transform = "scale(1.2)";
-        id("lookFurtherBtn").style.opacity = "1";
-
-        cameraType = 1;
-    }
-    id("lookFurtherBtn").ontouchend = function () {
-        id("lookFurtherBtn").style.transform = "";
-        id("lookFurtherBtn").style.opacity = "0.4";
-
-        cameraType = 0;
-    }
-
-    id("spacebar").ontouchstart = function () {
-        id("spacebar").style.transform = "scale(1.2)";
-        id("spacebar").style.opacity = "1";
-        if (gamePaused) {
-            id("arrowCont").style.visibility = "visible";
-            id("othersCont").style.visibility = "visible";
-            if (player.reading) {
-                id(player.currentBook).style.visibility = "hidden";
-            } else {
-                id("pause-screen").style.display = "none";
-                id("pause-screen").style.visibility = "hidden";
-                id("controls").style.visibility = "hidden";
-            }
-            gamePaused = false;
-            requestAnimationFrame(loop);
-        } else {
-            id("arrowCont").style.visibility = "hidden";
-            id("othersCont").style.visibility = "hidden";
-            gamePaused = true;
-            //c.globalAlpha=0.6;
-            //UI
-            if (player.reading) {
-                id(player.currentBook).style.visibility = "visible";
-            } else {
-                id("pause-screen").style.display = "block";
-                id("pause-screen").style.visibility = "visible";
-                id("controls").style.visibility = "hidden";
+    //Mouse controls
+    var jmpKeyPressed = 0;
+    window.onmousedown = function (e) {
+        if (typeof e === 'object' && !touchDevice && !player.uncontrollable) {
+            switch (e.button) {
+                case 0:
+                    //console.log('Left button clicked.');
+                    if (!gamePaused) {
+                        player.attackEvent();
+                    }
+                    break;
+                case 1:
+                    //console.log('Middle button clicked.');
+                    break;
+                case 2:
+                    //console.log('Right button clicked.');
+                    if (!jmpKeyPressed && !gamePaused) {
+                        player.jump();
+                        jmpKeyPressed = true;
+                    }
+                    break;
+                default:
+                    console.log(`Unknown button code`);
             }
         }
     }
-    id("spacebar").ontouchend = function () {
-        id("spacebar").style.transform = "";
-        id("spacebar").style.opacity = "0.4";
+    window.onmouseup = function (e) {
+        if (typeof e === 'object' && !touchDevice) {
+            switch (e.button) {
+                case 0:
+                    //console.log('Left button clicked.');
+                    break;
+                case 1:
+                    //console.log('Middle button clicked.');
+                    break;
+                case 2:
+                    //console.log('Right button clicked.');
+                    player.jumping = false;
+                    jmpKeyPressed = false;
+                    break;
+                default:
+                    console.log(`Unknown button code`);
+            }
+        }
     }
-
-}
-id("menu").addEventListener('touchstart', function (e) {
-    e.preventDefault();
-})
-id("newGame").addEventListener("touchstart", function () {
-    mobileInit(false);
-}, {
-    once: true
-})
-
-// Keyboard controls
-window.addEventListener("keydown", function (event) {
-    var key = event.keyCode;
-    if (key !== 122) {
+    window.oncontextmenu = function (event) {
         event.preventDefault();
     }
-    if (key === 112) {
-        id("stats").style.visibility = "visible";
-        stats.colPoints = true;
+
+    function safeEval(instructions) {
+        eval(instructions);
     }
-    if (key === 113) {
-        console.log("Playing as Admin.")
-        admin = true;
-    }
-    if (!gamePaused && !player.uncontrollable) {
-        switch (key) {
-            case 27:
-            case 32: // esc/space key
+
+
+
+    // Mobile controls
+
+
+    var touchDevice = false;
+
+    function mobileInit(isContinue) {
+        touchDevice = true;
+        console.log("mobile");
+        adjustScreen("mobile");
+        if (isContinue) {
+            safeEval(maps[window.localStorage['LvL'] || 0]);
+            currentLevel = window.localStorage['LvL'];
+            player.money = parseInt(window.localStorage["money"]);
+            session.time = parseInt(window.localStorage["time"]);
+        } else {
+            safeEval(maps[0]);
+        }
+        adaptBiome();
+        initializeMap();
+        requestAnimationFrame(loop);
+        id("menu").style.visibility = "hidden";
+        canvas.style.visibility = "visible";
+        gamePaused = false;
+
+
+
+
+        id("arrowCont").style.display = "block";
+        id("spacebarCont").style.display = "block";
+        id("othersCont").style.display = "block";
+        id("up").ontouchstart = function () {
+            id("up").style.transform = "scale(1.2)";
+            id("up").style.opacity = "1";
+
+            if (!jmpKeyPressed) {
+                player.jump();
+                jmpKeyPressed = true;
+            }
+        }
+        id("canvas").ontouchstart = function () {
+            if (player.uncontrollable) {
+                dialogueEngine.input = 1;
+            }
+        }
+        id("up").ontouchend = function () {
+            id("up").style.transform = "";
+            id("up").style.opacity = "0.4";
+
+            player.jumping = false;
+            if (player.jumping && player.jumpCounter < 9) {
+                p.yVel = 0;
+            }
+            jmpKeyPressed = false;
+        }
+
+        id("left").ontouchstart = function () {
+            id("left").style.transform = "scale(1.2)";
+            id("left").style.opacity = "1";
+
+            player.L = true;
+        }
+        id("left").ontouchend = function () {
+            id("left").style.transform = "";
+            id("left").style.opacity = "0.4";
+
+            player.L = false;
+        }
+
+        id("right").ontouchstart = function () {
+            id("right").style.transform = "scale(1.2)";
+            id("right").style.opacity = "1";
+
+            player.R = true;
+        }
+        id("right").ontouchend = function () {
+            id("right").style.transform = "";
+            id("right").style.opacity = "0.4";
+
+            player.R = false;
+        }
+        id("atk").ontouchstart = function () {
+            id("atk").style.transform = "scale(1.2)";
+            id("atk").style.opacity = "1";
+
+            player.attackEvent();
+        }
+        id("atk").ontouchend = function () {
+            id("atk").style.transform = "";
+            id("atk").style.opacity = "0.4";
+        }
+        id("lookDownBtn").ontouchstart = function () {
+            id("lookDownBtn").style.transform = "scale(1.2)";
+            id("lookDownBtn").style.opacity = "1";
+
+            watchDown = true;
+        }
+        id("lookDownBtn").ontouchend = function () {
+            id("lookDownBtn").style.transform = "";
+            id("lookDownBtn").style.opacity = "0.4";
+
+            watchDown = false;
+        }
+        id("lookFurtherBtn").ontouchstart = function () {
+            id("lookFurtherBtn").style.transform = "scale(1.2)";
+            id("lookFurtherBtn").style.opacity = "1";
+
+            cameraType = 1;
+        }
+        id("lookFurtherBtn").ontouchend = function () {
+            id("lookFurtherBtn").style.transform = "";
+            id("lookFurtherBtn").style.opacity = "0.4";
+
+            cameraType = 0;
+        }
+
+        id("spacebar").ontouchstart = function () {
+            id("spacebar").style.transform = "scale(1.2)";
+            id("spacebar").style.opacity = "1";
+            if (gamePaused) {
+                id("arrowCont").style.visibility = "visible";
+                id("othersCont").style.visibility = "visible";
+                if (player.reading) {
+                    id(player.currentBook).style.visibility = "hidden";
+                } else {
+                    id("pause-screen").style.display = "none";
+                    id("pause-screen").style.visibility = "hidden";
+                    id("controls").style.visibility = "hidden";
+                }
+                gamePaused = false;
+                requestAnimationFrame(loop);
+            } else {
+                id("arrowCont").style.visibility = "hidden";
+                id("othersCont").style.visibility = "hidden";
                 gamePaused = true;
                 //c.globalAlpha=0.6;
                 //UI
@@ -4248,404 +4261,424 @@ window.addEventListener("keydown", function (event) {
                     id("pause-screen").style.visibility = "visible";
                     id("controls").style.visibility = "hidden";
                 }
+            }
+        }
+        id("spacebar").ontouchend = function () {
+            id("spacebar").style.transform = "";
+            id("spacebar").style.opacity = "0.4";
+        }
 
-                break;
-            case 65: //left key down (A / left arrow)
+    }
+    id("menu").addEventListener('touchstart', function (e) {
+        e.preventDefault();
+    })
+    id("newGame").addEventListener("touchstart", function () {
+        mobileInit(false);
+    }, {
+        once: true
+    })
+
+    // Keyboard controls
+    window.addEventListener("keydown", function (event) {
+        var key = event.keyCode;
+        if (key !== 122) {
+            event.preventDefault();
+        }
+        if (key === 112) {
+            id("stats").style.visibility = "visible";
+            stats.colPoints = true;
+        }
+        if (key === 113) {
+            console.log("Playing as Admin.")
+            admin = true;
+        }
+        if (!gamePaused && !player.uncontrollable) {
+            switch (key) {
+                case 27:
+                case 32: // esc/space key
+                    gamePaused = true;
+                    //c.globalAlpha=0.6;
+                    //UI
+                    if (player.reading) {
+                        id(player.currentBook).style.visibility = "visible";
+                    } else {
+                        id("pause-screen").style.display = "block";
+                        id("pause-screen").style.visibility = "visible";
+                        id("controls").style.visibility = "hidden";
+                    }
+
+                    break;
+                case 65: //left key down (A / left arrow)
+                case 37:
+                    player.L = true;
+                    break;
+                case 68: //right key down (D / right arrow)
+                case 39:
+                    player.R = true;
+                    break;
+                case 83: //down key down (S /down arrow)
+                case 40:
+                    watchDown = true;
+                    break;
+                case 87: //jump key down (W / Z / up arrow)
+                case 90:
+                case 38:
+                    if (!jmpKeyPressed) {
+                        player.jump();
+                        jmpKeyPressed = true;
+                    }
+                    break;
+                case 82:
+                    if (!player.dead) {
+                        visualFxs.push(new DeathFx(player.x, player.y));
+                        audio.death.playy();
+                        player.dead = true;
+                        setTimeout(function () {
+                            player.respawnEvent();
+                        }, 1500);
+                    }
+                    break;
+                case 70: //attack key down (F / X)
+                case 88:
+                    player.attackEvent();
+                    break;
+                case 67: //camera key (C)
+                    cameraType = 1;
+                    break;
+                case 69: //dance key (E)
+                    player.dance = true;
+                    console.log("player.x: " + player.x + "\nplayer.y: " + player.y);
+                    break;
+                case 71: //g key down
+                    console.log(player);
+                    break;
+                case 72: //h key down
+                    //nothing
+                    break;
+                case 49: // 1
+                    monsters.push(new Slime(5 - mapX, -mapY));
+                    break;
+                case 50: // 2
+                    monsters.push(new Lizard(5 - mapX, -mapY));
+                    break;
+                case 51: // 3
+                    monsters.push(new Zombie(5 - mapX, -mapY));
+                    break;
+                case 52: // 4
+                    monsters.push(new Superzombie(5 - mapX, -mapY));
+                    break;
+                case 53: // 5
+                    monsters.push(new Bear(5 - mapX, -mapY));
+                    break;
+                case 54: // 6
+                    safeEval(maps[0]);
+                    initializeMap();
+                    break;
+                case 55: // 7
+                    safeEval(maps[10]);
+                    initializeMap();
+                    break;
+            }
+        } else if (key === 27 || key === 32) {
+
+            //UI
+            if (player.reading) {
+                id(player.currentBook).style.visibility = "hidden";
+                gamePaused = false;
+                requestAnimationFrame(loop);
+            } else if (player.uncontrollable) {
+                dialogueEngine.input = 1;
+            } else {
+                id("pause-screen").style.display = "none";
+                id("pause-screen").style.visibility = "hidden";
+                id("controls").style.visibility = "hidden";
+                gamePaused = false;
+                requestAnimationFrame(loop);
+            }
+        }
+    });
+    var sheets = ["PixelSamurai/sheet11.png", "PixelSamurai/sheetWarmPalette.png"]
+    var selectedSheet = 0;
+    window.addEventListener("keyup", function (event) {
+        var key = event.keyCode;
+        switch (key) {
+            case 65: //left key up (A / left arrow)
             case 37:
-                player.L = true;
+                player.L = false;
                 break;
-            case 68: //right key down (D / right arrow)
+            case 9:
+                switch (selectedSheet) {
+                    case 0:
+                        selectedSheet = 1;
+                        id("sheet").src = sheets[selectedSheet];
+                        bgColor = getColor(0, 0);
+                        biomes[biome].bgColor = getColor(0, 0);
+                        break;
+                    case 1:
+                        selectedSheet = 0;
+                        id("sheet").src = sheets[selectedSheet];
+                        bgColor = getColor(1, 0);
+                        biomes[biome].bgColor = bgColor;
+                        break;
+                }
+                break;
+            case 67: //camera key (C)
+                cameraType = 0;
+                break;
+            case 68: //right key up (D / right arrow)
             case 39:
-                player.R = true;
+                player.R = false;
                 break;
-            case 83: //down key down (S /down arrow)
+            case 83: //down key up (S /down arrow)
             case 40:
-                watchDown = true;
+                watchDown = false;
                 break;
             case 87: //jump key down (W / Z / up arrow)
             case 90:
             case 38:
-                if (!jmpKeyPressed) {
-                    player.jump();
-                    jmpKeyPressed = true;
+                player.jumping = false;
+                if (player.jumping && player.jumpCounter < 9) {
+                    p.yVel = 0;
                 }
-                break;
-            case 82:
-                if (!player.dead) {
-                    visualFxs.push(new DeathFx(player.x, player.y));
-                    audio.death.playy();
-                    player.dead = true;
-                    setTimeout(function () {
-                        player.respawnEvent();
-                    }, 1500);
-                }
-                break;
-            case 70: //attack key down (F / X)
-            case 88:
-                player.attackEvent();
-                break;
-            case 67: //camera key (C)
-                cameraType = 1;
-                break;
-            case 69: //dance key (E)
-                player.dance = true;
-                console.log("player.x: " + player.x + "\nplayer.y: " + player.y);
-                break;
-            case 71: //g key down
-                console.log(player);
-                break;
-            case 72: //h key down
-                //nothing
-                break;
-            case 49: // 1
-                monsters.push(new Slime(5 - mapX, -mapY));
-                break;
-            case 50: // 2
-                monsters.push(new Lizard(5 - mapX, -mapY));
-                break;
-            case 51: // 3
-                monsters.push(new Zombie(5 - mapX, -mapY));
-                break;
-            case 52: // 4
-                monsters.push(new Superzombie(5 - mapX, -mapY));
-                break;
-            case 53: // 5
-                monsters.push(new Bear(5 - mapX, -mapY));
-                break;
-            case 54: // 6
-                safeEval(maps[0]);
-                initializeMap();
-                break;
-            case 55: // 7
-                safeEval(maps[10]);
-                initializeMap();
+                jmpKeyPressed = false;
                 break;
         }
-    } else if (key === 27 || key === 32) {
-
-        //UI
-        if (player.reading) {
-            id(player.currentBook).style.visibility = "hidden";
-            gamePaused = false;
-            requestAnimationFrame(loop);
-        } else if (player.uncontrollable) {
-            dialogueEngine.input = 1;
+    });
+    if (window.opener) {
+        //console.log(window.opener.mapCode);
+        if (window.opener.mapCode) {
+            safeEval(window.opener.mapCode);
         } else {
-            id("pause-screen").style.display = "none";
-            id("pause-screen").style.visibility = "hidden";
-            id("controls").style.visibility = "hidden";
-            gamePaused = false;
-            requestAnimationFrame(loop);
+            safeEval(window.opener.map);
         }
-    }
-});
-var sheets = ["PixelSamurai/sheet11.png", "PixelSamurai/sheetWarmPalette.png"]
-var selectedSheet = 0;
-window.addEventListener("keyup", function (event) {
-    var key = event.keyCode;
-    switch (key) {
-        case 65: //left key up (A / left arrow)
-        case 37:
-            player.L = false;
-            break;
-        case 9:
-            switch (selectedSheet) {
-                case 0:
-                    selectedSheet = 1;
-                    id("sheet").src = sheets[selectedSheet];
-                    bgColor = getColor(0, 0);
-                    biomes[biome].bgColor = getColor(0, 0);
-                    break;
-                case 1:
-                    selectedSheet = 0;
-                    id("sheet").src = sheets[selectedSheet];
-                    bgColor = getColor(1, 0);
-                    biomes[biome].bgColor = bgColor;
-                    break;
-            }
-            break;
-        case 67: //camera key (C)
-            cameraType = 0;
-            break;
-        case 68: //right key up (D / right arrow)
-        case 39:
-            player.R = false;
-            break;
-        case 83: //down key up (S /down arrow)
-        case 40:
-            watchDown = false;
-            break;
-        case 87: //jump key down (W / Z / up arrow)
-        case 90:
-        case 38:
-            player.jumping = false;
-            if (player.jumping && player.jumpCounter < 9) {
-                p.yVel = 0;
-            }
-            jmpKeyPressed = false;
-            break;
-    }
-});
-if (window.opener) {
-    //console.log(window.opener.mapCode);
-    if (window.opener.mapCode) {
-        safeEval(window.opener.mapCode);
     } else {
-        safeEval(window.opener.map);
+        mapTester = false;
     }
-} else {
-    mapTester = false;
-}
 
-function adaptBiome() {
-    background = biomes[biome].background;
-    bgColor = biomes[biome].bgColor;
-    biomes[biome].other();
-}
-var ghost = {};
-
-function songPlayer() {
-    let pickSong = (currentLevel / 2 | 0) >= biomes[biome].music.length ? (Math.random() * biomes[biome].music.length) | 0 : currentLevel / 2 | 0;
-    if (biomes[biome].music[pickSong].paused) {
-        for (let j = 0; j < biomes.length; j++) {
-            if (typeof biomes[j].ambient !== undefined) {
-                biomes[j].ambient.pause();
-                biomes[j].ambient.currentTime = 0;
-            }
-            for (let i = 0; i < biomes[j].music.length; i++) {
-                biomes[j].music[i].pause();
-                biomes[j].music[i].currentTime = 0;
-            }
-        }
-        biomes[biome].music[pickSong].loop = true;
-        biomes[biome].music[pickSong].playy();
-        biomes[biome].ambient.playy();
+    function adaptBiome() {
+        background = biomes[biome].background;
+        bgColor = biomes[biome].bgColor;
+        biomes[biome].other();
     }
-}
+    var ghost = {};
 
-function initializeMap() {
-    songPlayer();
-    var spTiles = [];
-    var removeList = [];
-    specialTiles = [];
-    bgTiles = [];
-    visualFxs = [];
-    player.x = spawnPoint.x;
-    player.y = spawnPoint.y;
-    ghost = new GhostGirl(player.x - 3, player.y - 3);
-    player.events.length = 0;
-    visualFxs.push(ghost);
-    monsters = [];
-    for (let i = map.length - 1; i >= 0; i--) {
-        switch (map[i].type) {
-            case 17:
-            case 18:
-            case 19:
-            case 42:
-            case 43:
-            case 44:
-            case 45:
-            case 46:
-            case 47:
-            case 48:
-            case 49:
-            case 50:
-            case 51:
-            case 64:
-            case 65:
-            case 66:
-            case 67:
-            case 68:
-            case 70:
-            case 71:
-            case 72:
-            case 73:
-            case 74:
-            case 75:
-            case 76:
-            case 77:
-            case 78:
-                spTiles.push(i);
-                removeList.push(i);
-                break;
-            case 52:
-            case 53:
-            case 54:
-            case 55:
-            case 56:
-            case 57:
-            case 58:
-            case 59:
-            case 60:
-            case 61:
-            case 62:
-            case 63:
-                bgTiles.push(map[i]);
-                removeList.push(i);
-                break;
-
-        }
-    }
-    //[13, 5],[13, 6],[13, 7],[13, 8], //traps rock
-    //[14, 5],[14, 6],[14, 7],[14, 8], //traps stone
-    //constructor(x, y, active, timing) {
-    for (let i = 0; i < spTiles.length; i++) {
-        for (let j = 0; j < map[spTiles[i]].h; j++) {
-            for (let k = 0; k < map[spTiles[i]].w; k++) {
-                switch (map[spTiles[i]].type) {
-                    case 17:
-                        specialTiles.push(new Bouncy(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
-                        break;
-                    case 18:
-                        visualFxs.push(new Grass(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
-                        break;
-                    case 19: // speeder R
-                        specialTiles.push(new Speeder(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 0));
-                        break;
-                    case 42: // up
-                    case 43: // right
-                    case 44: // bottom
-                    case 45: // left
-                        specialTiles.push(new Spikes(map[spTiles[i]].x + k, map[spTiles[i]].y + j, map[spTiles[i]].type));
-                        break;
-                    case 46: // up
-                    case 47: // right
-                    case 48: // bottom
-                    case 49: // left
-                        specialTiles.push(new Spikes(map[spTiles[i]].x + k, map[spTiles[i]].y + j, map[spTiles[i]].type));
-                        break;
-                    case 50: // slime
-                        monsters.push(new Slime(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
-                        break;
-                    case 51: // speeder L
-                        specialTiles.push(new Speeder(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 1));
-                        break;
-                    case 64: // crystal
-                        visualFxs.push(new Crystal(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
-                        break;
-                    case 65: // door
-                        visualFxs.push(new Door(map[spTiles[i]].x + k, map[spTiles[i]].y + j, map[spTiles[i]].text));
-                        break;
-                    case 66: // book
-                        visualFxs.push(new Book(map[spTiles[i]].x + k, map[spTiles[i]].y + j, map[spTiles[i]].text));
-                        break;
-                    case 67: // timedSpikes
-                        specialTiles.push(new TimedSpikes(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 0, parseInt(map[spTiles[i]].text)));
-                        break;
-                    case 68: // timedSpikes
-                        specialTiles.push(new TimedSpikes(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 1, parseInt(map[spTiles[i]].text)));
-                        break;
-                    case 71: // falling Stone
-                        specialTiles.push(new FallingStone(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
-                        break;
-                    case 72: // breakable Stone
-                        specialTiles.push(new BreakableStone(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
-                        break;
-                    case 73: // clock
-                        specialTiles.push(new Clock(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
-                        break;
-                    case 75: // 0.01
-                        visualFxs.push(new Coin(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 1));
-                        break;
-                    case 76: // 0.05
-                        visualFxs.push(new Coin(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 2));
-                        break;
-                    case 77: // 0.10
-                        visualFxs.push(new Coin(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 3));
-                        break;
-                    case 78: // 0.10
-                        specialTiles.push(new PizzaGuy(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
-                        break;
+    function songPlayer() {
+        let pickSong = (currentLevel / 2 | 0) >= biomes[biome].music.length ? (Math.random() * biomes[biome].music.length) | 0 : currentLevel / 2 | 0;
+        if (biomes[biome].music[pickSong].paused) {
+            for (let j = 0; j < biomes.length; j++) {
+                if (typeof biomes[j].ambient !== undefined) {
+                    biomes[j].ambient.pause();
+                    biomes[j].ambient.currentTime = 0;
+                }
+                for (let i = 0; i < biomes[j].music.length; i++) {
+                    biomes[j].music[i].pause();
+                    biomes[j].music[i].currentTime = 0;
                 }
             }
-        }
-        switch (map[spTiles[i]].type) {
-            case 70: // dialogue
-                map[spTiles[i]].speaker = "ghostgirl";
-                player.events.push(map[spTiles[i]]);
-                break;
-            case 74: // dialogue2
-                map[spTiles[i]].speaker = "player";
-                player.events.push(map[spTiles[i]]);
-                break;
-        }
-    }
-    for (let i = 0; i < removeList.length; i++) {
-        map.splice(removeList[i], 1);
-    }
-
-    for (let i = map.length - 1; i >= 0; i--) {
-        if (map[i].y + map[i].h > mapHeight) {
-            mapHeight = map[i].y + map[i].h;
-        }
-    }
-    for (let i = map.length - 1; i >= 0; i--) {
-        if (map[i].x + map[i].w > mapWidth) {
-            mapWidth = map[i].x + map[i].w;
+            biomes[biome].music[pickSong].loop = true;
+            biomes[biome].music[pickSong].playy();
+            biomes[biome].ambient.playy();
         }
     }
 
-}
-//UI
-window.onresize = function () {
-    if (window.innerWidth >= canvas.width * 2 && window.innerHeight >= canvas.height * 2) {
-        location.reload();
+    function initializeMap() {
+        songPlayer();
+        var spTiles = [];
+        var removeList = [];
+        specialTiles = [];
+        bgTiles = [];
+        visualFxs = [];
+        player.x = spawnPoint.x;
+        player.y = spawnPoint.y;
+        ghost = new GhostGirl(player.x - 3, player.y - 3);
+        player.events.length = 0;
+        visualFxs.push(ghost);
+        monsters = [];
+        for (let i = map.length - 1; i >= 0; i--) {
+            switch (map[i].type) {
+                case 17:
+                case 18:
+                case 19:
+                case 42:
+                case 43:
+                case 44:
+                case 45:
+                case 46:
+                case 47:
+                case 48:
+                case 49:
+                case 50:
+                case 51:
+                case 64:
+                case 65:
+                case 66:
+                case 67:
+                case 68:
+                case 70:
+                case 71:
+                case 72:
+                case 73:
+                case 74:
+                case 75:
+                case 76:
+                case 77:
+                case 78:
+                case 79:
+                    spTiles.push(i);
+                    removeList.push(i);
+                    break;
+                case 52:
+                case 53:
+                case 54:
+                case 55:
+                case 56:
+                case 57:
+                case 58:
+                case 59:
+                case 60:
+                case 61:
+                case 62:
+                case 63:
+                    bgTiles.push(map[i]);
+                    removeList.push(i);
+                    break;
+
+            }
+        }
+        //[13, 5],[13, 6],[13, 7],[13, 8], //traps rock
+        //[14, 5],[14, 6],[14, 7],[14, 8], //traps stone
+        //constructor(x, y, active, timing) {
+        for (let i = 0; i < spTiles.length; i++) {
+            for (let j = 0; j < map[spTiles[i]].h; j++) {
+                for (let k = 0; k < map[spTiles[i]].w; k++) {
+                    switch (map[spTiles[i]].type) {
+                        case 17:
+                            specialTiles.push(new Bouncy(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
+                            break;
+                        case 18:
+                            visualFxs.push(new Grass(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
+                            break;
+                        case 19: // speeder R
+                            specialTiles.push(new Speeder(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 0));
+                            break;
+                        case 42: // up
+                        case 43: // right
+                        case 44: // bottom
+                        case 45: // left
+                            specialTiles.push(new Spikes(map[spTiles[i]].x + k, map[spTiles[i]].y + j, map[spTiles[i]].type));
+                            break;
+                        case 46: // up
+                        case 47: // right
+                        case 48: // bottom
+                        case 49: // left
+                            specialTiles.push(new Spikes(map[spTiles[i]].x + k, map[spTiles[i]].y + j, map[spTiles[i]].type));
+                            break;
+                        case 50: // slime
+                            monsters.push(new Slime(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
+                            break;
+                        case 51: // speeder L
+                            specialTiles.push(new Speeder(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 1));
+                            break;
+                        case 64: // crystal
+                            visualFxs.push(new Crystal(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
+                            break;
+                        case 65: // door
+                            visualFxs.push(new Door(map[spTiles[i]].x + k, map[spTiles[i]].y + j, map[spTiles[i]].text));
+                            break;
+                        case 66: // book
+                            visualFxs.push(new Book(map[spTiles[i]].x + k, map[spTiles[i]].y + j, map[spTiles[i]].text));
+                            break;
+                        case 67: // timedSpikes
+                            specialTiles.push(new TimedSpikes(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 0, parseInt(map[spTiles[i]].text)));
+                            break;
+                        case 68: // timedSpikes
+                            specialTiles.push(new TimedSpikes(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 1, parseInt(map[spTiles[i]].text)));
+                            break;
+                        case 71: // falling Stone
+                            specialTiles.push(new FallingStone(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
+                            break;
+                        case 72: // breakable Stone
+                            specialTiles.push(new BreakableStone(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
+                            break;
+                        case 73: // clock
+                            specialTiles.push(new Clock(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
+                            break;
+                        case 75: // 0.01
+                            visualFxs.push(new Coin(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 1));
+                            break;
+                        case 76: // 0.05
+                            visualFxs.push(new Coin(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 2));
+                            break;
+                        case 77: // 0.10
+                            visualFxs.push(new Coin(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 3));
+                            break;
+                        case 78: // 0.10
+                            pizzaGuy = new PizzaGuy(map[spTiles[i]].x + k, map[spTiles[i]].y + j);
+                            specialTiles.push(pizzaGuy)
+                            break;
+                    }
+                }
+            }
+            switch (map[spTiles[i]].type) {
+                case 70: // dialogue
+                    map[spTiles[i]].speaker = "ghostgirl";
+                    player.events.push(map[spTiles[i]]);
+                    break;
+                case 74: // dialogue2
+                    map[spTiles[i]].speaker = "player";
+                    player.events.push(map[spTiles[i]]);
+                    break;
+                case 79: // dialogue3
+                    map[spTiles[i]].speaker = "pizzaguy";
+                    player.events.push(map[spTiles[i]]);
+                    break;
+            }
+        }
+        for (let i = 0; i < removeList.length; i++) {
+            map.splice(removeList[i], 1);
+        }
+
+        for (let i = map.length - 1; i >= 0; i--) {
+            if (map[i].y + map[i].h > mapHeight) {
+                mapHeight = map[i].y + map[i].h;
+            }
+        }
+        for (let i = map.length - 1; i >= 0; i--) {
+            if (map[i].x + map[i].w > mapWidth) {
+                mapWidth = map[i].x + map[i].w;
+            }
+        }
+
     }
-    if (canvas.width > 320 && (window.innerWidth < canvas.width || window.innerHeight < canvas.height)) {
-        location.reload();
+    //UI
+    window.onresize = function () {
+        if (window.innerWidth >= canvas.width * 2 && window.innerHeight >= canvas.height * 2) {
+            location.reload();
+        }
+        if (canvas.width > 320 && (window.innerWidth < canvas.width || window.innerHeight < canvas.height)) {
+            location.reload();
+        }
     }
-}
-if (mapTester) {
-    adjustScreen("pc");
-    id("menu").style.visibility = "hidden";
-    canvas.style.visibility = "visible";
-    dialogueOn = true;
-    adaptBiome();
-    initializeMap();
-    requestAnimationFrame(loop);
-}
-if (!mapTester) {
-    let buttons = document.getElementsByClassName("button");
-    for (let i = 0; i < buttons.length; i++) {
-        buttons[i].style.fontSize = (parseInt(id("menu").style.width) / 20 | 0) + "px";
-    }
-    id("twitter").style.fontSize = (parseInt(id("menu").style.width) / 20 | 0) + "px";
-    id("twitter-logo").style.height = (parseInt(id("menu").style.width) / 20 | 0) + "px";
-    id("newGame").onmousedown = function () {
+    if (mapTester) {
         adjustScreen("pc");
-        console.log("pc");
-        safeEval(maps[0]);
+        id("menu").style.visibility = "hidden";
+        canvas.style.visibility = "visible";
+        dialogueOn = true;
         adaptBiome();
         initializeMap();
         requestAnimationFrame(loop);
-        id("menu").style.visibility = "hidden";
-        id("controls").style.visibility = "visible";
-        canvas.style.visibility = "visible";
     }
-    id("dialogueBtn").onclick = dialoguesOnOff;
-    id("dialogueBtn").ontouchstart = dialoguesOnOff;
-
-    function dialoguesOnOff() {
-        if (dialogueOn) {
-            id("dialogueBtn").innerHTML = "Dialogues(OFF)";
-            id("dialogueBtn").style.opacity = "0.5";
-        } else {
-            id("dialogueBtn").innerHTML = "Dialogues(ON)";
-            id("dialogueBtn").style.opacity = "1";
+    if (!mapTester) {
+        let buttons = document.getElementsByClassName("button");
+        for (let i = 0; i < buttons.length; i++) {
+            buttons[i].style.fontSize = (parseInt(id("menu").style.width) / 20 | 0) + "px";
         }
-        dialogueOn = !dialogueOn;
-    }
-    if (window.localStorage['LvL'] != null) {
-        id("continue").addEventListener("touchstart", function () {
-            mobileInit(true);
-        }, {
-            once: true
-        })
-        id("continue").onmousedown = function () {
+        id("twitter").style.fontSize = (parseInt(id("menu").style.width) / 20 | 0) + "px";
+        id("twitter-logo").style.height = (parseInt(id("menu").style.width) / 20 | 0) + "px";
+        id("newGame").onmousedown = function () {
             adjustScreen("pc");
-            safeEval(maps[window.localStorage['LvL'] || 0]);
-            currentLevel = window.localStorage['LvL'];
-            player.money = parseInt(window.localStorage["money"]);
+            console.log("pc");
+            safeEval(maps[0]);
             adaptBiome();
             initializeMap();
             requestAnimationFrame(loop);
@@ -4653,144 +4686,176 @@ if (!mapTester) {
             id("controls").style.visibility = "visible";
             canvas.style.visibility = "visible";
         }
-        id("continue").style.opacity = "1";
-    } else {
-        id("continue").style.opacity = "0.5";
-    };
-}
-var options = {
-    audio: true,
-    music: true,
-}
-id("ctrlButton").onclick = function () {
-    id("pause-screen").style.display = "none";
-    id("pause-screen").style.visibility = "hidden";
-    id("controls").style.visibility = "visible";
-    canvas.style.visibility = "visible";
-}
-id("music").onclick = musicBtn;
-id("music").ontouchstart = musicBtn;
+        id("dialogueBtn").onclick = dialoguesOnOff;
+        id("dialogueBtn").ontouchstart = dialoguesOnOff;
 
-function musicBtn() {
-    if (options.music) {
-        options.music = false;
-        this.src = "ui/music-off.png";
-        audio.haydn_1.volume = 0;
-        audio.haydn_2.volume = 0;
-        audio.bach_1.volume = 0;
-        audio.bach_2.volume = 0;
-        audio.bach_3.volume = 0;
-        audio.bach_4.volume = 0;
-        audio.bach_5.volume = 0;
-        audio.bach_6.volume = 0;
-        audio.bach_7.volume = 0;
-    } else {
-        options.music = true;
-        this.src = "ui/music-on.png"
-        audio.haydn_1.volume = 0.2;
-        audio.haydn_2.volume = 0.2;
-        audio.bach_1.volume = 0.3;
-        audio.bach_2.volume = 0.3;
-        audio.bach_3.volume = 0.3;
-        audio.bach_4.volume = 0.3;
-        audio.bach_5.volume = 0.3;
-        audio.bach_6.volume = 0.3;
-        audio.bach_7.volume = 0.3;
+        function dialoguesOnOff() {
+            if (dialogueOn) {
+                id("dialogueBtn").innerHTML = "Dialogues(OFF)";
+                id("dialogueBtn").style.opacity = "0.5";
+            } else {
+                id("dialogueBtn").innerHTML = "Dialogues(ON)";
+                id("dialogueBtn").style.opacity = "1";
+            }
+            dialogueOn = !dialogueOn;
+        }
+        if (window.localStorage['LvL'] != null) {
+            id("continue").addEventListener("touchstart", function () {
+                mobileInit(true);
+            }, {
+                once: true
+            })
+            id("continue").onmousedown = function () {
+                adjustScreen("pc");
+                safeEval(maps[window.localStorage['LvL'] || 0]);
+                currentLevel = window.localStorage['LvL'];
+                session.time = window.localStorage['time'];
+                player.money = parseInt(window.localStorage["money"]);
+                adaptBiome();
+                initializeMap();
+                requestAnimationFrame(loop);
+                id("menu").style.visibility = "hidden";
+                id("controls").style.visibility = "visible";
+                canvas.style.visibility = "visible";
+            }
+            id("continue").style.opacity = "1";
+        } else {
+            id("continue").style.opacity = "0.5";
+        };
     }
-}
-id("audio").onclick = audioBtn;
-id("audio").ontouchstart = audioBtn;
-
-function audioBtn() {
-    if (options.audio) {
-        options.audio = false;
-        this.src = "ui/sound-off.png";
-        for (let i = 0; i < voices.ghost.length; i++) {
-            voices.ghost[i].volume = 0;
-        }
-        for (let i = 0; i < voices.player.length; i++) {
-            voices.player[i].volume = 0;
-        }
-        for (let i = 0; i < voices.pizza.length; i++) {
-            voices.pizza[i].volume = 0;
-        }
-        audio.bounce1.volume = 0;
-        audio.bounce2.volume = 0;
-        audio.bounce3.volume = 0;
-        audio.bounce4.volume = 0;
-        audio.speed1.volume = 0;
-        audio.speed2.volume = 0;
-        audio.jump.volume = 0;
-        audio.dash.volume = 0;
-        audio.attack.volume = 0;
-        audio.hit.volume = 0;
-        audio.death.volume = 0;
-        audio.crystal.volume = 0;
-        audio.walking.volume = 0;
-        audio.ambient_1.volume = 0;
-        audio.ambient_2.volume = 0;
-        audio.tremble.volume = 0;
-        audio.fall.volume = 0;
-        audio.money_1.volume = 0;
-        audio.money_2.volume = 0;
-        audio.money_3.volume = 0;
-
-    } else {
-        options.audio = true;
-        this.src = "ui/sound-on.png";
-        for (let i = 0; i < voices.ghost.length; i++) {
-            voices.ghost[i].volume = 0.4;
-        }
-        for (let i = 0; i < voices.player.length; i++) {
-            voices.player[i].volume = 0.75;
-        }
-        for (let i = 0; i < voices.pizza.length; i++) {
-            voices.pizza[i].volume = 0.75;
-        }
-        audio.bounce1.volume = 0.4;
-        audio.bounce2.volume = 0.4;
-        audio.bounce3.volume = 0.4;
-        audio.bounce4.volume = 0.4;
-        audio.speed1.volume = 0.8;
-        audio.speed2.volume = 0.5;
-        audio.jump.volume = 0.5;
-        audio.dash.volume = 0.3;
-        audio.attack.volume = 0.5;
-        audio.hit.volume = 0.5;
-        audio.death.volume = 0.5;
-        audio.crystal.volume = 1;
-        audio.walking.volume = 1;
-        audio.ambient_1.volume = 0.1;
-        audio.ambient_2.volume = 0.0;
-        audio.tremble.volume = 0.1;
-        audio.fall.volume = 0.1;
-        audio.money_1.volume = 0.3;
-        audio.money_2.volume = 0.3;
-        audio.money_3.volume = 0.3;
-
+    var options = {
+        audio: true,
+        music: true,
     }
-}
-//UI end
-//starts the program
+    id("ctrlButton").onclick = function () {
+        id("pause-screen").style.display = "none";
+        id("pause-screen").style.visibility = "hidden";
+        id("controls").style.visibility = "visible";
+        canvas.style.visibility = "visible";
+    }
+    id("music").onclick = musicBtn;
+    id("music").ontouchstart = musicBtn;
 
-/* FIREBASE */
-var database = firebase.database();
-var ref = database.ref("sessions");
-if (!mapTester) {
-    window.onbeforeunload = function () {
-        if (session.retention !== 0 && !admin) {
-            ref.push(session);
+    function musicBtn() {
+        if (options.music) {
+            options.music = false;
+            this.src = "ui/music-off.png";
+            audio.haydn_1.volume = 0;
+            audio.haydn_2.volume = 0;
+            audio.bach_1.volume = 0;
+            audio.bach_2.volume = 0;
+            audio.bach_3.volume = 0;
+            audio.bach_4.volume = 0;
+            audio.bach_5.volume = 0;
+            audio.bach_6.volume = 0;
+            audio.bach_7.volume = 0;
+        } else {
+            options.music = true;
+            this.src = "ui/music-on.png"
+            audio.haydn_1.volume = 0.2;
+            audio.haydn_2.volume = 0.2;
+            audio.bach_1.volume = 0.3;
+            audio.bach_2.volume = 0.3;
+            audio.bach_3.volume = 0.3;
+            audio.bach_4.volume = 0.3;
+            audio.bach_5.volume = 0.3;
+            audio.bach_6.volume = 0.3;
+            audio.bach_7.volume = 0.3;
         }
     }
-    setInterval(() => {
-        if (!gamePaused) {
-            let device = touchDevice ? "mobile" : "pc";
-            session.device = device;
-            session.level = currentLevel;
-            session.retention++;
-            session.deathsN = player.deaths;
-            session.dialogue=dialogueOn;
+    id("audio").onclick = audioBtn;
+    id("audio").ontouchstart = audioBtn;
+
+    function audioBtn() {
+        if (options.audio) {
+            options.audio = false;
+            this.src = "ui/sound-off.png";
+            for (let i = 0; i < voices.ghost.length; i++) {
+                voices.ghost[i].volume = 0;
+            }
+            for (let i = 0; i < voices.player.length; i++) {
+                voices.player[i].volume = 0;
+            }
+            for (let i = 0; i < voices.pizza.length; i++) {
+                voices.pizza[i].volume = 0;
+            }
+            audio.bounce1.volume = 0;
+            audio.bounce2.volume = 0;
+            audio.bounce3.volume = 0;
+            audio.bounce4.volume = 0;
+            audio.speed1.volume = 0;
+            audio.speed2.volume = 0;
+            audio.jump.volume = 0;
+            audio.dash.volume = 0;
+            audio.attack.volume = 0;
+            audio.hit.volume = 0;
+            audio.death.volume = 0;
+            audio.crystal.volume = 0;
+            audio.walking.volume = 0;
+            audio.ambient_1.volume = 0;
+            audio.ambient_2.volume = 0;
+            audio.tremble.volume = 0;
+            audio.fall.volume = 0;
+            audio.money_1.volume = 0;
+            audio.money_2.volume = 0;
+            audio.money_3.volume = 0;
+
+        } else {
+            options.audio = true;
+            this.src = "ui/sound-on.png";
+            for (let i = 0; i < voices.ghost.length; i++) {
+                voices.ghost[i].volume = 0.4;
+            }
+            for (let i = 0; i < voices.player.length; i++) {
+                voices.player[i].volume = 0.75;
+            }
+            for (let i = 0; i < voices.pizza.length; i++) {
+                voices.pizza[i].volume = 0.75;
+            }
+            audio.bounce1.volume = 0.4;
+            audio.bounce2.volume = 0.4;
+            audio.bounce3.volume = 0.4;
+            audio.bounce4.volume = 0.4;
+            audio.speed1.volume = 0.8;
+            audio.speed2.volume = 0.5;
+            audio.jump.volume = 0.5;
+            audio.dash.volume = 0.3;
+            audio.attack.volume = 0.5;
+            audio.hit.volume = 0.5;
+            audio.death.volume = 0.5;
+            audio.crystal.volume = 1;
+            audio.walking.volume = 1;
+            audio.ambient_1.volume = 0.1;
+            audio.ambient_2.volume = 0.0;
+            audio.tremble.volume = 0.1;
+            audio.fall.volume = 0.1;
+            audio.money_1.volume = 0.3;
+            audio.money_2.volume = 0.3;
+            audio.money_3.volume = 0.3;
+
         }
-    }, 1000);
-}
+    }
+    //UI end
+    //starts the program
+
+    /* FIREBASE */
+    var database = firebase.database();
+    var ref = database.ref("sessions");
+    if (!mapTester) {
+        window.onbeforeunload = function () {
+            if (session.retention !== 0 && !admin) {
+                ref.push(session);
+            }
+        }
+        setInterval(() => {
+            if (!gamePaused) {
+                let device = touchDevice ? "mobile" : "pc";
+                session.device = device;
+                session.level = currentLevel;
+                session.retention++;
+                session.deathsN = player.deaths;
+                session.dialogues = dialogueOn ? "ON" : "OFF";
+            }
+        }, 1000);
+    }
 }
