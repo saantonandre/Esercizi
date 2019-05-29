@@ -1,4 +1,33 @@
+// Whole-script strict mode syntax
+'use strict';
+var ratio;
+var tilesWidth;
+var tilesHeight;
+var ratio = 1;
 window.onload = function () {
+
+    var admin = false;
+    let today = new Date();
+    let dd = String(today.getDate()).padStart(2, '0');
+    let mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    let yyyy = today.getFullYear();
+    let date = yyyy + '/' + mm + '/' + dd;
+    var time = date + " " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    console.log(time)
+
+    var session = {
+        device: "pc",
+        level: 0,
+        deathsN: 0,
+        deaths: [],
+        retention: 0,
+        date: time,
+        dialogues:"ON"
+    }
+
+
+
+    id("loading").style.display = "none";
     // simplifies the document.getElementById() to just id()
     function id(arg) {
         return document.getElementById(arg);
@@ -8,11 +37,10 @@ window.onload = function () {
     //  The size of the tiles in the spritesheet
     var mapTester = true;
     if (window.opener) {
-        //console.log(window.opener.mapCode);
         if (window.opener.mapCode) {
-            eval(window.opener.mapCode);
+            safeEval(window.opener.mapCode);
         } else {
-            eval(window.opener.map);
+            safeEval(window.opener.map);
         }
     } else {
         mapTester = false;
@@ -28,7 +56,7 @@ window.onload = function () {
         colPoints: 0
     }
     var tileSize = 16;
-    var tilesWidth, tilesHeight, ratioWidth, ratioHeight, biggestPossible, ratio;
+    var ratioWidth, ratioHeight, biggestPossible;
 
     var rWidth = Math.floor(window.innerWidth / (tileSize * 20));
     var rHeight = Math.floor(window.innerHeight / (tileSize * 15));
@@ -67,7 +95,6 @@ window.onload = function () {
         canvas.width -= canvas.width % 16;
         canvas.heigth -= canvas.heigth % 16;
         ratio = canvas.width / (tilesWidth) | 0;
-        ratio = canvas.width / (tilesWidth);
         //UI
         id("menu").style.width = canvas.width + "px";
         id("menu").style.height = canvas.height + "px";
@@ -111,7 +138,7 @@ window.onload = function () {
         h: 1,
         type: 1
 }];
-    spawnPoint = {
+    var spawnPoint = {
         x: 3,
         y: 5
     };
@@ -176,6 +203,7 @@ window.onload = function () {
         [19, 17], // 0.01
         [20, 17], // 0.05
         [21, 17], // 0.10
+        [16, 21], // pizza guy
     ]
 
     var audio = {
@@ -259,7 +287,6 @@ window.onload = function () {
     function getColor(x, y) {
         let xC = x;
         let yC = y;
-        console.log(xC + " " + yC)
         c.drawImage(id("sheet"), xC, yC, 1, 1, 0, 0, 1, 1);
         let data = c.getImageData(0, 0, 1, 1).data;
 
@@ -272,7 +299,6 @@ window.onload = function () {
             return hex.length == 1 ? "0" + hex : hex;
         }
         let color = rgbToHex(data[0], data[1], data[2]);
-        console.log(color);
         return color;
     }
     var biomes = [{
@@ -314,12 +340,25 @@ window.onload = function () {
         new Audio("PixelSamurai/soundFxs/voices/player/5.mp3"),
         new Audio("PixelSamurai/soundFxs/voices/player/6.mp3"),
            ],
+        pizza: [
+        new Audio("PixelSamurai/soundFxs/voices/pizza/1.mp3"),
+        new Audio("PixelSamurai/soundFxs/voices/pizza/2.mp3"),
+        new Audio("PixelSamurai/soundFxs/voices/pizza/3.mp3"),
+        new Audio("PixelSamurai/soundFxs/voices/pizza/4.mp3"),
+        new Audio("PixelSamurai/soundFxs/voices/pizza/5.mp3"),
+        new Audio("PixelSamurai/soundFxs/voices/pizza/6.mp3"),
+        new Audio("PixelSamurai/soundFxs/voices/pizza/7.mp3"),
+        new Audio("PixelSamurai/soundFxs/voices/pizza/8.mp3"),
+           ]
     }
     for (let i = 0; i < voices.ghost.length; i++) {
         voices.ghost[i].volume = 0.4;
     }
     for (let i = 0; i < voices.player.length; i++) {
         voices.player[i].volume = 0.75;
+    }
+    for (let i = 0; i < voices.pizza.length; i++) {
+        voices.pizza[i].volume = 0.75;
     }
     class Player {
         constructor(x, y) {
@@ -355,6 +394,7 @@ window.onload = function () {
             this.prevPos = [];
             this.respawning = 0;
             this.lastCollided = "";
+            this.deaths = 0;
             this.nextHitbox = {
                 x: 0,
                 y: 0,
@@ -477,6 +517,12 @@ window.onload = function () {
         };
         respawnEvent() {
             this.levelMoney = 0;
+            session.deaths.push({
+                lvl: currentLevel,
+                x: this.x,
+                y: this.y
+            })
+            this.deaths++;
             this.respawning = true;
             this.dead = false;
             this.y = 1;
@@ -509,7 +555,6 @@ window.onload = function () {
                 for (let i = this.events.length - 1; i >= 0; i--) {
                     if (collided(this.events[i], player.hitbox)) {
                         this.talk(this.events[i].text, this.events[i].speaker);
-                        console.log(this.events[i].text)
                         this.events.splice(i, 1);
                     }
                 }
@@ -553,7 +598,6 @@ window.onload = function () {
                 this.yVelExt = 0;
                 this.xVelExt = 0;
 
-                //if the player could collide in the next frame, stop his dash
 
                 this.attacking(this.hitbox);
                 this.nextHitbox.x = this.hitbox.x + this.xVel + this.xVelExt;
@@ -654,6 +698,184 @@ window.onload = function () {
             this.atkHitbox.y = this.dmgHitbox.y;
             this.atkHitbox.w = this.dmgHitbox.w;
             this.atkHitbox.h = this.dmgHitbox.h;
+
+        }
+        adjustCollided() {
+            //COLLISION POINTS
+            this.colPoint.L = false;
+            this.colPoint.R = false;
+            this.colPoint.B = false;
+
+
+            for (let j = 0; j < map.length; j++) {
+                if (isOutOfScreen(map[j])) {
+                    continue;
+                }
+                //checks for blocks to the right
+                if (pointSquareCol({
+                        x: this.x + this.w / 2 + 0.7,
+                        y: this.y + this.h / 2
+                    }, map[j])) {
+                    this.colPoint.R = true;
+                }
+                //checks for blocks to the left
+                if (pointSquareCol({
+                        x: this.x + this.w / 2 - 0.7,
+                        y: this.y + this.h / 2
+                    }, map[j])) {
+                    this.colPoint.L = true;
+                }
+                //checks for blocks to the bottom
+                if (pointSquareCol({
+                        x: this.x + this.w / 2,
+                        y: this.y + this.h / 2 + 0.7
+                    }, map[j])) {
+                    this.colPoint.B = true;
+                }
+
+            }
+            for (let j = 0; j < specialTiles.length; j++) {
+                if (isOutOfScreen(specialTiles[j])) {
+                    continue;
+                }
+                //checks for blocks to the right
+                if (pointSquareCol({
+                        x: this.x + this.w / 2 + 0.7,
+                        y: this.y + this.h / 2
+                    }, specialTiles[j])) {
+                    this.colPoint.R = true;
+                }
+                //checks for blocks to the left
+                if (pointSquareCol({
+                        x: this.x + this.w / 2 - 0.7,
+                        y: this.y + this.h / 2
+                    }, specialTiles[j])) {
+                    this.colPoint.L = true;
+                }
+                //checks for blocks to the bottom
+                if (pointSquareCol({
+                        x: this.x + this.w / 2,
+                        y: this.y + this.h / 2 + 0.7
+                    }, specialTiles[j])) {
+                    this.colPoint.B = true;
+                }
+
+            }
+            if (stats.colPoints) {
+                this.colPoint.R ? c.fillStyle = "red" : c.fillStyle = "white";
+                c.fillRect(
+                    (this.x + this.w / 2 + 0.7 + mapX) * ratio | 0,
+                    (this.y + this.h / 2 + mapY) * ratio | 0,
+                    (0.1) * ratio | 0,
+                    (0.1) * ratio | 0
+                );
+                this.colPoint.L ? c.fillStyle = "red" : c.fillStyle = "white";
+                c.fillRect(
+                    (this.x + this.w / 2 - 0.7 + mapX) * ratio | 0,
+                    (this.y + this.h / 2 + mapY) * ratio | 0,
+                    (0.1) * ratio | 0,
+                    (0.1) * ratio | 0
+                );
+                this.colPoint.B ? c.fillStyle = "red" : c.fillStyle = "white";
+                c.fillRect(
+                    (this.x + this.w / 2 + mapX) * ratio | 0,
+                    (this.y + this.h / 2 + 0.7 + mapY) * ratio | 0,
+                    (0.1) * ratio | 0,
+                    (0.1) * ratio | 0
+                );
+            }
+
+
+            if (this.col.R > this.hitbox.w / 2 + Math.abs(this.xVel + this.xVelExt)) {
+                if (this.col.T > this.col.B) {
+                    this.col.T += this.col.R;
+                    this.col.R = 0;
+                } else {
+                    this.col.B += this.col.R;
+                    this.col.R = 0;
+                }
+            }
+            if (this.col.L > this.hitbox.w / 2 + Math.abs(this.xVel + this.xVelExt)) {
+                if (this.col.T > this.col.B) {
+                    this.col.T += this.col.L;
+                    this.col.L = 0;
+                } else {
+                    this.col.B += this.col.L;
+                    this.col.L = 0;
+                }
+            }
+            if (this.col.B > this.hitbox.w / 2 + Math.abs(this.yVel + this.yVelExt)) {
+                this.col.T = 0;
+            }
+            if (this.col.T > this.hitbox.w / 2 + Math.abs(this.yVel + this.yVelExt)) {
+                this.col.B = 0;
+            }
+
+            if (this.col.L && this.colPoint.L) {
+                if (this.col.R) {
+                    this.grounded = true;
+                }
+                this.x += this.col.L;
+                if (this.dash) {
+                    this.dash = false;
+                    this.dashCd = true;
+                }
+                if (this.xVelExt < 0 && this.colPoint.L) {
+                    this.xVelExt = 0;
+                }
+                if (this.xVel < 0 && this.colPoint.L) {
+                    this.xVel = 0;
+                }
+
+            }
+            if (this.col.R && this.colPoint.R) {
+                if (this.col.L) {
+                    this.grounded = true;
+                }
+                this.x -= this.col.R;
+                if (this.dash) {
+                    this.dash = false;
+                    this.dashCd = true;
+                }
+                if (this.xVelExt > 0 && this.colPoint.R) {
+                    this.xVelExt = 0;
+                }
+                if (this.xVel > 0 && this.colPoint.R) {
+                    this.xVel = 0;
+                }
+
+            }
+            if (this.col.T) {
+                this.y += this.col.T;
+                if (this.yVel < 0) {
+                    this.yVel = 0;
+                }
+                if (this.yVelExt < 0) {
+                    this.yVelExt = 0;
+                }
+                if (this.dash) {
+                    this.dash = false;
+                    this.dashCd = true;
+                }
+
+            }
+            if (this.col.B) {
+                this.y -= (this.col.B - 0.03);
+                if (this.jumpCounter < 9 && this.yVel < 0) {
+                    this.grounded = false;
+                } else {
+                    if (this.lastCollided !== "bouncy") {
+                        this.grounded = true;
+                    }
+                    if (this.yVel > 0) {
+                        this.yVel = 0;
+                    }
+                    if (this.dashCd || this.dash) {
+                        this.dashCd = false;
+                        this.dash = false;
+                    }
+                }
+            }
 
         }
         draw() {
@@ -922,7 +1144,6 @@ window.onload = function () {
 
         };
         move() {
-
             let points = {
                 upLeft: {
                     x: this.x - 0.5,
@@ -1138,40 +1359,29 @@ window.onload = function () {
             }
         };
         compute() {
-            //leftRightMovement(this.serial);
-            if (!(fps % 15) && this.grounded && !this.hit) {
-                //^AI is refreshed every 1/4 seconds
-                this.move();
-            }
             if (this.attack) {
                 this.L = false;
                 this.R = false;
             }
             if (this.col.L) {
-                if (this.col.R) {
-                    this.col.B += this.col.L
-                } else {
-                    this.x += this.col.L;
-                }
+                this.x += this.col.L;
 
             }
             if (this.col.R) {
-                if (this.col.L) {
-                    this.col.B += this.col.R
-                } else {
-                    this.x -= this.col.R;
-                }
-
+                this.x -= this.col.R;
             }
             if (this.col.T) {
                 this.y += this.col.T;
                 this.yVel = 0;
-
             }
             if (this.col.B) {
                 this.y -= this.col.B - 0.01;
                 this.grounded = true;
 
+            }
+            if (!(fps % 15) && this.grounded && !this.hit) {
+                //^AI is refreshed every 1/4 seconds
+                this.move();
             }
             //controls calculation
             if (this.L && !this.col.L && !this.R && !this.hit) {
@@ -1194,9 +1404,9 @@ window.onload = function () {
             this.y += this.yVel;
             this.x += this.xVel;
             this.hitbox.x = (this.x + this.w / 10);
-            this.hitbox.y = this.y;
+            this.hitbox.y = this.y+0.2;
             this.hitbox.w = (this.w - this.w / 5);
-            this.hitbox.h = this.h;
+            this.hitbox.h = this.h-0.2;
             if (this.canAttack) {
                 var dir = (this.left) ? -1 : 1;
                 this.atkHitbox.x = this.hitbox.x + dir;
@@ -1204,7 +1414,6 @@ window.onload = function () {
                 this.atkHitbox.w = this.hitbox.w;
                 this.atkHitbox.h = this.hitbox.h;
                 this.searchPlayer(this);
-                //console.log("attacking");
             }
         };
         draw(i) {
@@ -1273,11 +1482,6 @@ window.onload = function () {
         }
     }
 
-    function leftRightMovement(serial) {
-
-        //console.log(monsters[i].serial+" "+ serial);
-
-    }
     //CHANGE
     class Slime extends Monster {
         constructor(x, y) {
@@ -1741,10 +1945,9 @@ window.onload = function () {
                     if (this.load > 50) {
                         player.money += player.levelMoney;
                         player.levelMoney = 0;
-                        eval(maps[parseInt(this.place)])
+                        safeEval(maps[parseInt(this.place)])
                         window.localStorage["LvL"] = parseInt(this.place);
                         window.localStorage["money"] = player.money;
-                        console.log("money: " + window.localStorage["money"]);
                         currentLevel++;
                         adaptBiome();
                         initializeMap();
@@ -1901,7 +2104,7 @@ window.onload = function () {
                     this.x -= Math.abs(this.x - player.x) / 100;
                 }
             }
-            if (this.y + this.h < player.y - 1) {
+            if (this.y + this.h < player.y - 2) {
                 if (Math.abs(this.y - player.y) / 6 > 1 / 100) {
                     this.y += Math.abs(this.y - player.y) / 100;
                 }
@@ -2062,16 +2265,41 @@ window.onload = function () {
             var dir = player.left ? 1 : -1;
             switch (colDir) {
                 case "b":
-                    collider.grounded = false;
-                    collider.yVel = -bouncynessY;
-                    collider.dash = false;
-                    collider.dashCd = false;
-                    visualFxs.push(new RingFx(collider.x, collider.y, 2));
-                    audio.bounce1.playy()
+                    if (bounceOrNot !== 0) {
+                        if (dir > 0) {
+                            collider.x = this.x + this.w;
+                        } else {
+                            collider.x = this.x - collider.w;
+                        }
+                        if (player.left) {
+                            visualFxs.push(new RingFx(collider.x, collider.y, 0));
+                            audio.bounce2.playy()
+                        } else {
+                            visualFxs.push(new RingFx(collider.x, collider.y, 1));
+                            audio.bounce3.playy()
+                        }
+                        collider.grounded = false;
+                        collider.dash = false;
+                        collider.dashCd = false;
+                        collider.xVelExt = bounceOrNot * dir;
+                        collider.yVel = -bouncynessY;
+                    } else {
+                        collider.grounded = false;
+                        collider.yVel = -bouncynessY;
+                        collider.dash = false;
+                        collider.dashCd = false;
+                        visualFxs.push(new RingFx(collider.x, collider.y, 2));
+                        audio.bounce1.playy()
+                    }
                     break;
                 case "l":
                     //ring VFX
                     if (bounceOrNot !== 0) {
+                        if (dir > 0) {
+                            collider.x = this.x + this.w;
+                        } else {
+                            collider.x = this.x - collider.w;
+                        }
                         visualFxs.push(new RingFx(collider.x, collider.y, 0));
                     } else {
                         visualFxs.push(new RingFx(collider.x, collider.y, 2));
@@ -2085,6 +2313,11 @@ window.onload = function () {
                     break;
                 case "r":
                     if (bounceOrNot !== 0) {
+                        if (dir > 0) {
+                            collider.x = this.x + this.w;
+                        } else {
+                            collider.x = this.x - collider.w;
+                        }
                         visualFxs.push(new RingFx(collider.x, collider.y, 1));
                     } else {
                         visualFxs.push(new RingFx(collider.x, collider.y, 2));
@@ -2669,6 +2902,55 @@ window.onload = function () {
             }
         }
     }
+    class PizzaGuy extends SpecialTile {
+        constructor(x, y) {
+            super(x, y);
+            this.repeat = true;
+            this.initX = x;
+            this.initY = y;
+            this.running = true;
+            this.sprite = 1;
+            this.slowness = 6;
+            this.spritePos = {
+                x: [[16, 16, 16, 16], [14, 14, 14, 14], [22, 22], [22]],
+                y: [[21, 22, 23, 24], [21, 22, 23, 24], [21, 23], [21]],
+                w: [1, 2, 2, 2],
+                h: [1, 1, 2, 2],
+            };
+            this.hitbox = {
+                x: x,
+                y: y,
+                w: 1,
+                h: 1
+            };
+            this.type = "pizzaguy";
+        }
+        move() {
+            switch (this.sprite) {
+                case 0:
+                    this.hitbox.x = this.initX;
+                    this.x = this.initX;
+                    this.w = 1;
+                    break;
+                case 1:
+                    this.hitbox.x = this.initX;
+                    this.x = this.initX - 1;
+                    this.w = 2;
+                    break;
+                case 2:
+                    this.hitbox.x = this.initX;
+                    this.x = this.initX - 1;
+                    this.w = 2;
+                    break;
+                case 3:
+                    this.hitbox.x = this.initX;
+                    this.x = this.initX - 1;
+                    this.w = 2;
+                    break;
+            }
+        }
+        action(collider, colDir) {}
+    }
     class TimedSpikes extends SpecialTile {
         constructor(x, y, active, timing) {
             super(x, y);
@@ -2849,7 +3131,7 @@ window.onload = function () {
     }
 
     function renderSpecialTiles() {
-        for (i = 0; i < specialTiles.length; i++) {
+        for (let i = 0; i < specialTiles.length; i++) {
             if (isOutOfScreen(specialTiles[i]) && specialTiles[i].move == null) {
                 continue;
             }
@@ -2972,15 +3254,15 @@ window.onload = function () {
         drawEnvironment();
         checkCollisions();
         renderSpecialTiles();
-        for (i = 0; i < monsters.length; i++) {
+        for (var i = 0; i < monsters.length; i++) {
             monsters[i].frameCounter++;
             monsters[i].compute();
         }
         if (!player.dead) {
-            adjustCollided(player);
+            player.adjustCollided();
         }
         //draw character
-        for (let i = monsters.length - 1; i >= 0; i--) {
+        for (var i = monsters.length - 1; i >= 0; i--) {
             if (isOutOfScreen(monsters[i])) {
                 continue;
             }
@@ -3004,11 +3286,21 @@ window.onload = function () {
         if (!player.dead) {
             player.draw();
         }
-        renderHpBars();
         renderTexts();
         displayStats();
         dialogueEngine.compute();
         moneyCounter.compute();
+        if (touchDevice) {
+            if (player.uncontrollable) {
+                id("arrowCont").style.display = "none";
+                id("spacebarCont").style.display = "none";
+                id("othersCont").style.display = "none";
+            } else {
+                id("arrowCont").style.display = "block";
+                id("spacebarCont").style.display = "block";
+                id("othersCont").style.display = "block";
+            }
+        }
         if (!gamePaused) {
             requestAnimationFrame(loop)
         }
@@ -3072,8 +3364,9 @@ window.onload = function () {
 
     class DialogueEngine {
         constructor() {
+            this.ratio = ratio;
             this.layout = id("d-layout");
-            this.portraits = [[id("ghost-0"), id("ghost-1"), id("ghost-2")], [id("player-0"), id("player-1"), id("player-2")]];
+            this.portraits = [[id("ghost-0"), id("ghost-1"), id("ghost-2")], [id("player-0"), id("player-1"), id("player-2")], [id("pizza-0"), id("pizza-1"), id("pizza-2"), id("pizza-3")]];
             this.portrait = 0;
             this.emotion = 0;
             this.wholeText = "";
@@ -3095,7 +3388,7 @@ window.onload = function () {
                 h: (this.layout.height / tileSize) / 2,
             };
             this.texts = [];
-            this.voices = [voices.ghost, voices.player];
+            this.voices = [voices.ghost, voices.player, voices.pizza];
             this.voice = this.voices[this.portrait][0];
         }
         newText(text, speaker) {
@@ -3159,14 +3452,6 @@ window.onload = function () {
         speak() {
             if (this.voice.paused) {
                 this.voice = this.voices[this.portrait][(Math.random() * this.voices[this.portrait].length) | 0];
-                /*let volume = (15 - Math.abs(player.hitbox.x + player.hitbox.w / 2 - (this.x + 0.5))) / 30;
-                if (volume > 0) {
-                    volume = volume.toFixed(3);
-                    console.log(volume)
-                    this.voice.volume = volume;
-                    this.voice.playy();
-                }
-                */
                 this.voice.playbackRate = 1;
                 this.voice.playy();
             }
@@ -3264,793 +3549,695 @@ window.onload = function () {
             for (let i = 0; i < lines.length; i++) {
                 c.fillText(
                     lines[i],
-                    (this.textBox.x * ratio),
-                    (-this.textBox.y * ratio + canvas.height + (this.size * ratio * i))
-                );
+                    (this.layout.width / tileSize / 3 * ratio | 0) + (canvas.width / 2 - this.layout.width / tileSize * ratio / 2 | 0),
+                    (this.layout.height / tileSize / 2.2 * ratio | 0) + (canvas.height - this.layout.height / tileSize * ratio | 0) + (this.size * ratio * i)
+            );
+        }
+        if (this.text.length <= this.wholeText.length - 1) {
+            this.counter++;
+            if (this.counter >= this.slowness) {
+                this.counter = 0;
+                this.text += this.wholeText[this.textIterator];
+                this.textIterator++;
+                if (this.text[this.textIterator - 1] != " " && this.text[this.textIterator - 1] != ".") {
+                    this.speak();
+                } else {
+                    this.frame = 1;
+                    this.frameCounter = 0;
+                }
             }
-            if (this.text.length <= this.wholeText.length - 1) {
-                this.counter++;
-                if (this.counter >= this.slowness) {
-                    this.counter = 0;
-                    this.text += this.wholeText[this.textIterator];
-                    this.textIterator++;
-                    if (this.text[this.textIterator - 1] != " " && this.text[this.textIterator - 1] != ".") {
-                        this.speak();
-                    } else {
-                        this.frame = 1;
-                        this.frameCounter = 0;
+        } else {
+            this.textIterator = 0;
+            if (this.frameLength > 0) {
+                this.frame = 1;
+            }
+        }
+    }
+}
+var dialogueEngine = new DialogueEngine();
+
+///////////////////////////////////////////////////////////////////////////////
+////////////////////////////// DIALOGUE ENGINE  ///////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+var camBoxes = [];
+var camera = {
+    focus: 0,
+    subject: player
+}
+
+function moveCamera() {
+    //locked camera
+    camera.subject = player;
+    switch (camera.focus) {
+        case 0:
+            camera.subject = player;
+            break;
+        case 1:
+            camera.subject = ghost;
+            break;
+    }
+    if (camBoxes.length > 0) {
+        var camObject = 0;
+        for (let i = 0; i < camBoxes.length; i++) {
+            if (collided(camera.subject, camBoxes[i])) {
+                cameraType = camBoxes[i].type;
+                camObject = camBoxes[i];
+            }
+        }
+
+    }
+    if (cameraType === 2) {
+        mapX = -camObject.x;
+        mapY = -camObject.y;
+    }
+    if (cameraType === 0) {
+        var cameraDir = tilesWidth / 2 - 2;
+    } else if (cameraType === 1) {
+        var cameraDir = camera.subject.left ? tilesWidth - 3 : 2;
+    }
+    //let cameraDir = player.left ? tilesWidth / 2 : tilesWidth / 6;
+    if (mapX < -camera.subject.x + cameraDir) {
+        // means camera moves forward
+        if (Math.abs((-camera.subject.x + cameraDir - mapX) / 6) > 1 / 100) {
+            mapX += (-camera.subject.x + cameraDir - mapX) / 6;
+        }
+    } else if (mapX > -camera.subject.x + cameraDir) {
+        // means camera moves backward
+        if (Math.abs((-camera.subject.x + cameraDir - mapX) / 6) > 1 / 100) {
+            mapX += (-camera.subject.x + cameraDir - mapX) / 6;
+        }
+    }
+    let lookDown = watchDown ? 15 / 4 : 0; //15 is tilesHeight standard
+    if (mapY < -(camera.subject.y + lookDown) + tilesHeight / 2) {
+        // means camera moves downward
+        if (Math.abs((-(camera.subject.y + lookDown) + tilesHeight / 2 - mapY) / 6) > 1 / 100) {
+            mapY += (-(camera.subject.y + lookDown) + tilesHeight / 2 - mapY) / 6;
+        }
+    } else if (mapY > -(camera.subject.y + lookDown) + tilesHeight / 2) {
+        // means camera moves upward
+        if (Math.abs((-(camera.subject.y + lookDown) + tilesHeight / 2 - mapY) / 6) > 1 / 100) {
+            mapY += (-(camera.subject.y + lookDown) + tilesHeight / 2 - mapY) / 6;
+        }
+    }
+}
+
+function isOutOfScreen(Entity) {
+    if (Entity == null) {
+        return true;
+    }
+    if (Entity.x > tilesWidth - mapX) {
+        return true;
+    }
+    if (Entity.x + Entity.w < -mapX) {
+        return true;
+    }
+    if (Entity.y > tilesHeight - mapY + 1) {
+        return true;
+    }
+    if (Entity.y + Entity.h < -mapY) {
+        return true;
+    }
+    return false;
+}
+
+function checkCollisions() {
+    player.grounded = false;
+    player.col.L = false;
+    player.col.R = false;
+    player.col.T = false;
+    player.col.B = false;
+    for (let i = 0; i < monsters.length; i++) {
+        monsters[i].grounded = false;
+        monsters[i].col.L = false;
+        monsters[i].col.R = false;
+        monsters[i].col.T = false;
+        monsters[i].col.B = false;
+        if (collided(player, monsters[i])) {
+            colCheck(player, monsters[i]);
+        }
+    }
+    for (let i = 0; i < map.length; i++) {
+        for (let m = 0; m < monsters.length; m++) {
+            if (collided(monsters[m], map[i])) {
+                colCheck(monsters[m], map[i]);
+            }
+        }
+        if (isOutOfScreen(map[i])) {
+            continue;
+        }
+        if (collided(player, map[i])) {
+            let collision = colCheck(player, map[i]);
+        }
+    };
+
+    for (let i = 0; i < specialTiles.length; i++) {
+        if (isOutOfScreen(specialTiles[i])) {
+            continue;
+        }
+        for (let m = 0; m < monsters.length; m++) {
+            if (collided(monsters[m], specialTiles[i])) {
+                colCheck(monsters[m], specialTiles[i]);
+            }
+        }
+    }
+}
+
+
+
+var backgrounds = [id("bg1"), id("cloud1"), id("cloud2"), id("bg2"), id("bg3"), id("bg4")]
+var background = false;
+var cloudsX = [0, 0];
+
+function drawBackground() {
+    for (let j = 0; j < 5; j++) {
+        c.drawImage(
+            backgrounds[1],
+            (-tilesWidth / 2 + (backgrounds[1].width / tileSize) * j + mapX / 20 - cloudsX[0]) * ratio | 0,
+            (mapY / 20) * ratio | 0,
+            (backgrounds[1].width / tileSize) * ratio | 0,
+            (backgrounds[1].height / tileSize) * ratio | 0
+        );
+    }
+    cloudsX[0] += (backgrounds[1].width / tileSize) / 4000;
+    if (cloudsX[0] >= backgrounds[1].width / tileSize) {
+        cloudsX[0] = 0;
+    }
+    //clouds
+    for (let j = 0; j < 5; j++) {
+        c.drawImage(
+            backgrounds[2],
+            (-tilesWidth / 2 + (backgrounds[2].width / tileSize) * j + mapX / 18 - cloudsX[1]) * ratio | 0,
+            (mapY / 18) * ratio | 0,
+            (backgrounds[2].width / tileSize) * ratio | 0,
+            (backgrounds[2].height / tileSize) * ratio | 0
+        );
+    }
+    cloudsX[1] += (backgrounds[2].width / tileSize) / 6000;
+    if (cloudsX[1] >= backgrounds[1].width / tileSize) {
+        cloudsX[1] = 0;
+    }
+    for (let j = 0; j < 5; j++) {
+        c.drawImage(
+            backgrounds[3],
+            (-tilesWidth / 2 + (backgrounds[3].width / tileSize) * j + mapX / 10) * ratio | 0,
+            (5 + mapY / 10) * ratio | 0,
+            (backgrounds[3].width / tileSize * ratio) | 0,
+            (backgrounds[3].height / tileSize * ratio) | 0
+        );
+    }
+
+    for (let j = 0; j < 5; j++) {
+        c.drawImage(
+            backgrounds[4],
+            (-tilesWidth / 2 + (backgrounds[4].width / tileSize * j) + mapX / 8) * ratio | 0,
+            (5 + mapY / 8) * ratio | 0,
+            (backgrounds[4].width / tileSize) * ratio | 0,
+            (backgrounds[4].height / tileSize) * ratio | 0
+        );
+    }
+    for (let j = 0; j < 5; j++) {
+        c.drawImage(
+            backgrounds[5],
+            (-tilesWidth / 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + (mapX * ratio) / 6) | 0,
+            (5 + mapY / 8) * ratio | 0,
+            (backgrounds[5].width / tileSize * ratio) | 0,
+            (backgrounds[5].height / tileSize * ratio) | 0
+        );
+    }
+    for (let j = 0; j < 5; j++) {
+        c.drawImage(
+            backgrounds[5],
+            (-tilesWidth / 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + (mapX * ratio) / 6) | 0,
+            (5 + mapY / 7) * ratio | 0,
+            (backgrounds[5].width / tileSize * ratio) | 0,
+            (backgrounds[5].height / tileSize * ratio) | 0
+        );
+    }
+    for (let j = 0; j < 5; j++) {
+        c.fillStyle = "#323c39";
+        c.fillRect(
+            (-tilesWidth / 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + (mapX * ratio) / 6) | 0,
+            (5 + mapY / 7) * ratio + (backgrounds[5].height / tileSize * ratio) | 0,
+            (backgrounds[5].width / tileSize * ratio) | 0,
+            (backgrounds[5].height / tileSize * ratio) | 0
+        );
+    }
+}
+
+var checkBlock = {
+    x: 0,
+    y: 0,
+    w: 0,
+    h: 0
+}
+
+function drawEnvironment() {
+    if (background) {
+        drawBackground();
+    }
+    for (let i = bgTiles.length - 1; i >= 0; i--) {
+        if (isOutOfScreen(bgTiles[i])) {
+            continue;
+        }
+        for (let j = 0; j < bgTiles[i].h; j++) {
+            for (let k = 0; k < bgTiles[i].w; k++) {
+                //skips out of bounds tiles
+                checkBlock.x = bgTiles[i].x + k;
+                checkBlock.y = bgTiles[i].y + j;
+                checkBlock.w = 1;
+                checkBlock.h = 1;
+                if (isOutOfScreen(checkBlock)) {
+                    continue;
+                }
+                stats.blocks++;
+                c.drawImage(
+                    player.sheet,
+                    tiles[bgTiles[i].type][0] * 16,
+                    tiles[bgTiles[i].type][1] * 16,
+                    tileSize,
+                    tileSize,
+                    (bgTiles[i].x + k + mapX) * ratio | 0,
+                    (bgTiles[i].y + j + mapY) * ratio | 0,
+                    ratio | 0,
+                    ratio | 0);
+            }
+        }
+    }
+    for (let i = 0; i < map.length; i++) {
+        if (isOutOfScreen(map[i])) {
+            continue;
+        }
+        for (let j = 0; j < map[i].h; j++) {
+            for (let k = 0; k < map[i].w; k++) {
+                checkBlock.x = map[i].x + k;
+                checkBlock.y = map[i].y + j;
+                checkBlock.w = 1;
+                checkBlock.h = 1;
+                if (isOutOfScreen(checkBlock)) {
+                    continue;
+                }
+                stats.blocks++;
+                c.drawImage(
+                    player.sheet, tiles[map[i].type][0] * 16,
+                    tiles[map[i].type][1] * 16,
+                    tileSize,
+                    tileSize,
+                    (map[i].x + k + mapX) * ratio | 0,
+                    (map[i].y + j + mapY) * ratio | 0,
+                    ratio | 0,
+                    ratio | 0);
+            }
+        }
+    }
+}
+
+
+
+// COLLISION DETECTORS
+function colCheck(shapeA, shapeB) {
+    stats.col3++;
+    // get the vectors to check against
+    if (shapeA.hitbox != null) {
+        var shapeAA = shapeA.hitbox;
+    } else {
+        var shapeAA = shapeA;
+    }
+    if (shapeB.hitbox != null) {
+        var shapeBB = shapeB.hitbox;
+    } else {
+        var shapeBB = shapeB;
+    }
+    var vX = (shapeAA.x + (shapeAA.w / 2)) - (shapeBB.x + (shapeBB.w / 2)),
+        vY = (shapeAA.y + (shapeAA.h / 2)) - (shapeBB.y + (shapeBB.h / 2)),
+        // add the half widths and half heights of the objects
+        hWidths = (shapeA.hitbox.w / 2) + (shapeBB.w / 2),
+        hHeights = (shapeA.hitbox.h / 2) + (shapeBB.h / 2),
+        colDir = null;
+
+    // if the x and y vector are less than the half width or half height, they we must be inside the object, causing a collision
+    if (Math.abs(vX) < hWidths && Math.abs(vY) < hHeights) {
+        // figures out on which side we are colliding (top, bottom, left, or right)
+        var oX = hWidths - Math.abs(vX),
+            oY = hHeights - Math.abs(vY);
+        if (oX >= oY) {
+            if (vY > 0) {
+                colDir = "t";
+                if (shapeA.col.T < oY && !shapeB.xVel) {
+                    shapeA.col.T += oY;
+                    if (shapeA.type = "player") {
+                        if (shapeB.type != null) {
+                            shapeA.lastCollided = shapeB.type;
+                        }
                     }
                 }
             } else {
-                this.textIterator = 0;
-                if (this.frameLength > 0) {
-                    this.frame = 1;
+                colDir = "b";
+                if (shapeA.col.B < oY) {
+                    shapeA.col.B = oY;
+                    if (shapeA.type = "player") {
+                        if (shapeB.type != null) {
+                            shapeA.lastCollided = shapeB.type;
+                        }
+                    }
+                }
+                if (shapeB.xVel) {
+                    shapeA.xVelExt = shapeB.xVel;
+                }
+                if (shapeB.xVel) {
+                    if (shapeB.yVel < 0) {
+                        shapeA.yVelExt = shapeB.yVel;
+                    }
+                    if (shapeB.yVel > 0) {
+                        shapeA.yVelExt = shapeB.yVel;
+                    }
+                }
+            }
+        } else {
+            if (vX > 0) {
+                colDir = "l";
+                if (shapeA.col.L < oX) {
+                    if (oX > 0.01)
+                        shapeA.col.L += oX;
+                    if (shapeA.type = "player") {
+                        if (shapeB.type != null) {
+                            shapeA.lastCollided = shapeB.type;
+                        }
+                    }
+                }
+            } else {
+                colDir = "r";
+                if (shapeA.col.R < oX) {
+                    if (oX > 0.01)
+                        shapeA.col.R += oX;
+                    if (shapeA.type = "player") {
+                        if (shapeB.type != null) {
+                            shapeA.lastCollided = shapeB.type;
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+    return colDir;
+
+}
+
+function collided(a, b) {
+    stats.col2++;
+    var square1 = a.hitbox ? a.hitbox : a;
+    var square2 = b.hitbox ? b.hitbox : b;
+    if (square1.x < square2.x + square2.w) {
+        if (square1.x + square1.w > square2.x) {
+            if (square1.y < square2.y + square2.h) {
+                if (square1.y + square1.h > square2.y) {
+                    return true;
                 }
             }
         }
     }
-    var dialogueEngine = new DialogueEngine();
+    return false;
+}
 
-    ///////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////// DIALOGUE ENGINE  ///////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////
-
-    var camBoxes = [];
-    var camera = {
-        focus: 0,
-        subject: player
+function pointSquareCol(point, sq) {
+    stats.col1++;
+    var square = sq;
+    if (sq.hitbox !== undefined) {
+        square = sq.hitbox;
     }
+    if (point.x > square.x) {
+        if (point.x < square.x + square.w) {
+            if (point.y > square.y) {
+                if (point.y < square.y + square.h) {
+                    return true;
+                }
+            }
 
-    function moveCamera() {
-        //locked camera
-        camera.subject = player;
-        switch (camera.focus) {
+        }
+    }
+    return false;
+}
+// STATS
+
+
+
+
+
+function displayStats() {
+    id("BLOCKS").innerHTML = "blocks: " + stats.blocks;
+    id("COL-1").innerHTML = "PointSquareColCheck: " + stats.col1;
+    id("COL-2").innerHTML = "SquareSquareColCheck: " + stats.col2;
+    id("COL-3").innerHTML = "DirSquarescolCheck: " + stats.col3;
+    id("COL-L").innerHTML = "player.col.L: " + player.col.L;
+    id("COL-R").innerHTML = "player.col.R: " + player.col.R;
+    id("COL-T").innerHTML = "player.col.T: " + player.col.T;
+    id("COL-B").innerHTML = "player.col.B: " + player.col.B;
+    stats.blocks = 0;
+    stats.col1 = 0;
+    stats.col2 = 0;
+    stats.col3 = 0;
+}
+
+
+
+
+
+
+
+//Mouse controls
+var jmpKeyPressed = 0;
+window.onmousedown = function (e) {
+    if (typeof e === 'object' && !touchDevice && !player.uncontrollable) {
+        switch (e.button) {
             case 0:
-                camera.subject = player;
+                //console.log('Left button clicked.');
+                if (!gamePaused) {
+                    player.attackEvent();
+                }
                 break;
             case 1:
-                camera.subject = ghost;
+                //console.log('Middle button clicked.');
                 break;
-        }
-        if (camBoxes.length > 0) {
-            var camObject = 0;
-            for (let i = 0; i < camBoxes.length; i++) {
-                if (collided(camera.subject, camBoxes[i])) {
-                    cameraType = camBoxes[i].type;
-                    camObject = camBoxes[i];
+            case 2:
+                //console.log('Right button clicked.');
+                if (!jmpKeyPressed && !gamePaused) {
+                    player.jump();
+                    jmpKeyPressed = true;
                 }
-            }
-
-        }
-        if (cameraType === 2) {
-            mapX = -camObject.x;
-            mapY = -camObject.y;
-        }
-        if (cameraType === 0) {
-            var cameraDir = tilesWidth / 2 - 2;
-        } else if (cameraType === 1) {
-            var cameraDir = camera.subject.left ? tilesWidth - 3 : 2;
-        }
-        //let cameraDir = player.left ? tilesWidth / 2 : tilesWidth / 6;
-        if (mapX < -camera.subject.x + cameraDir) {
-            // means camera moves forward
-            if (Math.abs((-camera.subject.x + cameraDir - mapX) / 6) > 1 / 100) {
-                mapX += (-camera.subject.x + cameraDir - mapX) / 6;
-            }
-        } else if (mapX > -camera.subject.x + cameraDir) {
-            // means camera moves backward
-            if (Math.abs((-camera.subject.x + cameraDir - mapX) / 6) > 1 / 100) {
-                mapX += (-camera.subject.x + cameraDir - mapX) / 6;
-            }
-        }
-        let lookDown = watchDown ? 15 / 4 : 0; //15 is tilesHeight standard
-        if (mapY < -(camera.subject.y + lookDown) + tilesHeight / 2) {
-            // means camera moves downward
-            if (Math.abs((-(camera.subject.y + lookDown) + tilesHeight / 2 - mapY) / 6) > 1 / 100) {
-                mapY += (-(camera.subject.y + lookDown) + tilesHeight / 2 - mapY) / 6;
-            }
-        } else if (mapY > -(camera.subject.y + lookDown) + tilesHeight / 2) {
-            // means camera moves upward
-            if (Math.abs((-(camera.subject.y + lookDown) + tilesHeight / 2 - mapY) / 6) > 1 / 100) {
-                mapY += (-(camera.subject.y + lookDown) + tilesHeight / 2 - mapY) / 6;
-            }
+                break;
+            default:
+                console.log(`Unknown button code`);
         }
     }
-
-    function isOutOfScreen(Entity) {
-        if (Entity == null) {
-            return true;
-        }
-        if (Entity.x > tilesWidth - mapX) {
-            return true;
-        }
-        if (Entity.x + Entity.w < -mapX) {
-            return true;
-        }
-        if (Entity.y > tilesHeight - mapY + 1) {
-            return true;
-        }
-        if (Entity.y + Entity.h < -mapY) {
-            return true;
-        }
-        return false;
-    }
-
-    function checkCollisions() {
-        player.grounded = false;
-        player.col.L = false;
-        player.col.R = false;
-        player.col.T = false;
-        player.col.B = false;
-        for (let i = 0; i < monsters.length; i++) {
-            monsters[i].grounded = false;
-            monsters[i].col.L = false;
-            monsters[i].col.R = false;
-            monsters[i].col.T = false;
-            monsters[i].col.B = false;
-            if (collided(player, monsters[i])) {
-                colCheck(player, monsters[i]);
-            }
-        }
-        for (let i = 0; i < map.length; i++) {
-            for (m = 0; m < monsters.length; m++) {
-                if (collided(monsters[m], map[i])) {
-                    colCheck(monsters[m], map[i]);
-                }
-            }
-            if (isOutOfScreen(map[i])) {
-                continue;
-            }
-            if (collided(player, map[i])) {
-                let collision = colCheck(player, map[i]);
-            }
-        };
-
-        for (let i = 0; i < specialTiles.length; i++) {
-            if (isOutOfScreen(specialTiles[i])) {
-                continue;
-            }
-            for (let m = 0; m < monsters.length; m++) {
-                if (collided(monsters[m], specialTiles[i])) {
-                    colCheck(monsters[m], specialTiles[i]);
-                }
-            }
+}
+window.onmouseup = function (e) {
+    if (typeof e === 'object' && !touchDevice) {
+        switch (e.button) {
+            case 0:
+                //console.log('Left button clicked.');
+                break;
+            case 1:
+                //console.log('Middle button clicked.');
+                break;
+            case 2:
+                //console.log('Right button clicked.');
+                player.jumping = false;
+                jmpKeyPressed = false;
+                break;
+            default:
+                console.log(`Unknown button code`);
         }
     }
+}
+window.oncontextmenu = function (event) {
+    event.preventDefault();
+}
 
-    function adjustCollided(p) {
-
-        //COLLISION POINTS
-        p.colPoint.L = false;
-        p.colPoint.R = false;
-        p.colPoint.B = false;
+function safeEval(instructions) {
+    eval(instructions);
+}
 
 
-        for (let j = 0; j < map.length; j++) {
-            if (isOutOfScreen(map[j])) {
-                continue;
-            }
-            //checks for blocks to the right
-            if (pointSquareCol({
-                    x: p.x + p.w / 2 + 0.7,
-                    y: p.y + p.h / 2
-                }, map[j])) {
-                p.colPoint.R = true;
-            }
-            //checks for blocks to the left
-            if (pointSquareCol({
-                    x: p.x + p.w / 2 - 0.7,
-                    y: p.y + p.h / 2
-                }, map[j])) {
-                p.colPoint.L = true;
-            }
-            //checks for blocks to the bottom
-            if (pointSquareCol({
-                    x: p.x + p.w / 2,
-                    y: p.y + p.h / 2 + 0.7
-                }, map[j])) {
-                p.colPoint.B = true;
-            }
 
+// Mobile controls
+
+
+var touchDevice = false;
+
+function mobileInit(isContinue) {
+    touchDevice = true;
+    console.log("mobile");
+    adjustScreen("mobile");
+    if (isContinue) {
+        safeEval(maps[window.localStorage['LvL'] || 0]);
+        currentLevel = window.localStorage['LvL'];
+        player.money = parseInt(window.localStorage["money"]);
+    } else {
+        safeEval(maps[0]);
+    }
+    adaptBiome();
+    initializeMap();
+    requestAnimationFrame(loop);
+    id("menu").style.visibility = "hidden";
+    canvas.style.visibility = "visible";
+    gamePaused = false;
+
+
+
+
+    id("arrowCont").style.display = "block";
+    id("spacebarCont").style.display = "block";
+    id("othersCont").style.display = "block";
+    id("up").ontouchstart = function () {
+        id("up").style.transform = "scale(1.2)";
+        id("up").style.opacity = "1";
+
+        if (!jmpKeyPressed) {
+            player.jump();
+            jmpKeyPressed = true;
         }
-        for (let j = 0; j < specialTiles.length; j++) {
-            if (isOutOfScreen(specialTiles[j])) {
-                continue;
-            }
-            //checks for blocks to the right
-            if (pointSquareCol({
-                    x: p.x + p.w / 2 + 0.7,
-                    y: p.y + p.h / 2
-                }, specialTiles[j])) {
-                p.colPoint.R = true;
-            }
-            //checks for blocks to the left
-            if (pointSquareCol({
-                    x: p.x + p.w / 2 - 0.7,
-                    y: p.y + p.h / 2
-                }, specialTiles[j])) {
-                p.colPoint.L = true;
-            }
-            //checks for blocks to the bottom
-            if (pointSquareCol({
-                    x: p.x + p.w / 2,
-                    y: p.y + p.h / 2 + 0.7
-                }, specialTiles[j])) {
-                p.colPoint.B = true;
-            }
-
+    }
+    id("canvas").ontouchstart = function () {
+        if (player.uncontrollable) {
+            dialogueEngine.input = 1;
         }
-        if (stats.colPoints) {
-            p.colPoint.R ? c.fillStyle = "red" : c.fillStyle = "white";
-            c.fillRect(
-                (p.x + p.w / 2 + 0.7 + mapX) * ratio | 0,
-                (p.y + p.h / 2 + mapY) * ratio | 0,
-                (0.1) * ratio | 0,
-                (0.1) * ratio | 0
-            );
-            p.colPoint.L ? c.fillStyle = "red" : c.fillStyle = "white";
-            c.fillRect(
-                (p.x + p.w / 2 - 0.7 + mapX) * ratio | 0,
-                (p.y + p.h / 2 + mapY) * ratio | 0,
-                (0.1) * ratio | 0,
-                (0.1) * ratio | 0
-            );
-            p.colPoint.B ? c.fillStyle = "red" : c.fillStyle = "white";
-            c.fillRect(
-                (p.x + p.w / 2 + mapX) * ratio | 0,
-                (p.y + p.h / 2 + 0.7 + mapY) * ratio | 0,
-                (0.1) * ratio | 0,
-                (0.1) * ratio | 0
-            );
+    }
+    id("up").ontouchend = function () {
+        id("up").style.transform = "";
+        id("up").style.opacity = "0.4";
+
+        player.jumping = false;
+        if (player.jumping && player.jumpCounter < 9) {
+            p.yVel = 0;
         }
+        jmpKeyPressed = false;
+    }
 
+    id("left").ontouchstart = function () {
+        id("left").style.transform = "scale(1.2)";
+        id("left").style.opacity = "1";
 
+        player.L = true;
+    }
+    id("left").ontouchend = function () {
+        id("left").style.transform = "";
+        id("left").style.opacity = "0.4";
 
+        player.L = false;
+    }
 
-        if (p.col.L && p.colPoint.L) {
-            if (p.col.R) {
-                p.grounded = true;
-            }
-            p.x += p.col.L;
-            if (p.dash) {
-                p.dash = false;
-                p.dashCd = true;
-            }
-            if (p.xVelExt < 0 && p.colPoint.L) {
-                p.xVelExt = 0;
-            }
-            if (p.xVel < 0 && p.colPoint.L) {
-                p.xVel = 0;
-            }
+    id("right").ontouchstart = function () {
+        id("right").style.transform = "scale(1.2)";
+        id("right").style.opacity = "1";
 
-        }
-        if (p.col.R && p.colPoint.R) {
-            if (p.col.L) {
-                p.grounded = true;
-            }
-            p.x -= p.col.R;
-            if (p.dash) {
-                p.dash = false;
-                p.dashCd = true;
-            }
-            if (p.xVelExt > 0 && p.colPoint.R) {
-                p.xVelExt = 0;
-            }
-            if (p.xVel > 0 && p.colPoint.R) {
-                p.xVel = 0;
-            }
+        player.R = true;
+    }
+    id("right").ontouchend = function () {
+        id("right").style.transform = "";
+        id("right").style.opacity = "0.4";
 
-        }
-        if (p.col.T) {
-            p.y += p.col.T;
-            if (p.yVel < 0) {
-                p.yVel = 0;
-            }
-            if (p.yVelExt < 0) {
-                p.yVelExt = 0;
-            }
-            if (p.dash) {
-                p.dash = false;
-                p.dashCd = true;
-            }
+        player.R = false;
+    }
+    id("atk").ontouchstart = function () {
+        id("atk").style.transform = "scale(1.2)";
+        id("atk").style.opacity = "1";
 
-        }
-        if (p.col.B) {
-            p.y -= (p.col.B - 0.03);
-            if (p.jumpCounter < 9 && p.yVel < 0) {
-                p.grounded = false;
+        player.attackEvent();
+    }
+    id("atk").ontouchend = function () {
+        id("atk").style.transform = "";
+        id("atk").style.opacity = "0.4";
+    }
+    id("lookDownBtn").ontouchstart = function () {
+        id("lookDownBtn").style.transform = "scale(1.2)";
+        id("lookDownBtn").style.opacity = "1";
+
+        watchDown = true;
+    }
+    id("lookDownBtn").ontouchend = function () {
+        id("lookDownBtn").style.transform = "";
+        id("lookDownBtn").style.opacity = "0.4";
+
+        watchDown = false;
+    }
+    id("lookFurtherBtn").ontouchstart = function () {
+        id("lookFurtherBtn").style.transform = "scale(1.2)";
+        id("lookFurtherBtn").style.opacity = "1";
+
+        cameraType = 1;
+    }
+    id("lookFurtherBtn").ontouchend = function () {
+        id("lookFurtherBtn").style.transform = "";
+        id("lookFurtherBtn").style.opacity = "0.4";
+
+        cameraType = 0;
+    }
+
+    id("spacebar").ontouchstart = function () {
+        id("spacebar").style.transform = "scale(1.2)";
+        id("spacebar").style.opacity = "1";
+        if (gamePaused) {
+            id("arrowCont").style.visibility = "visible";
+            id("othersCont").style.visibility = "visible";
+            if (player.reading) {
+                id(player.currentBook).style.visibility = "hidden";
             } else {
-                p.grounded = true;
-                if (p.yVel > 0) {
-                    p.yVel = 0;
-                }
-                if (p.dashCd || p.dash) {
-                    p.dashCd = false;
-                    p.dash = false;
-                }
+                id("pause-screen").style.display = "none";
+                id("pause-screen").style.visibility = "hidden";
+                id("controls").style.visibility = "hidden";
             }
-        }
-    }
-
-
-    var backgrounds = [id("bg1"), id("cloud1"), id("cloud2"), id("bg2"), id("bg3"), id("bg4")]
-    var background = false;
-    var cloudsX = [0, 0];
-
-    function drawBackground() {
-        for (let j = 0; j < 5; j++) {
-            c.drawImage(
-                backgrounds[1],
-                (-tilesWidth / 2 + (backgrounds[1].width / tileSize) * j + mapX / 20 - cloudsX[0]) * ratio | 0,
-                (mapY / 20) * ratio | 0,
-                (backgrounds[1].width / tileSize) * ratio | 0,
-                (backgrounds[1].height / tileSize) * ratio | 0
-            );
-        }
-        cloudsX[0] += (backgrounds[1].width / tileSize) / 4000;
-        if (cloudsX[0] >= backgrounds[1].width / tileSize) {
-            cloudsX[0] = 0;
-        }
-        //clouds
-        for (let j = 0; j < 5; j++) {
-            c.drawImage(
-                backgrounds[2],
-                (-tilesWidth / 2 + (backgrounds[2].width / tileSize) * j + mapX / 18 - cloudsX[1]) * ratio | 0,
-                (mapY / 18) * ratio | 0,
-                (backgrounds[2].width / tileSize) * ratio | 0,
-                (backgrounds[2].height / tileSize) * ratio | 0
-            );
-        }
-        cloudsX[1] += (backgrounds[2].width / tileSize) / 6000;
-        if (cloudsX[1] >= backgrounds[1].width / tileSize) {
-            cloudsX[1] = 0;
-        }
-        for (let j = 0; j < 5; j++) {
-            c.drawImage(
-                backgrounds[3],
-                (-tilesWidth / 2 + (backgrounds[3].width / tileSize) * j + mapX / 10) * ratio | 0,
-                (5 + mapY / 10) * ratio | 0,
-                (backgrounds[3].width / tileSize * ratio) | 0,
-                (backgrounds[3].height / tileSize * ratio) | 0
-            );
-        }
-
-        for (let j = 0; j < 5; j++) {
-            c.drawImage(
-                backgrounds[4],
-                (-tilesWidth / 2 + (backgrounds[4].width / tileSize * j) + mapX / 8) * ratio | 0,
-                (5 + mapY / 8) * ratio | 0,
-                (backgrounds[4].width / tileSize) * ratio | 0,
-                (backgrounds[4].height / tileSize) * ratio | 0
-            );
-        }
-        for (let j = 0; j < 5; j++) {
-            c.drawImage(
-                backgrounds[5],
-                (-tilesWidth / 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + (mapX * ratio) / 6) | 0,
-                (5 + mapY / 8) * ratio | 0,
-                (backgrounds[5].width / tileSize * ratio) | 0,
-                (backgrounds[5].height / tileSize * ratio) | 0
-            );
-        }
-        for (let j = 0; j < 5; j++) {
-            c.drawImage(
-                backgrounds[5],
-                (-tilesWidth / 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + (mapX * ratio) / 6) | 0,
-                (5 + mapY / 7) * ratio | 0,
-                (backgrounds[5].width / tileSize * ratio) | 0,
-                (backgrounds[5].height / tileSize * ratio) | 0
-            );
-        }
-        for (let j = 0; j < 5; j++) {
-            c.fillStyle = "#323c39";
-            c.fillRect(
-                (-tilesWidth / 2 * ratio + (backgrounds[5].width / tileSize * ratio * j) + (mapX * ratio) / 6) | 0,
-                (5 + mapY / 7) * ratio + (backgrounds[5].height / tileSize * ratio) | 0,
-                (backgrounds[5].width / tileSize * ratio) | 0,
-                (backgrounds[5].height / tileSize * ratio) | 0
-            );
-        }
-    }
-
-    var checkBlock = {
-        x: 0,
-        y: 0,
-        w: 0,
-        h: 0
-    }
-
-    function drawEnvironment() {
-        if (background) {
-            drawBackground();
-        }
-        for (let i = bgTiles.length - 1; i >= 0; i--) {
-            if (isOutOfScreen(bgTiles[i])) {
-                continue;
-            }
-            for (let j = 0; j < bgTiles[i].h; j++) {
-                for (let k = 0; k < bgTiles[i].w; k++) {
-                    //skips out of bounds tiles
-                    checkBlock.x = bgTiles[i].x + k;
-                    checkBlock.y = bgTiles[i].y + j;
-                    checkBlock.w = 1;
-                    checkBlock.h = 1;
-                    if (isOutOfScreen(checkBlock)) {
-                        continue;
-                    }
-                    stats.blocks++;
-                    c.drawImage(
-                        player.sheet,
-                        tiles[bgTiles[i].type][0] * 16,
-                        tiles[bgTiles[i].type][1] * 16,
-                        tileSize,
-                        tileSize,
-                        (bgTiles[i].x + k + mapX) * ratio | 0,
-                        (bgTiles[i].y + j + mapY) * ratio | 0,
-                        ratio | 0,
-                        ratio | 0);
-                }
-            }
-        }
-        for (let i = 0; i < map.length; i++) {
-            if (isOutOfScreen(map[i])) {
-                continue;
-            }
-            for (let j = 0; j < map[i].h; j++) {
-                for (let k = 0; k < map[i].w; k++) {
-                    checkBlock.x = map[i].x + k;
-                    checkBlock.y = map[i].y + j;
-                    checkBlock.w = 1;
-                    checkBlock.h = 1;
-                    if (isOutOfScreen(checkBlock)) {
-                        continue;
-                    }
-                    stats.blocks++;
-                    c.drawImage(
-                        player.sheet, tiles[map[i].type][0] * 16,
-                        tiles[map[i].type][1] * 16,
-                        tileSize,
-                        tileSize,
-                        (map[i].x + k + mapX) * ratio | 0,
-                        (map[i].y + j + mapY) * ratio | 0,
-                        ratio | 0,
-                        ratio | 0);
-                }
-            }
-        }
-    }
-
-
-
-    // COLLISION DETECTORS
-    function colCheck(shapeA, shapeB) {
-        stats.col3++;
-        // get the vectors to check against
-        if (shapeA.hitbox != null) {
-            var shapeAA = shapeA.hitbox;
+            gamePaused = false;
+            requestAnimationFrame(loop);
         } else {
-            var shapeAA = shapeA;
-        }
-        if (shapeB.hitbox != null) {
-            var shapeBB = shapeB.hitbox;
-        } else {
-            var shapeBB = shapeB;
-        }
-        var vX = (shapeAA.x + (shapeAA.w / 2)) - (shapeBB.x + (shapeBB.w / 2)),
-            vY = (shapeAA.y + (shapeAA.h / 2)) - (shapeBB.y + (shapeBB.h / 2)),
-            // add the half widths and half heights of the objects
-            hWidths = (shapeA.hitbox.w / 2) + (shapeBB.w / 2),
-            hHeights = (shapeA.hitbox.h / 2) + (shapeBB.h / 2),
-            colDir = null;
-
-        // if the x and y vector are less than the half width or half height, they we must be inside the object, causing a collision
-        if (Math.abs(vX) < hWidths && Math.abs(vY) < hHeights) {
-            // figures out on which side we are colliding (top, bottom, left, or right)
-            var oX = hWidths - Math.abs(vX),
-                oY = hHeights - Math.abs(vY);
-            if (oX >= oY) {
-                if (vY > 0) {
-                    colDir = "t";
-                    if (shapeA.col.T < oY && !shapeB.xVel) {
-                        shapeA.col.T += oY;
-                        if (shapeA.type = "player") {
-                            if (shapeB.type != null) {
-                                shapeA.lastCollided = shapeB.type;
-                            }
-                        }
-                    }
-                } else {
-                    colDir = "b";
-                    shapeA.grounded = true;
-                    if (shapeA.col.B < oY) {
-                        shapeA.col.B = oY;
-                        if (shapeA.type = "player") {
-                            if (shapeB.type != null) {
-                                shapeA.lastCollided = shapeB.type;
-                            }
-                        }
-                    }
-                    if (shapeB.xVel) {
-                        shapeA.xVelExt = shapeB.xVel;
-                    }
-                    if (shapeB.xVel) {
-                        if (shapeB.yVel < 0) {
-                            shapeA.yVelExt = shapeB.yVel;
-                        }
-                        if (shapeB.yVel > 0) {
-                            shapeA.yVelExt = shapeB.yVel;
-                        }
-                    }
-                }
+            id("arrowCont").style.visibility = "hidden";
+            id("othersCont").style.visibility = "hidden";
+            gamePaused = true;
+            //c.globalAlpha=0.6;
+            //UI
+            if (player.reading) {
+                id(player.currentBook).style.visibility = "visible";
             } else {
-                if (vX > 0) {
-                    colDir = "l";
-                    if (shapeA.col.L < oX) {
-                        if (oX > 0.03)
-                            shapeA.col.L += oX;
-                        if (shapeA.type = "player") {
-                            if (shapeB.type != null) {
-                                shapeA.lastCollided = shapeB.type;
-                            }
-                        }
-                    }
-                } else {
-                    colDir = "r";
-                    if (shapeA.col.R < oX) {
-                        if (oX > 0.03)
-                            shapeA.col.R += oX;
-                        if (shapeA.type = "player") {
-                            if (shapeB.type != null) {
-                                shapeA.lastCollided = shapeB.type;
-                            }
-                        }
-                    }
-                }
-            }
-
-        }
-
-        return colDir;
-
-    }
-
-    function collided(a, b) {
-        stats.col2++;
-        var square1 = a.hitbox ? a.hitbox : a;
-        var square2 = b.hitbox ? b.hitbox : b;
-        if (square1.x < square2.x + square2.w) {
-            if (square1.x + square1.w > square2.x) {
-                if (square1.y < square2.y + square2.h) {
-                    if (square1.y + square1.h > square2.y) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    function pointSquareCol(point, sq) {
-        stats.col1++;
-        var square = sq;
-        if (sq.hitbox !== undefined) {
-            square = sq.hitbox;
-        }
-        if (point.x > square.x) {
-            if (point.x < square.x + square.w) {
-                if (point.y > square.y) {
-                    if (point.y < square.y + square.h) {
-                        return true;
-                    }
-                }
-
-            }
-        }
-        return false;
-    }
-    // STATS
-
-
-
-
-
-    function displayStats() {
-        id("BLOCKS").innerHTML = "blocks: " + stats.blocks;
-        id("COL-1").innerHTML = "PointSquareColCheck: " + stats.col1;
-        id("COL-2").innerHTML = "SquareSquareColCheck: " + stats.col2;
-        id("COL-3").innerHTML = "DirSquarescolCheck: " + stats.col3;
-        id("COL-L").innerHTML = "player.col.L: " + player.col.L;
-        id("COL-R").innerHTML = "player.col.R: " + player.col.R;
-        id("COL-T").innerHTML = "player.col.T: " + player.col.T;
-        id("COL-B").innerHTML = "player.col.B: " + player.col.B;
-        stats.blocks = 0;
-        stats.col1 = 0;
-        stats.col2 = 0;
-        stats.col3 = 0;
-    }
-
-
-
-
-
-
-
-    //Mouse controls
-    var jmpKeyPressed = 0;
-    window.onmousedown = function (e) {
-        if (typeof e === 'object' && !touchDevice && !player.uncontrollable) {
-            switch (e.button) {
-                case 0:
-                    //console.log('Left button clicked.');
-                    if (!gamePaused) {
-                        player.attackEvent();
-                    }
-                    break;
-                case 1:
-                    //console.log('Middle button clicked.');
-                    break;
-                case 2:
-                    //console.log('Right button clicked.');
-                    if (!jmpKeyPressed && !gamePaused) {
-                        player.jump();
-                        jmpKeyPressed = true;
-                    }
-                    break;
-                default:
-                    console.log(`Unknown button code`);
+                id("pause-screen").style.display = "block";
+                id("pause-screen").style.visibility = "visible";
+                id("controls").style.visibility = "hidden";
             }
         }
     }
-    window.onmouseup = function (e) {
-        if (typeof e === 'object' && !touchDevice && !player.uncontrollable) {
-            switch (e.button) {
-                case 0:
-                    //console.log('Left button clicked.');
-                    break;
-                case 1:
-                    //console.log('Middle button clicked.');
-                    break;
-                case 2:
-                    //console.log('Right button clicked.');
-                    player.jumping = false;
-                    jmpKeyPressed = false;
-                    break;
-                default:
-                    console.log(`Unknown button code`);
-            }
-        }
+    id("spacebar").ontouchend = function () {
+        id("spacebar").style.transform = "";
+        id("spacebar").style.opacity = "0.4";
     }
-    window.oncontextmenu = function (event) {
+
+}
+id("menu").addEventListener('touchstart', function (e) {
+    e.preventDefault();
+})
+id("newGame").addEventListener("touchstart", function () {
+    mobileInit(false);
+}, {
+    once: true
+})
+
+// Keyboard controls
+window.addEventListener("keydown", function (event) {
+    var key = event.keyCode;
+    if (key !== 122) {
         event.preventDefault();
     }
-    // Mobile controls
-
-
-    var touchDevice = false;
-
-    function mobileInit(isContinue) {
-        touchDevice = true;
-        console.log("mobile");
-        adjustScreen("mobile");
-        if (isContinue) {
-            eval(maps[window.localStorage['LvL'] || 0]);
-            currentLevel = window.localStorage['LvL'];
-            console.log("money: " + window.localStorage["money"]);
-            player.money = parseInt(window.localStorage["money"]);
-        } else {
-            eval(maps[0]);
-        }
-        adaptBiome();
-        initializeMap();
-        requestAnimationFrame(loop);
-        id("menu").style.visibility = "hidden";
-        canvas.style.visibility = "visible";
-        gamePaused = false;
-
-
-
-
-        id("arrowCont").style.display = "block";
-        id("spacebarCont").style.display = "block";
-        id("othersCont").style.display = "block";
-        id("up").ontouchstart = function () {
-            id("up").style.transform = "scale(1.2)";
-            id("up").style.opacity = "1";
-
-            if (!jmpKeyPressed) {
-                player.jump();
-                jmpKeyPressed = true;
-            }
-        }
-        id("up").ontouchend = function () {
-            id("up").style.transform = "";
-            id("up").style.opacity = "0.4";
-
-            player.jumping = false;
-            if (player.jumping && player.jumpCounter < 9) {
-                p.yVel = 0;
-            }
-            jmpKeyPressed = false;
-        }
-
-        id("left").ontouchstart = function () {
-            id("left").style.transform = "scale(1.2)";
-            id("left").style.opacity = "1";
-
-            player.L = true;
-        }
-        id("left").ontouchend = function () {
-            id("left").style.transform = "";
-            id("left").style.opacity = "0.4";
-
-            player.L = false;
-        }
-
-        id("right").ontouchstart = function () {
-            id("right").style.transform = "scale(1.2)";
-            id("right").style.opacity = "1";
-
-            player.R = true;
-        }
-        id("right").ontouchend = function () {
-            id("right").style.transform = "";
-            id("right").style.opacity = "0.4";
-
-            player.R = false;
-        }
-        id("atk").ontouchstart = function () {
-            id("atk").style.transform = "scale(1.2)";
-            id("atk").style.opacity = "1";
-
-            player.attackEvent();
-        }
-        id("atk").ontouchend = function () {
-            id("atk").style.transform = "";
-            id("atk").style.opacity = "0.4";
-        }
-        id("lookDownBtn").ontouchstart = function () {
-            id("lookDownBtn").style.transform = "scale(1.2)";
-            id("lookDownBtn").style.opacity = "1";
-
-            watchDown = true;
-        }
-        id("lookDownBtn").ontouchend = function () {
-            id("lookDownBtn").style.transform = "";
-            id("lookDownBtn").style.opacity = "0.4";
-
-            watchDown = false;
-        }
-        id("lookFurtherBtn").ontouchstart = function () {
-            id("lookFurtherBtn").style.transform = "scale(1.2)";
-            id("lookFurtherBtn").style.opacity = "1";
-
-            cameraType = 1;
-        }
-        id("lookFurtherBtn").ontouchend = function () {
-            id("lookFurtherBtn").style.transform = "";
-            id("lookFurtherBtn").style.opacity = "0.4";
-
-            cameraType = 0;
-        }
-
-        id("spacebar").ontouchstart = function () {
-            id("spacebar").style.transform = "scale(1.2)";
-            id("spacebar").style.opacity = "1";
-            if (gamePaused) {
-                id("arrowCont").style.visibility = "visible";
-                id("othersCont").style.visibility = "visible";
-                if (player.reading) {
-                    id(player.currentBook).style.visibility = "hidden";
-                } else {
-                    id("pause-screen").style.display = "none";
-                    id("pause-screen").style.visibility = "hidden";
-                    id("controls").style.visibility = "hidden";
-                }
-                gamePaused = false;
-                requestAnimationFrame(loop);
-            } else {
-                id("arrowCont").style.visibility = "hidden";
-                id("othersCont").style.visibility = "hidden";
+    if (key === 112) {
+        id("stats").style.visibility = "visible";
+        stats.colPoints = true;
+    }
+    if (key === 113) {
+        console.log("Playing as Admin.")
+        admin = true;
+    }
+    if (!gamePaused && !player.uncontrollable) {
+        switch (key) {
+            case 27:
+            case 32: // esc/space key
                 gamePaused = true;
                 //c.globalAlpha=0.6;
                 //UI
@@ -4061,391 +4248,404 @@ window.onload = function () {
                     id("pause-screen").style.visibility = "visible";
                     id("controls").style.visibility = "hidden";
                 }
-            }
-        }
-        id("spacebar").ontouchend = function () {
-            id("spacebar").style.transform = "";
-            id("spacebar").style.opacity = "0.4";
-        }
 
-    }
-    id("menu").addEventListener('touchstart', function (e) {
-        e.preventDefault();
-    })
-    id("newGame").addEventListener("touchstart", function () {
-        mobileInit(false);
-    }, {
-        once: true
-    })
-
-    // Keyboard controls
-    window.addEventListener("keydown", function (event) {
-        var key = event.keyCode;
-        if (key !== 122) {
-            event.preventDefault();
-        }
-        if (key === 112) {
-            id("stats").style.visibility = "visible";
-            stats.colPoints = true;
-        }
-        if (!gamePaused && !player.uncontrollable) {
-            switch (key) {
-                case 27:
-                case 32: // esc/space key
-                    gamePaused = true;
-                    //c.globalAlpha=0.6;
-                    //UI
-                    if (player.reading) {
-                        id(player.currentBook).style.visibility = "visible";
-                    } else {
-                        id("pause-screen").style.display = "block";
-                        id("pause-screen").style.visibility = "visible";
-                        id("controls").style.visibility = "hidden";
-                    }
-
-                    break;
-                case 65: //left key down (A / left arrow)
-                case 37:
-                    player.L = true;
-                    break;
-                case 68: //right key down (D / right arrow)
-                case 39:
-                    player.R = true;
-                    break;
-                case 83: //down key down (S /down arrow)
-                case 40:
-                    watchDown = true;
-                    break;
-                case 87: //jump key down (W / Z / up arrow)
-                case 90:
-                case 38:
-                    if (!jmpKeyPressed) {
-                        player.jump();
-                        jmpKeyPressed = true;
-                    }
-                    break;
-                case 82:
-                    if (!player.dead) {
-                        visualFxs.push(new DeathFx(player.x, player.y));
-                        audio.death.playy();
-                        player.dead = true;
-                        setTimeout(function () {
-                            player.respawnEvent();
-                        }, 1500);
-                    }
-                    break;
-                case 70: //attack key down (F / X)
-                case 88:
-                    player.attackEvent();
-                    break;
-                case 67: //camera key (C)
-                    cameraType = 1;
-                    break;
-                case 69: //dance key (E)
-                    player.dance = true;
-                    break;
-                case 71: //g key down
-                    console.log(player);
-                    break;
-                case 72: //h key down
-                    //nothing
-                    break;
-                case 49: // 1
-                    monsters.push(new Slime(5 - mapX, -mapY));
-                    break;
-                case 50: // 2
-                    monsters.push(new Lizard(5 - mapX, -mapY));
-                    break;
-                case 51: // 3
-                    monsters.push(new Zombie(5 - mapX, -mapY));
-                    break;
-                case 52: // 4
-                    monsters.push(new Superzombie(5 - mapX, -mapY));
-                    break;
-                case 53: // 5
-                    monsters.push(new Bear(5 - mapX, -mapY));
-                    break;
-                case 54: // 6
-                    eval(maps[0]);
-                    initializeMap();
-                    break;
-                case 55: // 7
-                    eval(maps[10]);
-                    initializeMap();
-                    break;
-            }
-        } else if (key === 27 || key === 32) {
-
-            //UI
-            if (player.reading) {
-                id(player.currentBook).style.visibility = "hidden";
-                gamePaused = false;
-                requestAnimationFrame(loop);
-            } else if (player.uncontrollable) {
-                dialogueEngine.input = 1;
-            } else {
-                id("pause-screen").style.display = "none";
-                id("pause-screen").style.visibility = "hidden";
-                id("controls").style.visibility = "hidden";
-                gamePaused = false;
-                requestAnimationFrame(loop);
-            }
-        }
-    });
-    window.addEventListener("keyup", function (event) {
-        var key = event.keyCode;
-        switch (key) {
-            case 65: //left key up (A / left arrow)
+                break;
+            case 65: //left key down (A / left arrow)
             case 37:
-                player.L = false;
+                player.L = true;
                 break;
-            case 67: //camera key (C)
-                cameraType = 0;
-                break;
-            case 68: //right key up (D / right arrow)
+            case 68: //right key down (D / right arrow)
             case 39:
-                player.R = false;
+                player.R = true;
                 break;
-            case 83: //down key up (S /down arrow)
+            case 83: //down key down (S /down arrow)
             case 40:
-                watchDown = false;
+                watchDown = true;
                 break;
             case 87: //jump key down (W / Z / up arrow)
             case 90:
             case 38:
-                player.jumping = false;
-                if (player.jumping && player.jumpCounter < 9) {
-                    p.yVel = 0;
+                if (!jmpKeyPressed) {
+                    player.jump();
+                    jmpKeyPressed = true;
                 }
-                jmpKeyPressed = false;
+                break;
+            case 82:
+                if (!player.dead) {
+                    visualFxs.push(new DeathFx(player.x, player.y));
+                    audio.death.playy();
+                    player.dead = true;
+                    setTimeout(function () {
+                        player.respawnEvent();
+                    }, 1500);
+                }
+                break;
+            case 70: //attack key down (F / X)
+            case 88:
+                player.attackEvent();
+                break;
+            case 67: //camera key (C)
+                cameraType = 1;
+                break;
+            case 69: //dance key (E)
+                player.dance = true;
+                console.log("player.x: " + player.x + "\nplayer.y: " + player.y);
+                break;
+            case 71: //g key down
+                console.log(player);
+                break;
+            case 72: //h key down
+                //nothing
+                break;
+            case 49: // 1
+                monsters.push(new Slime(5 - mapX, -mapY));
+                break;
+            case 50: // 2
+                monsters.push(new Lizard(5 - mapX, -mapY));
+                break;
+            case 51: // 3
+                monsters.push(new Zombie(5 - mapX, -mapY));
+                break;
+            case 52: // 4
+                monsters.push(new Superzombie(5 - mapX, -mapY));
+                break;
+            case 53: // 5
+                monsters.push(new Bear(5 - mapX, -mapY));
+                break;
+            case 54: // 6
+                safeEval(maps[0]);
+                initializeMap();
+                break;
+            case 55: // 7
+                safeEval(maps[10]);
+                initializeMap();
                 break;
         }
-    });
-    if (window.opener) {
-        //console.log(window.opener.mapCode);
-        if (window.opener.mapCode) {
-            eval(window.opener.mapCode);
+    } else if (key === 27 || key === 32) {
+
+        //UI
+        if (player.reading) {
+            id(player.currentBook).style.visibility = "hidden";
+            gamePaused = false;
+            requestAnimationFrame(loop);
+        } else if (player.uncontrollable) {
+            dialogueEngine.input = 1;
         } else {
-            eval(window.opener.map);
+            id("pause-screen").style.display = "none";
+            id("pause-screen").style.visibility = "hidden";
+            id("controls").style.visibility = "hidden";
+            gamePaused = false;
+            requestAnimationFrame(loop);
         }
+    }
+});
+var sheets = ["PixelSamurai/sheet11.png", "PixelSamurai/sheetWarmPalette.png"]
+var selectedSheet = 0;
+window.addEventListener("keyup", function (event) {
+    var key = event.keyCode;
+    switch (key) {
+        case 65: //left key up (A / left arrow)
+        case 37:
+            player.L = false;
+            break;
+        case 9:
+            switch (selectedSheet) {
+                case 0:
+                    selectedSheet = 1;
+                    id("sheet").src = sheets[selectedSheet];
+                    bgColor = getColor(0, 0);
+                    biomes[biome].bgColor = getColor(0, 0);
+                    break;
+                case 1:
+                    selectedSheet = 0;
+                    id("sheet").src = sheets[selectedSheet];
+                    bgColor = getColor(1, 0);
+                    biomes[biome].bgColor = bgColor;
+                    break;
+            }
+            break;
+        case 67: //camera key (C)
+            cameraType = 0;
+            break;
+        case 68: //right key up (D / right arrow)
+        case 39:
+            player.R = false;
+            break;
+        case 83: //down key up (S /down arrow)
+        case 40:
+            watchDown = false;
+            break;
+        case 87: //jump key down (W / Z / up arrow)
+        case 90:
+        case 38:
+            player.jumping = false;
+            if (player.jumping && player.jumpCounter < 9) {
+                p.yVel = 0;
+            }
+            jmpKeyPressed = false;
+            break;
+    }
+});
+if (window.opener) {
+    //console.log(window.opener.mapCode);
+    if (window.opener.mapCode) {
+        safeEval(window.opener.mapCode);
     } else {
-        mapTester = false;
+        safeEval(window.opener.map);
     }
+} else {
+    mapTester = false;
+}
 
-    function adaptBiome() {
-        background = biomes[biome].background;
-        bgColor = biomes[biome].bgColor;
-        biomes[biome].other();
+function adaptBiome() {
+    background = biomes[biome].background;
+    bgColor = biomes[biome].bgColor;
+    biomes[biome].other();
+}
+var ghost = {};
+
+function songPlayer() {
+    let pickSong = (currentLevel / 2 | 0) >= biomes[biome].music.length ? (Math.random() * biomes[biome].music.length) | 0 : currentLevel / 2 | 0;
+    if (biomes[biome].music[pickSong].paused) {
+        for (let j = 0; j < biomes.length; j++) {
+            if (typeof biomes[j].ambient !== undefined) {
+                biomes[j].ambient.pause();
+                biomes[j].ambient.currentTime = 0;
+            }
+            for (let i = 0; i < biomes[j].music.length; i++) {
+                biomes[j].music[i].pause();
+                biomes[j].music[i].currentTime = 0;
+            }
+        }
+        biomes[biome].music[pickSong].loop = true;
+        biomes[biome].music[pickSong].playy();
+        biomes[biome].ambient.playy();
     }
-    var ghost = {};
+}
 
-    function songPlayer() {
-        pickSong = (currentLevel / 2 | 0) > biomes[biome].music.length ? (Math.random() * biomes[biome].music.length) | 0 : currentLevel / 2 | 0;
-        if (biomes[biome].music[pickSong].paused) {
-            for (let j = 0; j < biomes.length; j++) {
-                if (typeof biomes[j].ambient !== undefined) {
-                    biomes[j].ambient.pause();
-                    biomes[j].ambient.currentTime = 0;
+function initializeMap() {
+    songPlayer();
+    var spTiles = [];
+    var removeList = [];
+    specialTiles = [];
+    bgTiles = [];
+    visualFxs = [];
+    player.x = spawnPoint.x;
+    player.y = spawnPoint.y;
+    ghost = new GhostGirl(player.x - 3, player.y - 3);
+    player.events.length = 0;
+    visualFxs.push(ghost);
+    monsters = [];
+    for (let i = map.length - 1; i >= 0; i--) {
+        switch (map[i].type) {
+            case 17:
+            case 18:
+            case 19:
+            case 42:
+            case 43:
+            case 44:
+            case 45:
+            case 46:
+            case 47:
+            case 48:
+            case 49:
+            case 50:
+            case 51:
+            case 64:
+            case 65:
+            case 66:
+            case 67:
+            case 68:
+            case 70:
+            case 71:
+            case 72:
+            case 73:
+            case 74:
+            case 75:
+            case 76:
+            case 77:
+            case 78:
+                spTiles.push(i);
+                removeList.push(i);
+                break;
+            case 52:
+            case 53:
+            case 54:
+            case 55:
+            case 56:
+            case 57:
+            case 58:
+            case 59:
+            case 60:
+            case 61:
+            case 62:
+            case 63:
+                bgTiles.push(map[i]);
+                removeList.push(i);
+                break;
+
+        }
+    }
+    //[13, 5],[13, 6],[13, 7],[13, 8], //traps rock
+    //[14, 5],[14, 6],[14, 7],[14, 8], //traps stone
+    //constructor(x, y, active, timing) {
+    for (let i = 0; i < spTiles.length; i++) {
+        for (let j = 0; j < map[spTiles[i]].h; j++) {
+            for (let k = 0; k < map[spTiles[i]].w; k++) {
+                switch (map[spTiles[i]].type) {
+                    case 17:
+                        specialTiles.push(new Bouncy(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
+                        break;
+                    case 18:
+                        visualFxs.push(new Grass(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
+                        break;
+                    case 19: // speeder R
+                        specialTiles.push(new Speeder(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 0));
+                        break;
+                    case 42: // up
+                    case 43: // right
+                    case 44: // bottom
+                    case 45: // left
+                        specialTiles.push(new Spikes(map[spTiles[i]].x + k, map[spTiles[i]].y + j, map[spTiles[i]].type));
+                        break;
+                    case 46: // up
+                    case 47: // right
+                    case 48: // bottom
+                    case 49: // left
+                        specialTiles.push(new Spikes(map[spTiles[i]].x + k, map[spTiles[i]].y + j, map[spTiles[i]].type));
+                        break;
+                    case 50: // slime
+                        monsters.push(new Slime(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
+                        break;
+                    case 51: // speeder L
+                        specialTiles.push(new Speeder(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 1));
+                        break;
+                    case 64: // crystal
+                        visualFxs.push(new Crystal(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
+                        break;
+                    case 65: // door
+                        visualFxs.push(new Door(map[spTiles[i]].x + k, map[spTiles[i]].y + j, map[spTiles[i]].text));
+                        break;
+                    case 66: // book
+                        visualFxs.push(new Book(map[spTiles[i]].x + k, map[spTiles[i]].y + j, map[spTiles[i]].text));
+                        break;
+                    case 67: // timedSpikes
+                        specialTiles.push(new TimedSpikes(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 0, parseInt(map[spTiles[i]].text)));
+                        break;
+                    case 68: // timedSpikes
+                        specialTiles.push(new TimedSpikes(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 1, parseInt(map[spTiles[i]].text)));
+                        break;
+                    case 71: // falling Stone
+                        specialTiles.push(new FallingStone(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
+                        break;
+                    case 72: // breakable Stone
+                        specialTiles.push(new BreakableStone(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
+                        break;
+                    case 73: // clock
+                        specialTiles.push(new Clock(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
+                        break;
+                    case 75: // 0.01
+                        visualFxs.push(new Coin(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 1));
+                        break;
+                    case 76: // 0.05
+                        visualFxs.push(new Coin(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 2));
+                        break;
+                    case 77: // 0.10
+                        visualFxs.push(new Coin(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 3));
+                        break;
+                    case 78: // 0.10
+                        specialTiles.push(new PizzaGuy(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
+                        break;
                 }
-                for (let i = 0; i < biomes[j].music.length; i++) {
-                    biomes[j].music[i].pause();
-                    biomes[j].music[i].currentTime = 0;
-                }
             }
-            biomes[biome].music[pickSong].loop = true;
-            biomes[biome].music[pickSong].playy();
-            biomes[biome].ambient.playy();
+        }
+        switch (map[spTiles[i]].type) {
+            case 70: // dialogue
+                map[spTiles[i]].speaker = "ghostgirl";
+                player.events.push(map[spTiles[i]]);
+                break;
+            case 74: // dialogue2
+                map[spTiles[i]].speaker = "player";
+                player.events.push(map[spTiles[i]]);
+                break;
+        }
+    }
+    for (let i = 0; i < removeList.length; i++) {
+        map.splice(removeList[i], 1);
+    }
+
+    for (let i = map.length - 1; i >= 0; i--) {
+        if (map[i].y + map[i].h > mapHeight) {
+            mapHeight = map[i].y + map[i].h;
+        }
+    }
+    for (let i = map.length - 1; i >= 0; i--) {
+        if (map[i].x + map[i].w > mapWidth) {
+            mapWidth = map[i].x + map[i].w;
         }
     }
 
-    function initializeMap() {
-        songPlayer();
-        var spTiles = [];
-        var removeList = [];
-        specialTiles = [];
-        bgTiles = [];
-        visualFxs = [];
-        player.x = spawnPoint.x;
-        player.y = spawnPoint.y;
-        ghost = new GhostGirl(player.x - 3, player.y - 3);
-        player.events.length = 0;
-        visualFxs.push(ghost);
-        monsters = [];
-        for (let i = map.length - 1; i >= 0; i--) {
-            switch (map[i].type) {
-                case 17:
-                case 18:
-                case 19:
-                case 42:
-                case 43:
-                case 44:
-                case 45:
-                case 46:
-                case 47:
-                case 48:
-                case 49:
-                case 50:
-                case 51:
-                case 64:
-                case 65:
-                case 66:
-                case 67:
-                case 68:
-                case 70:
-                case 71:
-                case 72:
-                case 73:
-                case 74:
-                case 75:
-                case 76:
-                case 77:
-                    spTiles.push(i);
-                    removeList.push(i);
-                    break;
-                case 52:
-                case 53:
-                case 54:
-                case 55:
-                case 56:
-                case 57:
-                case 58:
-                case 59:
-                case 60:
-                case 61:
-                case 62:
-                case 63:
-                    bgTiles.push(map[i]);
-                    removeList.push(i);
-                    break;
-
-            }
-        }
-        //[13, 5],[13, 6],[13, 7],[13, 8], //traps rock
-        //[14, 5],[14, 6],[14, 7],[14, 8], //traps stone
-        //constructor(x, y, active, timing) {
-        for (let i = 0; i < spTiles.length; i++) {
-            for (let j = 0; j < map[spTiles[i]].h; j++) {
-                for (let k = 0; k < map[spTiles[i]].w; k++) {
-                    switch (map[spTiles[i]].type) {
-                        case 17:
-                            specialTiles.push(new Bouncy(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
-                            break;
-                        case 18:
-                            visualFxs.push(new Grass(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
-                            break;
-                        case 19: // speeder R
-                            specialTiles.push(new Speeder(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 0));
-                            break;
-                        case 42: // up
-                        case 43: // right
-                        case 44: // bottom
-                        case 45: // left
-                            specialTiles.push(new Spikes(map[spTiles[i]].x + k, map[spTiles[i]].y + j, map[spTiles[i]].type));
-                            break;
-                        case 46: // up
-                        case 47: // right
-                        case 48: // bottom
-                        case 49: // left
-                            specialTiles.push(new Spikes(map[spTiles[i]].x + k, map[spTiles[i]].y + j, map[spTiles[i]].type));
-                            break;
-                        case 50: // slime
-                            monsters.push(new Slime(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
-                            break;
-                        case 51: // speeder L
-                            specialTiles.push(new Speeder(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 1));
-                            break;
-                        case 64: // crystal
-                            visualFxs.push(new Crystal(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
-                            break;
-                        case 65: // door
-                            visualFxs.push(new Door(map[spTiles[i]].x + k, map[spTiles[i]].y + j, map[spTiles[i]].text));
-                            break;
-                        case 66: // book
-                            visualFxs.push(new Book(map[spTiles[i]].x + k, map[spTiles[i]].y + j, map[spTiles[i]].text));
-                            break;
-                        case 67: // timedSpikes
-                            specialTiles.push(new TimedSpikes(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 0, parseInt(map[spTiles[i]].text)));
-                            break;
-                        case 68: // timedSpikes
-                            specialTiles.push(new TimedSpikes(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 1, parseInt(map[spTiles[i]].text)));
-                            break;
-                        case 71: // falling Stone
-                            specialTiles.push(new FallingStone(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
-                            break;
-                        case 72: // breakable Stone
-                            specialTiles.push(new BreakableStone(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
-                            break;
-                        case 73: // clock
-                            specialTiles.push(new Clock(map[spTiles[i]].x + k, map[spTiles[i]].y + j));
-                            break;
-                        case 75: // 0.01
-                            visualFxs.push(new Coin(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 1));
-                            break;
-                        case 76: // 0.05
-                            visualFxs.push(new Coin(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 2));
-                            break;
-                        case 77: // 0.10
-                            visualFxs.push(new Coin(map[spTiles[i]].x + k, map[spTiles[i]].y + j, 3));
-                            break;
-                    }
-                }
-            }
-            switch (map[spTiles[i]].type) {
-                case 70: // dialogue
-                    map[spTiles[i]].speaker = "ghostgirl";
-                    player.events.push(map[spTiles[i]]);
-                    break;
-                case 74: // dialogue2
-                    map[spTiles[i]].speaker = "player";
-                    player.events.push(map[spTiles[i]]);
-                    break;
-            }
-        }
-        for (let i = 0; i < removeList.length; i++) {
-            map.splice(removeList[i], 1);
-        }
-
-        for (let i = map.length - 1; i >= 0; i--) {
-            if (map[i].y + map[i].h > mapHeight) {
-                mapHeight = map[i].y + map[i].h;
-            }
-        }
-        for (let i = map.length - 1; i >= 0; i--) {
-            if (map[i].x + map[i].w > mapWidth) {
-                mapWidth = map[i].x + map[i].w;
-            }
-        }
-
+}
+//UI
+window.onresize = function () {
+    if (window.innerWidth >= canvas.width * 2 && window.innerHeight >= canvas.height * 2) {
+        location.reload();
     }
-    //UI
-    window.onresize = function () {
-        if (window.innerWidth >= canvas.width * 2 && window.innerHeight >= canvas.height * 2) {
-            location.reload();
-        }
-        if (canvas.width > 320 && (window.innerWidth < canvas.width || window.innerHeight < canvas.height)) {
-            location.reload();
-        }
+    if (canvas.width > 320 && (window.innerWidth < canvas.width || window.innerHeight < canvas.height)) {
+        location.reload();
     }
-    if (mapTester) {
+}
+if (mapTester) {
+    adjustScreen("pc");
+    id("menu").style.visibility = "hidden";
+    canvas.style.visibility = "visible";
+    dialogueOn = true;
+    adaptBiome();
+    initializeMap();
+    requestAnimationFrame(loop);
+}
+if (!mapTester) {
+    let buttons = document.getElementsByClassName("button");
+    for (let i = 0; i < buttons.length; i++) {
+        buttons[i].style.fontSize = (parseInt(id("menu").style.width) / 20 | 0) + "px";
+    }
+    id("twitter").style.fontSize = (parseInt(id("menu").style.width) / 20 | 0) + "px";
+    id("twitter-logo").style.height = (parseInt(id("menu").style.width) / 20 | 0) + "px";
+    id("newGame").onmousedown = function () {
         adjustScreen("pc");
-        id("menu").style.visibility = "hidden";
-        canvas.style.visibility = "visible";
-        dialogueOn = true;
+        console.log("pc");
+        safeEval(maps[0]);
         adaptBiome();
         initializeMap();
         requestAnimationFrame(loop);
+        id("menu").style.visibility = "hidden";
+        id("controls").style.visibility = "visible";
+        canvas.style.visibility = "visible";
     }
-    if (!mapTester) {
-        let buttons = document.getElementsByClassName("button");
-        for (let i = 0; i < buttons.length; i++) {
-            buttons[i].style.fontSize = (parseInt(id("menu").style.width) / 20 | 0) + "px";
+    id("dialogueBtn").onclick = dialoguesOnOff;
+    id("dialogueBtn").ontouchstart = dialoguesOnOff;
+
+    function dialoguesOnOff() {
+        if (dialogueOn) {
+            id("dialogueBtn").innerHTML = "Dialogues(OFF)";
+            id("dialogueBtn").style.opacity = "0.5";
+        } else {
+            id("dialogueBtn").innerHTML = "Dialogues(ON)";
+            id("dialogueBtn").style.opacity = "1";
         }
-        id("twitter").style.fontSize = (parseInt(id("menu").style.width) / 20 | 0) + "px";
-        id("twitter-logo").style.height = (parseInt(id("menu").style.width) / 20 | 0) + "px";
-        id("newGame").onmousedown = function () {
+        dialogueOn = !dialogueOn;
+    }
+    if (window.localStorage['LvL'] != null) {
+        id("continue").addEventListener("touchstart", function () {
+            mobileInit(true);
+        }, {
+            once: true
+        })
+        id("continue").onmousedown = function () {
             adjustScreen("pc");
-            console.log("pc");
-            eval(maps[0]);
+            safeEval(maps[window.localStorage['LvL'] || 0]);
+            currentLevel = window.localStorage['LvL'];
+            player.money = parseInt(window.localStorage["money"]);
             adaptBiome();
             initializeMap();
             requestAnimationFrame(loop);
@@ -4453,149 +4653,144 @@ window.onload = function () {
             id("controls").style.visibility = "visible";
             canvas.style.visibility = "visible";
         }
-        id("dialogueBtn").onclick = dialoguesOnOff;
-        id("dialogueBtn").ontouchstart = dialoguesOnOff;
+        id("continue").style.opacity = "1";
+    } else {
+        id("continue").style.opacity = "0.5";
+    };
+}
+var options = {
+    audio: true,
+    music: true,
+}
+id("ctrlButton").onclick = function () {
+    id("pause-screen").style.display = "none";
+    id("pause-screen").style.visibility = "hidden";
+    id("controls").style.visibility = "visible";
+    canvas.style.visibility = "visible";
+}
+id("music").onclick = musicBtn;
+id("music").ontouchstart = musicBtn;
 
-        function dialoguesOnOff() {
-            if (dialogueOn) {
-                id("dialogueBtn").innerHTML = "Dialogues(OFF)";
-                id("dialogueBtn").style.opacity = "0.5";
-            } else {
-                id("dialogueBtn").innerHTML = "Dialogues(ON)";
-                id("dialogueBtn").style.opacity = "1";
-            }
-            dialogueOn = !dialogueOn;
+function musicBtn() {
+    if (options.music) {
+        options.music = false;
+        this.src = "ui/music-off.png";
+        audio.haydn_1.volume = 0;
+        audio.haydn_2.volume = 0;
+        audio.bach_1.volume = 0;
+        audio.bach_2.volume = 0;
+        audio.bach_3.volume = 0;
+        audio.bach_4.volume = 0;
+        audio.bach_5.volume = 0;
+        audio.bach_6.volume = 0;
+        audio.bach_7.volume = 0;
+    } else {
+        options.music = true;
+        this.src = "ui/music-on.png"
+        audio.haydn_1.volume = 0.2;
+        audio.haydn_2.volume = 0.2;
+        audio.bach_1.volume = 0.3;
+        audio.bach_2.volume = 0.3;
+        audio.bach_3.volume = 0.3;
+        audio.bach_4.volume = 0.3;
+        audio.bach_5.volume = 0.3;
+        audio.bach_6.volume = 0.3;
+        audio.bach_7.volume = 0.3;
+    }
+}
+id("audio").onclick = audioBtn;
+id("audio").ontouchstart = audioBtn;
+
+function audioBtn() {
+    if (options.audio) {
+        options.audio = false;
+        this.src = "ui/sound-off.png";
+        for (let i = 0; i < voices.ghost.length; i++) {
+            voices.ghost[i].volume = 0;
         }
-        if (window.localStorage['LvL'] != null) {
-            id("continue").addEventListener("touchstart", function () {
-                mobileInit(true);
-            }, {
-                once: true
-            })
-            id("continue").onmousedown = function () {
-                adjustScreen("pc");
-                eval(maps[window.localStorage['LvL'] || 0]);
-                currentLevel = window.localStorage['LvL'];
-                console.log("money: " + window.localStorage["money"]);
-                player.money = parseInt(window.localStorage["money"]);
-                adaptBiome();
-                initializeMap();
-                requestAnimationFrame(loop);
-                id("menu").style.visibility = "hidden";
-                id("controls").style.visibility = "visible";
-                canvas.style.visibility = "visible";
-            }
-            id("continue").style.opacity = "1";
-        } else {
-            id("continue").style.opacity = "0.5";
-        };
-    }
-    var options = {
-        audio: true,
-        music: true,
-    }
-    id("ctrlButton").onclick = function () {
-        id("pause-screen").style.display = "none";
-        id("pause-screen").style.visibility = "hidden";
-        id("controls").style.visibility = "visible";
-        canvas.style.visibility = "visible";
-    }
-    id("music").onclick = musicBtn;
-    id("music").ontouchstart = musicBtn;
-
-    function musicBtn() {
-        if (options.music) {
-            options.music = false;
-            this.src = "ui/music-off.png";
-            audio.haydn_1.volume = 0;
-            audio.haydn_2.volume = 0;
-            audio.bach_1.volume = 0;
-            audio.bach_2.volume = 0;
-            audio.bach_3.volume = 0;
-            audio.bach_4.volume = 0;
-            audio.bach_5.volume = 0;
-            audio.bach_6.volume = 0;
-            audio.bach_7.volume = 0;
-        } else {
-            options.music = true;
-            this.src = "ui/music-on.png"
-            audio.haydn_1.volume = 0.2;
-            audio.haydn_2.volume = 0.2;
-            audio.bach_1.volume = 0.3;
-            audio.bach_2.volume = 0.3;
-            audio.bach_3.volume = 0.3;
-            audio.bach_4.volume = 0.3;
-            audio.bach_5.volume = 0.3;
-            audio.bach_6.volume = 0.3;
-            audio.bach_7.volume = 0.3;
+        for (let i = 0; i < voices.player.length; i++) {
+            voices.player[i].volume = 0;
         }
+        for (let i = 0; i < voices.pizza.length; i++) {
+            voices.pizza[i].volume = 0;
+        }
+        audio.bounce1.volume = 0;
+        audio.bounce2.volume = 0;
+        audio.bounce3.volume = 0;
+        audio.bounce4.volume = 0;
+        audio.speed1.volume = 0;
+        audio.speed2.volume = 0;
+        audio.jump.volume = 0;
+        audio.dash.volume = 0;
+        audio.attack.volume = 0;
+        audio.hit.volume = 0;
+        audio.death.volume = 0;
+        audio.crystal.volume = 0;
+        audio.walking.volume = 0;
+        audio.ambient_1.volume = 0;
+        audio.ambient_2.volume = 0;
+        audio.tremble.volume = 0;
+        audio.fall.volume = 0;
+        audio.money_1.volume = 0;
+        audio.money_2.volume = 0;
+        audio.money_3.volume = 0;
+
+    } else {
+        options.audio = true;
+        this.src = "ui/sound-on.png";
+        for (let i = 0; i < voices.ghost.length; i++) {
+            voices.ghost[i].volume = 0.4;
+        }
+        for (let i = 0; i < voices.player.length; i++) {
+            voices.player[i].volume = 0.75;
+        }
+        for (let i = 0; i < voices.pizza.length; i++) {
+            voices.pizza[i].volume = 0.75;
+        }
+        audio.bounce1.volume = 0.4;
+        audio.bounce2.volume = 0.4;
+        audio.bounce3.volume = 0.4;
+        audio.bounce4.volume = 0.4;
+        audio.speed1.volume = 0.8;
+        audio.speed2.volume = 0.5;
+        audio.jump.volume = 0.5;
+        audio.dash.volume = 0.3;
+        audio.attack.volume = 0.5;
+        audio.hit.volume = 0.5;
+        audio.death.volume = 0.5;
+        audio.crystal.volume = 1;
+        audio.walking.volume = 1;
+        audio.ambient_1.volume = 0.1;
+        audio.ambient_2.volume = 0.0;
+        audio.tremble.volume = 0.1;
+        audio.fall.volume = 0.1;
+        audio.money_1.volume = 0.3;
+        audio.money_2.volume = 0.3;
+        audio.money_3.volume = 0.3;
+
     }
-    id("audio").onclick = audioBtn;
-    id("audio").ontouchstart = audioBtn;
+}
+//UI end
+//starts the program
 
-    function audioBtn() {
-        if (options.audio) {
-            options.audio = false;
-            this.src = "ui/sound-off.png";
-            for (let i = 0; i < voices.ghost.length; i++) {
-                voices.ghost[i].volume = 0;
-            }
-            for (let i = 0; i < voices.player.length; i++) {
-                voices.player[i].volume = 0;
-            }
-            audio.bounce1.volume = 0;
-            audio.bounce2.volume = 0;
-            audio.bounce3.volume = 0;
-            audio.bounce4.volume = 0;
-            audio.speed1.volume = 0;
-            audio.speed2.volume = 0;
-            audio.jump.volume = 0;
-            audio.dash.volume = 0;
-            audio.attack.volume = 0;
-            audio.hit.volume = 0;
-            audio.death.volume = 0;
-            audio.crystal.volume = 0;
-            audio.walking.volume = 0;
-            audio.ambient_1.volume = 0;
-            audio.ambient_2.volume = 0;
-            audio.tremble.volume = 0;
-            audio.fall.volume = 0;
-            audio.money_1.volume = 0;
-            audio.money_2.volume = 0;
-            audio.money_3.volume = 0;
-
-        } else {
-            options.audio = true;
-            this.src = "ui/sound-on.png";
-            for (let i = 0; i < voices.ghost.length; i++) {
-                voices.ghost[i].volume = 0.4;
-            }
-            for (let i = 0; i < voices.player.length; i++) {
-                voices.player[i].volume = 0.75;
-            }
-            audio.bounce1.volume = 0.4;
-            audio.bounce2.volume = 0.4;
-            audio.bounce3.volume = 0.4;
-            audio.bounce4.volume = 0.4;
-            audio.speed1.volume = 0.8;
-            audio.speed2.volume = 0.5;
-            audio.jump.volume = 0.5;
-            audio.dash.volume = 0.3;
-            audio.attack.volume = 0.5;
-            audio.hit.volume = 0.5;
-            audio.death.volume = 0.5;
-            audio.crystal.volume = 1;
-            audio.walking.volume = 1;
-            audio.ambient_1.volume = 0.1;
-            audio.ambient_2.volume = 0.0;
-            audio.tremble.volume = 0.1;
-            audio.fall.volume = 0.1;
-            audio.money_1.volume = 0.3;
-            audio.money_2.volume = 0.3;
-            audio.money_3.volume = 0.3;
-
+/* FIREBASE */
+var database = firebase.database();
+var ref = database.ref("sessions");
+if (!mapTester) {
+    window.onbeforeunload = function () {
+        if (session.retention !== 0 && !admin) {
+            ref.push(session);
         }
     }
-    //UI end
-    //starts the program
+    setInterval(() => {
+        if (!gamePaused) {
+            let device = touchDevice ? "mobile" : "pc";
+            session.device = device;
+            session.level = currentLevel;
+            session.retention++;
+            session.deathsN = player.deaths;
+            session.dialogue=dialogueOn;
+        }
+    }, 1000);
+}
 }

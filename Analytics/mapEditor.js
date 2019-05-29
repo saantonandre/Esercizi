@@ -1,5 +1,9 @@
 var selectedType = 0;
 
+var database = firebase.database();
+var ref = database.ref("sessions");
+console.log(ref.length);
+
 function id(arg) {
     return document.getElementById(arg);
 }
@@ -8,12 +12,12 @@ var sheet = id("sheet");
 var c = canvas.getContext("2d");
 c.imageSmoothingEnabled = false;
 var map = [];
-var biome = 0;
 var hitBoxes = [];
 var camBoxes = [];
+var cellSize = 16;
+var biome = 0;
 var cellQuantityW = id("mapSizeW").value;
 var cellQuantityH = id("mapSizeH").value;
-var cellSize = 15;
 var fileName = "mapCode";
 var interactiveTile = 0;
 canvas.width = cellQuantityW * cellSize;
@@ -297,7 +301,7 @@ id("file").onchange = function () {
 function resizeMap() {
     let xMax = 0;
     let yMax = 0;
-    for (i = 0; i < map.length; i++) {
+    for (let i = 0; i < map.length; i++) {
         if (map[i].x + map[i].w > xMax) {
             xMax = map[i].x + map[i].w;
         }

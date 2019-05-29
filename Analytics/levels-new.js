@@ -1,4 +1,4 @@
-if (maps === undefined) {
+if (maps == null) {
     var maps = [];
 }
 //0
