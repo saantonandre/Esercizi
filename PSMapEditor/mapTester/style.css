@@ -100,10 +100,6 @@ a {
     padding: 3px;
 }
 
-.button:hover {
-    border: 3px solid white;
-}
-
 #canvas {
     margin: 0;
     padding: 0;
@@ -145,7 +141,9 @@ a {
 }
 
 .icons:hover,
-#ctrlButton:hover {
+#ctrlButton:hover,
+.button:hover,
+.selected {
     border: 3px solid white;
 }
 

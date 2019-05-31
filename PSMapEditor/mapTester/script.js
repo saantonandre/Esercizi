@@ -4,8 +4,8 @@ var ratio;
 var tilesWidth;
 var tilesHeight;
 var ratio = 1;
+var gameStarted = false;
 window.onload = function () {
-
     var admin = false;
     let today = new Date();
     let dd = String(today.getDate()).padStart(2, '0');
@@ -22,10 +22,12 @@ window.onload = function () {
         deaths: [],
         retention: 0,
         date: time,
-        dialogues: "ON"
+        dialogues: "ON",
+        gamepad:false
     }
 
     var pizzaGuy;
+    var gamepadOn = false;
 
     id("loading").style.display = "none";
     // simplifies the document.getElementById() to just id()
@@ -3544,7 +3546,7 @@ window.onload = function () {
                                 break;
                             case "f": //laughing/sad
                                 pizzaGuy.sprite = 3;
-                            console.log(2)
+                                console.log(2)
                                 break;
                         }
                     }
@@ -4041,7 +4043,6 @@ window.onload = function () {
 
 
 
-
     function displayStats() {
         id("BLOCKS").innerHTML = "blocks: " + stats.blocks;
         id("COL-1").innerHTML = "PointSquareColCheck: " + stats.col1;
@@ -4138,6 +4139,8 @@ window.onload = function () {
         adaptBiome();
         initializeMap();
         requestAnimationFrame(loop);
+        gameStarted = true;
+        menuUI.visible = false;
         id("menu").style.visibility = "hidden";
         canvas.style.visibility = "visible";
         gamePaused = false;
@@ -4242,6 +4245,7 @@ window.onload = function () {
                 if (player.reading) {
                     id(player.currentBook).style.visibility = "hidden";
                 } else {
+                    pauseUI.visible = false;
                     id("pause-screen").style.display = "none";
                     id("pause-screen").style.visibility = "hidden";
                     id("controls").style.visibility = "hidden";
@@ -4257,6 +4261,7 @@ window.onload = function () {
                 if (player.reading) {
                     id(player.currentBook).style.visibility = "visible";
                 } else {
+                    pauseUI.visible = true;
                     id("pause-screen").style.display = "block";
                     id("pause-screen").style.visibility = "visible";
                     id("controls").style.visibility = "hidden";
@@ -4292,7 +4297,7 @@ window.onload = function () {
             console.log("Playing as Admin.")
             admin = true;
         }
-        if (!gamePaused && !player.uncontrollable) {
+        if (!gamePaused && !player.uncontrollable && gameStarted) {
             switch (key) {
                 case 27:
                 case 32: // esc/space key
@@ -4302,6 +4307,7 @@ window.onload = function () {
                     if (player.reading) {
                         id(player.currentBook).style.visibility = "visible";
                     } else {
+                        pauseUI.visible = true;
                         id("pause-screen").style.display = "block";
                         id("pause-screen").style.visibility = "visible";
                         id("controls").style.visibility = "hidden";
@@ -4389,6 +4395,8 @@ window.onload = function () {
             } else if (player.uncontrollable) {
                 dialogueEngine.input = 1;
             } else {
+                console.log("a")
+                pauseUI.visible = false;
                 id("pause-screen").style.display = "none";
                 id("pause-screen").style.visibility = "hidden";
                 id("controls").style.visibility = "hidden";
@@ -4396,52 +4404,92 @@ window.onload = function () {
                 requestAnimationFrame(loop);
             }
         }
+        /*
+        switch (key) {
+            case 32: // esc/space key
+                gamePaused = true;
+                //c.globalAlpha=0.6;
+                //UI
+                if (player.reading) {
+                    id(player.currentBook).style.visibility = "visible";
+                } else {
+                    pauseUI.visible = true;
+                    id("pause-screen").style.display = "block";
+                    id("pause-screen").style.visibility = "visible";
+                    id("controls").style.visibility = "hidden";
+                }
+
+                break;
+            case 65: //left key down (A / left arrow)
+            case 37:
+                player.L = true;
+                break;
+            case 68: //right key down (D / right arrow)
+            case 39:
+                player.R = true;
+                break;
+            case 83: //down key down (S /down arrow)
+            case 40:
+                watchDown = true;
+                break;
+            case 87: //jump key down (W / Z / up arrow)
+            case 90:
+            case 38:
+                if (!jmpKeyPressed) {
+                    player.jump();
+                    jmpKeyPressed = true;
+                }
+                break;
+        }
+        */
     });
     var sheets = ["PixelSamurai/sheet11.png", "PixelSamurai/sheetWarmPalette.png"]
     var selectedSheet = 0;
     window.addEventListener("keyup", function (event) {
         var key = event.keyCode;
-        switch (key) {
-            case 65: //left key up (A / left arrow)
-            case 37:
-                player.L = false;
-                break;
-            case 9:
-                switch (selectedSheet) {
-                    case 0:
-                        selectedSheet = 1;
-                        id("sheet").src = sheets[selectedSheet];
-                        bgColor = getColor(0, 0);
-                        biomes[biome].bgColor = getColor(0, 0);
-                        break;
-                    case 1:
-                        selectedSheet = 0;
-                        id("sheet").src = sheets[selectedSheet];
-                        bgColor = getColor(1, 0);
-                        biomes[biome].bgColor = bgColor;
-                        break;
-                }
-                break;
-            case 67: //camera key (C)
-                cameraType = 0;
-                break;
-            case 68: //right key up (D / right arrow)
-            case 39:
-                player.R = false;
-                break;
-            case 83: //down key up (S /down arrow)
-            case 40:
-                watchDown = false;
-                break;
-            case 87: //jump key down (W / Z / up arrow)
-            case 90:
-            case 38:
-                player.jumping = false;
-                if (player.jumping && player.jumpCounter < 9) {
-                    p.yVel = 0;
-                }
-                jmpKeyPressed = false;
-                break;
+        if (gameStarted) {
+            switch (key) {
+                case 65: //left key up (A / left arrow)
+                case 37:
+                    player.L = false;
+                    break;
+                case 9:
+                    switch (selectedSheet) {
+                        case 0:
+                            selectedSheet = 1;
+                            id("sheet").src = sheets[selectedSheet];
+                            bgColor = getColor(0, 0);
+                            biomes[biome].bgColor = getColor(0, 0);
+                            break;
+                        case 1:
+                            selectedSheet = 0;
+                            id("sheet").src = sheets[selectedSheet];
+                            bgColor = getColor(1, 0);
+                            biomes[biome].bgColor = bgColor;
+                            break;
+                    }
+                    break;
+                case 67: //camera key (C)
+                    cameraType = 0;
+                    break;
+                case 68: //right key up (D / right arrow)
+                case 39:
+                    player.R = false;
+                    break;
+                case 83: //down key up (S /down arrow)
+                case 40:
+                    watchDown = false;
+                    break;
+                case 87: //jump key down (W / Z / up arrow)
+                case 90:
+                case 38:
+                    player.jumping = false;
+                    if (player.jumping && player.jumpCounter < 9) {
+                        p.yVel = 0;
+                    }
+                    jmpKeyPressed = false;
+                    break;
+            }
         }
     });
     if (window.opener) {
@@ -4661,11 +4709,13 @@ window.onload = function () {
     }
     if (mapTester) {
         adjustScreen("pc");
+        menuUI.visible = false
         id("menu").style.visibility = "hidden";
         canvas.style.visibility = "visible";
         dialogueOn = true;
         adaptBiome();
         initializeMap();
+        gameStarted = true;
         requestAnimationFrame(loop);
     }
     if (!mapTester) {
@@ -4682,6 +4732,8 @@ window.onload = function () {
             adaptBiome();
             initializeMap();
             requestAnimationFrame(loop);
+            gameStarted = true;
+            menuUI.visible = false
             id("menu").style.visibility = "hidden";
             id("controls").style.visibility = "visible";
             canvas.style.visibility = "visible";
@@ -4707,13 +4759,15 @@ window.onload = function () {
             })
             id("continue").onmousedown = function () {
                 adjustScreen("pc");
-                safeEval(maps[window.localStorage['LvL'] || 0]);
-                currentLevel = window.localStorage['LvL'];
-                session.time = window.localStorage['time'];
+                safeEval(maps[parseInt(window.localStorage['LvL'] || 0)]);
+                currentLevel = parseInt(window.localStorage['LvL']);
+                session.time = parseInt(window.localStorage['time']);
                 player.money = parseInt(window.localStorage["money"]);
                 adaptBiome();
                 initializeMap();
                 requestAnimationFrame(loop);
+                gameStarted = true;
+                menuUI.visible = false;
                 id("menu").style.visibility = "hidden";
                 id("controls").style.visibility = "visible";
                 canvas.style.visibility = "visible";
@@ -4728,6 +4782,7 @@ window.onload = function () {
         music: true,
     }
     id("ctrlButton").onclick = function () {
+        pauseUI.visible = false;
         id("pause-screen").style.display = "none";
         id("pause-screen").style.visibility = "hidden";
         id("controls").style.visibility = "visible";
@@ -4835,15 +4890,425 @@ window.onload = function () {
 
         }
     }
+    var menuUI = {
+        visible: true,
+        selected: 0,
+        buttons: [id("newGame"), id("continue"), id("dialogueBtn")]
+    }
+    var pauseUI = {
+        visible: false,
+        selected: 0,
+        buttons: [id("music"), id("audio"), id("ctrlButton")]
+    }
     //UI end
-    //starts the program
+
+    // GAMEPAD CONTROLS
+    var haveEvents = 'GamepadEvent' in window;
+    var controllers = {};
+
+    function connectHandler(e) {
+        gamepadOn = true;
+        session.gamepad=true;
+        addGamepad(e.gamepad);
+        for (let i = 0; i < menuUI.buttons.length; i++) {
+            if (i == menuUI.selected) {
+                menuUI.buttons[i].className += " selected";
+            } else {
+                menuUI.buttons[i].classList.remove("selected");
+            }
+        }
+        for (let i = 0; i < pauseUI.buttons.length; i++) {
+            if (i == pauseUI.selected) {
+                pauseUI.buttons[i].className += " selected";
+            } else {
+                pauseUI.buttons[i].classList.remove("selected");
+            }
+        }
+    }
+    var GAMEPAD = {
+        index: "",
+        buttons: [],
+        axes: []
+    }
+    var GAMEPADcache = {
+        index: "",
+        buttons: [],
+        axes: []
+    }
+
+    function handleGamepad() {
+        for (let i = 0; i < GAMEPAD.buttons.length; i++) {
+            if (GAMEPAD.buttons[i].pressed) {
+                handleButtonPress(i);
+            }
+            if (GAMEPADcache.buttons[i].pressed >= 0.5 && GAMEPAD.buttons[i].pressed < 0.5) {
+                handleButtonRelease(i);
+            }
+        }
+        for (let i = 0; i < GAMEPAD.axes.length; i++) {
+            if (i == 0 || i == 2) { //x Axes
+                if (GAMEPAD.axes[i].value >= 0.5) {
+                    handleButtonPress(15); //right
+                } else if (GAMEPADcache.axes[i].value >= 0.5) {
+                    handleButtonRelease(15); //right release
+                }
+                if (GAMEPAD.axes[i].value <= -0.5) {
+                    handleButtonPress(14); //left
+                } else if (GAMEPADcache.axes[i].value <= -0.5) {
+                    handleButtonRelease(14); //left release
+                }
+            }
+            if (i == 1 || i == 3) { //y Axes
+                if (GAMEPAD.axes[i].value >= 0.5) {
+                    handleButtonPress(13); //up
+                } else if (GAMEPADcache.axes[i].value >= 0.5) {
+                    handleButtonRelease(13); //up release
+                }
+                if (GAMEPAD.axes[i].value <= -0.5) {
+                    handleButtonPress(12); //down
+                } else if (GAMEPADcache.axes[i].value <= -0.5) {
+                    handleButtonRelease(12); //down release
+                }
+            }
+        }
+        cacheInputs(GAMEPAD, GAMEPADcache);
+    }
+
+    function handleButtonPress(key) {
+        if (gameStarted && !player.uncontrollable) { //!player.uncontrollable
+            switch (key) {
+                case 0: //A
+                    if (!gamePaused) {
+                        if (!jmpKeyPressed) {
+                            player.jump();
+                            jmpKeyPressed = true;
+                        }
+                    }
+                    break;
+                case 1: //B
+                    player.attackEvent();
+                    break;
+                case 2: //X
+                    cameraType = 1;
+                    break;
+                case 3: //Y
+                    watchDown = true;
+                    break;
+                case 4: //L1
+                    cameraType = 1;
+                    break;
+                case 5: //R1
+                    cameraType = 1;
+                    break;
+                case 6: //L2
+                    watchDown = true;
+                    break;
+                case 7: //R2
+                    watchDown = true;
+                    break;
+                case 8: //SELECT
+                    if (!player.dead) {
+                        visualFxs.push(new DeathFx(player.x, player.y));
+                        audio.death.playy();
+                        player.dead = true;
+                        setTimeout(function () {
+                            player.respawnEvent();
+                        }, 1500);
+                    }
+                    break;
+                case 9: //START
+                    break;
+                case 10: //LEFT PAD CLICK
+                    player.dance = true;
+                    break;
+                case 11: //RIGHT PAD CLICK
+                    player.dance = true;
+                    break;
+                case 12: //UP
+                    break;
+                case 13: //DOWN
+                    watchDown = false;
+                    break;
+                case 14: //LEFT
+                    player.L = true;
+                    break;
+                case 15: //RIGHT
+                    player.R = true;
+                    break;
+                case 16: //
+                    break;
+            }
+        }
+    }
+
+    function handleButtonRelease(key) {
+        if (gameStarted) {
+            if (!gamePaused && player.uncontrollable && !player.read) {
+                if (key == 0 || key == 9) {
+                    dialogueEngine.input = 1;
+                }
+            }
+            switch (key) {
+                case 0: //A
+                    player.jumping = false;
+                    if (player.jumping && player.jumpCounter < 9) {
+                        p.yVel = 0;
+                    }
+                    jmpKeyPressed = false;
+                    break;
+                case 1: //B
+                    break;
+                case 2: //X
+                    cameraType = 0;
+                    break;
+                case 3: //Y
+                    watchDown = false;
+                    break;
+                case 4: //L1
+                    cameraType = 0;
+                    break;
+                case 5: //R1
+                    cameraType = 0;
+                    break;
+                case 6: //L2
+                    watchDown = false;
+                    break;
+                case 7: //R2
+                    watchDown = false;
+                    break;
+                case 8: //SELECT
+                    break;
+                case 9: //START
+                    console.log("start")
+                    if (!gamePaused && !player.uncontrollable) {
+                        gamePaused = true;
+                        //c.globalAlpha=0.6;
+                        //UI
+                        if (player.reading) {
+                            id(player.currentBook).style.visibility = "visible";
+                        } else {
+                            pauseUI.visible = true;
+                            id("pause-screen").style.display = "block";
+                            id("pause-screen").style.visibility = "visible";
+                            id("controls").style.visibility = "hidden";
+                        }
+                    } else {
+                        if (player.reading) {
+                            id(player.currentBook).style.visibility = "hidden";
+                            gamePaused = false;
+                            requestAnimationFrame(loop);
+                        } else if (player.uncontrollable) {
+                            dialogueEngine.input = 1;
+                        } else {
+                            pauseUI.visible = false;
+                            id("pause-screen").style.display = "none";
+                            id("pause-screen").style.visibility = "hidden";
+                            id("controls").style.visibility = "hidden";
+                            gamePaused = false;
+                            requestAnimationFrame(loop);
+                        }
+                    }
+                    break;
+                case 10: //LEFT PAD CLICK
+                    break;
+                case 11: //RIGHT PAD CLICK
+                    break;
+                case 12: //UP
+                    break;
+                case 13: //DOWN
+                    break;
+                case 14: //LEFT
+                    player.L = false;
+                    break;
+                case 15: //RIGHT
+                    player.R = false;
+                    break;
+                case 16: //
+                    break;
+            }
+        }
+        if (menuUI.visible) {
+            switch (key) {
+                case 12: //UP
+                case 14: //LEFT
+                    menuUI.selected--;
+                    if (menuUI.selected < 0) {
+                        menuUI.selected = menuUI.buttons.length - 1;
+                    }
+                    for (let i = 0; i < menuUI.buttons.length; i++) {
+                        if (i == menuUI.selected) {
+                            menuUI.buttons[i].className += " selected";
+                        } else {
+                            menuUI.buttons[i].classList.remove("selected");
+                        }
+                    }
+                    break;
+                case 13: //DOWN
+                case 15: //RIGHT
+                    console.log("down")
+                    menuUI.selected++;
+                    if (menuUI.selected >= menuUI.buttons.length) {
+                        menuUI.selected = 0;
+                    }
+                    for (let i = 0; i < menuUI.buttons.length; i++) {
+                        if (i == menuUI.selected) {
+                            menuUI.buttons[i].className += " selected";
+                        } else {
+                            menuUI.buttons[i].classList.remove("selected");
+                        }
+                    }
+                    break;
+                case 0: //A
+                    triggerMouseEvent(menuUI.buttons[menuUI.selected], "mousedown");
+                    console.log("mhmhm")
+                    break;
+            }
+        }
+        if (pauseUI.visible) {
+            switch (key) {
+                case 12: //UP
+                case 14: //LEFT
+                    pauseUI.selected--;
+                    if (pauseUI.selected < 0) {
+                        pauseUI.selected = pauseUI.buttons.length - 1;
+                    }
+                    for (let i = 0; i < pauseUI.buttons.length; i++) {
+                        if (i == pauseUI.selected) {
+                            pauseUI.buttons[i].className += " selected";
+                        } else {
+                            pauseUI.buttons[i].classList.remove("selected");
+                        }
+                    }
+                    break;
+                case 13: //DOWN
+                case 15: //RIGHT
+                    pauseUI.selected++;
+                    if (pauseUI.selected >= pauseUI.buttons.length) {
+                        pauseUI.selected = 0;
+                    }
+                    for (let i = 0; i < pauseUI.buttons.length; i++) {
+                        if (i == pauseUI.selected) {
+                            pauseUI.buttons[i].className += " selected";
+                        } else {
+                            pauseUI.buttons[i].classList.remove("selected");
+                        }
+                    }
+                    break;
+                case 0: //A
+                    triggerMouseEvent(pauseUI.buttons[pauseUI.selected], "click");
+                    break;
+            }
+        }
+    }
+
+    function cacheInputs(a, b) {
+        for (let i = 0; i < a.buttons.length; i++) {
+            b.buttons[i].pressed = a.buttons[i].pressed;
+        }
+        for (let i = 0; i < a.axes.length; i++) {
+            b.axes[i].value = a.axes[i].value;
+        }
+    }
+
+    function addGamepad(gamepad) {
+        controllers[gamepad.index] = gamepad;
+        var d = document.createElement("div");
+        GAMEPAD.index = "id", "controller" + gamepad.index;
+        GAMEPADcache.index = "id", "controller" + gamepad.index;
+        for (var i = 0; i < gamepad.buttons.length; i++) {
+            GAMEPAD.buttons.push({
+                pressed: false,
+            })
+            GAMEPADcache.buttons.push({
+                pressed: false,
+            })
+        }
+        for (i = 0; i < gamepad.axes.length; i++) {
+            GAMEPAD.axes.push({
+                value: 1,
+            })
+            GAMEPADcache.axes.push({
+                value: 1,
+            })
+        }
+        requestAnimationFrame(updateStatus);
+    }
+
+    function disconnectHandler(e) {
+        gamepadOn = false;
+        removeGamepad(e.gamepad);
+    }
+
+    function removeGamepad(gamepad) {
+        delete controllers[gamepad.index];
+    }
+
+    function updateStatus() {
+        scanGamepads();
+        for (let j in controllers) {
+            var controller = controllers[j];
+            for (let i = 0; i < controller.buttons.length; i++) {
+                var b = buttons[i];
+                var val = controller.buttons[i];
+                var pressed = val == 1.0;
+                if (typeof (val) == "object") {
+                    pressed = val.pressed;
+                    val = val.value;
+                }
+                GAMEPAD.buttons[i].pressed = val;
+            }
+
+            var axes = GAMEPAD.axes;
+            for (let i = 0; i < controller.axes.length; i++) {
+                var a = axes[i];
+                GAMEPAD.axes[i].value = controller.axes[i].toFixed(4);
+            }
+        }
+
+        if (gamepadOn) {
+            handleGamepad();
+        }
+        requestAnimationFrame(updateStatus);
+    }
+
+    function scanGamepads() {
+        var gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads() : []);
+        for (var i = 0; i < gamepads.length; i++) {
+            if (gamepads[i]) {
+                if (!(gamepads[i].index in controllers)) {
+                    addGamepad(gamepads[i]);
+                } else {
+                    controllers[gamepads[i].index] = gamepads[i];
+                }
+            }
+        }
+    }
+
+    if (haveEvents) {
+        window.addEventListener("gamepadconnected", connectHandler);
+        window.addEventListener("gamepaddisconnected", disconnectHandler);
+    } else {
+        setInterval(scanGamepads, 500);
+    }
+
+    function triggerMouseEvent(node, eventType) {
+        var clickEvent = document.createEvent('MouseEvents');
+        clickEvent.initEvent(eventType, true, true);
+        node.dispatchEvent(clickEvent);
+    }
+
+
+
+
+
+
 
     /* FIREBASE */
     var database = firebase.database();
     var ref = database.ref("sessions");
     if (!mapTester) {
         window.onbeforeunload = function () {
-            if (session.retention !== 0 && !admin) {
+            if (session.retention !== 0 && session.level !== 0 && !admin) {
                 ref.push(session);
             }
         }
