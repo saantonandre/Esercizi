@@ -6,6 +6,16 @@ var tilesHeight;
 var ratio = 1;
 var gameStarted = false;
 window.onload = function () {
+    var menuUI = {
+        visible: true,
+        selected: 0,
+        buttons: [id("newGame"), id("continue"), id("dialogueBtn")]
+    }
+    var pauseUI = {
+        visible: false,
+        selected: 0,
+        buttons: [id("music"), id("audio"), id("ctrlButton")]
+    }
     var admin = false;
     let today = new Date();
     let dd = String(today.getDate()).padStart(2, '0');
@@ -23,10 +33,17 @@ window.onload = function () {
         retention: 0,
         date: time,
         dialogues: "ON",
-        gamepad:false
+        gamepad: false,
     }
 
-    var pizzaGuy;
+    var pizzaGuy = {
+        hitbox: {
+            x: 0,
+            y: 0,
+            w: 0,
+            h: 0
+        }
+    };
     var gamepadOn = false;
 
     id("loading").style.display = "none";
@@ -39,8 +56,8 @@ window.onload = function () {
     //  The size of the tiles in the spritesheet
     var mapTester = true;
     if (window.opener) {
-        if (window.opener.mapCode) {
-            safeEval(window.opener.mapCode);
+        if (window.opener.mapObject) {
+            safeEval(window.opener.mapObject);
         } else {
             safeEval(window.opener.map);
         }
@@ -49,6 +66,7 @@ window.onload = function () {
     }
     var dialogueOn = true;
     var currentLevel = 0;
+    var displaySpacebar = false; // [spacebar] to read
     var stats = {
         blocks: 0,
         col1: 0,
@@ -1886,6 +1904,18 @@ window.onload = function () {
         }
         action() {
             if (this.sprite == 0) {
+                if (collided(pizzaGuy, this)) {
+                    camera.focus = 0;
+                    setTimeout(() => {
+                        gameEnded = true;
+                    }, 3000)
+                    this.sprite = 1;
+                    audio.hit.playy();
+                    shake = 4;
+                    visualFxs.push(new Portal(this.x, this.y, this.place));
+                    this.x -= 0.5;
+                    this.y -= 1;
+                }
                 if (player.attack) {
                     if (collided(player.atkHitbox, this)) {
                         this.sprite = 1;
@@ -1948,10 +1978,25 @@ window.onload = function () {
                     if (this.load > 50) {
                         player.money += player.levelMoney;
                         player.levelMoney = 0;
-                        safeEval(maps[parseInt(this.place)])
-                        window.localStorage["LvL"] = parseInt(this.place);
+                        let nextLevel = parseInt(this.place);
+                        if (nextLevel == 15) {
+                            /*KONGREGATE*/
+                            kongregate.stats.submit('Time', session.retention);
+                            /*KONGREGATE*/
+                            dialogueOn = true;
+                            badEnding = 1;
+                            if (financial(player.money * 5 / 1000) >= 8.5) {
+                                badEnding = 0;
+                                nextLevel = 16;
+                            }
+                        }
+                        /*KONGREGATE*/
+                        kongregate.stats.submit('Level', nextLevel);
+                        /*KONGREGATE*/
+                        safeEval(maps[nextLevel])
+                        window.localStorage["LvL"] = nextLevel;
                         window.localStorage["money"] = player.money;
-                        window.localStorage["time"] = session.time;
+                        window.localStorage["time"] = session.retention;
                         currentLevel++;
                         adaptBiome();
                         initializeMap();
@@ -2023,16 +2068,7 @@ window.onload = function () {
                         if (this.tut != undefined) {
                             player.currentBook = this.tut;
                         }
-                        c.drawImage(
-                            id("sheet"),
-                            48,
-                            208,
-                            80,
-                            16,
-                            ((canvas.width / 2) - (5 * ratio / 2)) | 0,
-                            ((canvas.height / 1.2) - (1 * ratio / 2)) | 0,
-                            5 * ratio | 0,
-                            1 * ratio | 0);
+                        displaySpacebar = true;
                     }
                     break;
                 case 3:
@@ -3254,13 +3290,14 @@ window.onload = function () {
             mapY += shakeArr[shake] / 20;
         }
         paused = 0;
+        displaySpacebar = false; //[spacebar] to read
         c.clearRect(0, 0, canvas.width, canvas.height);
         c.fillStyle = bgColor;
         c.fillRect(0, 0, canvas.width, canvas.height);
         //calculate character
         //draw environment
         moveCamera();
-        if (!player.dead) {
+        if (!player.dead && !isOutOfScreen(player)) {
             player.compute();
         } else if (!audio.walking.paused) {
             audio.walking.pause();
@@ -3300,6 +3337,18 @@ window.onload = function () {
         if (!player.dead) {
             player.draw();
         }
+        if (displaySpacebar) {
+            c.drawImage(
+                id("sheet"),
+                48,
+                208,
+                80,
+                16,
+                ((canvas.width / 2) - (5 * ratio / 2)) | 0,
+                ((canvas.height / 1.2) - (1 * ratio / 2)) | 0,
+                5 * ratio | 0,
+                1 * ratio | 0);
+        }
         renderTexts();
         displayStats();
         dialogueEngine.compute();
@@ -3315,6 +3364,9 @@ window.onload = function () {
                 id("othersCont").style.display = "block";
             }
         }
+        if (gameEnded) {
+            gameOver();
+        }
         if (!gamePaused) {
             requestAnimationFrame(loop)
         }
@@ -3322,6 +3374,10 @@ window.onload = function () {
     ///////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////// MAIN LOOP //////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////
+
+
+
+
     function financial(x) {
         return Number.parseFloat(x).toFixed(2);
     }
@@ -3333,6 +3389,7 @@ window.onload = function () {
             this.color = getColor(3, 0);
             this.color2 = getColor(2, 0);
         }
+        //moneys should be multiplied by 5 and then divided by 1000
         compute() {
             this.totalMoney = player.money + player.levelMoney;
             if (this.totalMoney > 0 || this.currentMoney > 0) {
@@ -3435,7 +3492,7 @@ window.onload = function () {
                     case "pizzaguy":
                         this.portrait = 2;
                         this.frameLength = 0;
-                        if (!isOutOfScreen(pizzaGuy)) {
+                        if (!isOutOfScreen(pizzaGuy) && !isOutOfScreen(pizzaGuy)) {
                             camera.focus = 2;
                         }
                         break;
@@ -3535,18 +3592,23 @@ window.onload = function () {
                                     this.emotion = 3;
                                 }
                                 break;
-                            case "a": //laughing/sad
+                            case "a": //no pizza
                                 pizzaGuy.sprite = 0;
                                 break;
-                            case "s": //laughing/sad
+                            case "s": //pizza 
                                 pizzaGuy.sprite = 1;
                                 break;
-                            case "d": //laughing/sad
+                            case "d": //bike tremble
                                 pizzaGuy.sprite = 2;
                                 break;
-                            case "f": //laughing/sad
+                            case "f": //bike going
                                 pizzaGuy.sprite = 3;
-                                console.log(2)
+                                break;
+                            case "k": //bike going
+                                //gameEnded = true;
+                                break;
+                            case "b": //no money
+                                player.money = 0;
                                 break;
                         }
                     }
@@ -3561,9 +3623,12 @@ window.onload = function () {
                 lines[i] = lines[i].replace("#s", "");
                 lines[i] = lines[i].replace("#d", "");
                 lines[i] = lines[i].replace("#f", "");
+                lines[i] = lines[i].replace("#k", "");
                 // coins/time
-                lines[i] = lines[i].replace("#c", "" + player.money);
-                lines[i] = lines[i].replace("#t", "" + session.time / 60 | 0);
+                lines[i] = lines[i].replace("#c", "" + financial(player.money * 5 / 1000));
+                lines[i] = lines[i].replace("#e", "" + financial(player.money * 5 / 1000 - 8.5));
+                lines[i] = lines[i].replace("#t", "" + session.retention / 60 | 0);
+                lines[i] = lines[i].replace("#b", "");
 
                 lines[i] = lines[i].replace("#", "");
                 lines[i] = lines[i].replace("/", "");
@@ -3588,6 +3653,9 @@ window.onload = function () {
             }
             if (this.frame > this.frameLength) {
                 this.frame = 0;
+            }
+            if (this.emotion >= this.portraits[this.portrait].length) {
+                this.emotion--;
             }
             c.drawImage(
                 this.portraits[this.portrait][this.emotion],
@@ -4113,8 +4181,14 @@ window.onload = function () {
         event.preventDefault();
     }
 
-    function safeEval(instructions) {
-        eval(instructions);
+    function safeEval(level) {
+        if (typeof level === 'object' && level !== null) {
+            map = level.map;
+            spawnPoint = level.spawnPoint;
+            biome = level.biome;
+            camBoxes = level.camBoxes;
+            console.log("safe eval")
+        }
     }
 
 
@@ -4132,7 +4206,8 @@ window.onload = function () {
             safeEval(maps[window.localStorage['LvL'] || 0]);
             currentLevel = window.localStorage['LvL'];
             player.money = parseInt(window.localStorage["money"]);
-            session.time = parseInt(window.localStorage["time"]);
+            player.deaths = parseInt(window.localStorage["deaths"]);
+            session.retention = parseInt(window.localStorage["time"]);
         } else {
             safeEval(maps[0]);
         }
@@ -4296,6 +4371,29 @@ window.onload = function () {
         if (key === 113) {
             console.log("Playing as Admin.")
             admin = true;
+        }
+        if (key === 114) {
+            player.money = 111110;
+            player.levelMoney = 0;
+            let nextLevel = parseInt(15);
+            if (nextLevel == 15) {
+                dialogueOn = true;
+                badEnding = 1;
+                if (financial(player.money * 5 / 1000) >= 8.5) {
+                    badEnding = 0;
+                    nextLevel = 16;
+                }
+            }
+            safeEval(maps[nextLevel])
+            window.localStorage["LvL"] = nextLevel;
+            window.localStorage["money"] = player.money;
+            window.localStorage["time"] = session.retention;
+            currentLevel++;
+            adaptBiome();
+            initializeMap();
+            mapX = -player.x + (tilesWidth / 2 - 2);
+            mapY = -player.y + (tilesHeight / 2);
+            blackScreen = 100;
         }
         if (!gamePaused && !player.uncontrollable && gameStarted) {
             switch (key) {
@@ -4494,10 +4592,8 @@ window.onload = function () {
     });
     if (window.opener) {
         //console.log(window.opener.mapCode);
-        if (window.opener.mapCode) {
-            safeEval(window.opener.mapCode);
-        } else {
-            safeEval(window.opener.map);
+        if (window.opener.mapObject) {
+            safeEval(window.opener.mapObject);
         }
     } else {
         mapTester = false;
@@ -4590,7 +4686,6 @@ window.onload = function () {
                     bgTiles.push(map[i]);
                     removeList.push(i);
                     break;
-
             }
         }
         //[13, 5],[13, 6],[13, 7],[13, 8], //traps rock
@@ -4751,7 +4846,7 @@ window.onload = function () {
             }
             dialogueOn = !dialogueOn;
         }
-        if (window.localStorage['LvL'] != null) {
+        if (window.localStorage['LvL'] != null && window.localStorage['LvL'] < 15) {
             id("continue").addEventListener("touchstart", function () {
                 mobileInit(true);
             }, {
@@ -4761,8 +4856,9 @@ window.onload = function () {
                 adjustScreen("pc");
                 safeEval(maps[parseInt(window.localStorage['LvL'] || 0)]);
                 currentLevel = parseInt(window.localStorage['LvL']);
-                session.time = parseInt(window.localStorage['time']);
+                session.retention = parseInt(window.localStorage['time']);
                 player.money = parseInt(window.localStorage["money"]);
+                player.deaths = parseInt(window.localStorage["deaths"] || 0);
                 adaptBiome();
                 initializeMap();
                 requestAnimationFrame(loop);
@@ -4890,16 +4986,6 @@ window.onload = function () {
 
         }
     }
-    var menuUI = {
-        visible: true,
-        selected: 0,
-        buttons: [id("newGame"), id("continue"), id("dialogueBtn")]
-    }
-    var pauseUI = {
-        visible: false,
-        selected: 0,
-        buttons: [id("music"), id("audio"), id("ctrlButton")]
-    }
     //UI end
 
     // GAMEPAD CONTROLS
@@ -4908,7 +4994,7 @@ window.onload = function () {
 
     function connectHandler(e) {
         gamepadOn = true;
-        session.gamepad=true;
+        session.gamepad = true;
         addGamepad(e.gamepad);
         for (let i = 0; i < menuUI.buttons.length; i++) {
             if (i == menuUI.selected) {
@@ -5298,20 +5384,107 @@ window.onload = function () {
     }
 
 
+    /*CREDITS*/
+    var credits = false;
+    var badEnding = 1;
+
+    function initCredits() {
+        credits = {
+            thanks: ["SPECIAL THANKS:", "", "[HAPPY TO HELP]", "Haris", "Bruno Andrade", "Tim Commandeur", "Aaron Denny", "Harrk", "indiexpo.net", "Guilherme Prada", "Rad Giraffe", "Francesco(SB_Fra5197)", "RE-MAT2089", "Skull Commando Labs", "Stone Story RPG", "my bro (@xluppolox)", "", "", "and thanks to YOU for playing this far!"],
+            img: [id("pizza"), id("no-pizza"), ],
+            offsetY: tilesHeight * ratio,
+            size: 1,
+            slowness: 6,
+            pizza: {
+                size: 10,
+                frame: 0,
+                frameCounter: 0,
+                wait: 30
+            },
+            rolling: false,
+            badEnding: badEnding
+        }
+    }
+    var gameEnded = false;
+
+    function gameOver() {
+        if (!credits) {
+            initCredits();
+        }
+        c.textAlign = "center";
+        c.font = Math.round(credits.size * ratio) + "px" + " 'VT323'";
+        c.fillStyle = "white";
+        c.fillText("Game Over", canvas.width / 2 | 0, -canvas.height / 8 + credits.offsetY + (credits.size * ratio) | 0) //text, x, y
+        c.fillStyle = "#fbf236";
+        c.fillText("TIME: " + (session.retention / 60 | 0) + " minutes and " + (session.retention % 60 | 0) + " seconds", canvas.width / 2 | 0, -canvas.height / 8 + credits.offsetY + (credits.size * 3 * ratio) | 0) //text, x, y
+        c.fillStyle = "#ac3232";
+        c.fillText("DEATHS x" + (session.deaths.length), canvas.width / 2 | 0, -canvas.height / 8 + credits.offsetY + (credits.size * 4 * ratio) | 0) //text, x, y
+        c.fillStyle = "white";
+        c.fillText("PROGRAMMING, DESIGN, AUDIO and ART by", canvas.width / 2 | 0, -canvas.height / 8 + credits.offsetY + (credits.size * 6 * ratio) | 0) //text, x, y
+        c.fillStyle = "#639bff";
+        c.fillText("@saantonandre", canvas.width / 2 | 0, -canvas.height / 8 + credits.offsetY + (credits.size * 7 * ratio) | 0) //text, x, y
+        c.fillStyle = "white";
+        c.drawImage(
+            credits.img[credits.badEnding],
+            0,
+            160 * credits.pizza.frame,
+            160,
+            160,
+            canvas.width / 2 - (5 * ratio) | 0,
+            canvas.height / 2 - (5 * ratio) + (credits.offsetY - tilesHeight * ratio) | 0,
+            credits.pizza.size * ratio | 0,
+            credits.pizza.size * ratio | 0)
+        credits.pizza.frameCounter++;
+        if (credits.pizza.frameCounter > 5) {
+            credits.pizza.frameCounter = 0;
+            if (credits.pizza.frame < credits.slowness) {
+                credits.pizza.frame++;
+                if (credits.badEnding) {
+                    if (credits.pizza.frame === 1) {
+                        voices.player[0].play()
+                    }
+                    if (credits.pizza.frame === 5) {
+                        voices.player[1].play()
+                    }
+                }
+            } else {
+                if (credits.pizza.wait > 0) {
+                    credits.pizza.wait--;
+                } else {
+                    credits.rolling = true;
+                }
+            }
+        }
+        if (credits.rolling) {
+            if (credits.offsetY < -32 * ratio) {
+                credits.rolling = false;
+            } else {
+                credits.offsetY -= 0.02 * ratio;
+            }
+        }
+        for (let i = 0; i < credits.thanks.length; i++) {
+            c.textAlign = "center";
+            c.font = Math.round(credits.size * ratio) + "px" + " 'VT323'";
+            c.fillStyle = "white";
+            c.fillText(credits.thanks[i], canvas.width / 2 | 0, canvas.height / 2 + credits.offsetY + (credits.size * ratio * (i * 1.5)) | 0) //text, x, y
+        }
+    }
 
 
 
 
-
-    /* FIREBASE */
+    /* FIREBASE
     var database = firebase.database();
     var ref = database.ref("sessions");
+     */
     if (!mapTester) {
+        /* FIREBASE
         window.onbeforeunload = function () {
             if (session.retention !== 0 && session.level !== 0 && !admin) {
                 ref.push(session);
             }
         }
+        */
         setInterval(() => {
             if (!gamePaused) {
                 let device = touchDevice ? "mobile" : "pc";

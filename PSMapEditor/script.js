@@ -8,14 +8,20 @@ var sheet = id("sheet");
 var c = canvas.getContext("2d");
 c.imageSmoothingEnabled = false;
 var map = [];
-var biome = 0;
+var biome = 1;
 var hitBoxes = [];
 var camBoxes = [];
 var cellQuantityW = id("mapSizeW").value;
 var cellQuantityH = id("mapSizeH").value;
-var cellSize = 15;
+var cellSize = 16;
 var fileName = "mapCode";
 var interactiveTile = 0;
+var mapObject = {
+    map: [],
+    camBoxes: [],
+    biome: 1,
+    spawnPoint: {},
+};
 canvas.width = cellQuantityW * cellSize;
 canvas.height = cellQuantityH * cellSize;
 id("mapSizeBtnW").onclick = function () {
@@ -112,7 +118,7 @@ window.onload = function () {
 }
 //LAUNCH TESTMODE
 id("test").onclick = function () {
-    mapExport(false);
+    newMapExport(false);
     var mapTester = window.open("mapTester/index.html");
     //mapTester.tile=map;
 }
@@ -240,7 +246,7 @@ function dragElement(elmnt) {
 //GENERATES THE EXPORT CODE
 var mapCode = "";
 id("exportMap").onclick = function () {
-    mapExport(true);
+    newMapExport(true);
 }
 
 function mapExport(downloadTxt) {
@@ -281,6 +287,50 @@ function mapExport(downloadTxt) {
         }
     }
 };
+
+function newMapExport(downloadTxt) {
+    mapCode = "";
+    mapCode += '{map:[';
+    for (i = 0; i < map.length; i++) {
+        mapCode += '{x:' + map[i].x + ',';
+        mapCode += 'y:' + map[i].y + ',';
+        mapCode += 'w:' + map[i].w + ',';
+        mapCode += 'h:' + map[i].h + ',';
+        mapCode += 'type:' + map[i].type;
+        if (map[i].text !== undefined) {
+            mapCode += ",text:\'" + map[i].text + "\'";
+        }
+        mapCode += '},';
+    }
+    mapCode += '],';
+    mapCode += "spawnPoint:{x:" + spawnPoint.x + ",y:" + spawnPoint.y + "},";
+    mapCode += "biome:" + biome + ",";
+    // cam boxes
+    mapCode += 'camBoxes:[';
+    for (let i = 0; i < camBoxes.length; i++) {
+        mapCode += '{x:' + camBoxes[i].x + ',';
+        mapCode += 'y:' + camBoxes[i].y + ',';
+        mapCode += 'w:' + camBoxes[i].w + ',';
+        mapCode += 'h:' + camBoxes[i].h + ',';
+        mapCode += 'type:' + camBoxes[i].type;
+        mapCode += '},';
+    }
+    mapCode += '],';
+    mapCode += '}';
+    mapObject = {
+        map: Object.create(map),
+        camBoxes: Object.create(camBoxes),
+        biome: biome,
+        spawnPoint: Object.create(spawnPoint),
+    };
+    console.log(mapCode);
+    if (downloadTxt) {
+        let name = prompt("Map name : ", fileName);
+        if (!(name == null || name == "")) {
+            download(name + '.txt', mapCode);
+        }
+    }
+};
 // LOADS AND READS THE IMPORTED CODE
 id("file").onchange = function () {
     let data = id("file").files[0];
@@ -288,11 +338,22 @@ id("file").onchange = function () {
     let reader = new FileReader();
     reader.onload = function (e) {
         let text = reader.result
-        eval(text);
+        let level = "importedCode=" + text;
+        safeEval(eval(level));
         resizeMap()
 
     }
     reader.readAsText(data);
+}
+
+function safeEval(level) {
+    if (typeof level === 'object' && level !== null) {
+        map = level.map;
+        spawnPoint = level.spawnPoint;
+        biome = level.biome;
+        camBoxes = level.camBoxes;
+        console.log("safe eval")
+    }
 }
 
 function resizeMap() {

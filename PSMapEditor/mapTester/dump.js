@@ -1,165 +1,979 @@
-window.addEventListener("keydown", function (event) {
-    var key = event.keyCode;
-    if (key !== 122) {
-        event.preventDefault();
-    }
-    if (key === 112) {
-        id("stats").style.visibility = "visible";
-        stats.colPoints = true;
-    }
-    if (key === 113) {
-        console.log("Playing as Admin.")
-        admin = true;
-    }
-    if (!gamePaused && !player.uncontrollable) {
-        switch (key) {
-            case 27:
-            case 32: // esc/space key
-                gamePaused = true;
-                //c.globalAlpha=0.6;
-                //UI
-                if (player.reading) {
-                    id(player.currentBook).style.visibility = "visible";
-                } else {
-                    id("pause-screen").style.display = "block";
-                    id("pause-screen").style.visibility = "visible";
-                    id("controls").style.visibility = "hidden";
-                }
-
-                break;
-            case 65: //left key down (A / left arrow)
-            case 37:
-                player.L = true;
-                break;
-            case 68: //right key down (D / right arrow)
-            case 39:
-                player.R = true;
-                break;
-            case 83: //down key down (S /down arrow)
-            case 40:
-                watchDown = true;
-                break;
-            case 87: //jump key down (W / Z / up arrow)
-            case 90:
-            case 38:
-                if (!jmpKeyPressed) {
-                    player.jump();
-                    jmpKeyPressed = true;
-                }
-                break;
-            case 82:
-                if (!player.dead) {
-                    visualFxs.push(new DeathFx(player.x, player.y));
-                    audio.death.playy();
-                    player.dead = true;
-                    setTimeout(function () {
-                        player.respawnEvent();
-                    }, 1500);
-                }
-                break;
-            case 70: //attack key down (F / X)
-            case 88:
-                player.attackEvent();
-                break;
-            case 67: //camera key (C)
-                cameraType = 1;
-                break;
-            case 69: //dance key (E)
-                player.dance = true;
-                console.log("player.x: " + player.x + "\nplayer.y: " + player.y);
-                break;
-            case 71: //g key down
-                console.log(player);
-                break;
-            case 72: //h key down
-                //nothing
-                break;
-            case 49: // 1
-                monsters.push(new Slime(5 - mapX, -mapY));
-                break;
-            case 50: // 2
-                monsters.push(new Lizard(5 - mapX, -mapY));
-                break;
-            case 51: // 3
-                monsters.push(new Zombie(5 - mapX, -mapY));
-                break;
-            case 52: // 4
-                monsters.push(new Superzombie(5 - mapX, -mapY));
-                break;
-            case 53: // 5
-                monsters.push(new Bear(5 - mapX, -mapY));
-                break;
-            case 54: // 6
-                safeEval(maps[0]);
-                initializeMap();
-                break;
-            case 55: // 7
-                safeEval(maps[10]);
-                initializeMap();
-                break;
-        }
-    } else if (key === 27 || key === 32) {
-
-        //UI
-        if (player.reading) {
-            id(player.currentBook).style.visibility = "hidden";
-            gamePaused = false;
-            requestAnimationFrame(loop);
-        } else if (player.uncontrollable) {
-            dialogueEngine.input = 1;
-        } else {
-            id("pause-screen").style.display = "none";
-            id("pause-screen").style.visibility = "hidden";
-            id("controls").style.visibility = "hidden";
-            gamePaused = false;
-            requestAnimationFrame(loop);
-        }
-    }
-});
-var sheets = ["PixelSamurai/sheet11.png", "PixelSamurai/sheetWarmPalette.png"]
-var selectedSheet = 0;
-window.addEventListener("keyup", function (event) {
-    var key = event.keyCode;
-    switch (key) {
-        case 65: //left key up (A / left arrow)
-        case 37:
-            player.L = false;
-            break;
-        case 9:
-            switch (selectedSheet) {
-                case 0:
-                    selectedSheet = 1;
-                    id("sheet").src = sheets[selectedSheet];
-                    bgColor = getColor(0, 0);
-                    biomes[biome].bgColor = getColor(0, 0);
-                    break;
-                case 1:
-                    selectedSheet = 0;
-                    id("sheet").src = sheets[selectedSheet];
-                    bgColor = getColor(1, 0);
-                    biomes[biome].bgColor = bgColor;
-                    break;
-            }
-            break;
-        case 67: //camera key (C)
-            cameraType = 0;
-            break;
-        case 68: //right key up (D / right arrow)
-        case 39:
-            player.R = false;
-            break;
-        case 83: //down key up (S /down arrow)
-        case 40:
-            watchDown = false;
-            break;
-        case 87: //jump key down (W / Z / up arrow)
-        case 90:
-        case 38:
-            player.jumping = false;
-            if (player.jumping && player.jumpCounter < 9) {
-                p.yVel = 0;
-            }
-            jmpKeyPressed = false;
-            break;
-    }
-});
+{
+    map: [{
+        x: 11,
+        y: 17,
+        w: 35,
+        h: 1,
+        type: 30
+    }, {
+        x: 17,
+        y: 10,
+        w: 1,
+        h: 1,
+        type: 52
+    }, {
+        x: 17,
+        y: 11,
+        w: 1,
+        h: 1,
+        type: 53
+    }, {
+        x: 17,
+        y: 12,
+        w: 1,
+        h: 4,
+        type: 54
+    }, {
+        x: 17,
+        y: 16,
+        w: 1,
+        h: 1,
+        type: 55
+    }, {
+        x: 22,
+        y: 11,
+        w: 1,
+        h: 1,
+        type: 53
+    }, {
+        x: 27,
+        y: 11,
+        w: 1,
+        h: 1,
+        type: 53
+    }, {
+        x: 32,
+        y: 11,
+        w: 1,
+        h: 1,
+        type: 53
+    }, {
+        x: 37,
+        y: 11,
+        w: 1,
+        h: 1,
+        type: 53
+    }, {
+        x: 22,
+        y: 10,
+        w: 1,
+        h: 1,
+        type: 52
+    }, {
+        x: 27,
+        y: 10,
+        w: 1,
+        h: 1,
+        type: 52
+    }, {
+        x: 32,
+        y: 10,
+        w: 1,
+        h: 1,
+        type: 52
+    }, {
+        x: 37,
+        y: 10,
+        w: 1,
+        h: 1,
+        type: 52
+    }, {
+        x: 22,
+        y: 12,
+        w: 1,
+        h: 4,
+        type: 54
+    }, {
+        x: 27,
+        y: 12,
+        w: 1,
+        h: 4,
+        type: 54
+    }, {
+        x: 32,
+        y: 12,
+        w: 1,
+        h: 4,
+        type: 54
+    }, {
+        x: 37,
+        y: 12,
+        w: 1,
+        h: 4,
+        type: 54
+    }, {
+        x: 22,
+        y: 16,
+        w: 1,
+        h: 1,
+        type: 55
+    }, {
+        x: 27,
+        y: 16,
+        w: 1,
+        h: 1,
+        type: 55
+    }, {
+        x: 32,
+        y: 16,
+        w: 1,
+        h: 1,
+        type: 55
+    }, {
+        x: 37,
+        y: 16,
+        w: 1,
+        h: 1,
+        type: 55
+    }, {
+        x: 11,
+        y: 18,
+        w: 35,
+        h: 2,
+        type: 33
+    }, {
+        x: 42,
+        y: 11,
+        w: 1,
+        h: 1,
+        type: 53
+    }, {
+        x: 42,
+        y: 10,
+        w: 1,
+        h: 1,
+        type: 52
+    }, {
+        x: 42,
+        y: 12,
+        w: 1,
+        h: 4,
+        type: 54
+    }, {
+        x: 42,
+        y: 16,
+        w: 1,
+        h: 1,
+        type: 55
+    }, {
+        x: 46,
+        y: 17,
+        w: 8,
+        h: 1,
+        type: 30
+    }, {
+        x: 46,
+        y: 18,
+        w: 8,
+        h: 2,
+        type: 33
+    }, {
+        x: 56,
+        y: 9,
+        w: 1,
+        h: 1,
+        type: 32
+    }, {
+        x: 55,
+        y: 8,
+        w: 1,
+        h: 1,
+        type: 32
+    }, {
+        x: 54,
+        y: 7,
+        w: 1,
+        h: 1,
+        type: 32
+    }, {
+        x: 10,
+        y: 6,
+        w: 44,
+        h: 1,
+        type: 33
+    }, {
+        x: 8,
+        y: 9,
+        w: 1,
+        h: 1,
+        type: 37
+    }, {
+        x: 9,
+        y: 8,
+        w: 1,
+        h: 1,
+        type: 37
+    }, {
+        x: 10,
+        y: 7,
+        w: 1,
+        h: 1,
+        type: 37
+    }, {
+        x: 10,
+        y: 5,
+        w: 44,
+        h: 1,
+        type: 33
+    }, {
+        x: 54,
+        y: 6,
+        w: 1,
+        h: 1,
+        type: 33
+    }, {
+        x: 55,
+        y: 7,
+        w: 1,
+        h: 1,
+        type: 33
+    }, {
+        x: 56,
+        y: 8,
+        w: 1,
+        h: 1,
+        type: 33
+    }, {
+        x: 57,
+        y: 9,
+        w: 1,
+        h: 1,
+        type: 33
+    }, {
+        x: 6,
+        y: 10,
+        w: 1,
+        h: 4,
+        type: 33
+    }, {
+        x: 7,
+        y: 9,
+        w: 1,
+        h: 1,
+        type: 33
+    }, {
+        x: 8,
+        y: 8,
+        w: 1,
+        h: 1,
+        type: 33
+    }, {
+        x: 9,
+        y: 7,
+        w: 1,
+        h: 1,
+        type: 33
+    }, {
+        x: 9,
+        y: 6,
+        w: 1,
+        h: 1,
+        type: 33
+    }, {
+        x: 8,
+        y: 7,
+        w: 1,
+        h: 1,
+        type: 33
+    }, {
+        x: 7,
+        y: 8,
+        w: 1,
+        h: 1,
+        type: 33
+    }, {
+        x: 6,
+        y: 9,
+        w: 1,
+        h: 1,
+        type: 33
+    }, {
+        x: 6,
+        y: 14,
+        w: 1,
+        h: 1,
+        type: 33
+    }, {
+        x: 10,
+        y: 18,
+        w: 1,
+        h: 1,
+        type: 33
+    }, {
+        x: 55,
+        y: 6,
+        w: 1,
+        h: 1,
+        type: 33
+    }, {
+        x: 56,
+        y: 7,
+        w: 1,
+        h: 1,
+        type: 33
+    }, {
+        x: 57,
+        y: 8,
+        w: 1,
+        h: 1,
+        type: 33
+    }, {
+        x: 58,
+        y: 9,
+        w: 1,
+        h: 1,
+        type: 33
+    }, {
+        x: 70,
+        y: 16,
+        w: 1,
+        h: 1,
+        type: 65
+    }, {
+        x: 70,
+        y: 14,
+        w: 1,
+        h: 1,
+        type: 32
+    }, {
+        x: 71,
+        y: 15,
+        w: 1,
+        h: 1,
+        type: 32
+    }, {
+        x: 71,
+        y: 16,
+        w: 1,
+        h: 1,
+        type: 32
+    }, {
+        x: 71,
+        y: 14,
+        w: 1,
+        h: 1,
+        type: 33
+    }, {
+        x: 72,
+        y: 11,
+        w: 1,
+        h: 6,
+        type: 33
+    }, {
+        x: 73,
+        y: 13,
+        w: 1,
+        h: 4,
+        type: 33
+    }, {
+        x: 7,
+        y: 10,
+        w: 1,
+        h: 7,
+        type: 37
+    }, {
+        x: 8,
+        y: 17,
+        w: 3,
+        h: 1,
+        type: 30
+    }, {
+        x: 7,
+        y: 17,
+        w: 1,
+        h: 1,
+        type: 33
+    }, {
+        x: 7,
+        y: 18,
+        w: 3,
+        h: 1,
+        type: 33
+    }, {
+        x: 6,
+        y: 15,
+        w: 1,
+        h: 5,
+        type: 33
+    }, {
+        x: 7,
+        y: 19,
+        w: 4,
+        h: 1,
+        type: 33
+    }, {
+        x: 19,
+        y: 10,
+        w: 1,
+        h: 1,
+        type: 56
+    }, {
+        x: 24,
+        y: 10,
+        w: 1,
+        h: 1,
+        type: 56
+    }, {
+        x: 29,
+        y: 10,
+        w: 1,
+        h: 1,
+        type: 56
+    }, {
+        x: 34,
+        y: 10,
+        w: 1,
+        h: 1,
+        type: 56
+    }, {
+        x: 39,
+        y: 10,
+        w: 1,
+        h: 1,
+        type: 56
+    }, {
+        x: 20,
+        y: 10,
+        w: 1,
+        h: 1,
+        type: 57
+    }, {
+        x: 25,
+        y: 10,
+        w: 1,
+        h: 1,
+        type: 57
+    }, {
+        x: 30,
+        y: 10,
+        w: 1,
+        h: 1,
+        type: 57
+    }, {
+        x: 35,
+        y: 10,
+        w: 1,
+        h: 1,
+        type: 57
+    }, {
+        x: 40,
+        y: 10,
+        w: 1,
+        h: 1,
+        type: 57
+    }, {
+        x: 19,
+        y: 11,
+        w: 1,
+        h: 1,
+        type: 58
+    }, {
+        x: 24,
+        y: 11,
+        w: 1,
+        h: 1,
+        type: 58
+    }, {
+        x: 29,
+        y: 11,
+        w: 1,
+        h: 1,
+        type: 58
+    }, {
+        x: 34,
+        y: 11,
+        w: 1,
+        h: 1,
+        type: 58
+    }, {
+        x: 39,
+        y: 11,
+        w: 1,
+        h: 1,
+        type: 58
+    }, {
+        x: 20,
+        y: 11,
+        w: 1,
+        h: 1,
+        type: 59
+    }, {
+        x: 25,
+        y: 11,
+        w: 1,
+        h: 1,
+        type: 59
+    }, {
+        x: 30,
+        y: 11,
+        w: 1,
+        h: 1,
+        type: 59
+    }, {
+        x: 35,
+        y: 11,
+        w: 1,
+        h: 1,
+        type: 59
+    }, {
+        x: 40,
+        y: 11,
+        w: 1,
+        h: 1,
+        type: 59
+    }, {
+        x: 20,
+        y: 9,
+        w: 1,
+        h: 1,
+        type: 37
+    }, {
+        x: 25,
+        y: 9,
+        w: 1,
+        h: 1,
+        type: 37
+    }, {
+        x: 24,
+        y: 9,
+        w: 1,
+        h: 1,
+        type: 35
+    }, {
+        x: 29,
+        y: 9,
+        w: 1,
+        h: 1,
+        type: 35
+    }, {
+        x: 34,
+        y: 9,
+        w: 1,
+        h: 1,
+        type: 35
+    }, {
+        x: 39,
+        y: 9,
+        w: 1,
+        h: 1,
+        type: 35
+    }, {
+        x: 30,
+        y: 9,
+        w: 1,
+        h: 1,
+        type: 37
+    }, {
+        x: 35,
+        y: 9,
+        w: 1,
+        h: 1,
+        type: 37
+    }, {
+        x: 40,
+        y: 9,
+        w: 1,
+        h: 1,
+        type: 37
+    }, {
+        x: 19,
+        y: 9,
+        w: 1,
+        h: 1,
+        type: 35
+    }, {
+        x: 18,
+        y: 8,
+        w: 1,
+        h: 1,
+        type: 35
+    }, {
+        x: 41,
+        y: 8,
+        w: 1,
+        h: 1,
+        type: 37
+    }, {
+        x: 43,
+        y: 7,
+        w: 1,
+        h: 1,
+        type: 37
+    }, {
+        x: 16,
+        y: 7,
+        w: 1,
+        h: 1,
+        type: 35
+    }, {
+        x: 17,
+        y: 7,
+        w: 26,
+        h: 1,
+        type: 36
+    }, {
+        x: 19,
+        y: 8,
+        w: 22,
+        h: 1,
+        type: 36
+    }, {
+        x: 10,
+        y: 4,
+        w: 1,
+        h: 1,
+        type: 20
+    }, {
+        x: 53,
+        y: 4,
+        w: 1,
+        h: 1,
+        type: 22
+    }, {
+        x: 71,
+        y: 9,
+        w: 1,
+        h: 1,
+        type: 22
+    }, {
+        x: 60,
+        y: 9,
+        w: 1,
+        h: 1,
+        type: 20
+    }, {
+        x: 61,
+        y: 9,
+        w: 10,
+        h: 1,
+        type: 21
+    }, {
+        x: 11,
+        y: 4,
+        w: 42,
+        h: 1,
+        type: 21
+    }, {
+        x: 6,
+        y: 20,
+        w: 1,
+        h: 1,
+        type: 26
+    }, {
+        x: 73,
+        y: 19,
+        w: 1,
+        h: 1,
+        type: 28
+    }, {
+        x: 54,
+        y: 20,
+        w: 1,
+        h: 1,
+        type: 28
+    }, {
+        x: 56,
+        y: 19,
+        w: 1,
+        h: 1,
+        type: 26
+    }, {
+        x: 57,
+        y: 19,
+        w: 16,
+        h: 1,
+        type: 27
+    }, {
+        x: 7,
+        y: 20,
+        w: 47,
+        h: 1,
+        type: 27
+    }, {
+        x: 74,
+        y: 13,
+        w: 1,
+        h: 6,
+        type: 25
+    }, {
+        x: 73,
+        y: 11,
+        w: 1,
+        h: 2,
+        type: 25
+    }, {
+        x: 72,
+        y: 10,
+        w: 1,
+        h: 1,
+        type: 25
+    }, {
+        x: 59,
+        y: 9,
+        w: 1,
+        h: 1,
+        type: 25
+    }, {
+        x: 58,
+        y: 8,
+        w: 1,
+        h: 1,
+        type: 25
+    }, {
+        x: 57,
+        y: 7,
+        w: 1,
+        h: 1,
+        type: 25
+    }, {
+        x: 56,
+        y: 6,
+        w: 1,
+        h: 1,
+        type: 25
+    }, {
+        x: 54,
+        y: 5,
+        w: 1,
+        h: 1,
+        type: 25
+    }, {
+        x: 9,
+        y: 5,
+        w: 1,
+        h: 1,
+        type: 23
+    }, {
+        x: 8,
+        y: 6,
+        w: 1,
+        h: 1,
+        type: 23
+    }, {
+        x: 7,
+        y: 7,
+        w: 1,
+        h: 1,
+        type: 23
+    }, {
+        x: 6,
+        y: 8,
+        w: 1,
+        h: 1,
+        type: 23
+    }, {
+        x: 5,
+        y: 9,
+        w: 1,
+        h: 2,
+        type: 23
+    }, {
+        x: 5,
+        y: 11,
+        w: 1,
+        h: 7,
+        type: 33
+    }, {
+        x: 4,
+        y: 11,
+        w: 1,
+        h: 7,
+        type: 23
+    }, {
+        x: 5,
+        y: 18,
+        w: 1,
+        h: 2,
+        type: 23
+    }, {
+        x: 55,
+        y: 19,
+        w: 1,
+        h: 1,
+        type: 25
+    }, {
+        x: 58,
+        y: 16,
+        w: 1,
+        h: 1,
+        type: 60
+    }, {
+        x: 68,
+        y: 16,
+        w: 1,
+        h: 1,
+        type: 60
+    }, {
+        x: 57,
+        y: 10,
+        w: 1,
+        h: 1,
+        type: 32
+    }, {
+        x: 58,
+        y: 10,
+        w: 14,
+        h: 1,
+        type: 33
+    }, {
+        x: 60,
+        y: 11,
+        w: 12,
+        h: 1,
+        type: 33
+    }, {
+        x: 69,
+        y: 12,
+        w: 1,
+        h: 1,
+        type: 32
+    }, {
+        x: 69,
+        y: 13,
+        w: 1,
+        h: 1,
+        type: 32
+    }, {
+        x: 70,
+        y: 12,
+        w: 2,
+        h: 2,
+        type: 33
+    }, {
+        x: 59,
+        y: 11,
+        w: 1,
+        h: 1,
+        type: 32
+    }, {
+        x: 63,
+        y: 13,
+        w: 1,
+        h: 1,
+        type: 58
+    }, {
+        x: 64,
+        y: 13,
+        w: 1,
+        h: 1,
+        type: 59
+    }, {
+        x: 64,
+        y: 12,
+        w: 1,
+        h: 1,
+        type: 57
+    }, {
+        x: 63,
+        y: 12,
+        w: 1,
+        h: 1,
+        type: 56
+    }, {
+        x: 51,
+        y: 16,
+        w: 1,
+        h: 1,
+        type: 66,
+        text: 'end'
+    }, {
+        x: 54,
+        y: 17,
+        w: 17,
+        h: 1,
+        type: 30
+    }, {
+        x: 54,
+        y: 18,
+        w: 20,
+        h: 1,
+        type: 33
+    }, {
+        x: 71,
+        y: 17,
+        w: 3,
+        h: 1,
+        type: 33
+    }, {
+        x: 54,
+        y: 19,
+        w: 1,
+        h: 1,
+        type: 33
+    }, {
+        x: 16,
+        y: 16,
+        w: 1,
+        h: 1,
+        type: 78
+    }, {
+        x: 10,
+        y: 16,
+        w: 1,
+        h: 1,
+        type: 79,
+        text: '#1HEY! I have been waiting there/nat least #t minutes,/n#0is anyone here??'
+    }, {
+        x: 13,
+        y: 15,
+        w: 1,
+        h: 2,
+        type: 79,
+        text: '#0Mr. "overlord"(...) right?/nIt will be 8 coins, thanks.'
+    }, {
+        x: 13,
+        y: 15,
+        w: 1,
+        h: 2,
+        type: 74,
+        text: '#1Here./n#0You can keep the change.'
+    }, {
+        x: 13,
+        y: 15,
+        w: 1,
+        h: 2,
+        type: 79,
+        text: '#1#c coins???#0/nthats not even enough.'
+    }, {
+        x: 13,
+        y: 15,
+        w: 1,
+        h: 2,
+        type: 74,
+        text: '#1PEASANT! DO YOU KNOW/n WHO I AM?!'
+    }, {
+        x: 13,
+        y: 15,
+        w: 1,
+        h: 2,
+        type: 79,
+        text: '#0#d. . .'
+    }, {
+        x: 13,
+        y: 15,
+        w: 1,
+        h: 2,
+        type: 79,
+        text: '#3#fhave a good day'
+    }, {
+        x: 13,
+        y: 15,
+        w: 1,
+        h: 2,
+        type: 70,
+        text: '#2                         '
+    }, {
+        x: 13,
+        y: 15,
+        w: 1,
+        h: 2,
+        type: 74,
+        text: '. . .'
+    }, ],
+    spawnPoint: {
+        x: 10,
+        y: 16
+    },
+    biome: 1,
+    camBoxes: [],
+}
