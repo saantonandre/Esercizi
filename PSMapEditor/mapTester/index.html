@@ -23,10 +23,10 @@
     </script>
 -->
 
-     <!--KONGREGATE-->
-     <script src='https://cdn1.kongregate.com/javascripts/kongregate_api.js'></script>
-     <!--KONGREGATE-->
-     
+     <!--KONGREGATE
+    <script src='https://cdn1.kongregate.com/javascripts/kongregate_api.js'></script>
+    <!--KONGREGATE-->
+
 
      <title>Map Tester</title>
      <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
@@ -73,13 +73,19 @@
          <img class="arrows" id="spacebar" src="ui/mobile/spacebar.png" alt="arrow" draggable="false" oncontextmenu="return false;">
      </div>
      <!-- MOBILE UI END-->
-     <div id="menu">
-         <div id="buttons">
-             <div id="newGame" class="button">NEW GAME</div>
-             <div id="continue" class="button">CONTINUE</div>
-             <div id="dialogueBtn" class="button">Dialogues(ON)</div>
+     <div id="container">
+         <div id="title-screen">
+             <div id="buttons">
+                 <div id="newGame" class="button menu">NEW GAME</div>
+                 <div id="continue" class="button menu">CONTINUE</div>
+                 <div id="dialogueBtn" class="button menu">Dialogues(ON)</div>
+                 <div id="hardMode" class="button menu">EXTRA(soon)</div>
+             </div>
+             <div id="twitter">
+                 <a href="https://twitter.com/saantonandre" target="_blank"><img id="twitter-logo" src="twitter.png"> @saantonandre</a>
+             </div>
+             <div id="version">V beta-2019-06-09</div>
          </div>
-         <div id="version">V beta-2019-06-03</div>
          <img id="controls" class="tutorials" src="Tutorials/controls.png">
          <img id="bouncy" class="tutorials" src="Tutorials/bouncy.png">
          <img id="crystal" class="tutorials" src="Tutorials/crystal.png">
@@ -95,13 +101,12 @@
              <img id="pause-icon" src="ui/pause.png">
              <div id="options">
                  <img id="music" class="icons" src="ui/music-on.png">
-                 <img id="audio" class="icons" src="ui/sound-on.png">
-                 <div id="ctrlButton">CONTROLS</div><br>
+                 <img id="audio" class="icons" src="ui/sound-on.png"><br>
+                 <div id="ctrlButton" class="pauseButtons">CONTROLS</div>
+                 <div id="menuButton" class="pauseButtons">MAIN MENU</div>
              </div>
          </div>
-         <div id="twitter">
-             <a href="https://twitter.com/saantonandre" target="_blank"><img id="twitter-logo" src="twitter.png"> @saantonandre</a>
-         </div>
+         <div id="disclaimer">note: this game autosaves as you progress</div>
          <canvas id="canvas">
          </canvas>
      </div>
@@ -138,6 +143,7 @@
          <audio src="PixelSamurai/soundFxs/spikes2.mp3"></audio>
          <audio src="PixelSamurai/soundFxs/tremble.mp3"></audio>
          <audio src="PixelSamurai/soundFxs/fall.mp3"></audio>
+         <audio src="PixelSamurai/soundFxs/portal.mp3"></audio>
          <audio src="PixelSamurai/soundFxs/money-1.mp3"></audio>
          <audio src="PixelSamurai/soundFxs/money-2.mp3"></audio>
          <audio src="PixelSamurai/soundFxs/money-3.mp3"></audio>
@@ -191,14 +197,13 @@
          <audio src="PixelSamurai/soundFxs/voices/pizza/7.mp3"></audio>
          <audio src="PixelSamurai/soundFxs/voices/pizza/8.mp3"></audio>
      </div>
-     <!--KONGREGATE-->
-     <script>
-         kongregateAPI.loadAPI(function() {
-             window.kongregate = kongregateAPI.getAPI();
-         });
-
-     </script>
-     <!--KONGREGATE-->
+     <!--KONGREGATE
+    <script>
+        kongregateAPI.loadAPI(function() {
+            window.kongregate = kongregateAPI.getAPI();
+        });
+    </script>
+    <!--KONGREGATE-->
      <script src="levels.js"></script>
      <script src="script.js"></script>
  </body>

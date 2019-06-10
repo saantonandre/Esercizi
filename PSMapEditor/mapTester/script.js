@@ -25,17 +25,19 @@ window.onload = function () {
     var time = date + " " + today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
     console.log(time)
 
-    var session = {
-        device: "pc",
-        level: 0,
-        deathsN: 0,
-        deaths: [],
-        retention: 0,
-        date: time,
-        dialogues: "ON",
-        gamepad: false,
+    class Session {
+        constructor() {
+            this.device = "pc";
+            this.level = 0;
+            this.deathsN = 0;
+            this.deaths = [];
+            this.retention = 0;
+            this.date = time;
+            this.dialogues = "ON";
+            this.gamepad = false;
+        }
     }
-
+    var session = new Session();
     var pizzaGuy = {
         hitbox: {
             x: 0,
@@ -84,8 +86,8 @@ window.onload = function () {
     } else {
         biggestPossible = rHeight;
     }
-    id("menu").style.width = (tileSize * 20 * biggestPossible) + "px";
-    id("menu").style.height = (tileSize * 15 * biggestPossible) + "px";
+    id("container").style.width = (tileSize * 20 * biggestPossible) + "px";
+    id("container").style.height = (tileSize * 15 * biggestPossible) + "px";
 
     function adjustScreen(device) {
         switch (device) {
@@ -115,8 +117,8 @@ window.onload = function () {
         canvas.heigth -= canvas.heigth % 16;
         ratio = canvas.width / (tilesWidth) | 0;
         //UI
-        id("menu").style.width = canvas.width + "px";
-        id("menu").style.height = canvas.height + "px";
+        id("container").style.width = canvas.width + "px";
+        id("container").style.height = canvas.height + "px";
 
         c.imageSmoothingEnabled = false;
     }
@@ -247,6 +249,7 @@ window.onload = function () {
         spikes2: new Audio("PixelSamurai/soundFxs/spikes2.mp3"),
         tremble: new Audio("PixelSamurai/soundFxs/tremble.mp3"),
         fall: new Audio("PixelSamurai/soundFxs/fall.mp3"),
+        portal: new Audio("PixelSamurai/soundFxs/portal.mp3"),
         money_1: new Audio("PixelSamurai/soundFxs/money-1.mp3"),
         money_2: new Audio("PixelSamurai/soundFxs/money-2.mp3"),
         money_3: new Audio("PixelSamurai/soundFxs/money-3.mp3"),
@@ -291,7 +294,7 @@ window.onload = function () {
     audio.ambient_2.volume = 0;
 
     audio.spikes2.playbackRate = 1.8;
-
+    audio.portal.volume = 0.5;
     audio.ambient_1.loop = true;
     audio.ambient_2.loop = true;
 
@@ -404,7 +407,6 @@ window.onload = function () {
             this.stun = false;
             this.speed = 0.12;
             this.precision = 100;
-            this.lastTile = spawnPoint;
             this.frameCounter = 0;
             this.jumpTransition = true;
             this.goingDown = false;
@@ -1008,8 +1010,6 @@ window.onload = function () {
                 this.slowness = 3;
                 if (this.frame >= 6) {
                     this.windup = false;
-                    let dir = this.left ? 4 : 3;
-                    visualFxs.push(new JumpFx(this.x, this.y, dir));
                     audio.dash.playy();
                     this.dashCd = true;
                     this.dash = true;
@@ -1953,6 +1953,7 @@ window.onload = function () {
             this.frame = 0;
             this.type = "portal";
             this.load = 0;
+            this.sfx = audio.portal;
             this.hitbox = {
                 x: x + 0.3,
                 y: y + 0.3,
@@ -1968,11 +1969,10 @@ window.onload = function () {
         }
         action() {
             if (collided(this, player) && this.place) {
-                var point = {
-                    x: this.hitbox.x + this.hitbox.w / 2,
-                    y: this.hitbox.y + this.hitbox.h / 2,
-                }
-                if (pointSquareCol(point, player)) {
+                if (collided(this, player.dmgHitbox)) {
+                    if (this.sfx.paused) {
+                        this.sfx.play();
+                    }
                     this.load++;
                     blackScreen = this.load * 2 + 1;
                     if (this.load > 50) {
@@ -1980,7 +1980,7 @@ window.onload = function () {
                         player.levelMoney = 0;
                         let nextLevel = parseInt(this.place);
                         if (nextLevel == 15) {
-                            /*KONGREGATE*/
+                            /*KONGREGATE
                             kongregate.stats.submit('Time', session.retention);
                             /*KONGREGATE*/
                             dialogueOn = true;
@@ -1989,10 +1989,22 @@ window.onload = function () {
                                 badEnding = 0;
                                 nextLevel = 16;
                             }
+                        } else if (nextLevel == 1) {
+                            id("disclaimer").classList.add("downUp");
                         }
-                        /*KONGREGATE*/
+                        /*KONGREGATE
                         kongregate.stats.submit('Level', nextLevel);
                         /*KONGREGATE*/
+
+                        /*indiexpo*/
+                        if (window.IndiexpoAPI) {
+                            IndiexpoAPI.sendScore(nextLevel).done(function (result) {});
+                            console.log("Success");
+                        } else {
+                            console.log("Error");
+                        }
+                        /*indiexpo*/
+
                         safeEval(maps[nextLevel])
                         window.localStorage["LvL"] = nextLevel;
                         window.localStorage["money"] = player.money;
@@ -2010,7 +2022,14 @@ window.onload = function () {
                         blackScreen = this.load
                         this.load = 0;
                     }
+                    if (!this.sfx.paused) {
+                        this.sfx.pause();
+                        this.sfx.currentTime = 0;
+                    }
                 }
+            } else if (!this.sfx.paused) {
+                this.sfx.pause();
+                this.sfx.currentTime = 0;
             }
         }
     }
@@ -2025,6 +2044,7 @@ window.onload = function () {
             this.frameCounter = 0;
             this.slowness = 6;
             this.frame = 0;
+            this.collided = false;
             this.type = "door";
             this.tut = tut;
             this.hitbox = {
@@ -2041,9 +2061,10 @@ window.onload = function () {
             };
         }
         action() {
+            this.collided = collided(player, this);
             switch (this.sprite) {
                 case 0:
-                    if (collided(player, this)) {
+                    if (this.collided) {
                         this.frame = 0;
                         this.frameCounter = 0;
                         this.sprite = 1;
@@ -2059,16 +2080,10 @@ window.onload = function () {
                     }
                     break;
                 case 2:
-                    if (!collided(player, this)) {
+                    if (!this.collided) {
                         this.frame = 0;
                         this.frameCounter = 0;
                         this.sprite = 3;
-                    } else {
-                        player.reading = true;
-                        if (this.tut != undefined) {
-                            player.currentBook = this.tut;
-                        }
-                        displaySpacebar = true;
                     }
                     break;
                 case 3:
@@ -2078,6 +2093,13 @@ window.onload = function () {
                         this.sprite = 0;
                     }
                     break;
+            }
+            if (this.collided) {
+                player.reading = true;
+                if (this.tut != undefined) {
+                    player.currentBook = this.tut;
+                }
+                displaySpacebar = true;
             }
         }
     }
@@ -2623,7 +2645,11 @@ window.onload = function () {
                     this.stop = true;
                 }
             } else {
-                this.sprite = 0;
+                if (this.sprite !== 0) {
+                    this.sprite = 0;
+                    this.frame++;
+                    this.frameCounter = 0;
+                }
             }
             this.touched = false;
         }
@@ -3443,7 +3469,7 @@ window.onload = function () {
             this.wholeText = "";
             this.text = "";
             this.textIterator = 0;
-            this.slowness = 4;
+            this.slowness = 3;
             this.slowness2 = 8;
             this.counter = 0;
             this.size = 0.8;
@@ -3631,6 +3657,7 @@ window.onload = function () {
                 lines[i] = lines[i].replace("#b", "");
 
                 lines[i] = lines[i].replace("#", "");
+                lines[i] = lines[i].replace("/n", "");
                 lines[i] = lines[i].replace("/", "");
             }
 
@@ -4135,6 +4162,9 @@ window.onload = function () {
     //Mouse controls
     var jmpKeyPressed = 0;
     window.onmousedown = function (e) {
+        if (player.uncontrollable) {
+            dialogueEngine.input = 1;
+        }
         if (typeof e === 'object' && !touchDevice && !player.uncontrollable) {
             switch (e.button) {
                 case 0:
@@ -4183,8 +4213,8 @@ window.onload = function () {
 
     function safeEval(level) {
         if (typeof level === 'object' && level !== null) {
-            map = level.map;
-            spawnPoint = level.spawnPoint;
+            map = Object.create(level.map);
+            spawnPoint = Object.create(level.spawnPoint);
             biome = level.biome;
             camBoxes = level.camBoxes;
             console.log("safe eval")
@@ -4216,7 +4246,8 @@ window.onload = function () {
         requestAnimationFrame(loop);
         gameStarted = true;
         menuUI.visible = false;
-        id("menu").style.visibility = "hidden";
+        id("title-screen").style.left = "-100%";
+        id("canvas").style.left = "0%";
         canvas.style.visibility = "visible";
         gamePaused = false;
 
@@ -4349,10 +4380,11 @@ window.onload = function () {
         }
 
     }
-    id("menu").addEventListener('touchstart', function (e) {
+    id("container").addEventListener('touchstart', function (e) {
         e.preventDefault();
     })
     id("newGame").addEventListener("touchstart", function () {
+
         mobileInit(false);
     }, {
         once: true
@@ -4360,44 +4392,151 @@ window.onload = function () {
 
     // Keyboard controls
     window.addEventListener("keydown", function (event) {
-        var key = event.keyCode;
-        if (key !== 122) {
-            event.preventDefault();
-        }
-        if (key === 112) {
-            id("stats").style.visibility = "visible";
-            stats.colPoints = true;
-        }
-        if (key === 113) {
-            console.log("Playing as Admin.")
-            admin = true;
-        }
-        if (key === 114) {
-            player.money = 111110;
-            player.levelMoney = 0;
-            let nextLevel = parseInt(15);
-            if (nextLevel == 15) {
-                dialogueOn = true;
-                badEnding = 1;
-                if (financial(player.money * 5 / 1000) >= 8.5) {
-                    badEnding = 0;
-                    nextLevel = 16;
+        if (!menuUI.visible) {
+            var key = event.keyCode;
+            if (key !== 122) {
+                event.preventDefault();
+            }
+            if (key === 112) {
+                id("stats").style.visibility = "visible";
+                stats.colPoints = true;
+            }
+            if (key === 113) {
+                console.log("Playing as Admin.")
+                admin = true;
+            }
+            if (key === 114) {
+                player.money = 111110;
+                player.levelMoney = 0;
+                let nextLevel = parseInt(15);
+                if (nextLevel == 15) {
+                    dialogueOn = true;
+                    badEnding = 1;
+                    if (financial(player.money * 5 / 1000) >= 8.5) {
+                        badEnding = 0;
+                        nextLevel = 16;
+                    }
+                }
+                safeEval(maps[nextLevel])
+                window.localStorage["LvL"] = nextLevel;
+                window.localStorage["money"] = player.money;
+                window.localStorage["time"] = session.retention;
+                currentLevel++;
+                adaptBiome();
+                initializeMap();
+                mapX = -player.x + (tilesWidth / 2 - 2);
+                mapY = -player.y + (tilesHeight / 2);
+                blackScreen = 100;
+            }
+            if (!gamePaused && !player.uncontrollable && gameStarted) {
+                switch (key) {
+                    case 27:
+                    case 32: // esc/space key
+                        gamePaused = true;
+                        //c.globalAlpha=0.6;
+                        //UI
+                        if (player.reading) {
+                            id(player.currentBook).style.visibility = "visible";
+                        } else {
+                            pauseUI.visible = true;
+                            id("pause-screen").style.display = "block";
+                            id("pause-screen").style.visibility = "visible";
+                            id("controls").style.visibility = "hidden";
+                        }
+
+                        break;
+                    case 65: //left key down (A / left arrow)
+                    case 37:
+                        player.L = true;
+                        break;
+                    case 68: //right key down (D / right arrow)
+                    case 39:
+                        player.R = true;
+                        break;
+                    case 83: //down key down (S /down arrow)
+                    case 40:
+                        watchDown = true;
+                        break;
+                    case 87: //jump key down (W / Z / up arrow)
+                    case 90:
+                    case 38:
+                        if (!jmpKeyPressed) {
+                            player.jump();
+                            jmpKeyPressed = true;
+                        }
+                        break;
+                    case 82:
+                        if (!player.dead) {
+                            visualFxs.push(new DeathFx(player.x, player.y));
+                            audio.death.playy();
+                            player.dead = true;
+                            setTimeout(function () {
+                                player.respawnEvent();
+                            }, 1500);
+                        }
+                        break;
+                    case 70: //attack key down (F / X)
+                    case 88:
+                        player.attackEvent();
+                        break;
+                    case 67: //camera key (C)
+                        cameraType = 1;
+                        break;
+                    case 69: //dance key (E)
+                        player.dance = true;
+                        console.log("player.x: " + player.x + "\nplayer.y: " + player.y);
+                        break;
+                    case 71: //g key down
+                        console.log(player);
+                        break;
+                    case 72: //h key down
+                        //nothing
+                        break;
+                    case 49: // 1
+                        monsters.push(new Slime(5 - mapX, -mapY));
+                        break;
+                    case 50: // 2
+                        monsters.push(new Lizard(5 - mapX, -mapY));
+                        break;
+                    case 51: // 3
+                        monsters.push(new Zombie(5 - mapX, -mapY));
+                        break;
+                    case 52: // 4
+                        monsters.push(new Superzombie(5 - mapX, -mapY));
+                        break;
+                    case 53: // 5
+                        monsters.push(new Bear(5 - mapX, -mapY));
+                        break;
+                    case 54: // 6
+                        safeEval(maps[0]);
+                        initializeMap();
+                        break;
+                    case 55: // 7
+                        safeEval(maps[10]);
+                        initializeMap();
+                        break;
+                }
+            } else if (key === 27 || key === 32) {
+
+                //UI
+                if (player.reading) {
+                    id(player.currentBook).style.visibility = "hidden";
+                    gamePaused = false;
+                    requestAnimationFrame(loop);
+                } else if (player.uncontrollable) {
+                    dialogueEngine.input = 1;
+                } else {
+                    console.log("a")
+                    pauseUI.visible = false;
+                    id("pause-screen").style.display = "none";
+                    id("pause-screen").style.visibility = "hidden";
+                    id("controls").style.visibility = "hidden";
+                    gamePaused = false;
+                    requestAnimationFrame(loop);
                 }
             }
-            safeEval(maps[nextLevel])
-            window.localStorage["LvL"] = nextLevel;
-            window.localStorage["money"] = player.money;
-            window.localStorage["time"] = session.retention;
-            currentLevel++;
-            adaptBiome();
-            initializeMap();
-            mapX = -player.x + (tilesWidth / 2 - 2);
-            mapY = -player.y + (tilesHeight / 2);
-            blackScreen = 100;
-        }
-        if (!gamePaused && !player.uncontrollable && gameStarted) {
+            /*
             switch (key) {
-                case 27:
                 case 32: // esc/space key
                     gamePaused = true;
                     //c.globalAlpha=0.6;
@@ -4432,114 +4571,9 @@ window.onload = function () {
                         jmpKeyPressed = true;
                     }
                     break;
-                case 82:
-                    if (!player.dead) {
-                        visualFxs.push(new DeathFx(player.x, player.y));
-                        audio.death.playy();
-                        player.dead = true;
-                        setTimeout(function () {
-                            player.respawnEvent();
-                        }, 1500);
-                    }
-                    break;
-                case 70: //attack key down (F / X)
-                case 88:
-                    player.attackEvent();
-                    break;
-                case 67: //camera key (C)
-                    cameraType = 1;
-                    break;
-                case 69: //dance key (E)
-                    player.dance = true;
-                    console.log("player.x: " + player.x + "\nplayer.y: " + player.y);
-                    break;
-                case 71: //g key down
-                    console.log(player);
-                    break;
-                case 72: //h key down
-                    //nothing
-                    break;
-                case 49: // 1
-                    monsters.push(new Slime(5 - mapX, -mapY));
-                    break;
-                case 50: // 2
-                    monsters.push(new Lizard(5 - mapX, -mapY));
-                    break;
-                case 51: // 3
-                    monsters.push(new Zombie(5 - mapX, -mapY));
-                    break;
-                case 52: // 4
-                    monsters.push(new Superzombie(5 - mapX, -mapY));
-                    break;
-                case 53: // 5
-                    monsters.push(new Bear(5 - mapX, -mapY));
-                    break;
-                case 54: // 6
-                    safeEval(maps[0]);
-                    initializeMap();
-                    break;
-                case 55: // 7
-                    safeEval(maps[10]);
-                    initializeMap();
-                    break;
             }
-        } else if (key === 27 || key === 32) {
-
-            //UI
-            if (player.reading) {
-                id(player.currentBook).style.visibility = "hidden";
-                gamePaused = false;
-                requestAnimationFrame(loop);
-            } else if (player.uncontrollable) {
-                dialogueEngine.input = 1;
-            } else {
-                console.log("a")
-                pauseUI.visible = false;
-                id("pause-screen").style.display = "none";
-                id("pause-screen").style.visibility = "hidden";
-                id("controls").style.visibility = "hidden";
-                gamePaused = false;
-                requestAnimationFrame(loop);
-            }
+            */
         }
-        /*
-        switch (key) {
-            case 32: // esc/space key
-                gamePaused = true;
-                //c.globalAlpha=0.6;
-                //UI
-                if (player.reading) {
-                    id(player.currentBook).style.visibility = "visible";
-                } else {
-                    pauseUI.visible = true;
-                    id("pause-screen").style.display = "block";
-                    id("pause-screen").style.visibility = "visible";
-                    id("controls").style.visibility = "hidden";
-                }
-
-                break;
-            case 65: //left key down (A / left arrow)
-            case 37:
-                player.L = true;
-                break;
-            case 68: //right key down (D / right arrow)
-            case 39:
-                player.R = true;
-                break;
-            case 83: //down key down (S /down arrow)
-            case 40:
-                watchDown = true;
-                break;
-            case 87: //jump key down (W / Z / up arrow)
-            case 90:
-            case 38:
-                if (!jmpKeyPressed) {
-                    player.jump();
-                    jmpKeyPressed = true;
-                }
-                break;
-        }
-        */
     });
     var sheets = ["PixelSamurai/sheet11.png", "PixelSamurai/sheetWarmPalette.png"]
     var selectedSheet = 0;
@@ -4804,8 +4838,9 @@ window.onload = function () {
     }
     if (mapTester) {
         adjustScreen("pc");
-        menuUI.visible = false
-        id("menu").style.visibility = "hidden";
+        menuUI.visible = false;
+        id("title-screen").style.left = "-100%";
+        id("canvas").style.left = "0%";
         canvas.style.visibility = "visible";
         dialogueOn = true;
         adaptBiome();
@@ -4816,11 +4851,14 @@ window.onload = function () {
     if (!mapTester) {
         let buttons = document.getElementsByClassName("button");
         for (let i = 0; i < buttons.length; i++) {
-            buttons[i].style.fontSize = (parseInt(id("menu").style.width) / 20 | 0) + "px";
+            buttons[i].style.fontSize = (parseInt(id("container").style.width) / 20 | 0) + "px";
         }
-        id("twitter").style.fontSize = (parseInt(id("menu").style.width) / 20 | 0) + "px";
-        id("twitter-logo").style.height = (parseInt(id("menu").style.width) / 20 | 0) + "px";
+        id("twitter").style.fontSize = (parseInt(id("container").style.width) / 20 | 0) + "px";
+        id("disclaimer").style.fontSize = (parseInt(id("container").style.width) / 30 | 0) + "px";
+        id("twitter-logo").style.height = (parseInt(id("container").style.width) / 20 | 0) + "px";
         id("newGame").onmousedown = function () {
+            session = new Session();
+            player = new Player(spawnPoint.x, spawnPoint.y);
             adjustScreen("pc");
             console.log("pc");
             safeEval(maps[0]);
@@ -4828,8 +4866,9 @@ window.onload = function () {
             initializeMap();
             requestAnimationFrame(loop);
             gameStarted = true;
-            menuUI.visible = false
-            id("menu").style.visibility = "hidden";
+            menuUI.visible = false;
+            id("title-screen").style.left = "-100%";
+            id("canvas").style.left = "0%";
             id("controls").style.visibility = "visible";
             canvas.style.visibility = "visible";
         }
@@ -4864,8 +4903,9 @@ window.onload = function () {
                 requestAnimationFrame(loop);
                 gameStarted = true;
                 menuUI.visible = false;
-                id("menu").style.visibility = "hidden";
-                id("controls").style.visibility = "visible";
+                id("title-screen").style.left = "-100%";
+                id("canvas").style.left = "0%";
+                id("controls").style.visibility = "hidden";
                 canvas.style.visibility = "visible";
             }
             id("continue").style.opacity = "1";
@@ -4883,6 +4923,35 @@ window.onload = function () {
         id("pause-screen").style.visibility = "hidden";
         id("controls").style.visibility = "visible";
         canvas.style.visibility = "visible";
+    }
+    id("menuButton").onclick = function () {
+        id("title-screen").style.left = "0%";
+        id("pause-screen").style.display = "none";
+        id("pause-screen").style.visibility = "hidden";
+        gamePaused = true;
+        menuUI.visible = true;
+        if (window.localStorage['LvL'] != null && window.localStorage['LvL'] < 15) {
+            id("continue").onmousedown = function () {
+                adjustScreen("pc");
+                safeEval(maps[parseInt(window.localStorage['LvL'] || 0)]);
+                currentLevel = parseInt(window.localStorage['LvL']);
+                session.retention = parseInt(window.localStorage['time']);
+                player.money = parseInt(window.localStorage["money"]);
+                player.deaths = parseInt(window.localStorage["deaths"] || 0);
+                adaptBiome();
+                initializeMap();
+                requestAnimationFrame(loop);
+                gameStarted = true;
+                menuUI.visible = false;
+                id("title-screen").style.left = "-100%";
+                id("canvas").style.left = "0%";
+                id("controls").style.visibility = "visible";
+                canvas.style.visibility = "visible";
+            }
+            id("continue").style.opacity = "1";
+        } else {
+            id("continue").style.opacity = "0.5";
+        };
     }
     id("music").onclick = musicBtn;
     id("music").ontouchstart = musicBtn;
@@ -4940,6 +5009,7 @@ window.onload = function () {
             audio.dash.volume = 0;
             audio.attack.volume = 0;
             audio.hit.volume = 0;
+            audio.portal.volume = 0;
             audio.death.volume = 0;
             audio.crystal.volume = 0;
             audio.walking.volume = 0;
@@ -4973,6 +5043,7 @@ window.onload = function () {
             audio.dash.volume = 0.3;
             audio.attack.volume = 0.5;
             audio.hit.volume = 0.5;
+            audio.portal.volume = 0.5;
             audio.death.volume = 0.5;
             audio.crystal.volume = 1;
             audio.walking.volume = 1;
@@ -5410,6 +5481,9 @@ window.onload = function () {
     function gameOver() {
         if (!credits) {
             initCredits();
+        }
+        if (!credits.badEnding) {
+            player.dance = true;
         }
         c.textAlign = "center";
         c.font = Math.round(credits.size * ratio) + "px" + " 'VT323'";

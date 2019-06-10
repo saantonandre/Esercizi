@@ -5,7 +5,8 @@ body {
     overflow: hidden;
     background-color: black;
 }
-*{
+
+* {
     touch-action: none;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
     -webkit-touch-callout: none;
@@ -28,17 +29,16 @@ body {
     /* CSS3 Proposed                  */
     -ms-interpolation-mode: nearest-neighbor;
 }
+
 a {
     color: inherit;
     text-decoration: none;
 }
 
-#menu {
+#container {
     margin: 0;
     padding: 0;
     border: 0;
-    background-image: url(title-screen.png);
-    background-size: contain;
     z-index: 200;
     position: absolute;
     left: 50%;
@@ -48,6 +48,53 @@ a {
     -moz-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);
     overflow: hidden;
+}
+
+#disclaimer {
+    position: absolute;
+    top: -10%;
+    width: 100%;
+    text-align: center;
+    border: 3px solid transparent;
+    padding: 3px;
+    text-shadow: 1px 1px 0 #222034,
+        -1px 1px 0 #222034,
+        1px -1px 0 #222034,
+        -1px -1px 0 #222034,
+        0px 1px 0 #222034,
+        0px -1px 0 #222034,
+        -1px 0px 0 #222034,
+        1px 0px 0 #222034,
+        2px 2px 0 #222034,
+        -2px 2px 0 #222034,
+        2px -2px 0 #222034,
+        -2px -2px 0 #222034,
+        0px 2px 0 #222034,
+        0px -2px 0 #222034,
+        -2px 0px 0 #222034,
+        2px 0px 0 #222034,
+        1px 2px 0 #222034,
+        -1px 2px 0 #222034,
+        1px -2px 0 #222034,
+        -1px -2px 0 #222034,
+        2px 1px 0 #222034,
+        -2px 1px 0 #222034,
+        2px -1px 0 #222034,
+        -2px -1px 0 #222034;
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    color: white;
+}
+
+#title-screen {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    left: 0%;
+    background-image: url(title-screen.png);
+    background-size: contain;
+    transition: all 1s;
 }
 
 #ghost {
@@ -92,8 +139,12 @@ a {
     position: absolute;
     text-align: left;
     margin-top: 25%;
-    left: 1%;
+    left: 2%;
     color: white;
+}
+
+#hardMode {
+    opacity: 0.5;
 }
 
 .button {
@@ -123,6 +174,8 @@ a {
         -2px 1px 0 #222034,
         2px -1px 0 #222034,
         -2px -1px 0 #222034;
+    transform: translateX(-150%);
+    transition: all 0.1s;
 }
 }
 
@@ -131,6 +184,8 @@ a {
     padding: 0;
     border: 0;
     z-index: 100;
+    transition: all 1s;
+    left: 100%;
     visibility: hidden;
     image-rendering: optimizeSpeed;
     /* STOP SMOOTHING, GIVE ME SPEED  */
@@ -166,11 +221,63 @@ a {
     margin-right: 2%;
 }
 
+@keyframes toRight {
+    0% {
+        transform: translateX(-150%);
+    }
+
+    100% {
+        transform: translateX(0%);
+    }
+}
+.downUp{
+    animation: downUp 5s ease-in-out 0s forwards;
+}
+@keyframes downUp {
+    0% {
+        top: -10%;
+    }
+
+    10% {
+        top: 0;
+    }
+
+    90% {
+        top: 0;
+    }
+
+    100% {
+        top: -10%;
+    }
+}
+
+#newGame {
+    animation: toRight 0.5s ease-out 0s forwards;
+}
+
+#continue {
+    animation: toRight 0.5s ease-out 0.2s forwards;
+}
+
+#dialogueBtn {
+    animation: toRight 0.5s ease-out 0.4s forwards;
+}
+
+#hardMode {
+    animation: toRight 0.5s ease-out 0.6s forwards;
+}
+
 .icons:hover,
 #ctrlButton:hover,
 .button:hover,
-.selected {
+.selected,
+#menuButton:hover {
     border: 3px solid white;
+}
+
+.menu:hover {
+    border: 3px solid white;
+    padding: 5%;
 }
 
 #pause-icon {
@@ -218,8 +325,11 @@ a {
     opacity: 1;
 }
 
-#ctrlButton {
+.pauseButtons {
+    display: inline-block;
     margin-top: 5%;
+    margin-right: 2.5%;
+    margin-left: 2.5%;
     font-family: 'VT323', monospace;
     font-size: 50px;
     color: white;
