@@ -162,8 +162,8 @@ function playNote(frequency) {
     o.start(0)
     g.gain.exponentialRampToValueAtTime(0.00001, context.currentTime + 3);
     contextes.push(context);
-    if (contextes.length >= 3) {
-        contextes[contextes.length - 12].close();
+    if (contextes.length >= 6) {
+        contextes[contextes.length - 6].close();
     }
 }
 
