@@ -169,7 +169,7 @@ function playNote(frequency, flag) {
             }
         }
     }
-
+    
     g.connect(context.destination);
     //console.log(frequency);
     o.frequency.value = freq;
@@ -177,24 +177,27 @@ function playNote(frequency, flag) {
 
     o.connect(g);
     contextes.push(context);
-    if (contextes.length >= 12) {
-        contextes[contextes.length - 12].close();
+    if (contextes.length >= 10) {
+        contextes[contextes.length - 10].close();
     }
 
     o.start(volume)
 }
-id("melody").onclick = function () {
-    playMelody(notesInChords);
+var melodyOn=true;
+id("melody").onchange=function(){
+    melodyOn=!melodyOn;
 }
 var notesInChords;
 var ST = setTimeout(function () {}, 1000);
 var btn1 = id("generate");
 btn1.onclick = function () {
+
     clearTimeout(ST);
     var chords = generateChords();
     notesInChords = findNotes(chords);
-    
-    playMelody(notesInChords);
+    if (melodyOn) {
+        playMelody(notesInChords);
+    }
     for (let i = 0; i < chords.length; i++) {
         id("" + i).innerHTML = chords[i].note + " " + chords[i].type;
     }
@@ -212,13 +215,14 @@ btn1.onclick = function () {
 
 
 }
-
+var y=setTimeout(function () {},1000);
 function playMelody(notesInChords) {
+    clearTimeout(y);
     let nIC = notesInChords;
     playNote(nIC[Math.random() * nIC.length | 0], 1);
-    setTimeout(function () {
+    y=setTimeout(function () {
         playMelody(notesInChords)
-    }, tempo / (Math.random() * 16 | 0 + 1) * 2);
+    }, tempo / (Math.random() * 8 | 0 + 1) * 2);
     console.log(nIC)
 }
 
@@ -228,40 +232,40 @@ function findNotes(chords) {
     for (let i = 0; i < chords.length; i++) {
         switch (chords[i].note) {
             case "DO":
-                note = DO[1];
+                note = DO[0];
                 break;
             case "DO#":
-                note = DO1[1];
+                note = DO1[0];
                 break;
             case "RE":
-                note = RE[1];
+                note = RE[0];
                 break;
             case "RE#":
-                note = RE1[1];
+                note = RE1[0];
                 break;
             case "MI":
-                note = MI[1];
+                note = MI[0];
                 break;
             case "FA":
-                note = FA[1];
+                note = FA[0];
                 break;
             case "FA#":
-                note = FA1[1];
+                note = FA1[0];
                 break;
             case "SOL":
-                note = SOL[1];
+                note = SOL[0];
                 break;
             case "SOL#":
-                note = SOL1[1];
+                note = SOL1[0];
                 break;
             case "LA":
-                note = LA[1];
+                note = LA[0];
                 break;
             case "LA#":
-                note = LA1[1];
+                note = LA1[0];
                 break;
             case "SI":
-                note = SI[1];
+                note = SI[0];
                 break;
         }
         switch (chords[i].type) {
@@ -339,19 +343,19 @@ function generateChords() {
     return [
         {
             note: noteList[Math.random() * 12 | 0],
-            type: type[Math.random() * 3 | 0]
+            type: type[Math.random() * 2 | 0]
         },
         {
             note: noteList[Math.random() * 12 | 0],
-            type: type[Math.random() * 3 | 0]
+            type: type[Math.random() * 2 | 0]
         },
         {
             note: noteList[Math.random() * 12 | 0],
-            type: type[Math.random() * 3 | 0]
+            type: type[Math.random() * 2 | 0]
         },
         {
             note: noteList[Math.random() * 12 | 0],
-            type: type[Math.random() * 3 | 0]
+            type: type[Math.random() * 2 | 0]
         }
     ]
 }
