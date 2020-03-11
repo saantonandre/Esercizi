@@ -5,29 +5,34 @@ body {
     background-color: #0f380f;
     color: #306230;
     text-align: center;
-    margin: 5vw;
-    padding:0;
+    font-size:5vw;
+    padding: 5vw;
+    margin:0;
+    overflow: hidden;
 }
-
+#text{
+    font-size:4vw;
+}
 #lancia {
-    margin: 5vw;
+    margin: 3vw;
     display: inline-block;
-    font-size: 25px;
+    font-size: 4vw;
     background-color: #9bbc0f;
-    padding: 3px;
+    padding: 3vw;
     border: solid 3px #306230;
 }
 #saantonandre{
-    position: absolute;
+    position: fixed;
     color: #306230;
-    bottom:5px;
+    font-size: 3vw;
+    bottom:1vw;
     left:5px;
 }
 
 #dadi {
     image-rendering:pixelated;
     display: inline-block;
-    font-size: 25px;
+    font-size: 3vw;
     color: #306230;
 
 }
@@ -35,8 +40,8 @@ body {
 }
 .dado {
     display: inline-block;
-    width:70px;
-    height:70px;
+    width:15vw;
+    height:15vw;
     background-image: url(1.png);
     background-repeat: no-repeat;
     background-position: center;
@@ -58,8 +63,8 @@ body {
 
 .check {
     display: inline-block;
-    width: 30px;
-    height: 30px;
+    width: 7vw;
+    height: 7vw;
     border: solid 3px #306230;
     margin: 2vw;
 }
