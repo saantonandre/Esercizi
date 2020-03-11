@@ -1,0 +1,68 @@
+body {
+    font-family: 'Press Start 2P', cursive;
+    touch-action: none;
+    user-select: none;
+    background-color: #0f380f;
+    color: #306230;
+    text-align: center;
+    margin: 5vw;
+    padding:0;
+}
+
+#lancia {
+    margin: 5vw;
+    display: inline-block;
+    font-size: 25px;
+    background-color: #9bbc0f;
+    padding: 3px;
+    border: solid 3px #306230;
+}
+#saantonandre{
+    position: absolute;
+    color: #306230;
+    bottom:5px;
+    left:5px;
+}
+
+#dadi {
+    image-rendering:pixelated;
+    display: inline-block;
+    font-size: 25px;
+    color: #306230;
+
+}
+.transition{
+}
+.dado {
+    display: inline-block;
+    width:70px;
+    height:70px;
+    background-image: url(1.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+}
+#attacco {
+    display: inline-block;
+    text-align: left;
+    color: #8bac0f;
+    width:40vw;
+}
+
+#difesa {
+    display: inline-block;
+    text-align: right;
+    color: #8bac0f;
+    width:40vw;
+}
+
+.check {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border: solid 3px #306230;
+    margin: 2vw;
+}
+.checked{
+    background-color: #9bbc0f;
+}
