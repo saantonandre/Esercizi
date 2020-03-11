@@ -52,6 +52,7 @@ body {
     text-align: left;
     color: #8bac0f;
     width:40vw;
+    font-size:4vw;
 }
 
 #difesa {
@@ -59,12 +60,13 @@ body {
     text-align: right;
     color: #8bac0f;
     width:40vw;
+    font-size:4vw;
 }
 
 .check {
     display: inline-block;
-    width: 7vw;
-    height: 7vw;
+    width: 4vw;
+    height: 4vw;
     border: solid 3px #306230;
     margin: 2vw;
 }
