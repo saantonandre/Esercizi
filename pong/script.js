@@ -89,7 +89,6 @@ var user = "none";
 
 function init() {
     if (coordsDB.players.active.a == 0) {
-        ball.init();
         user = "a";
         ref.child("players").child("active").update({
             a: 1
@@ -103,6 +102,9 @@ function init() {
         console.log("you are player TWO")
     } else {
         console.log("you are a spectator")
+        ref.child("players").child("active").update({
+            spect: coordsDB.players.active.spect + 1
+        });
     }
     if (coordsDB.players.active.a == 1 && coordsDB.players.active.b == 1) {
         ref.child("score").update({
@@ -128,6 +130,10 @@ window.addEventListener('beforeunload', (event) => {
                 b: 0
             });
             break;
+        default:
+            ref.child("players").child("active").update({
+                spect: coordsDB.players.active.spect - 1
+            });
     }
 });
 class Field {
@@ -154,8 +160,27 @@ class Player {
         this.down = false;
         this.yVel = 0;
         this.accel = 1;
-        this.speed = 6;
+        this.speed = 10;
         this.whom = whom;
+        this.color = this.whom == "a" ? "green" : "red";
+        this.hitboxUp = {
+            x: this.x,
+            y: this.y,
+            w: this.w,
+            h: this.h / 5 * 2
+        };
+        this.hitboxMid = {
+            x: this.x,
+            y: this.y + this.h / 5 * 2,
+            w: this.w,
+            h: this.h / 5,
+        }
+        this.hitboxDown = {
+            x: this.x,
+            y: this.y + this.h / 5 * 3,
+            w: this.w,
+            h: this.h / 5 * 2,
+        }
     }
     compute() {
         if (this.up) {
@@ -182,6 +207,9 @@ class Player {
         } else if (this.y + this.h > field.y + field.h) {
             this.y = field.y + field.h - this.h;
         }
+        this.hitboxUp.y = this.y;
+        this.hitboxMid.y = this.y + this.h / 5 * 2;
+        this.hitboxDown.y = this.y + this.h / 5 * 3;
     }
     render() {
         c.fillStyle = "black";
@@ -220,10 +248,10 @@ class Ball {
         this.y = field.y + field.h / 2 - this.h / 2;
         this.xVel = 0;
         this.yVel = 0;
-        this.speed = 6;
+        this.speed = 5;
     }
     render() {
-        c.fillStyle = "blue";
+        c.fillStyle = "#445280";
         c.fillRect(this.x, this.y, this.w, this.h);
 
     }
@@ -264,16 +292,50 @@ class Ball {
             if (this.xVel < 0) {
                 this.xVel = -this.xVel;
                 ref.child("ball").update({
-                    xVel: parseFloat((this.xVel).toFixed(2))
+                    xVel: parseFloat((this.xVel * 1.1).toFixed(2))
                 });
+                if (collided(this, player1.hitboxMid)) {
+                    this.yVel / 2;
+                } else if (collided(this, player1.hitboxUp)) {
+                    if (this.yVel < 0) {
+                        this.yVel *= 2;
+                    }
+                    if (this.yVel > 0) {
+                        this.yVel = -this.yVel;
+                    }
+                } else if (collided(this, player1.hitboxDown)) {
+                    if (this.yVel < 0) {
+                        this.yVel = -this.yVel;
+                    }
+                    if (this.yVel > 0) {
+                        this.yVel *= 2;
+                    }
+                }
                 explosion(ball);
             }
         } else if (collided(this, player2)) {
             if (this.xVel > 0) {
                 this.xVel = -this.xVel;
                 ref.child("ball").update({
-                    xVel: parseFloat((this.xVel).toFixed(2))
+                    xVel: parseFloat((this.xVel * 1.1).toFixed(2))
                 });
+                if (collided(this, player1.hitboxMid)) {
+                    this.yVel / 2;
+                } else if (collided(this, player1.hitboxUp)) {
+                    if (this.yVel < 0) {
+                        this.yVel *= 2;
+                    }
+                    if (this.yVel > 0) {
+                        this.yVel = -this.yVel;
+                    }
+                } else if (collided(this, player1.hitboxDown)) {
+                    if (this.yVel < 0) {
+                        this.yVel = -this.yVel;
+                    }
+                    if (this.yVel > 0) {
+                        this.yVel *= 2;
+                    }
+                }
                 explosion(ball);
             }
         }
@@ -281,17 +343,17 @@ class Ball {
     init() {
         this.x = field.x + field.w / 2 - this.h / 2;
         this.y = field.y + field.h / 2 - this.h / 2;
-        this.xVel = this.speed;
+        this.xVel = Math.random() >= 0.5 ? this.speed : -this.speed;
         this.yVel = Math.random() * this.speed - this.speed / 2;
         ref.child("ball").update({
             x: parseFloat((this.x - field.x).toFixed(2)),
-            y: parseFloat((this.y - field.x).toFixed(2)),
+            y: parseFloat((this.y - field.y).toFixed(2)),
             xVel: parseFloat((this.xVel).toFixed(2)),
             yVel: parseFloat((this.yVel).toFixed(2))
         });
         coordsDB.ball = {
             x: parseFloat((this.x - field.x).toFixed(2)),
-            y: parseFloat((this.y - field.x).toFixed(2)),
+            y: parseFloat((this.y - field.y).toFixed(2)),
             xVel: parseFloat((this.xVel).toFixed(2)),
             yVel: parseFloat((this.yVel).toFixed(2))
         }
@@ -309,10 +371,32 @@ class Score {
 
     }
     render() {
-        c.font = '60pt Calibri';
+        c.font = '30pt "Press Start 2P"';
         c.textAlign = 'center';
-        c.fillStyle = 'blue';
-        c.fillText(coordsDB.score.a + ' | ' + coordsDB.score.b, canvas.width / 2, field.y / 2);
+        c.fillStyle = 'black';
+        c.fillText(coordsDB.score.a + ' | ' + coordsDB.score.b, canvas.width / 2, field.y / 2 + 30);
+
+        c.font = '18pt "Press Start 2P"';
+        c.fillStyle = '#4bad49';
+        c.textAlign = 'left';
+        if (coordsDB.players.active.a) {
+            c.fillText('Player ONE', field.x, field.y + field.h + 30);
+        }
+
+        c.strokeText('Player ONE', field.x, field.y + field.h + 30);
+        c.fillStyle = '#c43939';
+
+        c.textAlign = 'right';
+        if (coordsDB.players.active.b) {
+            c.fillText('Player TWO', field.x + field.w, field.y + field.h + 30);
+        }
+        c.strokeText('Player TWO', field.x + field.w, field.y + field.h + 30);
+
+        c.fillStyle = 'black';
+        c.font = '14pt "Press Start 2P"';
+        c.textAlign = 'center';
+        c.fillText('spectators: ' + coordsDB.players.active.spect, canvas.width / 2, field.y + field.h + 60);
+
     }
 }
 
@@ -321,9 +405,11 @@ var score = new Score();
 var prevBallX = ball.x;
 
 function loop() {
-    setTimeout(loop, 1000 / 30);
+    setTimeout(loop, 1000 / 60);
     prevBallX = ball.x;
     c.clearRect(0, 0, canvas.width, canvas.height);
+    c.fillStyle = "darkgray"
+    c.fillRect(0, 0, canvas.width, canvas.height);
     if (shake) {
         shake--;
         map.x = Math.random() * 8 - 4;
@@ -393,11 +479,11 @@ var particles = [];
 
 function explosion(bullet) {
     shake = 4;
-    var color = "blue";
+    var color = "#445280";
     var x = bullet.x;
     var y = bullet.y;
-    var speedX = -bullet.xVel * bullet.speed;
-    var speedY = -bullet.yVel * bullet.speed;
+    var speedX = (-bullet.xVel / 3) * (bullet.speed / 3);
+    var speedY = (-bullet.yVel / 3) * (bullet.speed / 3);
     var randNum = Math.floor(Math.random() * 15) + 1;
     for (iter = 0; iter < randNum; iter++) {
         particles.push({
