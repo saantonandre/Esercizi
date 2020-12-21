@@ -291,9 +291,6 @@ class Ball {
         if (collided(this, player1)) {
             if (this.xVel < 0) {
                 this.xVel = -this.xVel;
-                ref.child("ball").update({
-                    xVel: parseFloat((this.xVel * 1.1).toFixed(2))
-                });
                 if (collided(this, player1.hitboxMid)) {
                     this.yVel / 2;
                 } else if (collided(this, player1.hitboxUp)) {
@@ -311,24 +308,25 @@ class Ball {
                         this.yVel *= 2;
                     }
                 }
+                ref.child("ball").update({
+                    xVel: parseFloat((this.xVel * 1.05).toFixed(2)),
+                    yVel: parseFloat((this.xVel * 1.05).toFixed(2))
+                });
                 explosion(ball);
             }
         } else if (collided(this, player2)) {
             if (this.xVel > 0) {
                 this.xVel = -this.xVel;
-                ref.child("ball").update({
-                    xVel: parseFloat((this.xVel * 1.1).toFixed(2))
-                });
-                if (collided(this, player1.hitboxMid)) {
+                if (collided(this, player2.hitboxMid)) {
                     this.yVel / 2;
-                } else if (collided(this, player1.hitboxUp)) {
+                } else if (collided(this, player2.hitboxUp)) {
                     if (this.yVel < 0) {
                         this.yVel *= 2;
                     }
                     if (this.yVel > 0) {
                         this.yVel = -this.yVel;
                     }
-                } else if (collided(this, player1.hitboxDown)) {
+                } else if (collided(this, player2.hitboxDown)) {
                     if (this.yVel < 0) {
                         this.yVel = -this.yVel;
                     }
@@ -336,6 +334,10 @@ class Ball {
                         this.yVel *= 2;
                     }
                 }
+                ref.child("ball").update({
+                    xVel: parseFloat((this.xVel * 1.05).toFixed(2)),
+                    yVel: parseFloat((this.xVel * 1.05).toFixed(2))
+                });
                 explosion(ball);
             }
         }
@@ -405,7 +407,7 @@ var score = new Score();
 var prevBallX = ball.x;
 
 function loop() {
-    setTimeout(loop, 1000 / 60);
+    setTimeout(loop, 1000 / 30);
     prevBallX = ball.x;
     c.clearRect(0, 0, canvas.width, canvas.height);
     c.fillStyle = "darkgray"
