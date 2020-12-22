@@ -162,7 +162,8 @@ class Player {
         this.accel = 1;
         this.speed = 10;
         this.whom = whom;
-        this.color = this.whom == "a" ? "green" : "red";
+        this.color = this.whom == "a" ? "#4bad49" : "#c43939";
+        this.color2 = this.whom == "a" ? "#62e35f" : "#eb4444";
         this.hitboxUp = {
             x: this.x,
             y: this.y,
@@ -212,7 +213,7 @@ class Player {
         this.hitboxDown.y = this.y + this.h / 5 * 3;
     }
     render() {
-        c.fillStyle = "black";
+        c.fillStyle = this.color;
         c.fillRect(this.x, this.y, this.w, this.h);
     }
     init() {
@@ -263,15 +264,66 @@ class Ball {
     colCheck() {
         //field colCheck
         if (this.x + this.w > field.x + field.w) {
-            ref.child("score").update({
-                a: coordsDB.score.a + 1,
-            });
-            ball.init();
+            if (lineRect(
+                    this.prevCenterX,
+                    this.prevCenterY,
+                    this.centerX,
+                    this.centerY,
+                    player2.x,
+                    player2.y,
+                    player2.w,
+                    player2.h)) {
+                explosion(ball);
+                this.xVel = -this.xVel;
+                this.x = player2.x - this.w - 1;
+                ref.child("ball").update({
+                    xVel: parseFloat((this.xVel * 1.05).toFixed(2)),
+                    yVel: parseFloat((this.xVel * 1.05).toFixed(2)),
+                    x: this.x - field.x
+                });
+                ref.update({
+                    computing: "a"
+                });
+                coordsDB.computing = "a";
+                computing = "a";
+                return;
+            } else {
+                ref.child("score").update({
+                    a: coordsDB.score.a + 1,
+                });
+                ball.init();
+            }
         } else if (this.x < field.x) {
-            ref.child("score").update({
-                b: coordsDB.score.b + 1,
-            });
-            ball.init();
+            if (lineRect(
+                    this.prevCenterX,
+                    this.prevCenterY,
+                    this.centerX,
+                    this.centerY,
+                    player1.x,
+                    player1.y,
+                    player1.w,
+                    player1.h)) {
+                explosion(ball);
+                this.xVel = -this.xVel;
+                this.x = player1.x + player1.w + 1;
+                ref.child("ball").update({
+                    xVel: parseFloat((this.xVel * 1.05).toFixed(2)),
+                    yVel: parseFloat((this.xVel * 1.05).toFixed(2)),
+                    x: this.x - field.x
+                });
+                computing = "b";
+                coordsDB.computing = "b";
+                ref.update({
+                    computing: "b"
+                });
+                return;
+
+            } else {
+                ref.child("score").update({
+                    b: coordsDB.score.b + 1,
+                });
+                ball.init();
+            }
         }
         if (this.y < field.y) {
             this.y = field.y;
@@ -289,8 +341,12 @@ class Ball {
             explosion(ball);
         }
         if (collided(this, player1)) {
+            computing = "b";
+            coordsDB.computing = "b";
+            ref.update({
+                computing: "b"
+            });
             if (this.xVel < 0) {
-                this.xVel = -this.xVel;
                 if (collided(this, player1.hitboxMid)) {
                     this.yVel / 2;
                 } else if (collided(this, player1.hitboxUp)) {
@@ -308,15 +364,22 @@ class Ball {
                         this.yVel *= 2;
                     }
                 }
+                this.xVel = -this.xVel;
+                this.x = player1.x + player1.w + 1;
                 ref.child("ball").update({
                     xVel: parseFloat((this.xVel * 1.05).toFixed(2)),
-                    yVel: parseFloat((this.xVel * 1.05).toFixed(2))
+                    yVel: parseFloat((this.xVel * 1.05).toFixed(2)),
+                    x: this.x - field.x
                 });
                 explosion(ball);
             }
         } else if (collided(this, player2)) {
+            computing = "a";
+            coordsDB.computing = "a";
+            ref.update({
+                computing: "a"
+            });
             if (this.xVel > 0) {
-                this.xVel = -this.xVel;
                 if (collided(this, player2.hitboxMid)) {
                     this.yVel / 2;
                 } else if (collided(this, player2.hitboxUp)) {
@@ -334,32 +397,39 @@ class Ball {
                         this.yVel *= 2;
                     }
                 }
+                this.xVel = -this.xVel;
+                this.x = player2.x - this.w - 1;
                 ref.child("ball").update({
                     xVel: parseFloat((this.xVel * 1.05).toFixed(2)),
-                    yVel: parseFloat((this.xVel * 1.05).toFixed(2))
+                    yVel: parseFloat((this.xVel * 1.05).toFixed(2)),
+                    x: this.x - field.x
                 });
                 explosion(ball);
             }
         }
     }
     init() {
-        this.x = field.x + field.w / 2 - this.h / 2;
-        this.y = field.y + field.h / 2 - this.h / 2;
-        this.xVel = Math.random() >= 0.5 ? this.speed : -this.speed;
-        this.yVel = Math.random() * this.speed - this.speed / 2;
-        ref.child("ball").update({
-            x: parseFloat((this.x - field.x).toFixed(2)),
-            y: parseFloat((this.y - field.y).toFixed(2)),
-            xVel: parseFloat((this.xVel).toFixed(2)),
-            yVel: parseFloat((this.yVel).toFixed(2))
-        });
-        coordsDB.ball = {
-            x: parseFloat((this.x - field.x).toFixed(2)),
-            y: parseFloat((this.y - field.y).toFixed(2)),
-            xVel: parseFloat((this.xVel).toFixed(2)),
-            yVel: parseFloat((this.yVel).toFixed(2))
+        if (user == "a" || user == "b") {
+            this.x = field.x + field.w / 2 - this.h / 2;
+            this.y = field.y + field.h / 2 - this.h / 2;
+            this.xVel = (user == "a") ? -this.speed : this.speed;
+            this.yVel = Math.random() * this.speed - this.speed / 2;
+            ref.child("ball").update({
+                x: parseFloat((this.x - field.x).toFixed(2)),
+                y: parseFloat((this.y - field.y).toFixed(2)),
+                xVel: parseFloat((this.xVel).toFixed(2)),
+                yVel: parseFloat((this.yVel).toFixed(2))
+            });
+            ref.update({
+                computing: user
+            });
+            coordsDB.ball = {
+                x: parseFloat((this.x - field.x).toFixed(2)),
+                y: parseFloat((this.y - field.y).toFixed(2)),
+                xVel: parseFloat((this.xVel).toFixed(2)),
+                yVel: parseFloat((this.yVel).toFixed(2))
+            }
         }
-
     }
 }
 var ball = new Ball();
@@ -370,10 +440,21 @@ var map = {
 var shake = 0;
 class Score {
     constructor() {
-
+        this.increase = 0;
+        this.baseFontSize = 30;
+        this.prevScoreA = 0;
+        this.prevScoreB = 0;
     }
     render() {
-        c.font = '30pt "Press Start 2P"';
+        if (this.prevScoreA !== coordsDB.score.a) {
+            this.prevScoreA = coordsDB.score.a;
+            this.increase = 8;
+        }
+        if (this.prevScoreB !== coordsDB.score.b) {
+            this.prevScoreB = coordsDB.score.b;
+            this.increase = 8;
+        }
+        c.font = this.baseFontSize + this.increase + 'pt "Press Start 2P"';
         c.textAlign = 'center';
         c.fillStyle = 'black';
         c.fillText(coordsDB.score.a + ' | ' + coordsDB.score.b, canvas.width / 2, field.y / 2 + 30);
@@ -399,15 +480,19 @@ class Score {
         c.textAlign = 'center';
         c.fillText('spectators: ' + coordsDB.players.active.spect, canvas.width / 2, field.y + field.h + 60);
 
+        if (this.increase) {
+            this.increase -= 2;
+        }
     }
 }
 
 var score = new Score();
-
+var computing = "a";
 var prevBallX = ball.x;
 
 function loop() {
     setTimeout(loop, 1000 / 30);
+    computing = coordsDB.computing;
     prevBallX = ball.x;
     c.clearRect(0, 0, canvas.width, canvas.height);
     c.fillStyle = "darkgray"
@@ -432,16 +517,7 @@ function loop() {
             player1.y = coordsDB.players.a + field.y;
             player2.y = coordsDB.players.b + field.y;
     }
-    if (user == "b" && coordsDB.ball.xVel >= 0) {
-        ball.compute();
-        ball.colCheck();
-        ref.child("ball").update({
-            x: parseFloat((ball.x - field.x).toFixed(2)),
-            y: parseFloat((ball.y - field.y).toFixed(2)),
-            xVel: coordsDB.ball.xVel,
-            yVel: coordsDB.ball.yVel
-        });
-    } else if (user == "a" && coordsDB.ball.xVel < 0) {
+    if (user == computing) {
         ball.compute();
         ball.colCheck();
         ref.child("ball").update({
@@ -584,6 +660,40 @@ function collided(a, b) {
                 }
             }
         }
+    }
+    return false;
+}
+
+
+
+// LINE/RECTANGLE (float x1, float y1, float x2, float y2, float rx, float ry, float rw, float rh)
+function lineRect(x1, y1, x2, y2, rx, ry, rw, rh) {
+    // check if the line has hit any of the rectangle's sides
+    // uses the Line/Line function below
+    let left = lineLine(x1, y1, x2, y2, rx, ry, rx, ry + rh);
+    let right = lineLine(x1, y1, x2, y2, rx + rw, ry, rx + rw, ry + rh);
+    let top = lineLine(x1, y1, x2, y2, rx, ry, rx + rw, ry);
+    let bottom = lineLine(x1, y1, x2, y2, rx, ry + rh, rx + rw, ry + rh);
+
+    // if ANY of the above are true, the line
+    // has hit the rectangle
+    if (left || right || top || bottom) {
+        return true;
+    }
+    return false;
+}
+
+
+// LINE/LINE (float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4)
+function lineLine(x1, y1, x2, y2, x3, y3, x4, y4) {
+
+    // calculate the direction of the lines
+    let uA = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
+    let uB = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / ((y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1));
+
+    // if uA and uB are between 0-1, lines are colliding
+    if (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1) {
+        return true;
     }
     return false;
 }
