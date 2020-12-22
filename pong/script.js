@@ -1,5 +1,9 @@
 initializeFirebase()
 
+function id(arg) {
+    return document.getElementById(arg);
+}
+
 function initializeFirebase() {
     var config = {
         apiKey: "AIzaSyC_79ED3MbspytkUAI012iv-uRnqM3a7HU",
@@ -11,6 +15,53 @@ function initializeFirebase() {
     //initialize firebase  
     firebase.initializeApp(config);
 }
+
+Audio.prototype.playy = function () {
+    let aud = this;
+    if (aud.paused) {
+        let promise = aud.play();
+        if (promise !== undefined) {
+            promise.catch(function (e) {});
+        }
+    } else {
+        aud.pause();
+        aud.currentTime = 0;
+        let promise = aud.play();
+        if (promise !== undefined) {
+            promise.catch(function (e) {});
+        }
+    }
+};
+var audio = [new Audio("insulto1.wav"),
+             new Audio("insulto2.wav"),
+             new Audio("bellagiocata.wav"),
+             new Audio("wow.wav")]
+
+function playAudio(arg) {
+    console.log("insulto1")
+    audio[arg].playy();
+}
+id("a").onclick = function () {
+    ref.child("audio").update({
+        a: 1,
+    });
+}
+id("b").onclick = function () {
+    ref.child("audio").update({
+        b: 1,
+    });
+}
+id("c").onclick = function () {
+    ref.child("audio").update({
+        c: 1,
+    });
+}
+id("d").onclick = function () {
+    ref.child("audio").update({
+        d: 1,
+    });
+}
+
 
 /*
 coordsDB
@@ -492,6 +543,34 @@ var prevBallX = ball.x;
 
 function loop() {
     setTimeout(loop, 1000 / 30);
+    if (coordsDB.audio.a) {
+        playAudio(0);
+        coordsDB.audio.a = 0;
+        ref.child("audio").update({
+            a: 0,
+        });
+    }
+    if (coordsDB.audio.b) {
+        playAudio(1);
+        coordsDB.audio.b = 0;
+        ref.child("audio").update({
+            b: 0,
+        });
+    }
+    if (coordsDB.audio.c) {
+        playAudio(2);
+        coordsDB.audio.c = 0;
+        ref.child("audio").update({
+            c: 0,
+        });
+    }
+    if (coordsDB.audio.d) {
+        playAudio(3);
+        coordsDB.audio.d = 0;
+        ref.child("audio").update({
+            d: 0,
+        });
+    }
     computing = coordsDB.computing;
     prevBallX = ball.x;
     c.clearRect(0, 0, canvas.width, canvas.height);

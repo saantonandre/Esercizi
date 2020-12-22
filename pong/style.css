@@ -10,3 +10,10 @@ body{
     bottom:30px;
     font-size:35px;
 }
+.buttons{
+}
+#btnCont{
+    position:absolute;
+    top:30px;
+    font-size:18px;
+}
