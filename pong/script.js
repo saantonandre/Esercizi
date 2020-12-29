@@ -674,12 +674,22 @@ function renderParticles() {
     }
 }
 
+var activity = true;
+
+function timer {
+    if (activity) {
+        activity = 0;
+    }else{
+        disconnect(user);
+        alert("Sei stato disconnesso per inattività :(");
+    }
+}
 
 
 
-
-
+setInterval(timer, 30000);
 document.addEventListener("keydown", function (evt) {
+    activity = true;
     switch (evt.keyCode) {
         //up
         case 87:
@@ -703,6 +713,22 @@ document.addEventListener("keydown", function (evt) {
             break;
     }
 })
+
+function disconnect(who) {
+    switch (who) {
+        case "a":
+            ref.child("players").child("active").update({
+                a: 0
+            });
+            break;
+        case "b":
+            ref.child("players").child("active").update({
+                a: 0
+            });
+            break;
+
+    }
+}
 document.addEventListener("keyup", function (evt) {
     switch (evt.keyCode) {
         //up
