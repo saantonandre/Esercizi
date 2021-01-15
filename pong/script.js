@@ -676,7 +676,7 @@ function renderParticles() {
 
 var activity = true;
 
-function timer {
+function timer() {
     if (activity) {
         activity = 0;
     }else{
