@@ -47,11 +47,12 @@ stage_1.push({
         w: 1,
         h: 1,
         type: 6,
+        repeatable: true,
         event: function () {
-            stages[savePoint.stage][savePoint.level].spawnPoint.x = player.x;
-            stages[savePoint.stage][savePoint.level].spawnPoint.y = player.y;
+            unload();
+            // Sets the level where you're going to
             savePoint.level = 1;
-            //calls the load function at the end of the loop
+            // Calls the load function at the end of the loop
             load()
         },
     }, ],
@@ -59,10 +60,10 @@ stage_1.push({
         x: 16,
         y: 10
     },
-    biome: 1,
     camBoxes: [],
     levelImage: id("level-0"),
-    background: 0
+    background: 0,
+    entities: []
 })
 
 /// S1 L1 ()
@@ -151,6 +152,7 @@ stage_1.push({
         w: 1,
         h: 1,
         type: 6,
+        repeatable: true,
         event: function () {
             savePoint.level = 0;
             load();
@@ -324,15 +326,27 @@ stage_1.push({
         w: 1,
         h: 1,
         type: 4
+    }, {
+        x: 85,
+        y: 5,
+        w: 1,
+        h: 1,
+        type: 4
+    }, {
+        x: 91,
+        y: 5,
+        w: 1,
+        h: 1,
+        type: 4
     }, ],
     spawnPoint: {
         x: 6,
         y: 13
     },
-    biome: 1,
     camBoxes: [],
     levelImage: id("level-1"),
-    background: id("city-bg")
+    background: id("city-bg"),
+    entities: []
 })
 
 stages.push(stage_1);

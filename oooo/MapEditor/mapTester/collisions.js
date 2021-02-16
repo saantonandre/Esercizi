@@ -4,7 +4,6 @@ function id(arg) {
 }
 
 // COLLISION DETECTORS
-
 function isOutOfScreen(entity) {
     if (entity == null) {
         return true;

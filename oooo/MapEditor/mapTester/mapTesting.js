@@ -4,6 +4,7 @@ var mapTester = true;
 
 function safeEval(level) {
     if (typeof level === 'object' && level !== null) {
+        entities = level.entities;
         map.map = level.map;
         map.spawnPoint = level.spawnPoint;
         if (level.background) {
@@ -24,7 +25,6 @@ function initializeMap() {
     player.x = map.spawnPoint.x;
     player.y = map.spawnPoint.y;
     map.tiles = map.map;
-    entities = [];
     animatedTiles = [];
     vfxs = [];
     var removeList = [];
@@ -67,6 +67,6 @@ function initializeMap() {
         }
     }
     for (let i = 0; i < removeList.length; i++) {
-        //map.tiles.splice(removeList[i], 1);
+        map.tiles.splice(removeList[i], 1);
     }
 }

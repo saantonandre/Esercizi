@@ -18,6 +18,12 @@ var metaVariables = {
     loopType: 0
 }
 
+// Characters
+var officer ={};
+var esther ={};
+
+
+
 window.onload = function () {
     initialize();
 }
@@ -64,6 +70,14 @@ var savePoint = {
 }
 
 var loadCall = 0;
+
+function unload() {
+    // Updates the spawn point
+    stages[savePoint.stage][savePoint.level].spawnPoint.x = player.x;
+    stages[savePoint.stage][savePoint.level].spawnPoint.y = player.y;
+    // Updates the entities of the unloaded level
+    stages[savePoint.stage][savePoint.level].entities = entities;
+}
 
 function load(instantCall) {
     if (loadCall || instantCall) {
@@ -191,8 +205,10 @@ function checkCollisions(obj) {
             col = colCheck(obj, m[i]);
             switch (col) {
                 case "b":
-                    obj.grounded = true;
-                    obj.yVel = 0;
+                    if (obj.yVel >= 0) {
+                        obj.grounded = true;
+                        obj.yVel = 0;
+                    }
                     break;
             }
         }
@@ -274,9 +290,9 @@ function renderEntity(e) {
 */
 
 
-var blackScreen={
-    initial:100,
-    current:100
+var blackScreen = {
+    initial: 100,
+    current: 100
 }
 
 /*************************** MAIN LOOP ***************************/
@@ -294,7 +310,7 @@ function gameLoop() {
     }
 
     if (blackScreen.current > 0) {
-        c.globalAlpha = blackScreen.current/blackScreen.initial;
+        c.globalAlpha = blackScreen.current / blackScreen.initial;
         c.fillStyle = "#1c1618";
         c.fillRect(
             0,
@@ -303,7 +319,7 @@ function gameLoop() {
             canvas.height
         )
         c.globalAlpha = 1;
-        blackScreen.current-=dT;
+        blackScreen.current -= dT;
     }
     updateDt();
     requestAnimationFrame(gameLoop);
@@ -358,7 +374,7 @@ function transition() {
         metaVariables.loopType = 0;
         transitionVariables.x = 0;
         transitionVariables.opacity = 0;
-        
+
         blackScreen.initial = 60;
         blackScreen.current = 60;
     }
@@ -366,22 +382,19 @@ function transition() {
 }
 
 function standardLoop() {
-    screenShake.compute();
     slowMo();
     c.clearRect(0, 0, canvas.width, canvas.height);
     c.fillStyle = "darkgray";
     c.fillRect(0, 0, canvas.width, canvas.height);
     c.fillStyle = "black";
     map.computeCamera();
+    screenShake.compute();
     map.renderTiles();
     for (let i = 0; i < entities.length; i++) {
         if (entities[i].removed || (entities[i].type != "boss" && isOutOfScreen(entities[i]))) {
             continue;
         }
         entities[i].compute();
-        if (!entities[i]) {
-            continue;
-        }
         entities[i].render();
     }
     for (let i = 0; i < vfxs.length; i++) {
@@ -419,6 +432,12 @@ function standardLoop() {
     if (loadCall) {
         load()
         metaVariables.loopType = 1;
+    }
+    for (let i = 0; i < LevelBoundFunctions[savePoint.stage][savePoint.level].length;i++){
+        if(LevelBoundFunctions[savePoint.stage][savePoint.level][i].removed){
+            continue;
+        }
+        LevelBoundFunctions[savePoint.stage][savePoint.level][i].compute();
     }
     //calculating delta time
 }
