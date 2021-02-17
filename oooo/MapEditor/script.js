@@ -41,7 +41,7 @@ id("mapSizeBtnH").onclick = function () {
 
 const tiles = [
     [0, 0],
-    [1, 0],
+    [1, 0], // 1 - Death
     [2, 0],
     [3, 0], // 3 - Trash Man
     [4, 0], // 4 - Camera

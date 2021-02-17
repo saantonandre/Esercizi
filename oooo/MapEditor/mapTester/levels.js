@@ -61,9 +61,10 @@ class GameBlueprint {
                     unload();
                     // Sets the level where you're going to
                     if (eventsVariables.interactedWithBed) {
-                        savePoint.level = 2;
+                        currentPoint.level = 2;
                     } else {
-                        savePoint.level = 1;
+                        currentPoint.level = 1;
+
                     }
                     // Calls the load function at the end of the loop
                     load()
@@ -167,8 +168,9 @@ class GameBlueprint {
                 type: 6,
                 repeatable: true,
                 event: function () {
-                    savePoint.level = 0;
+                    currentPoint.level = 0;
                     load();
+                    updateCheckPoint();
                 },
     }, {
                 x: 1,
@@ -677,7 +679,8 @@ class GameBlueprint {
                 event: function () {
                     slowMoFrames = 60;
                     setTimeout(function () {
-                        savePoint.level = 3;
+                        currentPoint.level = 3;
+                        updateCheckPoint();
                         load();
                     })
                 },
@@ -690,6 +693,319 @@ class GameBlueprint {
             camBoxes: [],
             levelImage: id("level-2"),
             background: id("city-bg"),
+        })
+
+        // S0 L3 (grotto)
+        this.stage_0.push({
+            map: [{
+                x: 0,
+                y: 0,
+                w: 6,
+                h: 9,
+                type: 0
+            }, {
+                x: 0,
+                y: 9,
+                w: 5,
+                h: 1,
+                type: 0
+            }, {
+                x: 0,
+                y: 10,
+                w: 4,
+                h: 8,
+                type: 0
+            }, {
+                x: 4,
+                y: 14,
+                w: 24,
+                h: 4,
+                type: 0
+            }, {
+                x: 21,
+                y: 13,
+                w: 1,
+                h: 1,
+                type: 0
+            }, {
+                x: 12,
+                y: 0,
+                w: 4,
+                h: 9,
+                type: 0
+            }, {
+                x: 16,
+                y: 0,
+                w: 4,
+                h: 2,
+                type: 0
+            }, {
+                x: 30,
+                y: 14,
+                w: 2,
+                h: 1,
+                type: 0
+            }, {
+                x: 33,
+                y: 14,
+                w: 15,
+                h: 4,
+                type: 0
+            }, {
+                x: 39,
+                y: 13,
+                w: 6,
+                h: 1,
+                type: 0
+            }, {
+                x: 42,
+                y: 4,
+                w: 8,
+                h: 4,
+                type: 0
+            }, {
+                x: 50,
+                y: 4,
+                w: 4,
+                h: 2,
+                type: 0
+            }, {
+                x: 41,
+                y: 10,
+                w: 2,
+                h: 2,
+                type: 0
+            }, {
+                x: 39,
+                y: 9,
+                w: 1,
+                h: 1,
+                type: 0
+            }, {
+                x: 39,
+                y: 11,
+                w: 1,
+                h: 1,
+                type: 0
+            }, {
+                x: 37,
+                y: 12,
+                w: 1,
+                h: 1,
+                type: 0
+            }, {
+                x: 34,
+                y: 9,
+                w: 4,
+                h: 1,
+                type: 0
+            }, {
+                x: 37,
+                y: 8,
+                w: 1,
+                h: 1,
+                type: 0
+            }, {
+                x: 34,
+                y: 8,
+                w: 1,
+                h: 1,
+                type: 0
+            }, {
+                x: 33,
+                y: 7,
+                w: 1,
+                h: 1,
+                type: 0
+            }, {
+                x: 31,
+                y: 7,
+                w: 1,
+                h: 1,
+                type: 0
+            }, {
+                x: 30,
+                y: 6,
+                w: 1,
+                h: 1,
+                type: 0
+            }, {
+                x: 32,
+                y: 5,
+                w: 1,
+                h: 1,
+                type: 0
+            }, {
+                x: 34,
+                y: 5,
+                w: 3,
+                h: 1,
+                type: 0
+            }, {
+                x: 38,
+                y: 5,
+                w: 1,
+                h: 1,
+                type: 0
+            }, {
+                x: 40,
+                y: 5,
+                w: 1,
+                h: 1,
+                type: 0
+            }, {
+                x: 48,
+                y: 15,
+                w: 16,
+                h: 3,
+                type: 0
+            }, {
+                x: 57,
+                y: 11,
+                w: 7,
+                h: 4,
+                type: 0
+            }, {
+                x: 58,
+                y: 10,
+                w: 6,
+                h: 1,
+                type: 0
+            }, {
+                x: 61,
+                y: 0,
+                w: 3,
+                h: 8,
+                type: 0
+            }, {
+                x: 59,
+                y: 6,
+                w: 2,
+                h: 2,
+                type: 0
+            }, {
+                x: 56,
+                y: 8,
+                w: 1,
+                h: 1,
+                type: 0
+            }, {
+                x: 55,
+                y: 6,
+                w: 1,
+                h: 1,
+                type: 0
+            }, {
+                x: 55,
+                y: 12,
+                w: 1,
+                h: 3,
+                type: 0
+            }, {
+                x: 52,
+                y: 12,
+                w: 1,
+                h: 3,
+                type: 0
+            }, {
+                x: 50,
+                y: 13,
+                w: 1,
+                h: 2,
+                type: 0
+            }, {
+                x: 28,
+                y: 16,
+                w: 5,
+                h: 1,
+                type: 1
+            }, {
+                x: 27,
+                y: 17,
+                w: 7,
+                h: 2,
+                type: 0
+            }, {
+                x: 23,
+                y: 13,
+                w: 1,
+                h: 1,
+                type: 1
+            }, {
+                x: 25,
+                y: 13,
+                w: 1,
+                h: 1,
+                type: 1
+            }, {
+                x: 18,
+                y: 13,
+                w: 1,
+                h: 1,
+                type: 1
+            },{
+                x: 0,
+                y: 18,
+                w: 63,
+                h: 2,
+                type: 0
+            }, {
+                x: 31,
+                y: 13,
+                w: 1,
+                h: 1,
+                type: 1
+            }, {
+                x: 35,
+                y: 8,
+                w: 2,
+                h: 1,
+                type: 1
+            }, {
+                x: 35,
+                y: 10,
+                w: 2,
+                h: 1,
+                type: 1
+            }, {
+                x: 45,
+                y: 13,
+                w: 2,
+                h: 1,
+                type: 1
+            }, {
+                x: 48,
+                y: 14,
+                w: 2,
+                h: 1,
+                type: 1
+            }, {
+                x: 51,
+                y: 14,
+                w: 1,
+                h: 1,
+                type: 1
+            }, {
+                x: 53,
+                y: 14,
+                w: 2,
+                h: 1,
+                type: 1
+            }, {
+                x: 56,
+                y: 14,
+                w: 1,
+                h: 1,
+                type: 1
+            }, ],
+            spawnPoint: {
+                x: 9,
+                y: 13
+            },
+            biome: 1,
+            camBoxes: [],
+            levelImage: id("level-3"),
+            background: id("grotto-bg"),
         })
         this.stages.push(this.stage_0);
     }

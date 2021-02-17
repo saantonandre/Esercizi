@@ -29,12 +29,18 @@ function initializeMap() {
     vfxs = [];
     var removeList = [];
     for (let i = map.tiles.length - 1; i >= 0; i--) {
-        if (map.tiles[i].type !== 0) {
+        if (map.tiles[i].type != 0) {
             map.tiles[i].solid = false;
         } else {
             map.tiles[i].solid = true;
         }
         switch (map.tiles[i].type) {
+            case 1:
+                entities.push(new EventBox(map.tiles[i].x + 0.2, map.tiles[i].y + 0.4, map.tiles[i].w - 0.4, 0.2, function () {
+                    player.onHit()
+                }, true))
+                removeList.push(i);
+                break;
             case 3:
                 entities.push(new TrashMan(map.tiles[i].x, map.tiles[i].y - 1))
                 removeList.push(i);

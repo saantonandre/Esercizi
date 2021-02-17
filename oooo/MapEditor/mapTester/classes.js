@@ -3,6 +3,10 @@ CONTENTS:
 
 class Interaction
 
+class EventBox
+
+class Bat
+
 class Entity
 
 class Map
@@ -101,9 +105,10 @@ class Entity {
         this.y = y;
         this.w = 1;
         this.h = 1;
+        this.strikeable = true;
         this.removed = false;
         this.sheet = id("sheet");
-        this.hp = 0;
+        this.hp = 1;
         this.recoilAttacker = true;
         this.type = "something";
         this.solid = true;
@@ -137,6 +142,7 @@ class Esther extends Entity {
     constructor(x, y, left) {
         super(x, y);
         esther = this;
+        this.strikeable = false;
         this.xVel = 0;
         this.yVel = 0;
 
@@ -264,9 +270,10 @@ class Esther extends Entity {
             this.frame = 0;
             this.frameCounter = 0;
         }
-        c.save()
-        if (this.iFrames > 0) {
-            c.globalCompositeOperation = "color-burn";
+        if (this.iFrames > 0 && this.iFrames % 2 >= 1) {
+            this.sheet = id("sheet-alt");
+        } else {
+            this.sheet = id("sheet");
         }
         c.drawImage(
             this.sheet,
@@ -280,7 +287,6 @@ class Esther extends Entity {
             this.h * GLOBAL.tilesize * GLOBAL.ratio
         )
         //drawLaser(this,this.left);
-        c.restore()
     }
 }
 class Jaymee extends Entity {
@@ -290,6 +296,7 @@ class Jaymee extends Entity {
         this.xVel = 0;
         this.yVel = 0;
 
+        this.strikeable = false;
 
         this.type = "jaymee"
 
@@ -419,9 +426,10 @@ class Jaymee extends Entity {
             this.frame = 0;
             this.frameCounter = 0;
         }
-        c.save()
-        if (this.iFrames > 0) {
-            c.globalCompositeOperation = "color-burn";
+        if (this.iFrames > 0 && this.iFrames % 2 >= 1) {
+            this.sheet = id("sheet-alt");
+        } else {
+            this.sheet = id("sheet");
         }
         c.drawImage(
             this.sheet,
@@ -435,7 +443,6 @@ class Jaymee extends Entity {
             (this.h * GLOBAL.tilesize * GLOBAL.ratio)
         )
         //drawLaser(this,this.left);
-        c.restore()
     }
 }
 class TrashMan extends Entity {
@@ -445,6 +452,7 @@ class TrashMan extends Entity {
         this.actionY = [[14, 14], [14, 14], [16, 18, 20], [16, 18, 20], ];
         this.h = 2;
         this.up = false;
+        this.strikeable = false;
         this.baseSlowness = 10;
         this.slowness = 10;
         this.hitbox = {
@@ -507,6 +515,7 @@ class Camera extends Entity {
     constructor(x, y) {
         super(x, y);
         this.sheet = id("sheet");
+        this.strikeable = false;
         this.actionX = [[0]];
         this.actionY = [[18]];
         this.solid = false;
@@ -551,6 +560,7 @@ class Camera extends Entity {
 class HpDisplay {
     constructor(entity) {
         this.entity = entity;
+        this.strikeable = false;
         this.sheet = id("sheet");
         this.hearts = [0, 0, 0];
         this.x = 0;
@@ -622,7 +632,7 @@ class Player extends Entity {
         this.jumpSpeed = 0.3;
         this.gForce = 0.02;
         this.type = "player";
-        this.jumpPressed=0;
+        this.jumpPressed = 0;
 
         this.saving = false;
         this.misc = {
@@ -697,25 +707,28 @@ class Player extends Entity {
     explode() {
         //slowMoFrames=40;
         //map.cameraFocus = "none";
-        if (this.onSkate) {
+        if (this.onSkate || (this.armed && sword.currentSword == 0)) {
             vfxs.push(new Vfx(this.x, this.y, 7));
             vfxs.push(new Vfx(this.x, this.y, 15));
             vfxs.push(new Vfx(this.x, this.y, 16));
         } else {
-            vfxs.push(new Vfx(this.x, this.y, 7));
-            vfxs.push(new Vfx(this.x, this.y, 8));
             vfxs.push(new Vfx(this.x, this.y, 9));
         }
         // what happens on death
         stages = new GameBlueprint().stages;
-        savePoint.level = 0;
+        backToCheckPoint();
         resetEvents();
         loadCall = 1;
         player.resetVariables();
 
     }
     onHit() {
-
+        if (this.iFrames > 0) {
+            return;
+        }
+        this.yVel = -this.maxSpeed * 3;
+        this.xVel = this.maxSpeed * 2 * (this.left * 2 - 1);
+        this.iFrames = 60;
     }
     checkState() {
         if (this.onSkate) {
@@ -728,17 +741,20 @@ class Player extends Entity {
             this.speed = 0.02;
             this.maxSpeed = 0.1;
             this.friction = 1;
-            this.jumpSpeed = 0.3;
+            this.jumpSpeed = 0.25;
             this.gForce = 0.02;
-            if (!this.armed) {
-                this.jumpSpeed = 0.25;
-            }
+        }
+        if (this.armed && sword.currentSword == 1) {
+            this.jumpSpeed = 0.3;
         }
 
     }
     compute() {
         if (isOutOfScreen(this)) {
             return;
+        }
+        if (this.iFrames > 0) {
+            this.iFrames -= 1 * dT;
         }
         if (this.saving) {
             this.uncontrollable = true;
@@ -815,7 +831,7 @@ class Player extends Entity {
                 this.holdingJump = 0;
             }
         } else {
-            if (this.jumpPressed==1 && !this.jumping && !this.col.T && this.canJump > 0) {
+            if (this.jumpPressed == 1 && !this.jumping && !this.col.T && this.canJump > 0) {
                 this.jumping = true;
                 this.yVel = -this.jumpSpeed;
             }
@@ -829,9 +845,9 @@ class Player extends Entity {
         this.x += (this.xVel + this.riding.xVel) * dT;
         this.computeAction();
         this.hitbox.x = this.x + this.w / 4;
-        this.hitbox.y = this.y;
+        this.hitbox.y = this.y + 0.2;
         this.hitbox.w = this.w / 2;
-        this.hitbox.h = this.h;
+        this.hitbox.h = this.h - 0.35;
 
         checkCollisions(this);
     }
@@ -902,6 +918,11 @@ class Player extends Entity {
             this.frame = 0;
             this.frameCounter = 0;
         }
+        if (this.iFrames > 0 && this.iFrames % 2 >= 1) {
+            this.sheet = id("sheet-alt");
+        } else {
+            this.sheet = id("sheet");
+        }
         c.drawImage(
             this.sheet,
             this.actionX[this.action + this.left][this.frame] * GLOBAL.tilesize,
@@ -922,11 +943,25 @@ class Sword extends Entity {
         this.x = player.x;
         this.y = player.y;
         this.sheet = id("sheet");
-        this.actionX = [[0], [0, 0, 0, 0, 0]];
-        this.actionY = [[0], [1, 2, 3, 4, 5]];
-
+        this.actionX = [];
+        this.actionY = [];
+        this.currentSword = 0;
+        this.swords = {
+            skate: {
+                actionX: [[26], [26, 26, 26, 26, 26]],
+                actionY: [[18], [19, 20, 21, 22, 23]]
+            },
+            basic: {
+                actionX: [[27], [27, 27, 27, 27, 27]],
+                actionY: [[18], [19, 20, 21, 22, 23]]
+            },
+            overlord: {
+                actionX: [[28], [28, 28, 28, 28, 28]],
+                actionY: [[18], [19, 20, 21, 22, 23]]
+            }
+        }
+        this.switchSword();
         this.baseSlowness = 4;
-
         this.lastDir = controls.lastDir;
         this.rotation = 90 * controls.lastDir * Math.PI / 180;
         this.targetRotation = 90 * controls.lastDir * Math.PI / 180;
@@ -944,9 +979,28 @@ class Sword extends Entity {
             y2: 0,
         };
     }
+    switchSword() {
+        switch (this.currentSword) {
+            case 0:
+                this.actionX = this.swords.skate.actionX;
+                this.actionY = this.swords.skate.actionY;
+                break;
+            case 1:
+                this.actionX = this.swords.basic.actionX;
+                this.actionY = this.swords.basic.actionY;
+                break;
+            case 2:
+                this.actionX = this.swords.overlord.actionX;
+                this.actionY = this.swords.overlord.actionY;
+                break;
+        }
+    }
     checkEnemiesCollisions() {
         for (let i = 0; i < entities.length; i++) {
             if (entities[i].removed) {
+                continue;
+            }
+            if (!entities[i].strikeable) {
                 continue;
             }
             if (collided(this.broadHitbox, entities[i])) {
@@ -964,22 +1018,22 @@ class Sword extends Entity {
                     this.frame = 0;
                     this.frameCounter = 0;
                     if (entities[i].recoilAttacker) {
-                        debug.log("recoiling")
                         switch (this.lastDir) {
                             case 0:
-                                player.xVel = -(entities[i].x - player.x) / 4;
+                            case 2:
+                                if (player.grounded) {
+                                    player.xVel -= (entities[i].x - player.x) / 12;
+                                } else {
+                                    player.xVel -= (entities[i].x - player.x) / 12;
+                                }
                                 break;
                             case 1:
-                                player.yVel = -(entities[i].y - player.y) / 4;
-                                break;
-                            case 2:
-                                player.xVel = -(entities[i].x - player.x) / 4;
-                                break;
                             case 3:
                                 player.yVel = -(entities[i].y - player.y) / 6;
                                 break;
                         }
                     }
+                    player.grounded = false;
                 }
             }
         }
@@ -1259,10 +1313,10 @@ class Bomberman extends Entity {
             this.frame = 0;
             this.frameCounter = 0;
         }
-        c.save()
-
-        if (this.iFrames > 0) {
-            c.globalCompositeOperation = "color-burn";
+        if (this.iFrames > 0 && this.iFrames % 2 >= 1) {
+            this.sheet = id("sheet-alt");
+        } else {
+            this.sheet = id("sheet");
         }
         c.drawImage(
             this.sheet,
@@ -1275,7 +1329,6 @@ class Bomberman extends Entity {
             this.w * GLOBAL.tilesize * GLOBAL.ratio | 0,
             this.h * GLOBAL.tilesize * GLOBAL.ratio | 0
         )
-        c.restore();
         this.hpDisplay.render();
         //drawLaser(this,this.left);
     }
@@ -1516,9 +1569,10 @@ class Skeleton extends Entity {
             this.frame = 0;
             this.frameCounter = 0;
         }
-        c.save()
-        if (this.iFrames > 0) {
-            c.globalCompositeOperation = "color-burn";
+        if (this.iFrames > 0 && this.iFrames % 2 >= 1) {
+            this.sheet = id("sheet-alt");
+        } else {
+            this.sheet = id("sheet");
         }
         c.drawImage(
             this.sheet,
@@ -1532,7 +1586,6 @@ class Skeleton extends Entity {
             this.h * GLOBAL.tilesize * GLOBAL.ratio | 0
         )
         //drawLaser(this,this.left);
-        c.restore()
         this.hpDisplay.render();
     }
 }
@@ -1572,6 +1625,9 @@ class Bombling extends Entity {
         }
     }
     computeAction() {}
+    onHit() {
+        this.explode();
+    }
     explode() {
         vfxs.push(new Vfx(this.x, this.y, 5));
         vfxs.push(new Vfx(this.x, this.y, 6));
@@ -1801,6 +1857,7 @@ class Arrow extends Entity {
     constructor(x, y, left) {
         super(x, y)
         this.sheet = id("sheet");
+        this.strikeable = false;
         this.dir = (left * 2 - 1) * -1;
         this.xVel = 0.2 * this.dir;
         this.yVel = 0;
@@ -1861,6 +1918,7 @@ class Vfx {
         this.y = y;
         this.w = 1;
         this.h = 1;
+        this.strikeable = false;
         this.rotation = 0;
         this.rotSpeed = Math.random() * 10;
         this.xVel = Math.random() * 0.3 - 0.15;
@@ -2462,6 +2520,7 @@ class Boss_1 extends Entity {
 class Interaction extends Entity {
     constructor(x, y, event, repeatable) {
         super(x, y);
+        this.strikeable = false;
         this.solid = false;
         this.sheet = id("sheet");
         this.actionX = [[1, 1]];
@@ -2534,19 +2593,25 @@ class Interaction extends Entity {
 
     }
 }
-class EventBox {
-    constructor(x, y, w, h, event) {
+class EventBox extends Entity {
+    constructor(x, y, w, h, event, repeatable) {
+        super(x, y);
+        this.strikeable = false;
+        this.solid = false;
         this.x = x;
         this.y = y;
         this.w = w;
         this.h = h;
+        repeatable ? this.repeatable = true : this.repeatable = false;
         this.removed = false;
         this.event = event;
     }
     compute() {
         if (collided(this, player)) {
             this.event();
-            this.removed = true;
+            if (!this.repeatable) {
+                this.removed = true;
+            }
         }
     }
     render() {
@@ -2560,10 +2625,108 @@ class EventBox {
         */
     }
 }
+//entities.push(new Bat(19,12))
+class Bat extends Entity {
+    constructor(x, y) {
+        super();
+        this.x = x;
+        this.y = y;
+        this.w = 1;
+        this.h = 1;
+        this.actionX = [[8, 8, 8, 8]];
+        this.actionY = [[0, 1, 2, 3]];
+        this.sheet = id("sheet")
+        this.action = 0;
+        this.removed = false;
+        this.solid = false;
+        this.initialX = x;
+        this.initialY = y;
+        this.left = true;
+        this.distance = 6;
+        this.speed = 0.03;
+        this.iFrames = 0;
+        this.hp = 2;
+    }
+    onHit(source) {
+        if (this.iFrames > 0) {
+            return;
+        }
+        this.left = !this.left;
+        this.xVel = (this.x - source.x) / 5;
+        this.hp--;
+        this.iFrames = 20;
+        if (this.hp == 0) {
+            this.explode();
+        }
+    }
+    explode() {
+        vfxs.push(new Vfx(this.x, this.y, 4));
+        //slowMoFrames=30;
+        this.removed = true;
+    }
+    compute() {
+        this.iFrames -= 1 * dT;
+        if (collided(this, player)) {
+            player.onHit();
+        }
+        if (this.left) {
+            if (this.x > this.initialX) {
+                this.xVel = -this.speed
+            } else {
+                this.x = this.initialX;
+                this.left = false;
+            }
+        }
+        if (!this.left) {
+            if (this.x < this.initialX + this.distance) {
+                this.xVel = this.speed
+            } else {
+                this.x = this.initialX + this.distance;
+                this.left = true;
+            }
+        }
+
+        this.x += this.xVel * dT;
+        this.cos = Math.cos((this.x - this.initialX) * 3);
+        this.y = (this.initialY + this.cos);
+        this.hpDisplay.compute();
+    }
+    render() {
+        this.slowness = this.baseSlowness / dT;
+        this.frameCounter++;
+        if (this.frameCounter >= this.slowness) {
+            this.frameCounter = 0;
+            this.frame++;
+        }
+        if (this.frame >= this.actionX[this.action].length) {
+            this.frame = 0;
+            this.frameCounter = 0;
+        }
+        if (this.iFrames > 0 && this.iFrames % 2 >= 1) {
+            this.sheet = id("sheet-alt");
+        } else {
+            this.sheet = id("sheet");
+        }
+        c.drawImage(
+            this.sheet,
+            this.actionX[this.action][this.frame] * GLOBAL.tilesize,
+            this.actionY[this.action][this.frame] * GLOBAL.tilesize,
+            this.w * GLOBAL.tilesize,
+            this.h * GLOBAL.tilesize,
+            (this.x + map.x) * GLOBAL.tilesize * GLOBAL.ratio | 0,
+            (this.y + map.y) * GLOBAL.tilesize * GLOBAL.ratio | 0,
+            this.w * GLOBAL.tilesize * GLOBAL.ratio | 0,
+            this.h * GLOBAL.tilesize * GLOBAL.ratio | 0
+        )
+        //drawLaser(this,this.left);
+        this.hpDisplay.render();
+    }
+}
 class VendingMachine extends Entity {
     constructor(x, y) {
         super(x, y);
         this.solid = false;
+        this.strikeable = false;
         this.h = 2;
         this.w = 2;
         this.action = 0;

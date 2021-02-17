@@ -1,11 +1,40 @@
 // Variables related to the events
 var eventsVariables = {
     // If you took all the photos with Esther
-    tookPhotos: true,
+    tookPhotos: false,
     interactedWithBed: false,
     backHome: false
 }
 
+var currentPoint = {
+    x: 0,
+    y: 0,
+    stage: 0,
+    level: 0
+}
+var checkPoint = {
+    stage: 0,
+    level: 0,
+    eventsVariables: {
+        // If you took all the photos with Esther
+        tookPhotos: false,
+        interactedWithBed: false,
+        backHome: false
+    }
+};
+updateCheckPoint();
+
+function backToCheckPoint() {
+    currentPoint.stage = checkPoint.stage;
+    currentPoint.level = checkPoint.level;
+    Object.assign(eventsVariables, checkPoint.eventsVariables)
+}
+
+function updateCheckPoint() {
+    checkPoint.stage = currentPoint.stage;
+    checkPoint.level = currentPoint.level;
+    Object.assign(checkPoint.eventsVariables, eventsVariables)
+}
 // All the level bound functions(events) will be stored here
 var levelBoundFunctions = [];
 var stage_0 = []
@@ -18,7 +47,7 @@ let backHome = {
     removed: false,
     compute: function () {
         if (eventsVariables.tookPhotos) {
-            for (let i = 0; i < levelBoundFunctions[0][1].length-1; i++) {
+            for (let i = 0; i < levelBoundFunctions[0][1].length - 2; i++) {
                 levelBoundFunctions[0][1][i].removed = true;
             }
             dialogueEngine.loadDialogueQueue([{
@@ -225,15 +254,29 @@ let jaymeeScoldsYou = {
 let afterBackHome = {
     removed: false,
     compute: function () {
-        if (eventsVariables.backHome){
+        if (eventsVariables.backHome) {
             officer.x = -100;
             esther.x = -100;
-            console.log("officer.x "+officer.x)
+            console.log("officer.x " + officer.x)
             this.removed = true;
         }
     }
 }
-level_1.push(jaymeeAsksWhatYouDoing, meetEsther, afterPhotoshoot, jaymeeScoldsYou,afterBackHome)
+let shouldBackHome = {
+    removed: false,
+    compute: function () {
+        if (eventsVariables.backHome && player.x > 10) {
+            dialogueEngine.loadDialogueQueue([{
+                speaker: 0,
+                emotion: 0,
+                cameraFocus: player,
+                text: "(I should go back home and try to sleep)"
+                        }, ])
+            this.removed = true;
+        }
+    }
+}
+level_1.push(jaymeeAsksWhatYouDoing, meetEsther, afterPhotoshoot, jaymeeScoldsYou, afterBackHome, shouldBackHome)
 stage_0.push(level_1);
 
 
@@ -257,6 +300,38 @@ let satelliteAppears = {
 
 level_2.push(satelliteAppears)
 stage_0.push(level_2);
+
+// level 3 (grotto)
+
+var level_3 = [];
+// grotto events here
+let darkness = {
+    removed: false,
+    compute: function () {
+        //blackScreen.current = 200;
+        //blackScreen.initial = 100;
+        player.onSkate = false;
+        player.armed = true;
+        this.removed = true;
+        entities.push(new Bat(19, 12))
+        entities.push(new Bat(49, 10))
+    }
+}
+let endTest = {
+    removed: false,
+    compute: function () {
+        if (player.x > 63) {
+            alert("Finished")
+            this.removed = true;
+        }
+    }
+}
+
+
+level_3.push(darkness, endTest)
+stage_0.push(level_3);
+
+
 
 
 levelBoundFunctions.push(stage_0)

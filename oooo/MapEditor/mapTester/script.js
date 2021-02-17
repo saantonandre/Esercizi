@@ -11,7 +11,8 @@ var GLOBAL = {
     baseRatio: 2,
     ratio: 2,
     terminalVel: 0.7,
-    baseTargetFrames: 48
+    baseTargetFrames: 48,
+    excessFps: false
 }
 
 var metaVariables = {
@@ -27,7 +28,6 @@ var testMode = false;
 
 window.onload = function () {
     initialize();
-    console.log(entities)
 }
 
 function initialize() {
@@ -58,9 +58,8 @@ if (window.mobileAndTabletCheck()) {
 canvas.width = GLOBAL.ratio * GLOBAL.tilesize * 30;
 canvas.height = GLOBAL.ratio * GLOBAL.tilesize * 18;
 //centers the canvas
-canvas.style.left = (window.innerWidth - canvas.width) / 2+"px";
-canvas.style.top = (window.innerHeight - canvas.height) / 4+"px";
-console.log(canvas.style)
+canvas.style.left = (window.innerWidth - canvas.width) / 2 + "px";
+canvas.style.top = (window.innerHeight - canvas.height) / 4 + "px";
 //canvas.width = 2 * GLOBAL.tilesize * 30;
 //canvas.height = 2 * GLOBAL.tilesize * 18;
 c.imageSmoothingEnabled = false;
@@ -74,21 +73,15 @@ var entities = [];
 var animatedTiles = [];
 var vfxs = [];
 
-var savePoint = {
-    x: 0,
-    y: 0,
-    stage: 0,
-    level: 0
-}
 
 var loadCall = 0;
 
 function unload() {
     // Updates the spawn point
-    stages[savePoint.stage][savePoint.level].spawnPoint.x = player.x;
-    stages[savePoint.stage][savePoint.level].spawnPoint.y = player.y;
+    stages[currentPoint.stage][currentPoint.level].spawnPoint.x = player.x;
+    stages[currentPoint.stage][currentPoint.level].spawnPoint.y = player.y;
     // Updates the entities of the unloaded level
-    stages[savePoint.stage][savePoint.level].entities = entities;
+    stages[currentPoint.stage][currentPoint.level].entities = entities;
 }
 
 function load(instantCall) {
@@ -96,7 +89,7 @@ function load(instantCall) {
         let img = new Image();
         img.src = canvas.toDataURL();
         transitionVariables.image = img;
-        safeEval(stages[savePoint.stage][savePoint.level]);
+        safeEval(stages[currentPoint.stage][currentPoint.level]);
         initializeMap();
         loadCall = 0;
     } else {
@@ -165,8 +158,8 @@ function updateDt() {
 if (debug.on) {
     canvas.onmousedown = function (e) {
         id("mousePos").innerHTML = "";
-        id("mousePos").innerHTML += "x: " + (-map.x + e.clientX / (GLOBAL.tilesize * GLOBAL.ratio)) + "<br>";
-        id("mousePos").innerHTML += "y: " + (map.y + e.clientY / (GLOBAL.tilesize * GLOBAL.ratio));
+        id("mousePos").innerHTML += "x: " + (-map.x + (e.clientX-canvas.offsetLeft) / (GLOBAL.tilesize * GLOBAL.ratio)) + "<br>";
+        id("mousePos").innerHTML += "y: " + (map.y + (e.clientY-canvas.offsetTop) / (GLOBAL.tilesize * GLOBAL.ratio));
     }
 }
 // Slows down every entity by acting on the delta time mechanics
@@ -232,7 +225,7 @@ function checkCollisions(obj) {
         };
         let e = entities;
         for (let i = 0; i < e.length; i++) {
-            if (isOutOfScreen(e[i]) || e[i].removede || !e[i].solid) {
+            if (isOutOfScreen(e[i]) || e[i].removed || !e[i].solid) {
                 continue;
             }
             if (collided(obj, e[i])) {
@@ -240,7 +233,7 @@ function checkCollisions(obj) {
                 switch (col) {
                     case "b":
                         obj.grounded = true;
-                        //obj.yVel = 0;
+                        obj.yVel = 0;
                         obj.riding = e[i];
                         break;
                 }
@@ -311,7 +304,13 @@ var blackScreen = {
 function gameLoop() {
     timestamp = Date.now();
     fps++;
-
+    if (fps > 70) {
+        GLOBAL.excessFps = true;
+    }
+    if (GLOBAL.excessFps) {
+        setTimeout(gameLoop,1000/60);
+    }
+    
     switch (metaVariables.loopType) {
         case 0:
             standardLoop();
@@ -334,7 +333,9 @@ function gameLoop() {
         blackScreen.current -= dT;
     }
     updateDt();
-    requestAnimationFrame(gameLoop);
+    if (!GLOBAL.excessFps) {
+        requestAnimationFrame(gameLoop);
+    }
 }
 var transitionVariables = {
     image: 0,
@@ -445,11 +446,11 @@ function standardLoop() {
         load()
         metaVariables.loopType = 1;
     }
-    for (let i = 0; i < levelBoundFunctions[savePoint.stage][savePoint.level].length; i++) {
-        if (levelBoundFunctions[savePoint.stage][savePoint.level][i].removed) {
+    for (let i = 0; i < levelBoundFunctions[currentPoint.stage][currentPoint.level].length; i++) {
+        if (levelBoundFunctions[currentPoint.stage][currentPoint.level][i].removed) {
             continue;
         }
-        levelBoundFunctions[savePoint.stage][savePoint.level][i].compute();
+        levelBoundFunctions[currentPoint.stage][currentPoint.level][i].compute();
     }
     //calculating delta time
 }
