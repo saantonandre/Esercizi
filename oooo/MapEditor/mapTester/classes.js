@@ -92,6 +92,11 @@ class AnimatedTile {
 }
 class Entity {
     constructor(x, y) {
+        this.initialX = x;
+        this.initialY = y;
+        this.resetBasicVariables(this.initialX, this.initialY);
+    }
+    resetBasicVariables(x, y) {
         this.x = x;
         this.y = y;
         this.w = 1;
@@ -513,7 +518,7 @@ class Camera extends Entity {
         }
     }
     compute() {
-        if(!player.onSkate){
+        if (!player.onSkate) {
             return;
         }
         if (collided(this, player)) {
@@ -527,7 +532,7 @@ class Camera extends Entity {
         }
     }
     render() {
-        if(!player.onSkate){
+        if (!player.onSkate) {
             return;
         }
         c.drawImage(
@@ -607,6 +612,10 @@ class HpDisplay {
 class Player extends Entity {
     constructor(x, y) {
         super(x, y);
+        this.resetVariables();
+    }
+    resetVariables() {
+        this.resetBasicVariables();
         this.speed = 0.05;
         this.maxSpeed = 0.2;
         this.friction = 0.9;
@@ -686,7 +695,8 @@ class Player extends Entity {
     }
     explode() {
         //slowMoFrames=40;
-        if (this.onskate) {
+        //map.cameraFocus = "none";
+        if (this.onSkate) {
             vfxs.push(new Vfx(this.x, this.y, 7));
             vfxs.push(new Vfx(this.x, this.y, 15));
             vfxs.push(new Vfx(this.x, this.y, 16));
@@ -695,8 +705,13 @@ class Player extends Entity {
             vfxs.push(new Vfx(this.x, this.y, 8));
             vfxs.push(new Vfx(this.x, this.y, 9));
         }
-        this.x = 2;
-        this.y = -40;
+        // what happens on death
+        stages = new GameBlueprint().stages;
+        savePoint.level = 0;
+        resetEvents();
+        loadCall = 1;
+        player.resetVariables();
+
     }
     onHit() {
 
@@ -2060,7 +2075,6 @@ class Map {
 
     }
     renderTiles() {
-
         if (this.background) {
             c.drawImage(
                 this.background,
@@ -2085,9 +2099,6 @@ class Map {
                 this.tilesHeight * GLOBAL.tilesize * GLOBAL.ratio
             )
         }
-        if (controls.e) {
-            console.log()
-        }
         //render the level image
         if (this.levelImage) {
             c.drawImage(
@@ -2109,6 +2120,12 @@ class Map {
         }
     }
     computeCamera() {
+        if (isNaN(map.x)) {
+            map.x = 0;
+        }
+        if (isNaN(map.y)) {
+            map.y = 0;
+        }
         this.tilesWidth = canvas.width / GLOBAL.tilesize / GLOBAL.ratio;
         this.tilesHeight = canvas.height / GLOBAL.tilesize / GLOBAL.ratio;
         if (typeof this.cameraFocus === 'object' && this.cameraFocus !== null) {
@@ -2144,8 +2161,8 @@ class Boss_1 extends Entity {
         this.y = y;
         this.w = 19;
         this.h = 18;
-        this.xVel= 0.1;
-        this.yVel= Math.cos(this.x);
+        this.xVel = 0.1;
+        this.yVel = Math.cos(this.x);
         this.sheet = id("sheet");
         this.actionX = [0, 0, 0];
         this.actionY = [0, 0, 0];
@@ -2210,6 +2227,12 @@ class Boss_1 extends Entity {
                 y: 23
             }
         };
+        this.sawHitbox = {
+            x: 0,
+            y: 0,
+            w: 2,
+            h: 2
+        }
         this.propeller = {
             spriteX: [864, 864, 864],
             spriteY: [544, 592, 640],
@@ -2233,16 +2256,32 @@ class Boss_1 extends Entity {
         let deltaY = y - (player.y + player.h / 2);
         item.rotation = Math.atan2(deltaY, deltaX) + Math.PI;
     }
+    checkSawCollision() {
+        let length = -95 / GLOBAL.tilesize;
+        this.sawHitbox.x = this.x + (this.saw.x1 / GLOBAL.tilesize) + (this.saw.rotCenter.x / GLOBAL.tilesize) - Math.cos(this.saw.rotation) * length;
+        this.sawHitbox.x -= this.sawHitbox.w / 2;
+        this.sawHitbox.y = this.y + (this.saw.y1 / GLOBAL.tilesize) + (this.saw.rotCenter.y / GLOBAL.tilesize) - Math.sin(this.saw.rotation) * length;
+        this.sawHitbox.y -= this.sawHitbox.h / 2;
+
+        if (collided(player, this.sawHitbox)) {
+            player.explode()
+        }
+    }
     compute() {
         this.computeRotation(this.gun)
         this.computeRotation(this.laserGun)
         this.computeRotation(this.saw)
-        this.x += this.xVel * dT;
-        this.yVel=Math.cos(this.x/3)/30
-        this.y+= this.yVel* dT;
+        if (this.x + this.w < player.x - 8) {
+            this.x += this.xVel * dT * 1.6;
+        } else {
+            this.x += this.xVel * dT;
+        }
+        this.yVel = Math.cos(this.x / 3) / 30
+        this.y += this.yVel * dT;
         if (!isOutOfScreen(this)) {
             screenShake.duration = 6;
         }
+        this.checkSawCollision();
     }
     render() {
         /*
@@ -2406,6 +2445,15 @@ class Boss_1 extends Entity {
         )
         c.restore()
 
+        /*
+        c.fillStyle = "red";
+        c.fillRect(
+            this.sawHitbox.x * GLOBAL.ratio * GLOBAL.tilesize,
+            this.sawHitbox.y * GLOBAL.ratio * GLOBAL.tilesize,
+            this.sawHitbox.w * GLOBAL.ratio * GLOBAL.tilesize,
+            this.sawHitbox.h * GLOBAL.ratio * GLOBAL.tilesize,
+        )
+        */
     }
 }
 
@@ -2421,8 +2469,8 @@ class Interaction extends Entity {
         this.action = 0;
         this.pressed = true;
         this.removed = false;
-        
-        this.type="interaction"
+
+        this.type = "interaction"
         this.repeatable = repeatable ? true : false;
         this.hitbox = {
             x: 0,
@@ -2484,7 +2532,32 @@ class Interaction extends Entity {
 
     }
 }
-
+class EventBox {
+    constructor(x, y, w, h, event) {
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        this.removed = false;
+        this.event = event;
+    }
+    compute() {
+        if (collided(this, player)) {
+            this.event();
+            this.removed = true;
+        }
+    }
+    render() {
+        /*
+        c.fillRect(
+            (this.x + map.x) * GLOBAL.tilesize * GLOBAL.ratio,
+            (this.y + map.y) * GLOBAL.tilesize * GLOBAL.ratio,
+            (this.w) * GLOBAL.tilesize * GLOBAL.ratio,
+            (this.h) * GLOBAL.tilesize * GLOBAL.ratio,
+        )
+        */
+    }
+}
 class VendingMachine extends Entity {
     constructor(x, y) {
         super(x, y);

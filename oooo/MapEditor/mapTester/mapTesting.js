@@ -4,7 +4,7 @@ var mapTester = true;
 
 function safeEval(level) {
     if (typeof level === 'object' && level !== null) {
-        entities = level.entities;
+        level.entities ? entities = level.entities : entities = [];
         map.map = level.map;
         map.spawnPoint = level.spawnPoint;
         if (level.background) {
@@ -29,10 +29,10 @@ function initializeMap() {
     vfxs = [];
     var removeList = [];
     for (let i = map.tiles.length - 1; i >= 0; i--) {
-        if(map.tiles[i].type!==0){
-            map.tiles[i].solid=false;
-        }else{
-            map.tiles[i].solid=true;
+        if (map.tiles[i].type !== 0) {
+            map.tiles[i].solid = false;
+        } else {
+            map.tiles[i].solid = true;
         }
         switch (map.tiles[i].type) {
             case 3:
@@ -61,7 +61,11 @@ function initializeMap() {
                 break;
             case 9:
                 entities.push(new VendingMachine(map.tiles[i].x, map.tiles[i].y))
-                entities.push(entities[entities.length-1].interac)
+                entities.push(entities[entities.length - 1].interac)
+                removeList.push(i);
+                break;
+            case 10: //event box
+                entities.push(new EventBox(map.tiles[i].x, map.tiles[i].y, map.tiles[i].w, map.tiles[i].h, map.tiles[i].event))
                 removeList.push(i);
                 break;
         }

@@ -8,8 +8,8 @@ var c = canvas.getContext("2d");
 var GLOBAL = {
     FPS: 60,
     tilesize: 16,
-    baseRatio: 2,
-    ratio: 2,
+    baseRatio: 1,
+    ratio: 1,
     terminalVel: 0.7,
     baseTargetFrames: 48
 }
@@ -23,12 +23,12 @@ var officer ={};
 var esther ={};
 
 
+var testMode = false;
 
 window.onload = function () {
     initialize();
+    console.log(entities)
 }
-var testMode = false;
-
 function initialize() {
     if (window.opener) {
         testMode = true;
@@ -42,6 +42,7 @@ function initialize() {
         }
     } else {
         load(true);
+//entities.push(new Boss_1(-30, -3));
     }
     //starts the game loop
     gameLoop();
@@ -53,14 +54,13 @@ canvas.height = GLOBAL.ratio * GLOBAL.tilesize * 18;
 c.imageSmoothingEnabled = false;
 
 
-var map = new Map();
 var player = new Player(1, 9);
+var map = new Map();
 map.cameraFocus = player;
 var sword = new Sword();
 var entities = [];
 var animatedTiles = [];
 var vfxs = [];
-//entities.push(new Boss_1(-30, -3));
 
 var savePoint = {
     x: 0,
@@ -332,7 +332,7 @@ var transitionVariables = {
 }
 
 function transition() {
-
+    slowMo();
     c.clearRect(
         0,
         0,
@@ -433,11 +433,11 @@ function standardLoop() {
         load()
         metaVariables.loopType = 1;
     }
-    for (let i = 0; i < LevelBoundFunctions[savePoint.stage][savePoint.level].length;i++){
-        if(LevelBoundFunctions[savePoint.stage][savePoint.level][i].removed){
+    for (let i = 0; i < levelBoundFunctions[savePoint.stage][savePoint.level].length;i++){
+        if(levelBoundFunctions[savePoint.stage][savePoint.level][i].removed){
             continue;
         }
-        LevelBoundFunctions[savePoint.stage][savePoint.level][i].compute();
+        levelBoundFunctions[savePoint.stage][savePoint.level][i].compute();
     }
     //calculating delta time
 }
@@ -562,3 +562,4 @@ function drawLaser(object, direction, hidden) {
     c.strokeStyle = "black";
     return found;
 }
+

@@ -1,12 +1,13 @@
 // Variables related to the events
 var eventsVariables = {
     // If you took all the photos with Esther
-    tookPhotos: false,
-    interactedWithBed: false
+    tookPhotos: true,
+    interactedWithBed: false,
+    backHome: false
 }
 
 // All the level bound functions(events) will be stored here
-var LevelBoundFunctions = [];
+var levelBoundFunctions = [];
 var stage_0 = []
 var stage_1 = []
 var stage_2 = []
@@ -17,20 +18,25 @@ let backHome = {
     removed: false,
     compute: function () {
         if (eventsVariables.tookPhotos) {
+            for (let i = 0; i < levelBoundFunctions[0][1].length-1; i++) {
+                levelBoundFunctions[0][1][i].removed = true;
+            }
             dialogueEngine.loadDialogueQueue([{
                 speaker: 0,
                 emotion: 0,
-                cameraFocus: officer,
-                text: "Damn, I'm not even tired...I would have played a bit more if it wasn't for Jay."
+                cameraFocus: player,
+                text: "(Damn, I'm not even tired...I would have played a bit more if it wasn't for Jay)."
                         }])
             this.removed = true;
+            eventsVariables.interactedWithBed = false;
+            eventsVariables.backHome = true;
 
             function goToSleep() {
                 screenShake.duration = 10;
                 dialogueEngine.loadDialogueQueue([{
                     speaker: 0,
                     emotion: 1,
-                    cameraFocus: officer,
+                    cameraFocus: player,
                     text: "W-what was that?!"
                         }])
                 eventsVariables.interactedWithBed = true;
@@ -75,11 +81,6 @@ let jaymeeAsksWhatYouDoing = {
                 emotion: 1,
                 text: "O- officer Jaymee"
                         }, {
-                speaker: 2,
-                emotion: 0,
-                cameraFocus: officer,
-                text: "Speak up"
-                        }, {
                 speaker: 0,
                 emotion: 0,
                 text: "I gotta get back the skateboard I lent to Esther, he's waiting just ahead..."
@@ -103,17 +104,17 @@ let meetEsther = {
                 speaker: 1,
                 emotion: 0,
                 cameraFocus: esther,
-                text: "Here it is!"
+                text: "Hey Beck, here's your skate"
                         }, {
                 speaker: 0,
                 emotion: 0,
                 cameraFocus: player,
-                text: "yo Esther"
+                text: "Yo Esther, how's going"
                         }, {
                 speaker: 1,
                 emotion: 0,
                 cameraFocus: esther,
-                text: "Been doing some SIIIIICK kickflips. My knees feels so weak now"
+                text: "Been doing some SIIIIICK kickflips. My knees feels so weak now."
                         }, {
                 speaker: 1,
                 emotion: 0,
@@ -128,7 +129,7 @@ let meetEsther = {
                 speaker: 1,
                 emotion: 0,
                 cameraFocus: esther,
-                text: "Heh. I've spent a year long of savings. Wanna make some photoshoots? "
+                text: "Heh. I've spent all my savings. I'd want to try it now, wanna make some photoshoots? "
                 }, {
                 speaker: 0,
                 emotion: 3,
@@ -138,7 +139,7 @@ let meetEsther = {
                 speaker: 1,
                 emotion: 0,
                 cameraFocus: esther,
-                text: "Ok then, go ahead, I'll be right behind you. Make sure to land your craaaziest tricks!"
+                text: "Ok then, go ahead. I'll be right behind you, make sure to land your craaaziest tricks!"
                 }, ])
             player.onSkate = true;
             player.xVel = 0;
@@ -147,9 +148,9 @@ let meetEsther = {
                 if (eventsVariables.tookPhotos) {
                     dialogueEngine.loadDialogueQueue([{
                         speaker: 0,
-                        emotion: 0,
+                        emotion: 3,
                         cameraFocus: esther,
-                        text: "Can I take a look at those photos?",
+                        text: "Can I take a look at the photos?",
                         }, {
                         speaker: 1,
                         emotion: 0,
@@ -159,7 +160,7 @@ let meetEsther = {
                         speaker: 0,
                         emotion: 1,
                         cameraFocus: esther,
-                        text: "I mean... they look kinda pixelated",
+                        text: "(They look way too pixelated)",
                         }, ])
                     this.removed = true;
                 } else {
@@ -191,6 +192,7 @@ let afterPhotoshoot = {
                 text: "That's enough Beck! my camera's internal storage is full"
                         }])
             this.removed = true;
+            slowMoFrames = 0;
             officer.x = esther.x + 2;
         }
     }
@@ -203,7 +205,7 @@ let jaymeeScoldsYou = {
                 speaker: 2,
                 emotion: 0,
                 cameraFocus: officer,
-                text: "Ok kids. I have A job to do. Go back home right NOW."
+                text: "Ok little punks. I can't watch after you the whole night, go back home right now."
                         }, {
                 speaker: 1,
                 emotion: 0,
@@ -211,15 +213,32 @@ let jaymeeScoldsYou = {
                 text: "Sure officer!"
                         }, {
                 speaker: 0,
-                emotion: 1,
+                emotion: 0,
                 cameraFocus: player,
-                text: "Sure"
+                text: "...sure"
                         }])
             this.removed = true;
             player.onSkate = false;
         }
     }
 }
+let afterBackHome = {
+    removed: false,
+    compute: function () {
+        if (eventsVariables.backHome){
+            officer.x = -100;
+            esther.x = -100;
+            console.log("officer.x "+officer.x)
+            this.removed = true;
+        }
+    }
+}
+level_1.push(jaymeeAsksWhatYouDoing, meetEsther, afterPhotoshoot, jaymeeScoldsYou,afterBackHome)
+stage_0.push(level_1);
+
+
+// level 2 (destroyed street)
+var level_2 = [];
 let satelliteAppears = {
     removed: false,
     compute: function () {
@@ -235,10 +254,24 @@ let satelliteAppears = {
         }
     }
 }
-level_1.push(jaymeeAsksWhatYouDoing, meetEsther, afterPhotoshoot, jaymeeScoldsYou,satelliteAppears)
-stage_0.push(level_1);
+
+level_2.push(satelliteAppears)
+stage_0.push(level_2);
 
 
-LevelBoundFunctions.push(stage_0)
-LevelBoundFunctions.push(stage_1)
-LevelBoundFunctions.push(stage_2)
+levelBoundFunctions.push(stage_0)
+levelBoundFunctions.push(stage_1)
+levelBoundFunctions.push(stage_2)
+
+function resetEvents() {
+    // iterates stages
+    for (let i = 0; i < levelBoundFunctions.length; i++) {
+        // iterates levels
+        for (let j = 0; j < levelBoundFunctions[i].length; j++) {
+            // iterates events
+            for (let k = 0; k < levelBoundFunctions[i][j].length; k++) {
+                levelBoundFunctions[i][j][k].removed = false;
+            }
+        }
+    }
+}
