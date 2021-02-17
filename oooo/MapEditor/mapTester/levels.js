@@ -337,7 +337,7 @@ class GameBlueprint {
                 type: 4
     }, {
                 x: 75,
-                y: 5,
+                y: 6,
                 w: 1,
                 h: 1,
                 type: 4
