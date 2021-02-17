@@ -8,8 +8,8 @@ var c = canvas.getContext("2d");
 var GLOBAL = {
     FPS: 60,
     tilesize: 16,
-    baseRatio: 1,
-    ratio: 1,
+    baseRatio: 2,
+    ratio: 2,
     terminalVel: 0.7,
     baseTargetFrames: 48
 }
@@ -19,8 +19,8 @@ var metaVariables = {
 }
 
 // Characters
-var officer ={};
-var esther ={};
+var officer = {};
+var esther = {};
 
 
 var testMode = false;
@@ -29,6 +29,7 @@ window.onload = function () {
     initialize();
     console.log(entities)
 }
+
 function initialize() {
     if (window.opener) {
         testMode = true;
@@ -42,13 +43,24 @@ function initialize() {
         }
     } else {
         load(true);
-//entities.push(new Boss_1(-30, -3));
+        //entities.push(new Boss_1(-30, -3));
     }
     //starts the game loop
     gameLoop();
 }
+console.log(window.mobileAndTabletCheck())
+if (window.mobileAndTabletCheck()) {
+    GLOBAL.baseRatio = 1;
+    GLOBAL.ratio = 1;
+    id("arrowCont").style.display = "inline-block";
+}
+//resizes the canvas
 canvas.width = GLOBAL.ratio * GLOBAL.tilesize * 30;
 canvas.height = GLOBAL.ratio * GLOBAL.tilesize * 18;
+//centers the canvas
+canvas.style.left = (window.innerWidth - canvas.width) / 2+"px";
+canvas.style.top = (window.innerHeight - canvas.height) / 4+"px";
+console.log(canvas.style)
 //canvas.width = 2 * GLOBAL.tilesize * 30;
 //canvas.height = 2 * GLOBAL.tilesize * 18;
 c.imageSmoothingEnabled = false;
@@ -433,8 +445,8 @@ function standardLoop() {
         load()
         metaVariables.loopType = 1;
     }
-    for (let i = 0; i < levelBoundFunctions[savePoint.stage][savePoint.level].length;i++){
-        if(levelBoundFunctions[savePoint.stage][savePoint.level][i].removed){
+    for (let i = 0; i < levelBoundFunctions[savePoint.stage][savePoint.level].length; i++) {
+        if (levelBoundFunctions[savePoint.stage][savePoint.level][i].removed) {
             continue;
         }
         levelBoundFunctions[savePoint.stage][savePoint.level][i].compute();
@@ -562,4 +574,3 @@ function drawLaser(object, direction, hidden) {
     c.strokeStyle = "black";
     return found;
 }
-

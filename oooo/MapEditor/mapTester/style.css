@@ -21,13 +21,15 @@ body {
     left: 5px;
     top: 25px;
 }
-
+#canvas{
+    position:absolute;
+}
 
 #arrowCont {
     position: absolute;
     width: 100%;
     height: 12vh;
-    bottom: 10vh;
+    bottom: -22vh;
 }
 
 .arrows {

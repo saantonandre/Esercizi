@@ -622,6 +622,7 @@ class Player extends Entity {
         this.jumpSpeed = 0.3;
         this.gForce = 0.02;
         this.type = "player";
+        this.jumpPressed=0;
 
         this.saving = false;
         this.misc = {
@@ -747,6 +748,7 @@ class Player extends Entity {
         } else {
             this.controls = controls;
         }
+        controls.up ? this.jumpPressed++ : this.jumpPressed = 0;
         this.checkState();
         this.coyoteFrames = 8 * dT;
         if (this.yVel < GLOBAL.terminalVel * dT) {
@@ -813,7 +815,7 @@ class Player extends Entity {
                 this.holdingJump = 0;
             }
         } else {
-            if (this.controls.up && !this.jumping && !this.col.T && this.canJump > 0) {
+            if (this.jumpPressed==1 && !this.jumping && !this.col.T && this.canJump > 0) {
                 this.jumping = true;
                 this.yVel = -this.jumpSpeed;
             }
@@ -2467,7 +2469,7 @@ class Interaction extends Entity {
         this.baseSlowness = 15;
         this.slowness = 15;
         this.action = 0;
-        this.pressed = true;
+        this.pressed = 1;
         this.removed = false;
 
         this.type = "interaction"
