@@ -48,7 +48,6 @@ function initialize() {
     //starts the game loop
     gameLoop();
 }
-console.log(window.mobileAndTabletCheck())
 if (window.mobileAndTabletCheck()) {
     GLOBAL.baseRatio = 1;
     GLOBAL.ratio = 1;
@@ -84,11 +83,15 @@ function unload() {
     stages[currentPoint.stage][currentPoint.level].entities = entities;
 }
 
+function captureStopMotion() {
+    let img = new Image();
+    img.src = canvas.toDataURL();
+    transitionVariables.image = img;
+}
+
 function load(instantCall) {
+    captureStopMotion();
     if (loadCall || instantCall) {
-        let img = new Image();
-        img.src = canvas.toDataURL();
-        transitionVariables.image = img;
         safeEval(stages[currentPoint.stage][currentPoint.level]);
         initializeMap();
         loadCall = 0;
@@ -158,8 +161,8 @@ function updateDt() {
 if (debug.on) {
     canvas.onmousedown = function (e) {
         id("mousePos").innerHTML = "";
-        id("mousePos").innerHTML += "x: " + (-map.x + (e.clientX-canvas.offsetLeft) / (GLOBAL.tilesize * GLOBAL.ratio)) + "<br>";
-        id("mousePos").innerHTML += "y: " + (map.y + (e.clientY-canvas.offsetTop) / (GLOBAL.tilesize * GLOBAL.ratio));
+        id("mousePos").innerHTML += "x: " + (-map.x + (e.clientX - canvas.offsetLeft) / (GLOBAL.tilesize * GLOBAL.ratio)) + "<br>";
+        id("mousePos").innerHTML += "y: " + (map.y + (e.clientY - canvas.offsetTop) / (GLOBAL.tilesize * GLOBAL.ratio));
     }
 }
 // Slows down every entity by acting on the delta time mechanics
@@ -308,9 +311,9 @@ function gameLoop() {
         GLOBAL.excessFps = true;
     }
     if (GLOBAL.excessFps) {
-        setTimeout(gameLoop,1000/60);
+        setTimeout(gameLoop, 1000 / 60);
     }
-    
+
     switch (metaVariables.loopType) {
         case 0:
             standardLoop();
@@ -322,7 +325,8 @@ function gameLoop() {
 
     if (blackScreen.current > 0) {
         c.globalAlpha = blackScreen.current / blackScreen.initial;
-        c.fillStyle = "#1c1618";
+        //c.fillStyle = "#1c1618";
+        c.fillStyle = "black";
         c.fillRect(
             0,
             0,
@@ -352,7 +356,8 @@ function transition() {
         canvas.width,
         canvas.height
     )
-    c.fillStyle = "#1c1618";
+    //c.fillStyle = "#1c1618";
+    c.fillStyle = "black";
     c.fillRect(
         0,
         0,
@@ -375,7 +380,8 @@ function transition() {
     transitionVariables.x += dT * 10;
     transitionVariables.opacity += 0.02;
     c.globalAlpha = transitionVariables.opacity;
-    c.fillStyle = "#1c1618";
+    //c.fillStyle = "#1c1618";
+    c.fillStyle = "black";
     c.fillRect(
         0,
         0,
@@ -423,13 +429,13 @@ function standardLoop() {
         }
         animatedTiles[i].render();
     }
-    player.compute();
-
-    player.render();
-
-    if (!player.onSkate && player.armed) {
-        sword.compute();
-        sword.render();
+    if (!player.dead) {
+        player.compute();
+        player.render();
+        if (!player.onSkate && player.armed) {
+            sword.compute();
+            sword.render();
+        }
     }
 
     if (flash > 0) {

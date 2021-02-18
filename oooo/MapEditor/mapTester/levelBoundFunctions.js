@@ -126,8 +126,6 @@ let jaymeeAsksWhatYouDoing = {
 let meetEsther = {
     removed: false,
     compute: function () {
-        console.log(esther)
-
         function getYourSkate() {
             dialogueEngine.loadDialogueQueue([{
                 speaker: 1,

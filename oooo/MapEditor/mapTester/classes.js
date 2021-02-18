@@ -13,6 +13,8 @@ class Map
 
 class Player
 
+class PlayerInterface
+
 class Sword
 
 class Skeleton
@@ -100,9 +102,9 @@ class Entity {
         this.initialY = y;
         this.resetBasicVariables(this.initialX, this.initialY);
     }
-    resetBasicVariables(x, y) {
-        this.x = x;
-        this.y = y;
+    resetBasicVariables(xx, yy) {
+        this.x = xx;
+        this.y = yy;
         this.w = 1;
         this.h = 1;
         this.strikeable = true;
@@ -557,6 +559,54 @@ class Camera extends Entity {
         )
     }
 }
+
+class PlayerInterface {
+    constructor() {
+        this.offsetX = 0;
+        this.offsetY = 0;
+        this.sheet = id("sheet");
+        this.actionX = [[1], [1]];
+        this.actionY = [[2], [3]];
+        this.w = 1;
+        this.h = 1;
+        this.action = 0;
+        this.frame = 0;
+        this.frameCounter = 0;
+        this.slowness = 4;
+        this.baseSlowness = 4;
+    }
+    compute() {}
+    render() {
+        for (let i = 0; i < player.maxHp; i++) {
+            if (player.hp > i) {
+                c.drawImage(
+                    this.sheet,
+                    this.actionX[0][0] * GLOBAL.tilesize,
+                    this.actionY[0][0] * GLOBAL.tilesize,
+                    this.w * GLOBAL.tilesize,
+                    this.h * GLOBAL.tilesize,
+                    (this.offsetX + this.w * i) * GLOBAL.tilesize * GLOBAL.ratio,
+                    (this.offsetY) * GLOBAL.tilesize * GLOBAL.ratio,
+                    this.w * GLOBAL.tilesize * GLOBAL.ratio,
+                    this.h * GLOBAL.tilesize * GLOBAL.ratio
+                )
+            } else {
+                c.drawImage(
+                    this.sheet,
+                    this.actionX[1][0] * GLOBAL.tilesize,
+                    this.actionY[1][0] * GLOBAL.tilesize,
+                    this.w * GLOBAL.tilesize,
+                    this.h * GLOBAL.tilesize,
+                    (this.offsetX + this.w * i) * GLOBAL.tilesize * GLOBAL.ratio,
+                    (this.offsetY) * GLOBAL.tilesize * GLOBAL.ratio,
+                    this.w * GLOBAL.tilesize * GLOBAL.ratio,
+                    this.h * GLOBAL.tilesize * GLOBAL.ratio
+                )
+            }
+        }
+    }
+}
+
 class HpDisplay {
     constructor(entity) {
         this.entity = entity;
@@ -624,26 +674,29 @@ class Player extends Entity {
         super(x, y);
         this.resetVariables();
     }
-    resetVariables() {
-        this.resetBasicVariables();
+    resetVariables(x,y) {
+        this.x=x?x:0;
+        this.y=y?y:0;
         this.speed = 0.05;
         this.maxSpeed = 0.2;
         this.friction = 0.9;
         this.jumpSpeed = 0.3;
         this.gForce = 0.02;
         this.type = "player";
-        this.jumpPressed = 0;
-
+        this.maxHp = 3;
+        this.dead = false;
+        this.hp = 3;
         this.saving = false;
         this.misc = {
             pics: 0,
         }
+        this.displayInterface=true;
         this.left = 1;
         //Skate variables
         this.onSkate = false;
         this.armed = false;
         this.holdingJump = 0;
-
+        this.interface = new PlayerInterface();
         this.riding = {
             xVel: 0,
             yVel: 0
@@ -672,8 +725,7 @@ class Player extends Entity {
 
 
         this.actionX = [[1], [1], [4, 4, 4, 4], [5, 5, 5, 5], [6], [7], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1, 1], [1, 1, 1], [0], [0], [3, 3, 3, 3, 3, 3, 3], [3, 3, 3, 3, 3, 3, 3]];
-
-        this.actionY = [[0], [0], [18, 19, 20, 21], [18, 19, 20, 21], [18], [18], [4, 5], [4, 5], [6, 7], [6, 7], [6, 7, 8], [6, 7, 8], [7], [7], [18, 19, 20, 21, 20, 21, 20], [18, 19, 20, 21, 20, 21, 20]];
+        this.actionY = [[0], [0], [18, 19, 20, 21], [18, 19, 20, 21], [18], [18], [4, 5], [4, 5], [6, 7], [6, 7], [8, 6, 7], [8, 6, 7], [7], [7], [18, 19, 20, 21, 20, 21, 20], [18, 19, 20, 21, 20, 21, 20]];
 
         this.grounded = false;
         this.jumping = false;
@@ -707,23 +759,40 @@ class Player extends Entity {
     explode() {
         //slowMoFrames=40;
         //map.cameraFocus = "none";
+        if(this.dead){
+            return;
+        }
+        this.dead = true;
+        slowMoFrames=60;
+        let x = new Vfx(this.x, this.y, 9)
+        vfxs.push(x);
+        map.cameraFocus=x;
         if (this.onSkate || (this.armed && sword.currentSword == 0)) {
-            vfxs.push(new Vfx(this.x, this.y, 7));
             vfxs.push(new Vfx(this.x, this.y, 15));
             vfxs.push(new Vfx(this.x, this.y, 16));
-        } else {
-            vfxs.push(new Vfx(this.x, this.y, 9));
+        } else if (this.armed && sword.currentSword == 1) {
+            vfxs.push(new Vfx(this.x, this.y, 7));
+            vfxs.push(new Vfx(this.x, this.y, 8));
         }
         // what happens on death
-        stages = new GameBlueprint().stages;
-        backToCheckPoint();
-        resetEvents();
-        loadCall = 1;
-        player.resetVariables();
+        setTimeout(function () {
+            stages = new GameBlueprint().stages;
+            backToCheckPoint();
+            resetEvents();
+            loadCall = 1;
+            player.resetBasicVariables();
+            player.resetVariables();
+            map.cameraFocus=player;
+        },1500)
 
     }
     onHit() {
         if (this.iFrames > 0) {
+            return;
+        }
+        this.hp--;
+        if (this.hp < 1) {
+            this.explode();
             return;
         }
         this.yVel = -this.maxSpeed * 3;
@@ -750,6 +819,11 @@ class Player extends Entity {
 
     }
     compute() {
+        if(currentPoint.level<3){
+            this.displayInterface=false;
+        }else{
+            this.displayInterface=true;
+        }
         if (isOutOfScreen(this)) {
             return;
         }
@@ -764,7 +838,6 @@ class Player extends Entity {
         } else {
             this.controls = controls;
         }
-        controls.up ? this.jumpPressed++ : this.jumpPressed = 0;
         this.checkState();
         this.coyoteFrames = 8 * dT;
         if (this.yVel < GLOBAL.terminalVel * dT) {
@@ -831,7 +904,7 @@ class Player extends Entity {
                 this.holdingJump = 0;
             }
         } else {
-            if (this.jumpPressed == 1 && !this.jumping && !this.col.T && this.canJump > 0) {
+            if (this.controls.up && !this.jumping && !this.col.T && this.canJump > 0) {
                 this.jumping = true;
                 this.yVel = -this.jumpSpeed;
             }
@@ -883,6 +956,10 @@ class Player extends Entity {
             if (this.holdingJump) {
                 this.action = 8;
                 if (this.holdingJump > 15) {
+                    if (this.holdingJump < 15 + dT) {
+                        this.frame = 0;
+                        this.frameCounter = 0;
+                    }
                     this.action = 10;
                 }
             } else if (this.xVel == 0 && !this.uncontrollable) {
@@ -934,6 +1011,9 @@ class Player extends Entity {
             this.w * GLOBAL.tilesize * GLOBAL.ratio | 0,
             this.h * GLOBAL.tilesize * GLOBAL.ratio | 0
         )
+        if(this.displayInterface){
+            this.interface.render();
+        }
     }
 }
 
@@ -1922,15 +2002,12 @@ class Vfx {
         this.rotation = 0;
         this.rotSpeed = Math.random() * 10;
         this.xVel = Math.random() * 0.3 - 0.15;
-        this.yVel = -Math.random() * 0.6;
+        this.yVel = -Math.random() * 0.6+0.1;
         this.sheet = id("sheet");
         this.type = type;
         this.gForce = 0.02;
     }
     compute() {
-        if (this.y > map.y + map.tilesHeight) {
-            this.removed = true;
-        }
         if (this.yVel < GLOBAL.terminalVel * dT) {
             this.yVel += this.gForce * dT;
         } else {
@@ -2328,11 +2405,13 @@ class Boss_1 extends Entity {
         }
     }
     compute() {
+        if(!loadCall && !player.dead){
         this.computeRotation(this.gun)
         this.computeRotation(this.laserGun)
         this.computeRotation(this.saw)
+        }
         if (this.x + this.w < player.x - 8) {
-            this.x += this.xVel * dT * 1.6;
+            this.x += this.xVel * dT * 1.7;
         } else {
             this.x += this.xVel * dT;
         }
