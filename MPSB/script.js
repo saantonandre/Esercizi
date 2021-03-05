@@ -170,7 +170,7 @@ id("test").onclick = function () {
         levelsArray.push(JSON.parse(levels[i]));
     }
     console.log(levelsArray)
-    var mapTester = window.open("mapTester/index.html");
+    var mapTester = window.open("MapTester/index.html");
     //mapTester.tile=map;
 }
 //TOGGLES INTERACTIVE BLOCKS

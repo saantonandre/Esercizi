@@ -97,6 +97,14 @@ function initializeMap() {
                 }
                 removeList.push(i);
                 break;
+            case 4:
+                for (let j = 0; j < map.tiles[i].w; j++) {
+                    for (let k = 0; k < map.tiles[i].h; k++) {
+                        map.entities.push(new HeavySpike(map.tiles[i].x + j, map.tiles[i].y + k))
+                    }
+                }
+                removeList.push(i);
+                break;
         }
     }
     console.log("map initialized, " + map.entities.length + " entities found");

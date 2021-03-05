@@ -19,6 +19,7 @@ function initialize() {
 var meta = new Meta();
 var map = new Map();
 var player = new Player();
+var interface = new Interface();
 
 map.cameraFocus = player;
 
@@ -116,6 +117,8 @@ function gameLoop() {
     map.renderEntities();
     map.renderVfxs();
     player.render()
+    interface.render();
+    
 }
 
 function captureStopMotion() {
@@ -189,7 +192,7 @@ function menuLoop() {
 
 var blackScreen = {
     initial: 100,
-    current: 100,
+    current: 0,
     compute: function () {
         if (this.current > 0) {
             c.globalAlpha = this.current / this.initial;

@@ -62,6 +62,31 @@ class Meta {
     }
 
 }
+class Interface {
+    constructor() {
+        this.levelDisplayer = {
+            maxLevel: 0,
+            currentLevel: 0,
+            fontSize: 20,
+            x: 1,
+            y: 0.4,
+            render: function () {
+                c.textAlign = "left";
+                c.font = this.fontSize * meta.ratio + "px" + " 'VT323'";
+                c.fillStyle = "black";
+                c.fillText(
+                    map.currentLevel + "/" + map.levels.length,
+                    this.x * meta.tilesize * meta.ratio,
+                    this.y * meta.tilesize * meta.ratio + this.fontSize,
+                )
+            }
+        }
+    }
+    render() {
+        this.levelDisplayer.render();
+    }
+
+}
 
 class Entity {
     constructor(x, y) {
@@ -119,6 +144,8 @@ class Spike extends Entity {
             w: this.w - 0.4,
             h: this.h - 0.4
         }
+        this.actionX = 2;
+        this.actionY = 14;
     }
     compute() {
         if (player.removed) {
@@ -129,15 +156,78 @@ class Spike extends Entity {
         }
     }
     render() {
+        /*
         c.fillStyle = "red";
         c.fillRect(
             (this.hitbox.x + map.x) * meta.tilesize * meta.ratio,
             (this.hitbox.y + map.y) * meta.tilesize * meta.ratio,
             this.hitbox.w * meta.tilesize * meta.ratio,
             this.hitbox.h * meta.tilesize * meta.ratio)
+        //*/
+        c.drawImage(
+            this.sheet,
+            this.actionX * meta.tilesize,
+            this.actionY * meta.tilesize,
+            this.w * meta.tilesize,
+            this.h * meta.tilesize,
+            (this.x + map.x) * meta.tilesize * meta.ratio | 0,
+            (this.y + map.y) * meta.tilesize * meta.ratio | 0,
+            this.w * meta.tilesize * meta.ratio | 0,
+            this.h * meta.tilesize * meta.ratio | 0
+        )
     }
 }
+class HeavySpike extends Entity {
+    constructor(x, y) {
+        super(x, y);
+        this.solid = true;
+        this.gForce = 0.01;
+        this.actionX = 3;
+        this.actionY = 14;
+    }
+    compute() {
+        map.checkCollisions(this);
+        if (!this.grounded) {
+            this.yVel += this.gForce * meta.deltaTime;
+        } else {
+            this.yVel = 0;
+        }
+        if (this.yVel > meta.terminalVel) {
+            this.yVel = meta.terminalVel;
+        }
 
+        this.y += this.yVel * meta.deltaTime;
+        this.x += this.xVel * meta.deltaTime;
+        if (player.removed) {
+            return;
+        }
+        if (collided(this, player)) {
+            player.die();
+        }
+    }
+    render() {
+        /*
+        c.fillStyle = "purple";
+        c.fillRect(
+            (this.x + map.x) * meta.tilesize * meta.ratio,
+            (this.y + map.y) * meta.tilesize * meta.ratio,
+            this.w * meta.tilesize * meta.ratio,
+            this.h * meta.tilesize * meta.ratio)
+            //*/
+
+        c.drawImage(
+            this.sheet,
+            this.actionX * meta.tilesize,
+            this.actionY * meta.tilesize,
+            this.w * meta.tilesize,
+            this.h * meta.tilesize,
+            (this.x + map.x) * meta.tilesize * meta.ratio | 0,
+            (this.y + map.y) * meta.tilesize * meta.ratio | 0,
+            this.w * meta.tilesize * meta.ratio | 0,
+            this.h * meta.tilesize * meta.ratio | 0
+        )
+    }
+}
 
 class Portal {
     constructor(x, y) {
@@ -328,6 +418,9 @@ class Map {
             if (isOutOfScreen(m[i]) || m[i].notSolid) {
                 continue;
             }
+            if (obj === m[i]) {
+                continue;
+            }
             if (collided(obj, m[i])) {
                 col = colCheck(obj, m[i]);
                 switch (col) {
@@ -340,22 +433,23 @@ class Map {
                 }
             }
         }
-        if (obj.type == "player") {
-            let e = this.entities;
-            for (let i = 0; i < e.length; i++) {
-                if (isOutOfScreen(e[i]) || e[i].removed || !e[i].solid) {
-                    continue;
-                }
-                if (collided(obj, e[i])) {
-                    col = colCheck(obj, e[i]);
-                    switch (col) {
-                        case "b":
-                            if (obj.yVel >= 0) {
-                                obj.grounded = true;
-                                obj.yVel = 0;
-                            }
-                            break;
-                    }
+        let e = this.entities;
+        for (let i = 0; i < e.length; i++) {
+            if (isOutOfScreen(e[i]) || e[i].removed || !e[i].solid) {
+                continue;
+            }
+            if (obj === e[i]) {
+                continue;
+            }
+            if (collided(obj, e[i])) {
+                col = colCheck(obj, e[i]);
+                switch (col) {
+                    case "b":
+                        if (obj.yVel >= 0) {
+                            obj.grounded = true;
+                            obj.yVel = 0;
+                        }
+                        break;
                 }
             }
         }
@@ -459,13 +553,13 @@ class Player extends Entity {
         this.airSpeed = 0.015;
         this.maxSpeed = 0.15;
         this.jumpSpeed = -0.24;
-        this.gForce = 0.015;
+        this.gForce = 0.0154;
         this.currentBomb = 0;
         this.grounded = true;
         this.removed = false;
         this.left = 0;
         this.type = "player";
-        this.sheet = this.currentBomb ?  id("sheet"): id("sheet-alt");
+        this.sheet = this.currentBomb ? id("sheet") : id("sheet-alt");
         this.armX = [5, 6];
         this.armY = [4, 4];
         this.armRot = 0;
@@ -508,7 +602,7 @@ class Player extends Entity {
             loadLevel();
             player.removed = false;
             map.cameraFocus = player;
-            player.currentBomb=0;
+            player.currentBomb = 0;
             player.sheet = player.currentBomb ? id("sheet") : id("sheet-alt");
             player.xVel = 0;
             player.yVel = 0;
@@ -541,12 +635,12 @@ class Player extends Entity {
             distance = 10;
         }
         //*/
-        let distance = 7;
+        let distance = 6;
         let xTarget = Math.cos(rotation) / 20 * distance;
         let yTarget = Math.sin(rotation) / 20 * distance;
         this.armRot = rotation + Math.PI / 4;
         this.attacking = 10;
-        map.entities.push(new Bomb(this.x + this.w / 2 - 0.5+Math.cos(rotation)*0.7, this.y + this.h / 2 - 0.5+Math.sin(rotation)*0.7, xTarget + this.xVel, yTarget + this.yVel, this.currentBomb));
+        map.entities.push(new Bomb(this.x + this.w / 2 - 0.5 + Math.cos(rotation) * 0.7, this.y + this.h / 2 - 0.5 + Math.sin(rotation) * 0.7, xTarget + this.xVel / 2, yTarget + this.yVel / 2, this.currentBomb));
         this.currentBomb ? this.currentBomb = 0 : this.currentBomb = 1;
         this.sheet = this.currentBomb ? id("sheet") : id("sheet-alt");
     }
@@ -638,7 +732,7 @@ class Player extends Entity {
             this.yVel = meta.terminalVel;
         }
         if (this.grounded && Math.abs(this.xVel) > this.maxSpeed) {
-            this.xVel -= 0.001 * meta.deltaTime;
+            this.xVel -= 0.001;
         }
 
 
@@ -774,10 +868,11 @@ class Bomb extends Entity {
         this.baseSlowness = 4;
         this.slowness = this.baseSlowness;
 
-        this.gForce = 0.01;
+        this.gForce = 0.011;
         this.jumpSpeed = 0.37;
         this.grounded = false;
         this.jumping = false;
+        this.type = "bomb";
         this.friction = 0.99;
 
         this.controls = {
@@ -832,38 +927,27 @@ class Bomb extends Entity {
         if (this.yVel < 0 && this.col.T) {
             this.yVel = 0;
         }
-        if (this.grounded) {
-            if (Math.abs(this.xVel) > 0.01) {
-                this.xVel *= this.friction;
-            } else {
-                this.xVel = 0;
-            }
-            this.jumping = false;
-            if (this.yVel > 0) {
-                this.yVel = 0;
-            }
+        if (Math.abs(this.xVel) > 0.01) {
+            this.xVel *= Math.pow(this.friction, meta.deltaTime);
         } else {
-            if (Math.abs(this.xVel) > 0.01) {
-                this.xVel *= this.friction;
-            } else {
-                this.xVel = 0;
-            }
+            this.xVel = 0;
         }
         if (this.controls.up && !this.jumping && !this.col.T) {
             this.jumping = true;
             this.yVel -= this.jumpSpeed;
         }
-        this.y += this.yVel * meta.deltaTime;
 
         if (this.col.R && this.xVel > 0 ||
             this.col.L && this.xVel < 0) {
             this.xVel = 0;
         }
+        this.y += this.yVel * meta.deltaTime;
         this.x += this.xVel * meta.deltaTime;
         this.hitbox.x = this.x + 0.2;
         this.hitbox.y = this.y + 0.2;
 
         this.computeAction();
+
         for (let i = 0; i < map.tiles.length; i++) {
             if (collided(this, map.tiles[i])) {
                 this.explode(map.tiles[i]);
@@ -871,12 +955,17 @@ class Bomb extends Entity {
             }
         }
         for (let i = 0; i < map.entities.length; i++) {
-            if (map.entities[i].removed) {
+            if (map.entities[i].removed || !map.entities[i].solid) {
                 continue;
             }
+            if (map.entities[i].type == "bomb") {
+                continue;
+            }
+            /*
             if (!map.entities[i].destructible) {
                 continue;
             }
+            //*/
             if (collided(this, map.entities[i])) {
                 this.explode(map.entities[i])
                 return;
@@ -944,10 +1033,10 @@ class Explosion extends Entity {
                 break;
         }
         this.hitbox = {
-            x: this.x + 0.75,
-            y: this.y + 0.75,
-            w: this.w - 1.5,
-            h: this.h - 1.5,
+            x: this.x + 0.65,
+            y: this.y + 0.65,
+            w: this.w - 1.3,
+            h: this.h - 1.3,
         }
         this.baseSlowness = 4;
         this.slowness = this.baseSlowness;
@@ -977,7 +1066,7 @@ class Explosion extends Entity {
         if (this.playerCol) {
             return;
         }
-        if (this.frame >= 0 && this.frame <= 2 && collided(this, player)) {
+        if (this.frame > 0 && this.frame <= 2 && collided(this, player)) {
             if (!this.which) {
                 player.onExplosion(this);
             } else {
