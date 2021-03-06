@@ -117,34 +117,53 @@ function colCheck(shapeA, shapeB) {
 }
 
 // Merges the colliders(asks for a list of colliders and return another one)
-function assembleChunk(chunk) {
+function assembleChunk(chunk, obj) {
     let assembledChunks = [];
+    let brokenChunk = [];
+    if(chunk.length==1){
+        return(chunk);
+    }
+    for (let i = 0; i < chunk.length; i++) {
+        for (let j = 0; j < chunk[i].w; j++) {
+            for (let k = 0; k < chunk[i].h; k++) {
+                let part = {
+                    x: chunk[i].x + j,
+                    y: chunk[i].y + k,
+                    w: 1,
+                    h: 1
+                }
+                if (collided(obj, part)) {
+                    brokenChunk.push(part);
+                }
+            }
+        }
+    }
     let firstBlock = {
-        x: chunk[0].x,
-        y: chunk[0].y,
-        w: chunk[0].w,
-        h: chunk[0].h
+        x: brokenChunk[0].x,
+        y: brokenChunk[0].y,
+        w: brokenChunk[0].w,
+        h: brokenChunk[0].h
     }
     assembledChunks.push(firstBlock)
     let a, b;
-    for (let i = 0; i < chunk.length; i++) {
+    for (let i = 0; i < brokenChunk.length; i++) {
         for (let j = 0; j < assembledChunks.length; j++) {
-            a = chunk[i].hitbox ? chunk[i].hitbox : chunk[i];
+            a = brokenChunk[i].hitbox ? brokenChunk[i].hitbox : brokenChunk[i];
             b = assembledChunks[j];
-            if (a.y == b.y) {
+            if (a.y == b.y && a.h==b.h) {
                 if (a.x + a.w > b.x + b.w) {
                     b.w = a.x + a.w - b.x;
                 }
                 if (a.x < b.x) {
-                    b.w +=b.x-a.x;
+                    b.w += b.x - a.x;
                     b.x = a.x;
                 }
-            } else if (a.x == b.x) {
+            } else if (a.x == b.x && a.w==b.w) {
                 if (a.y + a.h > b.y + b.h) {
                     b.h = a.y + a.h - b.y;
                 }
                 if (a.y < b.y) {
-                    b.h +=b.y-a.y;
+                    b.h += b.y - a.y;
                     b.y = a.y;
                 }
             } else {

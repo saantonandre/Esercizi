@@ -325,7 +325,7 @@ id("file").onchange = function () {
     let reader = new FileReader();
     reader.onload = function (e) {
         let text = reader.result
-        console.log(text)
+        //console.log(text)
         clearMap();
         clearButtons();
         levels = [];

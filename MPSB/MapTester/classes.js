@@ -13,6 +13,8 @@ class Bomb
 
 class Explosion
 
+class Interface
+
 class Portal
 
 class Vfx
@@ -75,7 +77,7 @@ class Interface {
                 c.font = this.fontSize * meta.ratio + "px" + " 'VT323'";
                 c.fillStyle = "black";
                 c.fillText(
-                    map.currentLevel + "/" + map.levels.length,
+                    map.currentLevel + 1 + "/" + map.levels.length,
                     this.x * meta.tilesize * meta.ratio,
                     this.y * meta.tilesize * meta.ratio + this.fontSize,
                 )
@@ -186,7 +188,7 @@ class HeavySpike extends Entity {
         this.actionY = 14;
     }
     compute() {
-        map.checkCollisions(this);
+        map.checkCollisions(this,false,true);
         if (!this.grounded) {
             this.yVel += this.gForce * meta.deltaTime;
         } else {
@@ -405,7 +407,7 @@ class Map {
             }
         }
     }
-    checkCollisions(obj, returnColliders) {
+    checkCollisions(obj, returnColliders, simpleCol) {
         let t = this.tiles;
         let col = "none";
         obj.grounded = false;
@@ -423,7 +425,20 @@ class Map {
             }
             if (collided(obj, t[i])) {
                 //adds item to colliders array
-                collidersChunk.push(t[i]);
+                if (simpleCol) {
+                    col = colCheck(obj, t[i]);
+                    switch (col) {
+                        case "b":
+                            if (obj.yVel >= 0) {
+                                obj.grounded = true;
+                                obj.yVel = 0;
+                            }
+                            break;
+                    }
+
+                } else {
+                    collidersChunk.push(t[i]);
+                }
             }
         }
         let e = this.entities;
@@ -436,13 +451,26 @@ class Map {
             }
             if (collided(obj, e[i])) {
                 //adds item to colliders array
-                collidersChunk.push(e[i]);
+                if (simpleCol) {
+                    col = colCheck(obj, e[i]);
+                    switch (col) {
+                        case "b":
+                            if (obj.yVel >= 0) {
+                                obj.grounded = true;
+                                obj.yVel = 0;
+                            }
+                            break;
+                    }
+
+                } else {
+                    collidersChunk.push(e[i]);
+                }
             }
         }
 
 
         if (collidersChunk.length > 1) {
-            collidersChunk = assembleChunk(collidersChunk);
+            collidersChunk = assembleChunk(collidersChunk, obj);
         }
         for (let i = 0; i < collidersChunk.length; i++) {
             col = colCheck(obj, collidersChunk[i]);
@@ -454,6 +482,7 @@ class Map {
                     }
                     break;
             }
+            /*
             c.lineWidth = 3;
             c.strokeStyle = "red";
             c.beginPath();
@@ -466,6 +495,7 @@ class Map {
             c.closePath()
             c.stroke();
             c.lineWidth = 1;
+            //*/
         }
 
 
