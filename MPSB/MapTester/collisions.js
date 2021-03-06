@@ -1,51 +1,51 @@
-
 function id(arg) {
     return document.getElementById(arg);
 }
 
 // COLLISION DETECTORS
 function isOutOfScreen(entity) {
-    let margin= 1;
+    let margin = 1;
     if (entity == null) {
         return true;
     }
-    if (entity.x > map.tilesWidth - map.x+margin) {
+    if (entity.x > map.tilesWidth - map.x + margin) {
         return true;
     }
-    if (entity.x+margin + entity.w < -map.x) {
+    if (entity.x + margin + entity.w < -map.x) {
         return true;
     }
-    if (entity.y > map.tilesHeight - map.y +margin) {
+    if (entity.y > map.tilesHeight - map.y + margin) {
         return true;
     }
-    if (entity.y +margin+ entity.h < -map.y) {
+    if (entity.y + margin + entity.h < -map.y) {
         return true;
     }
     return false;
 }
 // COLLISION DETECTORS
 function isOutOfBounds(entity) {
-    if(!map.levelImage){
+    if (!map.levelImage) {
         return false;
     }
-    let margin= 1;
+    let margin = 1;
     if (entity == null) {
         return true;
     }
-    if (entity.x > map.levelImage.width/GLOBAL.tilesize+margin) {
+    if (entity.x > map.levelImage.width / GLOBAL.tilesize + margin) {
         return true;
     }
-    if (entity.x+margin + entity.w < 0) {
+    if (entity.x + margin + entity.w < 0) {
         return true;
     }
-    if (entity.y > map.levelImage.height/GLOBAL.tilesize +margin) {
+    if (entity.y > map.levelImage.height / GLOBAL.tilesize + margin) {
         return true;
     }
-    if (entity.y +margin+ entity.h < 0) {
+    if (entity.y + margin + entity.h < 0) {
         return true;
     }
     return false;
 }
+
 function colCheck(shapeA, shapeB) {
     // get the vectors to check against
     var shapeAA, shapeBB;
@@ -114,6 +114,51 @@ function colCheck(shapeA, shapeB) {
 
     return colDir;
 
+}
+
+// Merges the colliders(asks for a list of colliders and return another one)
+function assembleChunk(chunk) {
+    let assembledChunks = [];
+    let firstBlock = {
+        x: chunk[0].x,
+        y: chunk[0].y,
+        w: chunk[0].w,
+        h: chunk[0].h
+    }
+    assembledChunks.push(firstBlock)
+    let a, b;
+    for (let i = 0; i < chunk.length; i++) {
+        for (let j = 0; j < assembledChunks.length; j++) {
+            a = chunk[i].hitbox ? chunk[i].hitbox : chunk[i];
+            b = assembledChunks[j];
+            if (a.y == b.y) {
+                if (a.x + a.w > b.x + b.w) {
+                    b.w = a.x + a.w - b.x;
+                }
+                if (a.x < b.x) {
+                    b.w +=b.x-a.x;
+                    b.x = a.x;
+                }
+            } else if (a.x == b.x) {
+                if (a.y + a.h > b.y + b.h) {
+                    b.h = a.y + a.h - b.y;
+                }
+                if (a.y < b.y) {
+                    b.h +=b.y-a.y;
+                    b.y = a.y;
+                }
+            } else {
+                let temp = {
+                    x: a.x,
+                    y: a.y,
+                    w: a.w,
+                    h: a.h
+                }
+                assembledChunks.push(temp)
+            }
+        }
+    }
+    return assembledChunks;
 }
 
 function collided(a, b) {

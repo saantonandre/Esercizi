@@ -405,32 +405,25 @@ class Map {
             }
         }
     }
-    checkCollisions(obj) {
-        let m = this.tiles;
+    checkCollisions(obj, returnColliders) {
+        let t = this.tiles;
         let col = "none";
         obj.grounded = false;
         obj.col.L = 0;
         obj.col.R = 0;
         obj.col.T = 0;
         obj.col.B = 0;
-
-        for (let i = 0; i < m.length; i++) {
-            if (isOutOfScreen(m[i]) || m[i].notSolid) {
+        let collidersChunk = [];
+        for (let i = 0; i < t.length; i++) {
+            if (isOutOfScreen(t[i]) || t[i].notSolid) {
                 continue;
             }
-            if (obj === m[i]) {
+            if (obj === t[i]) {
                 continue;
             }
-            if (collided(obj, m[i])) {
-                col = colCheck(obj, m[i]);
-                switch (col) {
-                    case "b":
-                        if (obj.yVel >= 0) {
-                            obj.grounded = true;
-                            obj.yVel = 0;
-                        }
-                        break;
-                }
+            if (collided(obj, t[i])) {
+                //adds item to colliders array
+                collidersChunk.push(t[i]);
             }
         }
         let e = this.entities;
@@ -442,17 +435,40 @@ class Map {
                 continue;
             }
             if (collided(obj, e[i])) {
-                col = colCheck(obj, e[i]);
-                switch (col) {
-                    case "b":
-                        if (obj.yVel >= 0) {
-                            obj.grounded = true;
-                            obj.yVel = 0;
-                        }
-                        break;
-                }
+                //adds item to colliders array
+                collidersChunk.push(e[i]);
             }
         }
+
+
+        if (collidersChunk.length > 1) {
+            collidersChunk = assembleChunk(collidersChunk);
+        }
+        for (let i = 0; i < collidersChunk.length; i++) {
+            col = colCheck(obj, collidersChunk[i]);
+            switch (col) {
+                case "b":
+                    if (obj.yVel >= 0) {
+                        obj.grounded = true;
+                        obj.yVel = 0;
+                    }
+                    break;
+            }
+            c.lineWidth = 3;
+            c.strokeStyle = "red";
+            c.beginPath();
+            c.rect(
+                (collidersChunk[i].x + map.x) * meta.tilesize * meta.ratio | 0,
+                (collidersChunk[i].y + map.y) * meta.tilesize * meta.ratio | 0,
+                collidersChunk[i].w * meta.tilesize * meta.ratio | 0,
+                collidersChunk[i].h * meta.tilesize * meta.ratio | 0
+            );
+            c.closePath()
+            c.stroke();
+            c.lineWidth = 1;
+        }
+
+
         if (obj.col.R - obj.col.L !== 0) {
             if (obj.col.R - obj.col.L > 0) {
                 obj.x += 0.012;
@@ -463,6 +479,9 @@ class Map {
         }
         if (obj.col.B - obj.col.T !== 0) {
             obj.y -= obj.col.B - obj.col.T - 0.01;
+        }
+        if (returnColliders) {
+            return collidersChunk;
         }
     }
     renderTiles() {
@@ -890,7 +909,8 @@ class Bomb extends Entity {
     }
     computeAction() {}
     explode(collidedObj) {
-        let col = colCheck(this, collidedObj);
+        let chunk = map.checkCollisions(this, true);
+        let col = colCheck(this, chunk[0]);
         this.x -= this.col.R - this.col.L;
         this.y -= this.col.B - this.col.T;
         map.vfxs.push(new Explosion(this.x, this.y, col, this.which));
@@ -961,11 +981,6 @@ class Bomb extends Entity {
             if (map.entities[i].type == "bomb") {
                 continue;
             }
-            /*
-            if (!map.entities[i].destructible) {
-                continue;
-            }
-            //*/
             if (collided(this, map.entities[i])) {
                 this.explode(map.entities[i])
                 return;
