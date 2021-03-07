@@ -30,7 +30,8 @@ function safeEval(lvl) {
             map.background = 0;
         }
         if (level.levelImage) {
-            map.levelImage = level.levelImage;
+            map.levelImage = id(level.levelImage);
+            console.log("levelImage found")
         } else {
             map.levelImage = 0;
         }
@@ -44,7 +45,7 @@ function initializeMap() {
     player.x = map.spawnPoint.x;
     player.y = map.spawnPoint.y - 1;
     map.tiles = map.map;
-
+    
     let minW = map.tiles[0].x;
     let minH = map.tiles[0].y;
     let maxW = 0;

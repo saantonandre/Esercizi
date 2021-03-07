@@ -29,8 +29,8 @@ var mapObject = {
 };
 
 var spawnPoint = {
-    x: 3,
-    y: 2
+    x: 30,
+    y: 20
 };
 var hitBoxes = [];
 var camBoxes = [];
@@ -44,14 +44,14 @@ function clearMap() {
     mapObject.map = [];
     mapObject.camBoxes = [];
     mapObject.spawnPoint = {
-        x: 0,
-        y: 0
+        x: 30,
+        y: 20
     };
     hitBoxes = [];
     camBoxes = [];
     spawnPoint = {
-        x: 0,
-        y: 0
+        x: 30,
+        y: 20
     };
 
 }
@@ -64,6 +64,10 @@ function clearButtons() {
     }
 }
 
+id("saveButton").onclick=saveImage;
+function saveImage(){
+    canvas.toBlob(blob => navigator.clipboard.write([new ClipboardItem({'image/png': blob})]));
+}
 function addButton() {
 
     var btn = document.createElement('button');

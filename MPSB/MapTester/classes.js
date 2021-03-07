@@ -89,7 +89,97 @@ class Interface {
     }
 
 }
+class MainMenu {
+    constructor() {
+        this.bg = id("title");
+        this.sheet = id("sheet-menu");
+        this.hasLoad = (canStorage && window.localStorage["saveCode"]);
+        this.active = false;
+        this.newGame = {
+            action: 0,
+            actionY: [0, 1],
+            x: 10,
+            y: 12,
+            w: 5,
+            h: 1
+        }
+        this.continue = {
+            action: 1,
+            actionY: [2, 3, 4],
+            x: 17,
+            y: 12,
+            w: 5,
+            h: 1
+        }
+        if (!this.hasLoad) {
+            this.continue.action = 0;
+        }
+        window.addEventListener("click", function () {
+            if (meta.loopType !== 2) {
+                return;
+            }
+            if (pointSquareCol(cursor.mapPos, mainMenu.newGame)) {
+                captureStopMotion();
+                meta.loopType = 1;
+                loadLevel();
+            }
+            if (mainMenu.hasLoad && pointSquareCol(cursor.mapPos, mainMenu.continue)) {
+                captureStopMotion();
+                meta.loopType = 1;
+                loadGame();
+                console.log(map.currentLevel)
+                loadLevel();
+            }
+        })
+    }
+    compute() {
+        if (pointSquareCol(cursor.mapPos, this.newGame)) {
+            this.newGame.action = 1;
+        } else {
+            this.newGame.action = 0;
+        }
 
+        if (this.hasLoad && pointSquareCol(cursor.mapPos, this.continue)) {
+            this.continue.action = 2;
+        } else if (this.hasLoad) {
+            this.continue.action = 1;
+        }
+    }
+    //draws the menu Image and the options
+    render() {
+        c.drawImage(
+            this.bg,
+            0,
+            0,
+            canvas.width,
+            canvas.height)
+
+
+        c.drawImage(
+            this.sheet,
+            0,
+            this.newGame.actionY[this.newGame.action] * meta.tilesize,
+            this.newGame.w * meta.tilesize,
+            this.newGame.h * meta.tilesize,
+            this.newGame.x * meta.tilesize * meta.ratio,
+            this.newGame.y * meta.tilesize * meta.ratio,
+            this.newGame.w * meta.tilesize * meta.ratio,
+            this.newGame.h * meta.tilesize * meta.ratio
+        )
+
+        c.drawImage(
+            this.sheet,
+            0,
+            this.continue.actionY[this.continue.action] * meta.tilesize,
+            this.continue.w * meta.tilesize,
+            this.continue.h * meta.tilesize,
+            this.continue.x * meta.tilesize * meta.ratio,
+            this.continue.y * meta.tilesize * meta.ratio,
+            this.continue.w * meta.tilesize * meta.ratio,
+            this.continue.h * meta.tilesize * meta.ratio
+        )
+    }
+}
 class Entity {
     constructor(x, y) {
         this.initialX = x;
@@ -141,10 +231,10 @@ class Spike extends Entity {
         super(x, y);
         this.solid = false;
         this.hitbox = {
-            x: this.x + 0.2,
-            y: this.y + 0.2,
-            w: this.w - 0.4,
-            h: this.h - 0.4
+            x: this.x + 0.24,
+            y: this.y + 0.24,
+            w: this.w - 0.48,
+            h: this.h - 0.48
         }
         this.actionX = 2;
         this.actionY = 14;
@@ -188,7 +278,7 @@ class HeavySpike extends Entity {
         this.actionY = 14;
     }
     compute() {
-        map.checkCollisions(this,false,true);
+        map.checkCollisions(this, false, true);
         if (!this.grounded) {
             this.yVel += this.gForce * meta.deltaTime;
         } else {
@@ -372,6 +462,7 @@ class Map {
         this.levelImage = false;
         this.currentLevel = 0;
         this.cameraFocus = false;
+        this.levelImage = 0;
 
         this.levelX = 0;
         this.levelY = 0;
@@ -521,6 +612,20 @@ class Map {
             }
             renderEntity(this.tiles[i])
         }
+        //render the level image
+        if (this.levelImage) {
+            c.drawImage(
+                this.levelImage,
+                (-this.x * meta.tilesize) | 0,
+                (-this.y * meta.tilesize) | 0,
+                (meta.tilesWidth * meta.tilesize),
+                (meta.tilesHeight * meta.tilesize),
+                0,
+                0,
+                (meta.tilesWidth * meta.tilesize * meta.ratio),
+                (meta.tilesHeight * meta.tilesize * meta.ratio)
+            )
+        }
     }
     computeEntities() {
         for (let i = 0; i < this.entities.length; i++) {
@@ -626,9 +731,12 @@ class Player extends Entity {
             T: 0,
             B: 0
         }
-        id("canvas").onclick = function () {
+        id("canvas").addEventListener("click", function () {
+            if (meta.loopType !== 0) {
+                return;
+            }
             player.attack();
-        }
+        })
         this.action = 0;
         this.actionX = [[1, 1, 1, 1], [3, 3, 3, 3], [5], [7], [5], [7], [1, 3, 5, 7], [1, 3, 5, 7]];
         this.actionY = [[0, 2, 4, 6], [0, 2, 4, 6], [0], [0], [2], [2], [8, 8, 8, 8], [10, 10, 10, 10]];

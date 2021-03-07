@@ -10,24 +10,82 @@ function initialize() {
     setInterval(fpsCounter, 1000);
     resizeCanvas();
     if (!mapTester) {
+        meta.loopType = 2;
         importLevelsArray(levels);
+    } else {
+        meta.loopType = 0;
     }
     loop();
 }
 
+// Saves the game progress on local storage
+function saveGame() {
+    if (mapTester) {
+        return false;
+    }
+    if (canStorage) {
+        let saveCode = {
+            currentLevel: map.currentLevel,
+        }
+        localStorage.setItem('saveCode', JSON.stringify(saveCode))
+    } else {
+        console.log("Unable to save on your current browser");
+    }
+}
 
+// Loads the game progress from local storage
+function loadGame() {
+    if (mapTester) {
+        return false;
+    }
+    if (canStorage && window.localStorage["saveCode"]) {
+        let saveCode = JSON.parse(localStorage.getItem("saveCode"));
+        map.currentLevel = saveCode.currentLevel;
+    } else {
+        alert("Nothing to load");
+    }
+}
+
+// Loads the current map from the JSON array, initializing the level
+function loadLevel() {
+    /*
+    captureStopMotion();
+    meta.loopType = 1; //transition
+    //*/
+    player.xVel = 0;
+    player.yVel = 0;
+    player.currentBomb = 0;
+    safeEval(map.levels[map.currentLevel])
+    initializeMap();
+    map.cameraFocus = player;
+    map.x = -(map.cameraFocus.x + map.cameraFocus.w / 2 - meta.tilesWidth / 2)
+    map.y = -(map.cameraFocus.y + map.cameraFocus.h / 2 - meta.tilesHeight / 2)
+    saveGame();
+}
+// Canvas variables
+var canvas = id("canvas");
+var c = canvas.getContext("2d");
+
+// The meta object contains data about the game itself
 var meta = new Meta();
+
+// The game map renderer/computer
 var map = new Map();
+
+// The Bomberman
 var player = new Player();
+
+// The UI of the standard game loop
 var interface = new Interface();
 
 map.cameraFocus = player;
 
 var controls = new Controls();
+
 var cursor = new Cursor();
-// Canvas variables
-var canvas = id("canvas");
-var c = canvas.getContext("2d");
+
+var mainMenu = new MainMenu();
+
 // Resizes the canvas based on the affordable space
 function resizeCanvas() {
     canvas.width = meta.tilesWidth * meta.tilesize * meta.ratio;
@@ -118,7 +176,7 @@ function gameLoop() {
     map.renderVfxs();
     player.render()
     interface.render();
-    
+
 }
 
 function captureStopMotion() {
@@ -132,8 +190,10 @@ var transitionVariables = {
     factor: 200,
     x: 0,
     opacity: 0,
-    speed:10
+    speed: 10
 }
+
+// Call the captureStopMotion() before this
 function transitionLoop() {
 
     c.clearRect(
@@ -164,7 +224,7 @@ function transitionLoop() {
         )
     }
     transitionVariables.x += meta.deltaTime * transitionVariables.speed;
-    transitionVariables.opacity += transitionVariables.speed/500;
+    transitionVariables.opacity += transitionVariables.speed / 500;
     c.globalAlpha = transitionVariables.opacity;
     //c.fillStyle = "#1c1618";
     c.fillStyle = "black";
@@ -186,7 +246,14 @@ function transitionLoop() {
 }
 
 function menuLoop() {
-
+    c.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    )
+    mainMenu.compute();
+    mainMenu.render();
 }
 
 
@@ -210,20 +277,6 @@ var blackScreen = {
     }
 }
 
-function loadLevel() {
-    /*
-    captureStopMotion();
-    meta.loopType = 1; //transition
-    //*/
-    player.xVel = 0;
-    player.yVel = 0;
-    player.currentBomb = 0;
-    safeEval(map.levels[map.currentLevel])
-    initializeMap();
-    map.cameraFocus = player;
-    map.x = -(map.cameraFocus.x + map.cameraFocus.w / 2 - meta.tilesWidth / 2)
-    map.y = -(map.cameraFocus.y + map.cameraFocus.h / 2 - meta.tilesHeight / 2)
-}
 
 //provisional renderer, draws entities as squares
 function renderEntity(e) {
