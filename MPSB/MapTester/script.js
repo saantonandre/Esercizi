@@ -17,7 +17,7 @@ function initialize() {
     }
     loop();
 }
-
+window.addEventListener('resize', resizeCanvas);
 // Saves the game progress on local storage
 function saveGame() {
     if (mapTester) {
