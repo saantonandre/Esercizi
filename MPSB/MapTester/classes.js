@@ -534,8 +534,8 @@ class Map {
         }
         let e = this.entities;
         for (let i = 0; i < e.length; i++) {
-            if (isOutOfScreen(e[i]) || e[i].removed || !e[i].solid) {
-                continue;
+            if (e[i].removed || !e[i].solid) {
+                    continue;
             }
             if (obj === e[i]) {
                 continue;
@@ -573,7 +573,7 @@ class Map {
                     }
                     break;
             }
-            /*
+            //*
             c.lineWidth = 3;
             c.strokeStyle = "red";
             c.beginPath();
@@ -607,7 +607,7 @@ class Map {
     }
     renderTiles() {
         for (let i = 0; i < this.tiles.length; i++) {
-            if (this.tiles[i].removed) {
+            if (this.tiles[i].removed || isOutOfScreen(this.tiles[i])) {
                 continue;
             }
             renderEntity(this.tiles[i])
@@ -630,14 +630,14 @@ class Map {
     computeEntities() {
         for (let i = 0; i < this.entities.length; i++) {
             if (this.entities[i].removed) {
-                continue;
+                    continue;
             }
             this.entities[i].compute();
         }
     }
     renderEntities() {
         for (let i = 0; i < this.entities.length; i++) {
-            if (this.entities[i].removed) {
+            if (this.entities[i].removed || isOutOfScreen(this.entities[i])) {
                 continue;
             }
             this.entities[i].render()
@@ -653,11 +653,81 @@ class Map {
     }
     renderVfxs() {
         for (let i = 0; i < this.vfxs.length; i++) {
-            if (this.vfxs[i].removed) {
+            if (this.vfxs[i].removed || isOutOfScreen(this.vfxs[i])) {
                 continue;
             }
             this.vfxs[i].render();
         }
+    }
+}
+class Sounds {
+    constructor() {
+        this.playbackRate = 1;
+        this.volume = 1;
+
+        Audio.prototype.baseVolume = 1;
+        Audio.prototype.playy = function () {
+            let aud = this;
+            aud.playbackRate = this.playbackRate;
+            aud.volume = aud.baseVolume * GLOBAL.volume;
+            if (aud.paused) {
+                if (!aud.loop) {
+                    aud.currentTime = 0;
+                }
+                let promise = aud.play();
+                if (promise !== undefined) {
+                    promise.catch(function (e) {});
+                }
+            } else {
+                if (aud.loop) {
+                    return;
+                }
+                aud.pause();
+                aud.currentTime = 0;
+                let promise = aud.play();
+                if (promise !== undefined) {
+                    promise.catch(function (e) {});
+                }
+            }
+        };
+        /*
+        Speaker:
+        0 - Player
+        1 - Esther 
+        2 - Officer
+        3 - GhostGirl
+        4 - Overlord
+        5 - Aliquam
+        */
+        this.cameraShutter = new Audio("sounds/camera-shutter.mp3");
+        this.door = new Audio("sounds/door.mp3");
+
+        this.jump = new Audio("sounds/jump.mp3");
+        this.walking = new Audio("sounds/walking.mp3");
+        this.walking.loop = true;
+        this.jump.baseVolume = 0.6;
+        this.skateGrounded = new Audio("sounds/skate-grounded.mp3");
+        this.skateGrounded.loop = true;
+
+        this.hit = new Audio("sounds/hit.mp3")
+        this.skateJump1 = new Audio("sounds/skate-jump1.mp3");
+        this.skateJump2 = new Audio("sounds/skate-jump2.mp3");
+        this.trashJump = new Audio("sounds/trash-jump.mp3");
+
+        this.fireball = new Audio("sounds/fireball.mp3");
+        this.fireball.baseVolume = 0.7;
+        this.fireballExplode = new Audio("sounds/fireball-explode.mp3");
+
+        this.earthquake = new Audio("sounds/earthquake.mp3");
+        this.earthquake.loop = true;
+        this.earthquake.baseVolume = 0.6;
+        this.earthquake1 = new Audio("sounds/earthquake1.mp3");
+        this.input = new Audio("sounds/input.mp3");
+        this.input.baseVolume = 0.7;
+
+        this.death = new Audio("sounds/death.mp3");
+        this.gotHit = new Audio("sounds/got-hit.mp3");
+
     }
 }
 class Cursor {
@@ -743,6 +813,9 @@ class Player extends Entity {
         this.slowness = 6;
     }
     die() {
+        if(this.removed){
+            return;
+        }
         slowMo.duration = 30;
         map.vfxs.push(new Vfx(this.x + this.w / 2, this.y + this.h / 2, 0));
         map.vfxs.push(new Vfx(this.x + this.w / 2, this.y + this.h / 2, 0));
@@ -900,6 +973,9 @@ class Player extends Entity {
         this.hitbox.w = this.w - 0.6;
         this.hitbox.h = this.h - 0.15;
         this.computeAction();
+        if(isOutOfBounds(this)){
+            this.die();
+        }
     }
     render() {
         if (this.removed) {
@@ -1047,6 +1123,7 @@ class Bomb extends Entity {
     }
     computeAction() {}
     explode(collidedObj) {
+        this.removed = true;
         let chunk = map.checkCollisions(this, true);
         let col = colCheck(this, chunk[0]);
         this.x -= this.col.R - this.col.L;
@@ -1059,7 +1136,6 @@ class Bomb extends Entity {
                 screenShake.duration = 30;
             }
         }
-        this.removed = true;
     }
     compute() {
         if (this.yVel < meta.terminalVel) {

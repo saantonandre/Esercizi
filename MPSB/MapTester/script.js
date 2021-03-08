@@ -86,6 +86,8 @@ var cursor = new Cursor();
 
 var mainMenu = new MainMenu();
 
+var sounds = new Sounds();
+
 // Resizes the canvas based on the affordable space
 function resizeCanvas() {
     canvas.width = meta.tilesWidth * meta.tilesize * meta.ratio;

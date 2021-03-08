@@ -24,23 +24,20 @@ function isOutOfScreen(entity) {
 }
 // COLLISION DETECTORS
 function isOutOfBounds(entity) {
-    if (!map.levelImage) {
-        return false;
-    }
     let margin = 1;
     if (entity == null) {
         return true;
     }
-    if (entity.x > map.levelImage.width / GLOBAL.tilesize + margin) {
+    if (entity.x > map.levelWidth + margin) {
         return true;
     }
-    if (entity.x + margin + entity.w < 0) {
+    if (entity.x + margin + entity.w < map.levelX) {
         return true;
     }
-    if (entity.y > map.levelImage.height / GLOBAL.tilesize + margin) {
+    if (entity.y > map.levelHeight + margin) {
         return true;
     }
-    if (entity.y + margin + entity.h < 0) {
+    if (entity.y + margin + entity.h < map.levelY) {
         return true;
     }
     return false;

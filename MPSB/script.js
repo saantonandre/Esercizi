@@ -2,7 +2,7 @@
 'use strict';
 /*jshint esversion: 6 */
 /*jslint bitwise: true */
-
+var madeChanges = false;
 var selectedType = 0;
 var importedCode = "";
 var levelsArray = {};
@@ -18,8 +18,6 @@ c.imageSmoothingEnabled = false;
 // map JSONS will be pushed here
 var levels = [];
 var currentLevel = 0;
-// the current level
-var map = [];
 
 var mapObject = {
     //where the level will be pushed
@@ -28,12 +26,15 @@ var mapObject = {
     spawnPoint: {},
 };
 
+
+// the current level
+var map = [];
+var hitBoxes = [];
+var camBoxes = [];
 var spawnPoint = {
     x: 30,
     y: 20
 };
-var hitBoxes = [];
-var camBoxes = [];
 
 id("+").onclick = function () {
     addLevel();
@@ -58,16 +59,19 @@ function clearMap() {
 
 function clearButtons() {
     let arr = document.getElementsByClassName("levels");
-    console.log(arr)
     for (let i = arr.length - 1; i >= 0; i--) {
         arr[i].parentNode.removeChild(arr[i]);
     }
 }
 
-id("saveButton").onclick=saveImage;
-function saveImage(){
-    canvas.toBlob(blob => navigator.clipboard.write([new ClipboardItem({'image/png': blob})]));
+id("saveButton").onclick = saveImage;
+
+function saveImage() {
+    canvas.toBlob(blob => navigator.clipboard.write([new ClipboardItem({
+        'image/png': blob
+    })]));
 }
+
 function addButton() {
 
     var btn = document.createElement('button');
@@ -75,7 +79,6 @@ function addButton() {
     btn.innerHTML = levels.length;
     btn.className += " levels";
     btn.onmousedown = function (e) {
-        console.log(e.which)
         levels[currentLevel] = newMapExport();
         clearMap();
         currentLevel = this.number;
@@ -88,7 +91,7 @@ function addButton() {
 }
 
 function addLevel() {
-
+    madeChanges = true;
     // Adds a button in the level divs
     addButton();
     //saves the current level
@@ -96,7 +99,7 @@ function addLevel() {
     //clears the map
     clearMap();
     //pushes the cleared map to the levels queue
-    levels.splice(currentLevel+1, 0, newMapExport())
+    levels.splice(currentLevel + 1, 0, newMapExport())
     //takes you to the newly created blank level
     currentLevel += 1;
     safeEval(JSON.parse(levels[currentLevel]));
@@ -164,6 +167,7 @@ window.onload = function () {
             this.className += " selected";
         }
     }
+    loop();
 }
 //LAUNCH TESTMODE
 id("test").onclick = function () {
@@ -173,7 +177,6 @@ id("test").onclick = function () {
     for (let i = 0; i < levels.length; i++) {
         levelsArray.push(JSON.parse(levels[i]));
     }
-    console.log(levelsArray)
     var mapTester = window.open("MapTester/index.html");
     //mapTester.tile=map;
 }
@@ -214,7 +217,6 @@ var square = {
 };
 var infoDisp = false;
 // MAIN LOOP
-setInterval(loop, 1000 / 15);
 
 function loop() {
     c.clearRect(0, 0, canvas.width, canvas.height);
@@ -223,9 +225,10 @@ function loop() {
     }
     renderGrid();
     renderMap();
-    if (mouseDown) {
+    if (mouseDown && !(movingMap || definingSpawnpoint)) {
         renderSquare();
     }
+    requestAnimationFrame(loop);
 }
 
 function renderSquare() {
@@ -246,7 +249,7 @@ var camera = {
     B: false,
     zoomIn: false,
     zoomOut: false,
-    speed: 4
+    speed: 16
 }
 var sX = 0;
 var sY = 0;
@@ -329,7 +332,6 @@ id("file").onchange = function () {
     let reader = new FileReader();
     reader.onload = function (e) {
         let text = reader.result
-        //console.log(text)
         clearMap();
         clearButtons();
         levels = [];
@@ -352,7 +354,6 @@ function safeEval(level) {
         map = level.map;
         spawnPoint = level.spawnPoint;
         camBoxes = level.camBoxes;
-        console.log("safe eval")
     }
 }
 var baseWidth = id("mapSizeW").value;
@@ -499,10 +500,17 @@ function renderGrid() {
 
 var definingSpawnpoint = false;
 id("spawn").onclick = function () {
+    if (definingSpawnpoint) {
+        definingSpawnpoint = false;
+        id("spawn").style.color = "#000000";
+        id("canvas").style.cursor = "crosshair";
+        canvas.onclick = null;
+        return;
+    }
     definingSpawnpoint = true;
     id("spawn").style.color = "#0000cc";
     id("canvas").style.cursor = "pointer";
-    canvas.onclick = function hey() {
+    canvas.onclick = () => {
         spawnPoint.x = square.x;
         spawnPoint.y = square.y;
         id("spawn").style.color = "#000000";
@@ -511,6 +519,67 @@ id("spawn").onclick = function () {
     }
 }
 
+var movingMap = false;
+var movingVariables = {
+    // already applied movements
+    xRDiff: 0,
+    yRDiff: 0,
+}
+id("moveMap").onclick = function () {
+    if (movingMap) {
+        movingMap = false;
+        id("moveMap").style.color = "#000000";
+        id("canvas").style.cursor = "crosshair";
+        return;
+    }
+    movingMap = true;
+    id("moveMap").style.color = "#0000cc";
+    id("canvas").style.cursor = "all-scroll";
+    canvas.addEventListener("mousemove", function () {
+        if (!movingMap || !mouseDown) {
+            return;
+        }
+
+        let xDifference = square.w / cellSize - movingVariables.xRDiff;
+        let yDifference = square.h / cellSize - movingVariables.yRDiff;
+        if (xDifference !== 0 || yDifference !== 0) {
+            moveEverything(xDifference, yDifference);
+            movingVariables.xRDiff += xDifference;
+            movingVariables.yRDiff += yDifference;
+
+        }
+    })
+    canvas.addEventListener("mouseup", function () {
+        if (!movingMap) {
+            return;
+        }
+        movingVariables.xRDiff = 0;
+        movingVariables.yRDiff = 0;
+    })
+}
+
+function moveEverything(xDiff, yDiff) {
+    if (xDiff == 0 && yDiff == 0) {
+        return;
+    }
+    for (let i = 0; i < map.length; i++) {
+        map[i].x += xDiff;
+        map[i].y += yDiff;
+    }
+    for (let i = 0; i < hitBoxes.length; i++) {
+        hitBoxes[i].x += xDiff;
+        hitBoxes[i].y += yDiff;
+
+    }
+    for (let i = 0; i < camBoxes.length; i++) {
+        camBoxes[i].x += xDiff;
+        camBoxes[i].y += yDiff;
+
+    }
+
+    spawnPoint.x += xDiff;
+    spawnPoint.y += yDiff;
+}
 //SHOWS THE LITTLE WINDOW OF THE SQUARES PROPERTIES
 function infoText() {
     var sqx = square.x / cellSize;
@@ -528,6 +597,7 @@ function infoText() {
 // the square you're making on click (hold)
 var mouseDown = false;
 canvas.addEventListener("mousedown", function (event) {
+    mouseDown = true;
     var xx = window.pageXOffset - canvas.offsetLeft;
     var yy = window.pageYOffset - canvas.offsetTop;
 
@@ -540,7 +610,6 @@ canvas.addEventListener("mousedown", function (event) {
     square.y = round(event.clientY + yy) * cellSize;
     square.w = 0;
     square.h = 0;
-    mouseDown = true;
     infoText();
 })
 
@@ -565,11 +634,19 @@ canvas.addEventListener("mouseup", function (evt) {
     id("info").style.display = "none";
     mouseDown = false;
     floorSquare();
+    if (movingMap) {
+        return;
+    }
+    if (definingSpawnpoint) {
+        definingSpawnpoint = false;
+        return;
+    }
     if (!square.w && !square.h && evt.which === 1) {
         square.w = 1;
         square.h = 1;
     }
     if (square.w && square.h) {
+        madeChanges = true;
         if (square.w < 0) {
             square.w *= -1;
             square.x -= square.w;
@@ -591,14 +668,13 @@ canvas.addEventListener("mouseup", function (evt) {
                 hitBoxes[hitBoxes.length - 1].text = text;
             }
         } else if (hitBoxToggle == 0) {
-            if (!definingSpawnpoint)
-                map.push({
-                    x: square.x,
-                    y: square.y,
-                    w: square.w,
-                    h: square.h,
-                    type: selectedType,
-                });
+            map.push({
+                x: square.x,
+                y: square.y,
+                w: square.w,
+                h: square.h,
+                type: selectedType,
+            });
             if (interactiveTile) {
                 //Inserted text
                 var text = prompt("Insert the text for this interactive tile", "");
@@ -615,9 +691,6 @@ canvas.addEventListener("mouseup", function (evt) {
             });
         }
     }
-    if (definingSpawnpoint) {
-        definingSpawnpoint = false;
-    }
 })
 
 id("zoomer").addEventListener("change", zoomChange);
@@ -625,6 +698,7 @@ id("zoomer").addEventListener("change", zoomChange);
 id("deleteLvl").addEventListener("click", deleteLevel);
 
 function deleteLevel() {
+    madeChanges = true;
     if (levels.length == 1) {
         clearMap();
         return;
@@ -698,7 +772,9 @@ function round(arg) {
 
 function enableBeforeUnload() {
     window.onbeforeunload = function (e) {
-        return "Discard changes?";
+        if (madeChanges) {
+            return "Discard changes?";
+        }
     };
 }
 
@@ -707,7 +783,7 @@ function disableBeforeUnload() {
 }
 enableBeforeUnload();
 document.addEventListener("contextmenu", function (event) {
-
+    madeChanges = true;
     var xx = window.pageXOffset - canvas.offsetLeft;
     var yy = window.pageYOffset - canvas.offsetTop;
     event.preventDefault();
@@ -737,6 +813,7 @@ function removeElements(arg, x, y) {
 
 
 function download(filename, data) {
+    madeChanges = false;
     var blob = new Blob([data], {
         type: 'text/csv'
     });
