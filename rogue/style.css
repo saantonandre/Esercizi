@@ -1,0 +1,10 @@
+body {
+  overflow: hidden;
+  background-color: white;
+  user-select: none;
+}
+#fps{
+  position:absolute;
+  left:5px;
+  top:5px;
+}
