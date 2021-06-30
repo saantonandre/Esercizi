@@ -9,6 +9,8 @@ class Entity
 
 class Vfx
 
+class FlyVfx
+
 class Asteroid
 
 class Puncher
@@ -63,13 +65,65 @@ class MapObject {
   render() {}
 }
 
+class Sounds {
+  constructor() {
+    this.playbackRate = 1;
+    this.volume = 1;
+
+    Audio.prototype.baseVolume = 1;
+    Audio.prototype.isMusic = false;
+    Audio.prototype.changeVolume = function () {
+      let aud = this;
+      if (aud.isMusic) {
+        aud.volume = aud.baseVolume * meta.volume * meta.musicVolume;
+      } else {
+        aud.volume = aud.baseVolume * meta.volume * meta.sfxsVolume;
+      }
+    };
+    Audio.prototype.playy = function () {
+      let aud = this;
+      aud.playbackRate = sounds.playbackRate;
+      if (aud.isMusic) {
+        aud.volume = aud.baseVolume * meta.volume * meta.musicVolume;
+      } else {
+        aud.volume = aud.baseVolume * meta.volume * meta.sfxsVolume;
+      }
+      if (aud.paused) {
+        if (!aud.loop) {
+          aud.currentTime = 0;
+        }
+        let promise = aud.play();
+        if (promise !== undefined) {
+          promise.catch(function (e) {});
+        }
+      } else {
+        if (aud.loop) {
+          return;
+        }
+        aud.pause();
+        aud.currentTime = 0;
+        let promise = aud.play();
+        if (promise !== undefined) {
+          promise.catch(function (e) {
+            console.log(e);
+          });
+        }
+      }
+    };
+
+    // Audio files goes here like: this.soundName = id("soundName");
+  }
+  changeGlobalVolume(targetVolume) {}
+  changeGlobalPlaybackRate(playbackRate) {
+    this.playbackRate = playbackRate;
+  }
+}
 class Entity {
   constructor(x, y) {
     this.x = x;
     this.y = y;
     this.xVel = 0;
     this.yVel = 0;
-    this.y = y;
     this.w = 1;
     this.h = 1;
     this.type = "null";
@@ -94,11 +148,10 @@ class Entity {
   render() {}
 }
 
-// The flying stuff
 class Vfx extends Entity {
-  constructor(x, y, type) {
+  constructor(x, y, which) {
     super(x, y);
-    this.type = type || 0;
+    this.which = which || 0;
     //compute/render even if out of screen
     this.important = false;
     /*
@@ -106,6 +159,7 @@ class Vfx extends Entity {
       0 : hit 
 
       */
+    this.type = "vfx";
     this.actionX = [
       [13, 13, 13, 13],
       [15, 15, 15, 15],
@@ -116,33 +170,38 @@ class Vfx extends Entity {
     ];
     this.initialize();
   }
+  reset(x, y, which) {
+    this.removed = false;
+    this.x = x;
+    this.y = y;
+    this.which = which || 0;
+    this.action = 0;
+    this.frame = 0;
+    this.frameCounter = 0;
+    this.slowness = 6;
+    this.initialize();
+  }
   initialize() {
-    switch (this.type) {
+    switch (this.which) {
       case 0: // Hit
         this.w = 2;
         this.h = 2;
         this.x -= this.w / 2 + (Math.random() - 0.5);
         this.y -= this.h / 2 + (Math.random() - 0.5);
-        this.type = 0;
         break;
       case 1: // Bullet Hit
         this.w = 2;
         this.h = 2;
         this.x -= this.w / 2 + (Math.random() - 0.5);
         this.y -= this.h / 2 + (Math.random() - 0.5);
-        this.type = 1;
         break;
     }
   }
   compute() {}
   onAnimationEnded() {
-    switch (this.type) {
-      case 0:
-        this.removed = true;
-        break;
-      case 1:
-        this.removed = true;
-        break;
+    switch (this.which) {
+      default:
+        this.removed =true;
     }
   }
   render() {
@@ -151,7 +210,7 @@ class Vfx extends Entity {
       this.frame++;
       this.frameCounter = 0;
     }
-    if (this.frame >= this.actionX[this.type].length) {
+    if (this.frame >= this.actionX[this.which].length) {
       this.frame = 0;
       this.onAnimationEnded();
       if (this.removed) {
@@ -160,8 +219,8 @@ class Vfx extends Entity {
     }
     c.drawImage(
       this.sheet,
-      this.actionX[this.type][this.frame] * meta.tilesize,
-      this.actionY[this.type][this.frame] * meta.tilesize,
+      this.actionX[this.which][this.frame] * meta.tilesize,
+      this.actionY[this.which][this.frame] * meta.tilesize,
       this.w * meta.tilesize,
       this.h * meta.tilesize,
       this.x * meta.tilesize * meta.ratio,
@@ -172,6 +231,69 @@ class Vfx extends Entity {
   }
 }
 
+// The flying stuff
+class FlyVfx {
+  constructor(x, y, which) {
+    this.x = x;
+    this.y = y;
+    this.w = 1;
+    this.h = 1;
+    //compute/render even if out of screen
+    this.important = false;
+    this.strikeable = false;
+    this.rotation = 0;
+    this.rotSpeed = Math.random() * 10;
+    this.xVel = Math.random() * 0.2 - 0.15;
+    this.yVel = -Math.random() * 0.3 - 0.1;
+    this.sheet = id("sheet");
+    this.which = which;
+    this.type = "flyVfx";
+    this.gForce = 0.01;
+
+    this.xPos = 18; // X Position on the spritesheet
+  }
+  reset(x, y, which) {
+    this.removed = false;
+    this.x = x; 
+    this.y = y;
+    this.which = which;
+    this.rotation = 0;
+    this.rotSpeed = Math.random() * 10;
+    this.xVel = Math.random() * 0.2 - 0.15;
+    this.yVel = -Math.random() * 0.3 - 0.1;
+  }
+  compute() {
+    this.yVel += this.gForce * meta.deltaTime;
+    this.x += this.xVel * meta.deltaTime;
+    this.y += this.yVel * meta.deltaTime;
+    this.rotation += this.rotSpeed * meta.deltaTime;
+    if (this.y > meta.tilesHeight) {
+      this.removed = true;
+    }
+  }
+  render() {
+    c.save();
+    c.translate(
+      (this.x + this.w / 2) * meta.tilesize * meta.ratio,
+      (this.y + this.h / 2) * meta.tilesize * meta.ratio
+    );
+    //
+    c.rotate((this.rotation * Math.PI) / 180);
+    c.drawImage(
+      this.sheet,
+      this.xPos * meta.tilesize,
+      this.which * meta.tilesize,
+      this.w * meta.tilesize,
+      this.h * meta.tilesize,
+      ((-this.w / 2) * meta.tilesize * meta.ratio) | 0,
+      ((-this.h / 2) * meta.tilesize * meta.ratio) | 0,
+      (this.w * meta.tilesize * meta.ratio) | 0,
+      (this.h * meta.tilesize * meta.ratio) | 0
+    );
+    c.restore();
+  }
+}
+
 class Asteroid extends Entity {
   constructor(x, y) {
     super(x, y);
@@ -179,9 +301,12 @@ class Asteroid extends Entity {
     this.xVel = 0;
     this.w = ((Math.random() * 2) | 0) + 1;
     this.h = this.w;
+
     if (this.w == 2) {
       this.action = 1;
     }
+
+    this.type = "asteroid";
     this.rotation = 0;
     this.accel = 0.005;
     this.speed = 0.1;
@@ -201,7 +326,39 @@ class Asteroid extends Entity {
     ];
     this.left = false;
   }
+  reset(x, y) {
+    this.removed = false;
+
+    this.x = x;
+    this.y = y;
+    this.yVel = 0.1;
+    this.xVel = 0;
+    this.w = ((Math.random() * 2) | 0) + 1;
+    this.h = this.w;
+    if (this.w == 2) {
+      this.action = 1;
+    }else {
+      this.action = 0;
+    }
+    this.rotation = 0;
+    this.accel = 0.005;
+    this.speed = 0.1;
+    this.rotSpeed = Math.random() * 10;
+
+    this.frame = 0;
+    this.frameCounter = 0;
+    this.slowness = 6;
+
+  }
   onHit() {
+    let size = 0;
+    size += this.frame;
+    size += (Math.random() * 3) | 0;
+    size += this.w - 1;
+
+    reloadEntity("flyVfx", this.x + this.w / 2, this.y + this.h / 2, size);
+    reloadEntity("flyVfx", this.x + this.w / 2, this.y + this.h / 2, size + 1);
+
     this.frame++;
     if (this.frame >= this.actionX[this.action].length) {
       this.removed = true;
@@ -323,7 +480,7 @@ class Puncher extends Entity {
       if (collided(this, entities[i])) {
         entities[i].onHit();
         entities[i].y = this.y - entities[i].h;
-        vfxs.push(new Vfx(this.x + this.w / 2, this.y, 0));
+        reloadEntity("vfx", this.x + this.w / 2, this.y, 0);
       }
     }
   }
@@ -333,6 +490,7 @@ class Puncher extends Entity {
       this.xVel = 0;
       return;
     } else if (controls.e) {
+      controls.e = false;
       this.attacking = true;
       this.action = 4;
       this.frame = 0;
@@ -432,6 +590,38 @@ class Bullet extends Entity {
     this.type = "bullet";
     switch (which) {
       case 0:
+        this.action = 0;
+        this.xVel = this.left ? -this.speed : this.speed;
+        this.yVel = -this.speed;
+        break;
+      case 1:
+        this.action = 2;
+        this.speed *= 1.5;
+        this.xVel = this.left ? -this.speed : this.speed;
+        this.yVel = 0;
+        break;
+    }
+  }
+  reset(x, y, left, which) {
+    this.removed = false;
+
+    this.action = 0;
+    this.frame = 0;
+    this.frameCounter = 0;
+    this.slowness = 6;
+
+    this.x = x - this.w / 2;
+    this.y = y - this.h / 2;
+    this.left = left;
+    this.which = which ? which : 0;
+
+    this.speed = 0.3;
+    this.xVel = this.left ? -this.speed : this.speed;
+    this.yVel = -this.speed;
+
+    switch (which) {
+      case 0:
+        this.action = 0;
         this.xVel = this.left ? -this.speed : this.speed;
         this.yVel = -this.speed;
         break;
@@ -451,7 +641,7 @@ class Bullet extends Entity {
       if (collided(this, entities[i])) {
         this.removed = true;
         entities[i].onHit();
-        vfxs.push(new Vfx(this.x + this.w / 2, this.y, 1));
+        reloadEntity("vfx", this.x + this.w / 2, this.y, 1);
         if (this.which == 0) {
           entities[i].yVel = -0.08;
         } else {
@@ -464,7 +654,7 @@ class Bullet extends Entity {
     this.x += this.xVel * meta.deltaTime;
     this.y += this.yVel * meta.deltaTime;
     if (this.x < 0 || this.x > meta.tilesWidth) {
-      this.removed = false;
+      this.removed = true;
     }
     this.checkCollisions();
   }
@@ -546,8 +736,12 @@ class Gunner extends Entity {
   }
   attack() {
     let which = this.attacking == "e" ? 0 : 1;
-    entities.push(
-      new Bullet(this.x + this.w / 2, this.y + this.h / 2, this.left, which)
+    reloadEntity(
+      "bullet",
+      this.x + this.w / 2,
+      this.y + this.h / 2,
+      this.left,
+      which
     );
   }
   computeInput() {

@@ -1,5 +1,5 @@
 // Whole-script strict mode syntax
-'use strict';
+"use strict";
 /*jshint esversion: 6 */
 /*jslint bitwise: true */
 function id(arg) {
@@ -15,11 +15,50 @@ var controls = new Controls();
 var entities = [];
 var vfxs = [];
 var stars = [];
+function populateArrays(){
+  let x = 0;
+  for (let i = 0; i< 300;i++){
+    x = new Asteroid(0,0);
+    x.removed=true;
+    entities.push(x)
+  }
+  for (let i = 0; i< 20;i++){
+    x = new Bullet(0,0,0);
+    x.removed=true;
+    entities.push(x)
+  }
+  for (let i = 0; i< 200;i++){
+    x = new FlyVfx(0,0,0,0);
+    x.removed=true;
+    vfxs.push(x)
+  }
+  for (let i = 0; i< 50;i++){
+    x = new Vfx(0,0,0,0);
+    x.removed=true;
+    vfxs.push(x)
+  }
+}
+populateArrays();
+function reloadEntity(type, arg1, arg2, arg3, arg4) {
+  for (let i = 0; i < entities.length; i++) {
+    if (entities[i].type == type && entities[i].removed) {
+      entities[i].reset(arg1,arg2,arg3, arg4)
+      return;
+    }
+  }
+  for (let i = 0; i < vfxs.length; i++) {
+    if (vfxs[i].type == type && vfxs[i].removed) {
+      vfxs[i].reset(arg1,arg2,arg3, arg4)
+      return;
+    }
+  }
+  console.log(type+" not found")
+}
 
 // Asteroid testing
-setInterval(function(){
-  entities.push(new Asteroid(Math.random()*meta.tilesWidth,-2))
-},1000)
+setInterval(function () {
+  reloadEntity("asteroid", Math.random() * meta.tilesWidth, -2)
+}, 1500);
 
 var meta = new Meta();
 var map = new MapObject();
@@ -27,9 +66,9 @@ var gunner = new Gunner();
 var puncher = new Puncher();
 var player = gunner;
 
-canvas.width = meta.tilesWidth*meta.tilesize * meta.ratio;
+canvas.width = meta.tilesWidth * meta.tilesize * meta.ratio;
 
-canvas.height = meta.tilesHeight*meta.tilesize * meta.ratio;  
+canvas.height = meta.tilesHeight * meta.tilesize * meta.ratio;
 
 c.webkitImageSmoothingEnabled = false;
 c.mozImageSmoothingEnabled = false;
@@ -63,26 +102,19 @@ function loop() {
   meta.fps++;
   c.clearRect(0, 0, canvas.width, canvas.height);
   // Computing - rendering
-    map.compute();
-    player.compute();
-    computeEntities();
-
-    map.render();
-    c.fillStyle="lightgray";
-    c.fillRect(
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    )
-    renderStars();
-    player.render();
-    renderEntities();
-    renderVfxs();
+  map.compute();
+  player.compute();
+  computeEntities();
+  computeVfxs();
 
 
-
-
+  map.render();
+  c.fillStyle = "lightgray";
+  c.fillRect(0, 0, canvas.width, canvas.height);
+  renderStars();
+  player.render();
+  renderEntities();
+  renderVfxs();
 
   requestAnimationFrame(loop);
 }
@@ -91,8 +123,8 @@ function loop() {
 
 // Computes each entity if player has submitted a command
 function computeEntities() {
-  for(let i = 0; i < entities.length;i++){
-    if(entities[i].removed){
+  for (let i = 0; i < entities.length; i++) {
+    if (entities[i].removed) {
       continue;
     }
     entities[i].compute();
@@ -100,17 +132,26 @@ function computeEntities() {
 }
 // Renders each entity
 function renderEntities() {
-  for(let i = 0; i < entities.length;i++){
-    if(entities[i].removed){
+  for (let i = 0; i < entities.length; i++) {
+    if (entities[i].removed) {
       continue;
     }
     entities[i].render();
   }
 }
 // Renders VFXs
+function computeVfxs() {
+  for (let i = 0; i < vfxs.length; i++) {
+    if (vfxs[i].removed) {
+      continue;
+    }
+    vfxs[i].compute();
+  }
+}
+// Renders VFXs
 function renderVfxs() {
-  for(let i = 0; i < vfxs.length;i++){
-    if(vfxs[i].removed){
+  for (let i = 0; i < vfxs.length; i++) {
+    if (vfxs[i].removed) {
       continue;
     }
     vfxs[i].render();
@@ -139,8 +180,6 @@ var screenShake = {
     }
   },
 };
-
-
 
 //Background Stars
 
