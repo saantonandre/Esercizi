@@ -1,3 +1,24 @@
+/*
+  CLASS LIST:
+
+  class Meta
+
+  class MapObject
+
+  class Entity
+
+  class Portal
+
+  class Block
+
+  class Enemy
+
+  class Player
+
+  class Mouse
+
+ */
+const SHEET = id("sheet");
 class Meta {
   constructor() {
     this.fps = 0;
@@ -5,7 +26,7 @@ class Meta {
     this.ratio = 2;
     this.deltaTime = 1;
     this.targetFrames = 60;
-    this.tileSize = 32;
+    this.tileSize = 16;
     this.tilesWidth = 32;
     this.tilesHeight = 20;
     this.terminalVel = 0.5;
@@ -34,10 +55,10 @@ class MapObject {
   constructor() {
     this.w = 11;
     this.h = 11;
-    this.x = -(canvas.width / meta.tileSize - this.w) / 2; // For rendering purposes
-    this.y = -(canvas.height / meta.tileSize - this.h) / 2; // For rendering purposes
+    this.x = -(canvas.width / meta.tileSize / meta.ratio - this.w) / 2; // For rendering purposes
+    this.y = -(canvas.height / meta.tileSize / meta.ratio - this.h) / 2; // For rendering purposes
     this.rooms = 16;
-    this.roomsW = 15;
+    this.roomsW = 21;
     this.roomsH = 15;
     this.map = [];
     this.entities = [];
@@ -45,6 +66,7 @@ class MapObject {
     this.currentLevel = [0, 0];
     this.initialize();
   }
+  // Generate the map
   initialize() {
     // Generate the map
     this.map = mapGen.generate(this.w, this.h, this.rooms);
@@ -54,7 +76,7 @@ class MapObject {
         if (!this.map[i][j]) {
           continue;
         }
-        this.map[i][j].entities = this.parseLevel(
+        this.map[i][j].entities = this.parseRoom(
           levelGen.generate(this.roomsW, this.roomsH, this.map[i][j].links)
         );
         if (this.map[i][j].type === 1) {
@@ -66,18 +88,23 @@ class MapObject {
       }
     }
   }
-  parseLevel(level) {
+  // Translates the level to game entities
+  parseRoom(room) {
     let entities = [];
-    for (let x = 0; x < level.length; x++) {
-      for (let y = 0; y < level[x].length; y++) {
-        switch (level[x][y].type) {
+    let entity;
+    for (let x = 0; x < room.length; x++) {
+      for (let y = 0; y < room[x].length; y++) {
+        switch (room[x][y].type) {
           case 0:
             continue;
           case 1:
-            entities.push(new Block(x, y));
+            entity = new Block(x, y);
+            entity.tile = room[x][y].tile;
+            entities.push(entity);
             break;
           case 2:
-            entities.push(new Portal(x, y, level[x][y].dir));
+            entity = new Portal(x, y, room[x][y].dir);
+            entities.push(entity);
             break;
         }
       }
@@ -86,26 +113,51 @@ class MapObject {
   }
   render() {
     // Renders the grid
+
+    /*
     for (let i = 0; i < this.roomsW; i++) {
       c.strokeStyle = "gray";
       c.beginPath();
-      c.moveTo((i + this.x) * meta.tileSize, (0 + this.y) * meta.tileSize);
+      c.moveTo(
+        (i + this.x) * meta.tileSize * meta.ratio,
+        (0 + this.y) * meta.tileSize * meta.ratio
+      );
       c.lineTo(
-        (i + this.x) * meta.tileSize,
-        (this.roomsH + this.y) * meta.tileSize
+        (i + this.x) * meta.tileSize * meta.ratio,
+        (this.roomsH + this.y) * meta.tileSize * meta.ratio
       );
       c.closePath();
       c.stroke();
     }
     for (let i = 0; i < this.roomsH; i++) {
       c.beginPath();
-      c.moveTo((0 + this.x) * meta.tileSize, (i + this.y) * meta.tileSize);
+      c.moveTo(
+        (0 + this.x) * meta.tileSize * meta.ratio,
+        (i + this.y) * meta.tileSize * meta.ratio
+      );
       c.lineTo(
-        (this.roomsW + this.x) * meta.tileSize,
-        (i + this.y) * meta.tileSize
+        (this.roomsW + this.x) * meta.tileSize * meta.ratio,
+        (i + this.y) * meta.tileSize * meta.ratio
       );
       c.closePath();
       c.stroke();
+    }
+    */
+    for (let i = 0; i < this.roomsW; i++) {
+      for (let j = 0; j < this.roomsH; j++) {
+        //renders the floor
+        c.drawImage(
+          SHEET,
+          1 * meta.tileSize,
+          1 * meta.tileSize,
+          meta.tileSize,
+          meta.tileSize,
+          ((i + this.x) * meta.tileSize * meta.ratio) | 0,
+          ((j + this.y) * meta.tileSize * meta.ratio) | 0,
+          meta.tileSize * meta.ratio,
+          meta.tileSize * meta.ratio
+        );
+      }
     }
   }
   changeLevel(dir) {
@@ -170,7 +222,7 @@ class MapObject {
             size / 5
           );
         }
-        
+
         if (this.currentLevel[0] === i && this.currentLevel[1] === j) {
           c.globalAlpha = 0.8;
           c.fillStyle = "pink";
@@ -239,7 +291,23 @@ class Entity {
     this.w = 1;
     this.h = 1;
     this.type = "null";
+
     this.notSolid = false;
+    this.removed = false;
+    this.left = 0;
+
+    this.sheet = id("sheet");
+    this.action = 0;
+    this.frame = 0;
+    this.frameCounter = 0;
+    this.slowness = 6;
+
+    this.col = {
+      L: 0,
+      R: 0,
+      T: 0,
+      B: 0,
+    };
     this.col = {
       L: 0,
       R: 0,
@@ -257,6 +325,14 @@ class Portal extends Entity {
     this.dir = dir;
     this.notSolid = true;
     this.type = "portal";
+    this.hitbox = {
+      x: 0,
+      y: 0,
+      w: 1,
+      h: 1,
+    };
+    this.hitbox.x = this.x + this.dir[0];
+    this.hitbox.y = this.y + this.dir[1];
   }
   compute() {
     if (collided(this, player)) {
@@ -265,13 +341,15 @@ class Portal extends Entity {
     }
   }
   render() {
+    /*
     c.fillStyle = "blue";
     c.fillRect(
-      (this.x + map.x) * meta.tileSize,
-      (this.y + map.y) * meta.tileSize,
-      this.w * meta.tileSize,
-      this.h * meta.tileSize
+      (this.x + map.x) * meta.tileSize * meta.ratio,
+      (this.y + map.y) * meta.tileSize * meta.ratio,
+      this.w * meta.tileSize * meta.ratio,
+      this.h * meta.tileSize * meta.ratio
     );
+    */
   }
 }
 class Block extends Entity {
@@ -279,15 +357,28 @@ class Block extends Entity {
   constructor(x, y) {
     super(x, y);
     this.type = "wall";
+    this.tile = 0;
   }
   compute() {}
   render() {
     c.fillStyle = "black";
     c.fillRect(
-      (this.x + map.x) * meta.tileSize,
-      (this.y + map.y) * meta.tileSize,
-      this.w * meta.tileSize,
-      this.h * meta.tileSize
+      (this.x + map.x) * meta.tileSize * meta.ratio,
+      (this.y + map.y) * meta.tileSize * meta.ratio,
+      this.w * meta.tileSize * meta.ratio,
+      this.h * meta.tileSize * meta.ratio
+    );
+
+    c.drawImage(
+      SHEET,
+      tiles[this.tile][0] * meta.tileSize,
+      tiles[this.tile][1] * meta.tileSize,
+      meta.tileSize,
+      meta.tileSize,
+      ((this.x + map.x) * meta.tileSize * meta.ratio) | 0,
+      ((this.y + map.y) * meta.tileSize * meta.ratio) | 0,
+      this.w * meta.tileSize * meta.ratio,
+      this.h * meta.tileSize * meta.ratio
     );
   }
 }
@@ -301,10 +392,10 @@ class Enemy extends Entity {
   render() {
     c.fillStyle = "darkred";
     c.fillRect(
-      (this.x + map.x) * meta.tileSize,
-      (this.y + map.y) * meta.tileSize,
-      this.w * meta.tileSize,
-      this.h * meta.tileSize
+      (this.x + map.x) * meta.tileSize * meta.ratio,
+      (this.y + map.y) * meta.tileSize * meta.ratio,
+      this.w * meta.tileSize * meta.ratio,
+      this.h * meta.tileSize * meta.ratio
     );
     c.fillStyle = "black";
   }
@@ -312,11 +403,26 @@ class Enemy extends Entity {
 class Player extends Entity {
   constructor(x, y) {
     super(x, y);
-    this.w = 0.5;
-    this.h = 0.5;
+    this.w = 1;
+    this.h = 1;
     this.facing = "r";
-    this.speed = 0.15;
+    this.speed = 0.1;
     this.type = "player";
+
+    this.action = 0;
+    this.actionX = [
+      [0, 0, 0, 0],
+      [1, 1, 1, 1],
+    ];
+    this.actionY = [
+      [6, 7, 8, 9],
+      [6, 7, 8, 9],
+    ];
+
+    this.weapon = 0;
+    this.weaponX = [11,11];
+    this.weaponY = [2,3];
+
     this.dummy = {
       x: 0,
       y: 0,
@@ -344,8 +450,8 @@ class Player extends Entity {
       moveX /= 2;
       moveY /= 2;
     }
-    moveX *= this.speed * 10;
-    moveY *= this.speed * 10;
+    moveX *= this.speed * 10 * meta.deltaTime;
+    moveY *= this.speed * 10 * meta.deltaTime;
     this.dummy.x = this.x + moveX;
     this.dummy.y = this.y + moveY;
     this.dummy.w = this.w;
@@ -359,8 +465,8 @@ class Player extends Entity {
       }
     }
     if (
-      this.dummy.x > map.roomsW-1 ||
-      this.dummy.y > map.roomsH-1 ||
+      this.dummy.x > map.roomsW - 1 ||
+      this.dummy.y > map.roomsH - 1 ||
       this.dummy.x < 0 ||
       this.dummy.y < 0
     ) {
@@ -379,25 +485,27 @@ class Player extends Entity {
       this.dash();
     }
     // Moves
-    if (controls.left) {
+    if (controls.left && !controls.right) {
       this.facing = "l";
       this.xVel = -this.speed;
+      this.left = true;
     } else if (this.xVel < 0) {
       this.xVel = 0;
     }
-    if (controls.right) {
+    if (controls.right && !controls.left) {
       this.facing = "r";
       this.xVel = this.speed;
+      this.left = false;
     } else if (this.xVel > 0) {
       this.xVel = 0;
     }
-    if (controls.up) {
+    if (controls.up && !controls.down) {
       this.facing = "t";
       this.yVel = -this.speed;
     } else if (this.yVel < 0) {
       this.yVel = 0;
     }
-    if (controls.down) {
+    if (controls.down && !controls.up) {
       this.facing = "b";
       this.yVel = this.speed;
     } else if (this.yVel > 0) {
@@ -408,8 +516,8 @@ class Player extends Entity {
       this.yVel = 0;
     }
     if (controls.left + controls.right + controls.up + controls.down > 1) {
-      this.xVel /= 2;
-      this.yVel /= 2;
+      this.xVel /= 1.42;
+      this.yVel /= 1.42;
     }
   }
   compute() {
@@ -418,58 +526,46 @@ class Player extends Entity {
     this.y += this.yVel;
     map.checkCollisions(this);
   }
-  attack() {
-    switch (this.facing) {
-      case "l":
-        c.fillStyle = "red";
-        c.fillRect(
-          (this.x - 1) * meta.tileSize,
-          (this.y - 1) * meta.tileSize,
-          1 * meta.tileSize,
-          3 * meta.tileSize
-        );
-        c.fillStyle = "black";
-        break;
-      case "r":
-        c.fillStyle = "red";
-        c.fillRect(
-          (this.x + 1) * meta.tileSize,
-          (this.y - 1) * meta.tileSize,
-          1 * meta.tileSize,
-          3 * meta.tileSize
-        );
-        c.fillStyle = "black";
-        break;
-      case "u":
-        c.fillStyle = "red";
-        c.fillRect(
-          (this.x - 1) * meta.tileSize,
-          (this.y - 1) * meta.tileSize,
-          3 * meta.tileSize,
-          1 * meta.tileSize
-        );
-        c.fillStyle = "black";
-        break;
-      case "b":
-        c.fillStyle = "red";
-        c.fillRect(
-          (this.x - 1) * meta.tileSize,
-          (this.y + 1) * meta.tileSize,
-          3 * meta.tileSize,
-          1 * meta.tileSize
-        );
-        c.fillStyle = "black";
-        break;
+  attack() {}
+  onAnimationEnded() {
+    switch (this.action) {
       default:
     }
   }
   render() {
-    c.fillStyle = "green";
-    c.fillRect(
-      (this.x + map.x) * meta.tileSize,
-      (this.y + map.y) * meta.tileSize,
+    this.frameCounter += meta.deltaTime;
+    if (this.frameCounter >= this.slowness) {
+      this.frame++;
+      this.frameCounter = 0;
+    }
+    if (this.frame >= this.actionX[this.action].length) {
+      this.frame = 0;
+      this.onAnimationEnded();
+      if (this.removed) {
+        return;
+      }
+    }
+    c.drawImage(
+      SHEET,
+      this.actionX[this.action + this.left][this.frame] * meta.tileSize,
+      this.actionY[this.action + this.left][this.frame] * meta.tileSize,
       this.w * meta.tileSize,
-      this.h * meta.tileSize
+      this.h * meta.tileSize,
+      (this.x + map.x) * meta.tileSize * meta.ratio,
+      (this.y + map.y) * meta.tileSize * meta.ratio,
+      this.w * meta.tileSize * meta.ratio,
+      this.h * meta.tileSize * meta.ratio
+    );
+    c.drawImage(
+      SHEET,
+      this.weaponX[this.weapon + this.left] * meta.tileSize,
+      this.weaponY[this.weapon + this.left] * meta.tileSize,
+      this.w * meta.tileSize,
+      this.h * meta.tileSize,
+      (this.x + map.x - 0.5 + this.left) * meta.tileSize * meta.ratio,
+      (this.y + map.y) * meta.tileSize * meta.ratio,
+      this.w * meta.tileSize * meta.ratio,
+      this.h * meta.tileSize * meta.ratio
     );
   }
 }

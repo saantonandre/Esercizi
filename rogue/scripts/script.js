@@ -3,7 +3,6 @@ function id(arg) {
 }
 var canvas = id("canvas");
 var c = canvas.getContext("2d");
-
 // Load Objects
 var controls = new Controls();
 var mouse = new Mouse();
@@ -18,6 +17,7 @@ var levelGen = new LevelGenerator();
 var map = new MapObject();
 canvas.width = 800;
 canvas.height = 600;
+c.imageSmoothingEnabled = false;
 
 function init() {
   resizeCanvas();
@@ -45,6 +45,8 @@ function loop() {
   meta.updateDeltaTime();
   meta.fps++;
   c.clearRect(0, 0, canvas.width, canvas.height);
+  c.fillStyle = "black";
+  c.fillRect(0, 0, canvas.width, canvas.height);
 
   map.render();
   player.compute();
@@ -60,14 +62,14 @@ function loop() {
 
 // Computes each entity if player has submitted a command
 function computeEntities() {
-  let entities =map.map[map.currentLevel[0]][map.currentLevel[1]].entities;
+  let entities = map.map[map.currentLevel[0]][map.currentLevel[1]].entities;
   for (let i = 0; i < entities.length; i++) {
     entities[i].compute();
   }
 }
 // Renders each entity
 function renderEntities() {
-  let entities =map.map[map.currentLevel[0]][map.currentLevel[1]].entities;
+  let entities = map.map[map.currentLevel[0]][map.currentLevel[1]].entities;
   for (let i = 0; i < entities.length; i++) {
     entities[i].render();
   }
