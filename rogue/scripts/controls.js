@@ -5,6 +5,10 @@ class Controls {
     this.down = false;
     this.left = false;
     this.right = false;
+    this.upR = false;
+    this.downR = false;
+    this.leftR = false;
+    this.rightR = false;
     this.spacebar = false;
     this.e = false;
     this.lClickDown = false;
@@ -55,20 +59,16 @@ class Controls {
       }
     });
     document.addEventListener("keydown", function (evt) {
+      // 38, 40, 37, 39
       switch (evt.keyCode) {
         case 87: //up
-        case 38:
           debug.log("Up key");
           if (!x.up) {
             x.up = true;
             x.lastDir = 1;
           }
           break;
-        case 32:
-          x.spacebar = true;
-          break;
         case 83: //down
-        case 40: //down
           debug.log("Down key");
           if (!x.down) {
             x.down = true;
@@ -76,7 +76,6 @@ class Controls {
           }
           break;
         case 65: //left
-        case 37: //left
           debug.log("Left key");
           if (!x.left) {
             x.left = true;
@@ -84,12 +83,38 @@ class Controls {
           }
           break;
         case 68: //right
-        case 39: //right
           debug.log("Right key");
           if (!x.right) {
             x.right = true;
             x.lastDir = 2;
           }
+          break;
+        case 38: //upR
+          if (!x.upR) {
+            x.upR = true;
+            x.lastDir = 1;
+          }
+          break;
+        case 40: //downR
+          if (!x.downR) {
+            x.downR = true;
+            x.lastDir = 3;
+          }
+          break;
+        case 37: //leftR
+          if (!x.leftR) {
+            x.leftR = true;
+            x.lastDir = 0;
+          }
+          break;
+        case 39: //rightR
+          if (!x.rightR) {
+            x.rightR = true;
+            x.lastDir = 2;
+          }
+          break;
+        case 32:
+          x.spacebar = true;
           break;
         case 69: //e
           debug.log("E key");
@@ -106,23 +131,31 @@ class Controls {
     document.addEventListener("keyup", function (evt) {
       switch (evt.keyCode) {
         case 87: //up
-        case 38:
           x.up = false;
           break;
-        case 32:
-          x.spacebar = false;
-          break;
         case 83: //down
-        case 40: //down
           x.down = false;
           break;
         case 65: //left
-        case 37: //left
           x.left = false;
           break;
         case 68: //right
-        case 39: //right
           x.right = false;
+          break;
+        case 38: //upR
+          x.upR = false;
+          break;
+        case 40: //downR
+          x.downR = false;
+          break;
+        case 37: //leftR
+          x.leftR = false;
+          break;
+        case 39: //rightR
+          x.rightR = false;
+          break;
+        case 32:
+          x.spacebar = false;
           break;
         case 69: //e
           x.e = false;
