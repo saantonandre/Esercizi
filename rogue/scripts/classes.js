@@ -57,7 +57,7 @@ class MapObject {
     this.h = 11;
     this.x = -(canvas.width / meta.tileSize / meta.ratio - this.w) / 2; // For rendering purposes
     this.y = -(canvas.height / meta.tileSize / meta.ratio - this.h) / 2; // For rendering purposes
-    this.rooms = 16;
+    this.rooms = 6;
     this.roomsW = 21;
     this.roomsH = 15;
     this.map = [];
@@ -130,6 +130,9 @@ class MapObject {
     }
   }
   changeLevel(dir) {
+    //clears the vfxs
+    vfxsManager.removeAll();
+
     this.currentLevel = [
       this.currentLevel[0] + dir[0],
       this.currentLevel[1] + dir[1],
@@ -219,6 +222,9 @@ class MapObject {
       if (t[i].notSolid) {
         continue;
       }
+      if (t[i].removed) {
+        continue;
+      }
       if (obj === t[i]) {
         continue;
       }
@@ -250,6 +256,184 @@ class MapObject {
     }
   }
 }
+
+// Texts
+class DmgText {
+  constructor(entity, text) {
+    let args = ["DmgText", entity, text];
+    this.initialize(args);
+  }
+  initialize(args) {
+    //args[0] is the type
+    let entity = args[1];
+    let text = args[2];
+    this.x = entity.x + entity.w / 2 + Math.random() * 0.5 - 0.25;
+    this.y = entity.y + entity.h / 3 + Math.random() * 0.5 - 0.25;
+    this.text = text;
+    this.size = 14;
+    this.color = "white";
+    this.color2 = "black";
+    this.type = "DmgText";
+    this.removed = false;
+    this.solid = false;
+    this.yVel = -0.015;
+    this.sizeChange = 0.99;
+    this.lifeSpan = 40; //duration (in frames) of the text appearence
+  }
+  compute() {
+    this.size *= Math.pow(this.sizeChange, meta.deltaTime);
+    this.y += this.yVel * meta.deltaTime;
+    this.lifeSpan -= meta.deltaTime;
+    if (this.lifeSpan <= 0) {
+      this.removed = true;
+    }
+  }
+  render() {
+    //c.font = Math.round(this.size * meta.ratio) + "px" + " 'Press Start 2P'";
+    c.textAlign = "center";
+    c.textBaseline = "middle";
+    c.lineWidth = this.size / 10;
+    c.font = "bold " + Math.round(this.size * meta.ratio) + "px" + " Verdana";
+    c.fillStyle = this.color;
+    c.fillText(
+      this.text,
+      (this.x + map.x) * meta.tileSize * meta.ratio,
+      (this.y + map.y) * meta.tileSize * meta.ratio
+    );
+    c.strokeStyle = this.color2;
+    c.strokeText(
+      this.text,
+      (this.x + map.x) * meta.tileSize * meta.ratio,
+      (this.y + map.y) * meta.tileSize * meta.ratio
+    );
+  }
+}
+// Texts
+class DmgVfx {
+  constructor(entity, which) {
+    let args = ["DmgVfx", entity, which];
+    this.initialize(args);
+  }
+  initialize(args) {
+    //args[0] is the type
+    let entity = args[1];
+    let which = args[2] || (Math.random() * 2) | 0;
+    this.x = entity.x + entity.w / 2 + Math.random() * 0.5 - 0.25;
+    this.y = entity.y + entity.h / 2 + Math.random() * 0.5 - 0.25;
+    this.type = "DmgVfx";
+
+    this.removed = false;
+    this.solid = false;
+
+    this.action = which;
+    this.actionX = [
+      [17, 17, 17, 17],
+      [18, 18, 18, 18],
+    ];
+    this.actionY = [
+      [0, 1, 2, 3],
+      [0, 1, 2, 3],
+    ];
+
+    this.w = 1;
+    this.h = 1;
+    this.x -= this.w / 2;
+    this.y -= this.h / 2;
+    this.frame = 0;
+    this.frameCounter = 0;
+    this.slowness = 6;
+  }
+  compute() {}
+  onActionEnded() {
+    switch (this.action) {
+      default:
+        this.removed = true;
+    }
+  }
+  render() {
+    this.frameCounter += meta.deltaTime;
+    if (this.frameCounter >= this.slowness) {
+      this.frame++;
+      this.frameCounter = 0;
+    }
+    if (this.frame >= this.actionX[this.action].length) {
+      this.frame = 0;
+      this.onActionEnded();
+      if (this.removed) {
+        return;
+      }
+    }
+    c.drawImage(
+      SHEET,
+      this.actionX[this.action][this.frame] * meta.tileSize,
+      this.actionY[this.action][this.frame] * meta.tileSize,
+      this.w * meta.tileSize,
+      this.h * meta.tileSize,
+      (this.x + map.x) * meta.tileSize * meta.ratio,
+      (this.y + map.y) * meta.tileSize * meta.ratio,
+      this.w * meta.tileSize * meta.ratio,
+      this.h * meta.tileSize * meta.ratio
+    );
+  }
+}
+//args(1,2,3,4,"wow",[0,"a"]);
+function args() {
+  for (let i = 0; i < arguments.length; i++) {
+    console.log(arguments[i]);
+  }
+}
+class VfxsManager {
+  constructor() {
+    this.vfxs = [];
+    this.maxVfxCount = 20;
+    this.maxTxtCount = 20;
+    this.initialize();
+  }
+  create() {
+    let args = arguments;
+    for (let i = 0; i < this.vfxs.length; i++) {
+      if (this.vfxs[i].removed && this.vfxs[i].type == args[0]) {
+        this.vfxs[i].initialize(args);
+        break;
+      }
+    }
+  }
+  removeAll() {
+    for (let i = 0; i < this.vfxs.length; i++) {
+      this.vfxs[i].removed = true;
+    }
+  }
+  initialize() {
+    this.vfxs = [];
+    let vfx;
+    for (let i = 0; i < this.maxTxtCount; i++) {
+      vfx = new DmgText(0, 0);
+      vfx.removed = true;
+      this.vfxs.push(vfx);
+    }
+    for (let i = 0; i < this.maxVfxCount; i++) {
+      vfx = new DmgVfx(0, 0);
+      vfx.removed = true;
+      this.vfxs.push(vfx);
+    }
+  }
+  compute() {
+    for (let i = 0; i < this.vfxs.length; i++) {
+      if (this.vfxs[i].removed) {
+        continue;
+      }
+      this.vfxs[i].compute();
+    }
+  }
+  render() {
+    for (let i = 0; i < this.vfxs.length; i++) {
+      if (this.vfxs[i].removed) {
+        continue;
+      }
+      this.vfxs[i].render();
+    }
+  }
+}
 class Entity {
   constructor(x, y) {
     this.x = x;
@@ -260,6 +444,7 @@ class Entity {
     this.w = 1;
     this.h = 1;
     this.type = "null";
+    this.damaged = false;
 
     this.notSolid = false;
     this.removed = false;
@@ -351,26 +536,67 @@ class Block extends Entity {
     );
   }
 }
+//hmmm
 class Enemy extends Entity {
   constructor(x, y) {
     super(x, y);
     this.type = "enemy";
-    this.color="darkred";
+    this.action = 0;
+    this.maxHp = 5;
+    this.hp = this.maxHp;
+    this.dmgFrames = 0;
+    this.dead = false;
+
+    this.action = 0;
+    this.actionX = [[16], [16]];
+    this.actionY = [[0], [1]];
+
+    this.hpBar = new HpBar(this);
   }
   followPlayer() {}
-  onHit() {
-    this.color="lightred";
+  onHit(source) {
+    this.action = 1;
+    this.damaged = source.attackID;
+    this.dmgFrames = 5;
+    this.hp -= source.damage;
+    // damage text
+    vfxsManager.create("DmgText", this, source.damage);
+    vfxsManager.create("DmgVfx", this);
+    if (this.hp <= 0) {
+      this.dead = true;
+      this.removed = true;
+    }
   }
-  compute() {}
+  compute() {
+    if (this.dmgFrames > 0) {
+      this.action = 1;
+      this.dmgFrames -= meta.deltaTime;
+    } else {
+      this.action = 0;
+    }
+    this.hpBar.compute();
+  }
   render() {
-    c.fillStyle = this.color;
-    c.fillRect(
+    this.frameCounter += meta.deltaTime;
+    if (this.frameCounter >= this.slowness) {
+      this.frame++;
+      this.frameCounter = 0;
+    }
+    if (this.frame >= this.actionX[this.action].length) {
+      this.frame = 0;
+    }
+    c.drawImage(
+      SHEET,
+      this.actionX[this.action][this.frame] * meta.tileSize,
+      this.actionY[this.action][this.frame] * meta.tileSize,
+      this.w * meta.tileSize,
+      this.h * meta.tileSize,
       (this.x + map.x) * meta.tileSize * meta.ratio,
       (this.y + map.y) * meta.tileSize * meta.ratio,
       this.w * meta.tileSize * meta.ratio,
       this.h * meta.tileSize * meta.ratio
     );
-    c.fillStyle = "black";
+    this.hpBar.render();
   }
 }
 canvas.addEventListener("click", function (e) {
@@ -378,14 +604,62 @@ canvas.addEventListener("click", function (e) {
   let y = (e.clientY - canvas.offsetTop) / meta.ratio / meta.tileSize - map.y;
   map.entities.push(new Enemy(x, y));
 });
+
+class HpBar {
+  constructor(source) {
+    this.spriteX = [[13, 14]];
+    this.spriteY = [[0, 0]];
+    this.source = source;
+    this.w = 1;
+    this.h = 1;
+    this.wRatio = 1;
+  }
+  compute() {
+    this.x=this.source.x+this.source.w/2-this.w/2;
+    this.y=this.source.y-this.h;
+    this.wRatio = this.source.hp/this.source.maxHp;
+  }
+  render() {
+    // Renders the bar
+    c.drawImage(
+      SHEET,
+      this.spriteX[0][1] * meta.tileSize,
+      this.spriteY[0][1] * meta.tileSize,
+      this.w * meta.tileSize*this.wRatio,
+      this.h * meta.tileSize,
+      (this.x + map.x) * meta.tileSize * meta.ratio,
+      (this.y + map.y) * meta.tileSize * meta.ratio,
+      this.w * meta.tileSize * meta.ratio*this.wRatio,
+      this.h * meta.tileSize * meta.ratio
+    );
+
+    // Renders the contour
+    c.drawImage(
+      SHEET,
+      this.spriteX[0][0] * meta.tileSize,
+      this.spriteY[0][0] * meta.tileSize,
+      this.w * meta.tileSize,
+      this.h * meta.tileSize,
+      (this.x + map.x) * meta.tileSize * meta.ratio,
+      (this.y + map.y) * meta.tileSize * meta.ratio,
+      this.w * meta.tileSize * meta.ratio,
+      this.h * meta.tileSize * meta.ratio
+    );
+
+
+  }
+}
 class Player extends Entity {
   constructor(x, y) {
     super(x, y);
     this.w = 1;
     this.h = 1;
     this.facing = "r";
-    this.speed = 0.1;
+    this.baseSpeed = 0.1;
+    this.speed = this.baseSpeed;
     this.type = "player";
+
+    this.hp = 5;
 
     this.action = 0;
     this.actionX = [
@@ -456,10 +730,10 @@ class Player extends Entity {
     }
   }
   computeInput() {
-    if (this.attacking || this.reloading) {
-      this.xVel = 0;
-      this.yVel = 0;
-      return;
+    if (this.attacking) {
+      this.speed = 0.05;
+    } else {
+      this.speed = this.baseSpeed;
     }
     if (controls.spacebar) {
       this.dash();
@@ -551,10 +825,16 @@ class Sword extends Entity {
     this.rot = 0;
     this.dir = "left";
     this.owner = owner;
+
+    this.damage = 1;
     this.attackDuration = 160;
     this.attackCounter = 0;
     this.attackSpeed = 1;
     this.attackRange = 2;
+
+    this.reloadSpeed = 5;
+    //the attackID will change every attack, the purpose is hitting targets only ONCE
+    this.attackID = 0;
     this.hitbox = {
       x: 0,
       y: 0,
@@ -565,35 +845,31 @@ class Sword extends Entity {
   checkCollisions() {
     switch (this.dir) {
       case "up":
-        this.hitbox.x = this.owner.x;
-        this.hitbox.y = this.owner.y-this.attackRange;
-        this.hitbox.w = this.w;
-        this.hitbox.h = this.attackRange;
-        break;
       case "down":
-        this.hitbox.x = this.owner.x;
-        this.hitbox.y = this.owner.y+this.h;
-        this.hitbox.w = this.w;
-        this.hitbox.h = this.attackRange;
+        this.hitbox.x = this.x + 0.25;
+        this.hitbox.y = this.y;
+        this.hitbox.w = 0.5;
+        this.hitbox.h = this.h;
         break;
       case "left":
-        this.hitbox.x = this.owner.x-this.attackRange;
-        this.hitbox.y = this.owner.y;
-        this.hitbox.w = this.attackRange;
-        this.hitbox.h = this.h;
-        break;
       case "right":
-        this.hitbox.x = this.owner.x+this.w;
-        this.hitbox.y = this.owner.y;
-        this.hitbox.w = this.attackRange;
-        this.hitbox.h = this.h;
+        this.hitbox.x = this.x;
+        this.hitbox.y = this.y + 0.25;
+        this.hitbox.w = this.w;
+        this.hitbox.h = 0.5;
         break;
     }
-    for(let i = 0;i < map.entities.length;i++){
-      if(map.entities[i].type!=="enemy"){
+    for (let i = 0; i < map.entities.length; i++) {
+      if (map.entities[i].type !== "enemy") {
         continue;
       }
-      if(collided(this.hitbox,map.entities[i])){
+      if (map.entities[i].damaged === this.attackID) {
+        continue;
+      }
+      if (map.entities[i].removed) {
+        continue;
+      }
+      if (collided(this.hitbox, map.entities[i])) {
         map.entities[i].onHit(this);
       }
     }
@@ -602,6 +878,7 @@ class Sword extends Entity {
     if (this.owner.attacking || this.owner.reloading) {
       return;
     }
+    this.attackID = Math.random();
     this.dir = dir;
 
     switch (dir) {
@@ -651,7 +928,6 @@ class Sword extends Entity {
       this.owner.attacking = false;
       this.owner.reloading = true;
       this.action = 0;
-      this.checkCollisions();
     }
     this.attackCounter +=
       (this.attackDuration - this.attackCounter) / 5 +
@@ -661,6 +937,7 @@ class Sword extends Entity {
     }
     this.offsetX = (this.targetX / this.attackDuration) * this.attackCounter;
     this.offsetY = (this.targetY / this.attackDuration) * this.attackCounter;
+    this.checkCollisions();
   }
   computeReload() {
     if (!this.owner.reloading) {
@@ -672,17 +949,18 @@ class Sword extends Entity {
     }
     this.attackCounter -=
       ((this.attackCounter - this.attackDuration) * -1) / 5 +
-      this.attackSpeed * meta.deltaTime;
+      this.attackSpeed * meta.deltaTime * this.reloadSpeed;
     if (this.attackCounter < 0) {
       this.attackCounter = 0;
     }
     this.offsetX = (this.targetX / this.attackDuration) * this.attackCounter;
     this.offsetY = (this.targetY / this.attackDuration) * this.attackCounter;
+    this.checkCollisions();
   }
   compute() {
     this.computeInput();
-    this.computeAttack();
     this.computeReload();
+    this.computeAttack();
     this.x = this.owner.x + this.offsetX;
     this.y = this.owner.y + this.offsetY;
     this.left = this.owner.left;

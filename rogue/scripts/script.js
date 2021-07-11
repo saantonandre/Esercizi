@@ -15,6 +15,7 @@ var entities = [];
 var mapGen = new MapGenerator();
 var levelGen = new LevelGenerator();
 var map = new MapObject();
+var vfxsManager = new VfxsManager();
 canvas.width = 800;
 canvas.height = 600;
 c.imageSmoothingEnabled = false;
@@ -50,9 +51,11 @@ function loop() {
 
   map.render();
   player.compute();
+  vfxsManager.compute()
   computeEntities();
   renderEntities();
   player.render();
+  vfxsManager.render()
   map.renderMinimap();
 
   requestAnimationFrame(loop);
@@ -64,6 +67,9 @@ function loop() {
 function computeEntities() {
   let entities = map.map[map.currentLevel[0]][map.currentLevel[1]].entities;
   for (let i = 0; i < entities.length; i++) {
+    if(entities[i].removed){
+      continue;
+    }
     entities[i].compute();
   }
 }
@@ -71,6 +77,9 @@ function computeEntities() {
 function renderEntities() {
   let entities = map.map[map.currentLevel[0]][map.currentLevel[1]].entities;
   for (let i = 0; i < entities.length; i++) {
+    if(entities[i].removed){
+      continue;
+    }
     entities[i].render();
   }
 }
