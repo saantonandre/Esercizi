@@ -440,11 +440,11 @@ class Entity {
     this.y = y;
     this.xVel = 0;
     this.yVel = 0;
-    this.y = y;
     this.w = 1;
     this.h = 1;
     this.type = "null";
     this.damaged = false;
+    this.state = IDLE;
 
     this.notSolid = false;
     this.removed = false;
@@ -541,7 +541,6 @@ class Enemy extends Entity {
   constructor(x, y) {
     super(x, y);
     this.type = "enemy";
-    this.action = 0;
     this.maxHp = 5;
     this.hp = this.maxHp;
     this.dmgFrames = 0;
@@ -567,13 +566,22 @@ class Enemy extends Entity {
       this.removed = true;
     }
   }
-  compute() {
+  brain() {}
+  computeAction(){
+    switch(this.state){
+      default:
+        this.action = 0;
+    }
     if (this.dmgFrames > 0) {
       this.action = 1;
       this.dmgFrames -= meta.deltaTime;
-    } else {
-      this.action = 0;
     }
+  }
+  compute() {
+    this.brain();
+    this.computeAction();
+    this.x += this.xVel * meta.deltaTime;
+    this.y += this.yVel * meta.deltaTime;
     this.hpBar.compute();
   }
   render() {
@@ -602,8 +610,68 @@ class Enemy extends Entity {
 canvas.addEventListener("click", function (e) {
   let x = (e.clientX - canvas.offsetLeft) / meta.ratio / meta.tileSize - map.x;
   let y = (e.clientY - canvas.offsetTop) / meta.ratio / meta.tileSize - map.y;
-  map.entities.push(new Enemy(x, y));
+  map.entities.push(new Melee(x, y));
 });
+
+const IDLE = "IDLE",
+  SEEK = "SEEK",
+  WINDUP = "WINDUP",
+  CHASE = "CHASE";
+
+class Melee extends Enemy {
+  constructor(x, y) {
+    super(x, y);
+    this.state = IDLE;
+    this.attackRange = 2;
+    this.windupFrames = 60;
+    this.speed = 0.03;
+  }
+  computeState() {
+    switch (this.state) {
+      case CHASE:
+        let x = this.x + this.w / 2;
+        let y = this.y + this.h / 2;
+        let x2 = player.x + player.w / 2;
+        let y2 = player.y + player.h / 2;
+        let deltaX = x2 - x;
+        let deltaY = y2 - y;
+        let rotation = Math.atan2(deltaY, deltaX);
+        let xTarget = Math.cos(rotation);
+        let yTarget = Math.sin(rotation);
+
+        this.xVel = xTarget * this.speed;
+        this.yVel = yTarget * this.speed;
+
+        break;
+      case WINDUP:
+        this.xVel = 0;
+        this.yVel = 0;
+        this.windupFrames -= meta.deltaTime;
+        if (this.windupFrames <= 0) {
+          this.action = 0;
+          this.state = IDLE;
+          this.windupFrames = 30;
+        }
+        break;
+    }
+  }
+  brain() {
+    // player in sight?
+    if(this.state == WINDUP){
+      this.computeState();
+      return;
+    }
+    // player in range?
+    if (distance(this, player) < this.attackRange) {
+      this.state = WINDUP;
+    } else {
+      this.state = CHASE;
+    }
+
+    // compute state
+    this.computeState();
+  }
+}
 
 class HpBar {
   constructor(source) {
@@ -615,9 +683,9 @@ class HpBar {
     this.wRatio = 1;
   }
   compute() {
-    this.x=this.source.x+this.source.w/2-this.w/2;
-    this.y=this.source.y-this.h;
-    this.wRatio = this.source.hp/this.source.maxHp;
+    this.x = this.source.x + this.source.w / 2 - this.w / 2;
+    this.y = this.source.y - this.h;
+    this.wRatio = this.source.hp / this.source.maxHp;
   }
   render() {
     // Renders the bar
@@ -625,11 +693,11 @@ class HpBar {
       SHEET,
       this.spriteX[0][1] * meta.tileSize,
       this.spriteY[0][1] * meta.tileSize,
-      this.w * meta.tileSize*this.wRatio,
+      this.w * meta.tileSize * this.wRatio,
       this.h * meta.tileSize,
       (this.x + map.x) * meta.tileSize * meta.ratio,
       (this.y + map.y) * meta.tileSize * meta.ratio,
-      this.w * meta.tileSize * meta.ratio*this.wRatio,
+      this.w * meta.tileSize * meta.ratio * this.wRatio,
       this.h * meta.tileSize * meta.ratio
     );
 
@@ -645,8 +713,6 @@ class HpBar {
       this.w * meta.tileSize * meta.ratio,
       this.h * meta.tileSize * meta.ratio
     );
-
-
   }
 }
 class Player extends Entity {
