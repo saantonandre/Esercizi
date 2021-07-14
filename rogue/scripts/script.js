@@ -30,6 +30,10 @@ function resizeCanvas() {
   canvas.style.position = "absolute";
   canvas.style.left = (window.innerWidth - canvas.width) / 2 + "px";
   canvas.style.top = (window.innerHeight - canvas.height) / 2 + "px";
+  map.x = (canvas.width / meta.tileSize / meta.ratio - map.roomsW)/2;
+  map.y = (canvas.height / meta.tileSize / meta.ratio - map.roomsH)/2;
+  
+  console.log(map.x)
 }
 window.onresize = resizeCanvas;
 

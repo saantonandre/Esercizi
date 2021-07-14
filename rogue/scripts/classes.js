@@ -55,11 +55,13 @@ class MapObject {
   constructor() {
     this.w = 11;
     this.h = 11;
-    this.x = -(canvas.width / meta.tileSize / meta.ratio - this.w) / 2; // For rendering purposes
-    this.y = -(canvas.height / meta.tileSize / meta.ratio - this.h) / 2; // For rendering purposes
     this.rooms = 6;
     this.roomsW = 21;
     this.roomsH = 15;
+
+    this.x = (canvas.width / meta.tileSize / meta.ratio - this.roomsW) / 2;
+    this.y = (canvas.height / meta.tileSize / meta.ratio - this.roomsH) / 2;
+    console.log(this.x);
     this.map = [];
     this.entities = [];
     this.start = [0, 0];
@@ -443,6 +445,7 @@ class Entity {
     this.w = 1;
     this.h = 1;
     this.type = "null";
+    this.immovable = false;
     this.damaged = false;
     this.state = IDLE;
 
@@ -511,6 +514,7 @@ class Block extends Entity {
   constructor(x, y) {
     super(x, y);
     this.type = "wall";
+    this.immovable = false;
     this.tile = 0;
   }
   compute() {}
@@ -567,8 +571,8 @@ class Enemy extends Entity {
     }
   }
   brain() {}
-  computeAction(){
-    switch(this.state){
+  computeAction() {
+    switch (this.state) {
       default:
         this.action = 0;
     }
@@ -657,7 +661,7 @@ class Melee extends Enemy {
   }
   brain() {
     // player in sight?
-    if(this.state == WINDUP){
+    if (this.state == WINDUP) {
       this.computeState();
       return;
     }
@@ -725,6 +729,9 @@ class Player extends Entity {
     this.speed = this.baseSpeed;
     this.type = "player";
 
+    this.equipment = {
+      head: "none",
+    };
     this.hp = 5;
 
     this.action = 0;
@@ -747,6 +754,9 @@ class Player extends Entity {
       w: 0,
       h: 0,
     };
+  }
+  renderEquipment() {
+    //this.equipment.head.render();
   }
   dash() {
     controls.spacebar = false;
@@ -876,6 +886,28 @@ class Player extends Entity {
       this.w * meta.tileSize * meta.ratio,
       this.h * meta.tileSize * meta.ratio
     );
+    c.drawImage(
+      SHEET,
+      (3 + this.left) * meta.tileSize,
+      8 * meta.tileSize,
+      this.w * meta.tileSize,
+      this.h * meta.tileSize,
+      (this.x + map.x) * meta.tileSize * meta.ratio,
+      (this.y + map.y - this.h / 2) * meta.tileSize * meta.ratio,
+      this.w * meta.tileSize * meta.ratio,
+      this.h * meta.tileSize * meta.ratio
+    );
+    c.drawImage(
+      SHEET,
+      (3 + this.left) * meta.tileSize,
+      9 * meta.tileSize,
+      this.w * meta.tileSize,
+      this.h * meta.tileSize,
+      (this.x + map.x) * meta.tileSize * meta.ratio,
+      (this.y + map.y) * meta.tileSize * meta.ratio,
+      this.w * meta.tileSize * meta.ratio,
+      this.h * meta.tileSize * meta.ratio
+    );
     this.weapon.render();
   }
 }
@@ -892,7 +924,7 @@ class Sword extends Entity {
     this.dir = "left";
     this.owner = owner;
 
-    this.damage = 1;
+    this.damage = 2;
     this.attackDuration = 160;
     this.attackCounter = 0;
     this.attackSpeed = 1;
