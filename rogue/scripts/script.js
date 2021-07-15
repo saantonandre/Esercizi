@@ -16,6 +16,7 @@ var mapGen = new MapGenerator();
 var levelGen = new LevelGenerator();
 var map = new MapObject();
 var vfxsManager = new VfxsManager();
+var userInterface = new UserInterface();
 canvas.width = 800;
 canvas.height = 600;
 c.imageSmoothingEnabled = false;
@@ -33,7 +34,6 @@ function resizeCanvas() {
   map.x = (canvas.width / meta.tileSize / meta.ratio - map.roomsW)/2;
   map.y = (canvas.height / meta.tileSize / meta.ratio - map.roomsH)/2;
   
-  console.log(map.x)
 }
 window.onresize = resizeCanvas;
 
@@ -61,6 +61,7 @@ function loop() {
   player.render();
   vfxsManager.render()
   map.renderMinimap();
+  userInterface.render();
 
   requestAnimationFrame(loop);
 }

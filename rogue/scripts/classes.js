@@ -13,6 +13,8 @@
 
   class Enemy
 
+  class Slime
+
   class Player
 
   class Mouse
@@ -51,6 +53,152 @@ class Meta {
 // Generate the map
 // Generate the levels / Populate the rooms
 
+class UserInterface {
+  constructor() {
+    this.source = player;
+    this.fontSize = 5;
+    this.hpIcon = {
+      spriteX: [[5]],
+      spriteY: [[11]],
+      x: 1,
+      y: 0.5,
+      w: 1,
+      h: 1,
+    };
+    this.hpBar = {
+      spriteX: [[6], [9]],
+      spriteY: [[11], [11]],
+      x: 2,
+      y: 0.5,
+      w: 3,
+      h: 1,
+    };
+
+    this.manaIcon = {
+      spriteX: [[5]],
+      spriteY: [[13]],
+      x: 5,
+      y: 0.5,
+      w: 1,
+      h: 1,
+    };
+    this.manaBar = {
+      spriteX: [[6], [9]],
+      spriteY: [[13], [13]],
+      x: 6,
+      y: 0.5,
+      w: 3,
+      h: 1,
+    };
+  }
+  render() {
+    this.renderHpBar();
+    this.renderManaBar();
+  }
+  renderHpBar() {
+    // variables
+    let hpRatio = this.source.hp / this.source.maxHp;
+    // renders icon
+    c.drawImage(
+      SHEET,
+      this.hpIcon.spriteX[0][0] * meta.tileSize,
+      this.hpIcon.spriteY[0][0] * meta.tileSize,
+      this.hpIcon.w * meta.tileSize,
+      this.hpIcon.h * meta.tileSize,
+      this.hpIcon.x * meta.tileSize * meta.ratio,
+      this.hpIcon.y * meta.tileSize * meta.ratio,
+      this.hpIcon.w * meta.tileSize * meta.ratio,
+      this.hpIcon.h * meta.tileSize * meta.ratio
+    );
+    // renders container
+    c.drawImage(
+      SHEET,
+      this.hpBar.spriteX[0][0] * meta.tileSize,
+      this.hpBar.spriteY[0][0] * meta.tileSize,
+      this.hpBar.w * meta.tileSize,
+      this.hpBar.h * meta.tileSize,
+      this.hpBar.x * meta.tileSize * meta.ratio,
+      this.hpBar.y * meta.tileSize * meta.ratio,
+      this.hpBar.w * meta.tileSize * meta.ratio,
+      this.hpBar.h * meta.tileSize * meta.ratio
+    );
+    // renders bar
+    c.drawImage(
+      SHEET,
+      this.hpBar.spriteX[1][0] * meta.tileSize,
+      this.hpBar.spriteY[1][0] * meta.tileSize,
+      this.hpBar.w * meta.tileSize * hpRatio,
+      this.hpBar.h * meta.tileSize,
+      this.hpBar.x * meta.tileSize * meta.ratio,
+      this.hpBar.y * meta.tileSize * meta.ratio,
+      this.hpBar.w * meta.tileSize * meta.ratio * hpRatio,
+      this.hpBar.h * meta.tileSize * meta.ratio
+    );
+    // renders text
+    c.textAlign = "center";
+    c.textBaseline = "middle";
+    c.fillStyle="#df3e23";
+    c.font =
+      "bold " + Math.round(this.fontSize * meta.ratio) + "px" + " Verdana";
+    c.fillText(
+      this.source.hp + "/" + this.source.maxHp,
+      (this.hpBar.x + this.hpBar.w / 2) * meta.tileSize * meta.ratio,
+      (this.hpBar.y) * meta.tileSize * meta.ratio
+    );
+  }
+  renderManaBar() {
+    // variables
+    let manaRatio = this.source.mana / this.source.maxMana;
+    // renders icond
+    c.drawImage(
+      SHEET,
+      this.manaIcon.spriteX[0][0] * meta.tileSize,
+      this.manaIcon.spriteY[0][0] * meta.tileSize,
+      this.manaIcon.w * meta.tileSize,
+      this.manaIcon.h * meta.tileSize,
+      this.manaIcon.x * meta.tileSize * meta.ratio,
+      this.manaIcon.y * meta.tileSize * meta.ratio,
+      this.manaIcon.w * meta.tileSize * meta.ratio,
+      this.manaIcon.h * meta.tileSize * meta.ratio
+    );
+    // renders container
+    c.drawImage(
+      SHEET,
+      this.manaBar.spriteX[0][0] * meta.tileSize,
+      this.manaBar.spriteY[0][0] * meta.tileSize,
+      this.manaBar.w * meta.tileSize * manaRatio,
+      this.manaBar.h * meta.tileSize,
+      this.manaBar.x * meta.tileSize * meta.ratio,
+      this.manaBar.y * meta.tileSize * meta.ratio,
+      this.manaBar.w * meta.tileSize * meta.ratio * manaRatio,
+      this.manaBar.h * meta.tileSize * meta.ratio
+    );
+    // renders bar
+    c.drawImage(
+      SHEET,
+      this.manaBar.spriteX[1][0] * meta.tileSize,
+      this.manaBar.spriteY[1][0] * meta.tileSize,
+      this.manaBar.w * meta.tileSize,
+      this.manaBar.h * meta.tileSize,
+      this.manaBar.x * meta.tileSize * meta.ratio,
+      this.manaBar.y * meta.tileSize * meta.ratio,
+      this.manaBar.w * meta.tileSize * meta.ratio,
+      this.manaBar.h * meta.tileSize * meta.ratio
+    );
+
+    // renders text
+    c.textAlign = "center";
+    c.textBaseline = "middle";
+    c.fillStyle="#249fde";
+    c.font =
+      "bold " + Math.round(this.fontSize * meta.ratio) + "px" + " Verdana";
+    c.fillText(
+      this.source.mana + "/" + this.source.maxMana,
+      (this.manaBar.x + this.manaBar.w / 2) * meta.tileSize * meta.ratio,
+      (this.manaBar.y) * meta.tileSize * meta.ratio
+    );
+  }
+}
 class MapObject {
   constructor() {
     this.w = 11;
@@ -61,7 +209,6 @@ class MapObject {
 
     this.x = (canvas.width / meta.tileSize / meta.ratio - this.roomsW) / 2;
     this.y = (canvas.height / meta.tileSize / meta.ratio - this.roomsH) / 2;
-    console.log(this.x);
     this.map = [];
     this.entities = [];
     this.start = [0, 0];
@@ -153,6 +300,8 @@ class MapObject {
   renderMinimap() {
     let size = 15;
     let room;
+    c.save();
+    c.translate(canvas.width - this.w * size, 0);
     c.globalAlpha = 0.5;
     c.fillStyle = "gray";
     c.fillRect(0, 0, this.w * size, this.h * size);
@@ -210,6 +359,7 @@ class MapObject {
       }
     }
     c.globalAlpha = 1;
+    c.restore();
   }
   checkCollisions(obj, returnColliders, simpleCol) {
     let t = this.entities;
@@ -274,6 +424,9 @@ class DmgText {
     this.text = text;
     this.size = 14;
     this.color = "white";
+    if(entity.type=="player"){
+      this.color="red";
+    }
     this.color2 = "black";
     this.type = "DmgText";
     this.removed = false;
@@ -376,12 +529,6 @@ class DmgVfx {
       this.w * meta.tileSize * meta.ratio,
       this.h * meta.tileSize * meta.ratio
     );
-  }
-}
-//args(1,2,3,4,"wow",[0,"a"]);
-function args() {
-  for (let i = 0; i < arguments.length; i++) {
-    console.log(arguments[i]);
   }
 }
 class VfxsManager {
@@ -509,6 +656,8 @@ class Portal extends Entity {
     */
   }
 }
+
+// Collidable
 class Block extends Entity {
   // A normal, collidable block
   constructor(x, y) {
@@ -540,7 +689,8 @@ class Block extends Entity {
     );
   }
 }
-//hmmm
+
+// Basic Enemy class
 class Enemy extends Entity {
   constructor(x, y) {
     super(x, y);
@@ -556,14 +706,13 @@ class Enemy extends Entity {
 
     this.hpBar = new HpBar(this);
   }
-  followPlayer() {}
   onHit(source) {
-    this.action = 1;
+    this.state = DAMAGED;
     this.damaged = source.attackID;
     this.dmgFrames = 5;
     this.hp -= source.damage;
     // damage text
-    vfxsManager.create("DmgText", this, source.damage);
+    vfxsManager.create("DmgText", this, source.damage|0);
     vfxsManager.create("DmgVfx", this);
     if (this.hp <= 0) {
       this.dead = true;
@@ -571,21 +720,14 @@ class Enemy extends Entity {
     }
   }
   brain() {}
-  computeAction() {
-    switch (this.state) {
-      default:
-        this.action = 0;
-    }
-    if (this.dmgFrames > 0) {
-      this.action = 1;
-      this.dmgFrames -= meta.deltaTime;
-    }
-  }
+  computeAction() {}
+  onActionEnded() {}
   compute() {
     this.brain();
-    this.computeAction();
     this.x += this.xVel * meta.deltaTime;
     this.y += this.yVel * meta.deltaTime;
+
+    map.checkCollisions(this);
     this.hpBar.compute();
   }
   render() {
@@ -596,11 +738,12 @@ class Enemy extends Entity {
     }
     if (this.frame >= this.actionX[this.action].length) {
       this.frame = 0;
+      this.onActionEnded();
     }
     c.drawImage(
       SHEET,
-      this.actionX[this.action][this.frame] * meta.tileSize,
-      this.actionY[this.action][this.frame] * meta.tileSize,
+      this.actionX[this.action + this.left][this.frame] * meta.tileSize,
+      this.actionY[this.action + this.left][this.frame] * meta.tileSize,
       this.w * meta.tileSize,
       this.h * meta.tileSize,
       (this.x + map.x) * meta.tileSize * meta.ratio,
@@ -614,66 +757,170 @@ class Enemy extends Entity {
 canvas.addEventListener("click", function (e) {
   let x = (e.clientX - canvas.offsetLeft) / meta.ratio / meta.tileSize - map.x;
   let y = (e.clientY - canvas.offsetTop) / meta.ratio / meta.tileSize - map.y;
-  map.entities.push(new Melee(x, y));
+  map.entities.push(new Slime(x, y));
 });
 
 const IDLE = "IDLE",
   SEEK = "SEEK",
   WINDUP = "WINDUP",
-  CHASE = "CHASE";
+  CHASE = "CHASE",
+  DAMAGED = "DAMAGED",
+  ATTACK = "ATTACK",
+  FLEE = "FLEE";
 
-class Melee extends Enemy {
+class Slime extends Enemy {
   constructor(x, y) {
     super(x, y);
     this.state = IDLE;
-    this.attackRange = 2;
+    this.attackRange = 3;
     this.windupFrames = 60;
-    this.speed = 0.03;
+    this.left = (Math.random() * 2) | 0;
+    this.baseSpeed = 0.03;
+    this.speed = this.baseSpeed;
+    this.damage = 3;
+
+    this.action = 0;
+    this.aggroRange = 10;
+    this.targetRot = 0;
+    this.dashSpeed = 4;
+    this.fleeing = 0;
+    /* 
+      0 = idle
+      2 = moving
+      4 = damaged
+      6 = windup
+      8 = attack
+    */
+    this.actionX = [
+      [0],
+      [1],
+      [0, 0, 0],
+      [1, 1, 1],
+      [0],
+      [1],
+      [0, 0],
+      [1, 1],
+      [0],
+      [1],
+    ];
+    this.actionY = [
+      [15],
+      [15],
+      [15, 16, 17],
+      [15, 16, 17],
+      [18],
+      [18],
+      [16, 19],
+      [16, 19],
+      [20],
+      [20],
+    ];
   }
   computeState() {
+    if (this.xVel > 0) {
+      this.left = false;
+    } else if (this.xVel < 0) {
+      this.left = true;
+    }
+    let rotation, xTarget, yTarget;
     switch (this.state) {
-      case CHASE:
-        let x = this.x + this.w / 2;
-        let y = this.y + this.h / 2;
-        let x2 = player.x + player.w / 2;
-        let y2 = player.y + player.h / 2;
-        let deltaX = x2 - x;
-        let deltaY = y2 - y;
-        let rotation = Math.atan2(deltaY, deltaX);
-        let xTarget = Math.cos(rotation);
-        let yTarget = Math.sin(rotation);
+      case IDLE:
+        this.action = 0;
+        this.xVel = 0;
+        this.yVel = 0;
+        if (distance(this, player) < this.aggroRange) {
+          this.state = CHASE;
+        }
+        break;
+      case FLEE:
+        rotation = getRotation(this, player);
+        xTarget = -Math.cos(rotation);
+        yTarget = -Math.sin(rotation);
 
         this.xVel = xTarget * this.speed;
         this.yVel = yTarget * this.speed;
+        this.action = 2;
+        this.fleeing -= meta.deltaTime;
+        if (
+          distance(this, player) > this.attackRange * 2 ||
+          this.fleeing <= 0
+        ) {
+          this.fleeing = 0;
+          this.state = IDLE;
+        }
+        break;
+      case CHASE:
+        rotation = getRotation(this, player);
+        xTarget = Math.cos(rotation);
+        yTarget = Math.sin(rotation);
 
+        this.xVel = xTarget * this.speed;
+        this.yVel = yTarget * this.speed;
+        this.action = 2;
+        if (distance(this, player) < this.attackRange) {
+          this.state = WINDUP;
+        }
         break;
       case WINDUP:
+        this.action = 6;
         this.xVel = 0;
         this.yVel = 0;
         this.windupFrames -= meta.deltaTime;
         if (this.windupFrames <= 0) {
-          this.action = 0;
-          this.state = IDLE;
+          this.state = ATTACK;
           this.windupFrames = 30;
+          this.attackFrames = 30;
+          this.targetRot = getRotation(this, player);
+        }
+        break;
+      case DAMAGED:
+        this.action = 4;
+        this.xVel = 0;
+        this.yVel = 0;
+        this.windupFrames = 30;
+        if (this.dmgFrames > 0) {
+          this.dmgFrames -= meta.deltaTime;
+        } else {
+          this.state = IDLE;
+        }
+        break;
+      case ATTACK:
+        this.action = 8;
+        rotation = this.targetRot;
+        xTarget = Math.cos(rotation);
+        yTarget = Math.sin(rotation);
+
+        this.xVel = xTarget * this.speed * this.dashSpeed;
+        this.yVel = yTarget * this.speed * this.dashSpeed;
+        if (this.attackFrames > 0) {
+          this.attackFrames -= meta.deltaTime;
+        } else {
+          this.state = IDLE;
+          this.speed = this.baseSpeed;
         }
         break;
     }
   }
   brain() {
-    // player in sight?
-    if (this.state == WINDUP) {
-      this.computeState();
-      return;
-    }
-    // player in range?
-    if (distance(this, player) < this.attackRange) {
-      this.state = WINDUP;
-    } else {
-      this.state = CHASE;
+    if (this.state == IDLE) {
+      // player in range?
     }
 
     // compute state
     this.computeState();
+  }
+  compute() {
+    this.brain();
+    this.x += this.xVel * meta.deltaTime;
+    this.y += this.yVel * meta.deltaTime;
+    if (this.state == ATTACK && collided(this, player)) {
+      player.onHit(this);
+
+      this.fleeing = 120;
+      this.state = FLEE;
+    }
+    map.checkCollisions(this);
+    this.hpBar.compute();
   }
 }
 
@@ -732,7 +979,11 @@ class Player extends Entity {
     this.equipment = {
       head: "none",
     };
-    this.hp = 5;
+    this.maxHp = 40;
+    this.hp = 23;
+
+    this.maxMana = 10;
+    this.mana = 10;
 
     this.action = 0;
     this.actionX = [
@@ -805,6 +1056,14 @@ class Player extends Entity {
       this.y = this.dummy.y;
     }
   }
+  onHit(source) {
+    if (this.damaged > 0) {
+      return;
+    }
+    this.damaged = 20; //iFrames
+    this.hp -= source.damage;
+    vfxsManager.create("DmgText", this, source.damage|0);
+  }
   computeInput() {
     if (this.attacking) {
       this.speed = 0.05;
@@ -851,6 +1110,10 @@ class Player extends Entity {
     }
   }
   compute() {
+    if (this.damaged > 0) {
+      this.damaged -= meta.deltaTime;
+      return;
+    }
     this.computeInput();
     this.x += this.xVel;
     this.y += this.yVel;
@@ -863,6 +1126,9 @@ class Player extends Entity {
     }
   }
   render() {
+    if (this.damaged > 0 && (this.damaged | 0) % 2) {
+      return;
+    }
     this.frameCounter += meta.deltaTime;
     if (this.frameCounter >= this.slowness) {
       this.frame++;
@@ -889,7 +1155,7 @@ class Player extends Entity {
     c.drawImage(
       SHEET,
       (3 + this.left) * meta.tileSize,
-      8 * meta.tileSize,
+      6 * meta.tileSize,
       this.w * meta.tileSize,
       this.h * meta.tileSize,
       (this.x + map.x) * meta.tileSize * meta.ratio,
@@ -900,7 +1166,7 @@ class Player extends Entity {
     c.drawImage(
       SHEET,
       (3 + this.left) * meta.tileSize,
-      9 * meta.tileSize,
+      7 * meta.tileSize,
       this.w * meta.tileSize,
       this.h * meta.tileSize,
       (this.x + map.x) * meta.tileSize * meta.ratio,

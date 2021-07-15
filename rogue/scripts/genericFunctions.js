@@ -56,6 +56,16 @@ window.mobileAndTabletCheck = function () {
 document.oncontextmenu = function () {
   return false;
 };
+function getRotation(obj1,obj2){
+  let x = obj1.x + obj1.w / 2;
+  let y = obj1.y + obj1.h / 2;
+  let x2 = obj2.x + obj2.w / 2;
+  let y2 = obj2.y + obj2.h / 2;
+  let deltaX = x2 - x;
+  let deltaY = y2 - y;
+  return Math.atan2(deltaY, deltaX);
+}
+
 function distance(obj1, obj2) {
   let x1 = obj1.w ? obj1.x + obj1.w / 2 : obj1.x;
   let y1 = obj1.h ? obj1.y + obj1.h / 2 : obj1.y;
