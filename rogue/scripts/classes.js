@@ -137,13 +137,13 @@ class UserInterface {
     // renders text
     c.textAlign = "center";
     c.textBaseline = "middle";
-    c.fillStyle="#df3e23";
+    c.fillStyle = "#df3e23";
     c.font =
       "bold " + Math.round(this.fontSize * meta.ratio) + "px" + " Verdana";
     c.fillText(
       this.source.hp + "/" + this.source.maxHp,
       (this.hpBar.x + this.hpBar.w / 2) * meta.tileSize * meta.ratio,
-      (this.hpBar.y) * meta.tileSize * meta.ratio
+      this.hpBar.y * meta.tileSize * meta.ratio
     );
   }
   renderManaBar() {
@@ -189,13 +189,13 @@ class UserInterface {
     // renders text
     c.textAlign = "center";
     c.textBaseline = "middle";
-    c.fillStyle="#249fde";
+    c.fillStyle = "#249fde";
     c.font =
       "bold " + Math.round(this.fontSize * meta.ratio) + "px" + " Verdana";
     c.fillText(
       this.source.mana + "/" + this.source.maxMana,
       (this.manaBar.x + this.manaBar.w / 2) * meta.tileSize * meta.ratio,
-      (this.manaBar.y) * meta.tileSize * meta.ratio
+      this.manaBar.y * meta.tileSize * meta.ratio
     );
   }
 }
@@ -424,8 +424,8 @@ class DmgText {
     this.text = text;
     this.size = 14;
     this.color = "white";
-    if(entity.type=="player"){
-      this.color="red";
+    if (entity.type == "player") {
+      this.color = "red";
     }
     this.color2 = "black";
     this.type = "DmgText";
@@ -712,7 +712,7 @@ class Enemy extends Entity {
     this.dmgFrames = 5;
     this.hp -= source.damage;
     // damage text
-    vfxsManager.create("DmgText", this, source.damage|0);
+    vfxsManager.create("DmgText", this, source.damage | 0);
     vfxsManager.create("DmgVfx", this);
     if (this.hp <= 0) {
       this.dead = true;
@@ -754,10 +754,18 @@ class Enemy extends Entity {
     this.hpBar.render();
   }
 }
-canvas.addEventListener("click", function (e) {
+canvas.addEventListener("mousedown", function (e) {
   let x = (e.clientX - canvas.offsetLeft) / meta.ratio / meta.tileSize - map.x;
   let y = (e.clientY - canvas.offsetTop) / meta.ratio / meta.tileSize - map.y;
-  map.entities.push(new Slime(x, y));
+  console.log(e.which)
+  switch (e.which){
+    case 1:
+      map.entities.push(new Bat(x, y));
+    break;
+    case 3:
+      map.entities.push(new Slime(x, y));
+      break;
+  }
 });
 
 const IDLE = "IDLE",
@@ -825,7 +833,7 @@ class Slime extends Enemy {
     let rotation, xTarget, yTarget;
     switch (this.state) {
       case IDLE:
-        this.action = 0;
+        this.action = 2;
         this.xVel = 0;
         this.yVel = 0;
         if (distance(this, player) < this.aggroRange) {
@@ -914,6 +922,107 @@ class Slime extends Enemy {
     this.x += this.xVel * meta.deltaTime;
     this.y += this.yVel * meta.deltaTime;
     if (this.state == ATTACK && collided(this, player)) {
+      player.onHit(this);
+
+      this.fleeing = 120;
+      this.state = FLEE;
+    }
+    map.checkCollisions(this);
+    this.hpBar.compute();
+  }
+}
+
+class Bat extends Enemy {
+  constructor(x, y) {
+    super(x, y);
+    this.state = IDLE;
+    this.attackRange = 3;
+    this.windupFrames = 60;
+    this.left = (Math.random() * 2) | 0;
+    this.baseSpeed = 0.05;
+    this.speed = this.baseSpeed;
+    this.damage = 1;
+
+    this.action = 0;
+    this.aggroRange = 5;
+    this.targetRot = 0;
+    this.dashSpeed = 4;
+    this.fleeing = 0;
+
+    this.movRotation = 0;
+    this.rotX = 0;
+    this.rotY = 0;
+    /* 
+      0 = idle
+    */
+    this.actionX = [
+      [2, 2, 2, 2],
+      [2, 2, 2, 2],
+    ];
+    this.actionY = [
+      [15, 16, 17, 18],
+      [15, 16, 17, 18],
+    ];
+  }
+  computeState() {
+    let rotation, xTarget, yTarget;
+    switch (this.state) {
+      case IDLE:
+        this.xVel = this.rotX * this.speed;
+        this.yVel = this.rotY * this.speed;
+        if (distance(this, player) < this.aggroRange) {
+          this.state = CHASE;
+        }
+        break;
+      case CHASE:
+        rotation = getRotation(this, player);
+        xTarget = Math.cos(rotation);
+        yTarget = Math.sin(rotation);
+
+        this.xVel = (xTarget + this.rotX) * this.speed;
+        this.yVel = (yTarget + this.rotY) * this.speed;
+        break;
+      case FLEE:
+        rotation = getRotation(this, player);
+        xTarget = -Math.cos(rotation);
+        yTarget = -Math.sin(rotation);
+
+        this.xVel = xTarget * this.speed;
+        this.yVel = yTarget * this.speed;
+        this.fleeing -= meta.deltaTime;
+        if (
+          distance(this, player) > this.attackRange * 2 ||
+          this.fleeing <= 0
+        ) {
+          this.fleeing = 0;
+          this.state = IDLE;
+        }
+        break;
+      case DAMAGED:
+        this.xVel = 0;
+        this.yVel = 0;
+        if (this.dmgFrames > 0) {
+          this.dmgFrames -= meta.deltaTime;
+        } else {
+          this.state = IDLE;
+        }
+        break;
+    }
+  }
+  brain() {
+    if (this.state !== DAMAGED) {
+      this.movRotation += meta.deltaTime / 10;
+      this.rotX = Math.cos(this.movRotation);
+      this.rotY = Math.sin(this.movRotation);
+    }
+    // compute state
+    this.computeState();
+  }
+  compute() {
+    this.brain();
+    this.x += this.xVel * meta.deltaTime;
+    this.y += this.yVel * meta.deltaTime;
+    if (collided(this, player)) {
       player.onHit(this);
 
       this.fleeing = 120;
@@ -1062,7 +1171,10 @@ class Player extends Entity {
     }
     this.damaged = 20; //iFrames
     this.hp -= source.damage;
-    vfxsManager.create("DmgText", this, source.damage|0);
+    if (this.hp <= 0) {
+      this.hp = 0;
+    }
+    vfxsManager.create("DmgText", this, source.damage | 0);
   }
   computeInput() {
     if (this.attacking) {
