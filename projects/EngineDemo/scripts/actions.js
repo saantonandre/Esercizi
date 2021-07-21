@@ -7,7 +7,7 @@ var dialogues = [
         letters("Obsessed with your sins, you travel looking for a distant friend, Sophie, who promised to save you.", id("storytext"), false)
             }
             ]
-var fullScreen = true;
+var fullScreen = false;
 id("FS-check").onclick = function () {
     if (fullScreen) {
         fullScreen = false;
